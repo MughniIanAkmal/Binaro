@@ -14,6 +14,10 @@
         <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:bg-white/10"><i class="fas fa-user w-5"></i> Akun Guru</a>
         <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:bg-white/10"><i class="fas fa-user-graduate w-5"></i> Akun Siswa</a>
         <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:bg-white/10"><i class="fas fa-calendar-alt w-5"></i> Jadwal Mapel</a>
+        <a href="{{ route('mapel.index') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('*mapel*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
+            <i class="fas fa-book-open w-5"></i> Kelola Mapel
+        </a>
         <a href="{{ route('rpp.index') }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('*rpp*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
             <i class="fas fa-book w-5"></i> Kelola RPP

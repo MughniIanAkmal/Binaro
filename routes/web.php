@@ -1,7 +1,8 @@
-﻿<?php
+<?php
 
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MapelController;
 use App\Http\Controllers\RppController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,5 +33,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/scan-qr', [AbsensiController::class, 'scanQr'])->name('scan-qr');
         Route::post('/manual', [AbsensiController::class, 'updateManual'])->name('manual');
         Route::delete('/{id}', [AbsensiController::class, 'destroy'])->name('destroy');
+    });
+
+    // Modul Mata Pelajaran
+    Route::prefix('mapel')->name('mapel.')->group(function () {
+        Route::get('/', [MapelController::class, 'index'])->name('index');
+        Route::post('/', [MapelController::class, 'store'])->name('store');
+        Route::put('/{id}', [MapelController::class, 'update'])->name('update');
+        Route::delete('/{id}', [MapelController::class, 'destroy'])->name('destroy');
     });
 });
