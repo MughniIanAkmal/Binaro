@@ -15,15 +15,15 @@ class BarcodeController extends Controller
         $siswas = Siswa::with('barcode', 'kelas')
             ->when($request->q, function ($query, $q) {
                 $query->where(function ($w) use ($q) {
-                    $w->where('nama', 'like', "%{$q}%")
+                                        $w->where('nm_siswa', 'like', "%{$q}%")
                       ->orWhere('nisn', 'like', "%{$q}%");
                 });
             })
             ->when($request->kelas, fn ($query, $kelas) => $query->whereHas('kelas', function ($q) use ($kelas) {
-                $q->where('nama_kelas', $kelas);
+                $q->where('pararel', $kelas);
             }))
-            ->orderBy('id_kelas')
-            ->orderBy('nama')
+            ->orderBy('id_rooms')
+            ->orderBy('nm_siswa')
             ->paginate(15)
             ->withQueryString();
 
@@ -32,10 +32,10 @@ class BarcodeController extends Controller
             'total'       => Siswa::count(),
             'sudah'       => Barcode::count(),
             'daftarKelas' => Kelas::query()
-                ->select('nama_kelas')
+                ->select('pararel')
                 ->distinct()
-                ->orderBy('nama_kelas')
-                ->pluck('nama_kelas'),
+                ->orderBy('pararel')
+                ->pluck('pararel'),
         ]);
     }
 
@@ -92,10 +92,10 @@ class BarcodeController extends Controller
         $siswas = Siswa::has('barcode')
             ->with('barcode', 'kelas')
             ->when($request->kelas, fn ($query, $kelas) => $query->whereHas('kelas', function ($q) use ($kelas) {
-                $q->where('nama_kelas', $kelas);
+                $q->where('pararel', $kelas);
             }))
-            ->orderBy('id_kelas')
-            ->orderBy('nama')
+            ->orderBy('id_rooms')
+            ->orderBy('nm_siswa')
             ->get();
 
         return view('admin.qr-siswa.cetak', compact('siswas'));

@@ -7,16 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 class Kelas extends Model
 {
     protected $table = 'kelas';
-    protected $primaryKey = 'id_kelas';
+    protected $primaryKey = 'id_rooms';
 
-    public $timestamps = true;
+    public $timestamps = false;
 
     protected $fillable = [
-        'nama_kelas',
+        'pararel',
     ];
 
     public function siswas()
     {
-        return $this->hasMany(Siswa::class, 'id_kelas', 'id_kelas');
+        return $this->hasMany(Siswa::class, 'id_rooms', 'id_rooms');
+    }
+
+    public function getNamaKelasAttribute()
+    {
+        return $this->pararel;
     }
 }

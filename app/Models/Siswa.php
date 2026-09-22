@@ -13,11 +13,11 @@ class Siswa extends Model
 
     protected $fillable = [
         'id_mapel',
-        'id_kelas',
+        'id_rooms',
         'nisn',
-        'nama',
+        'nm_siswa',
         'password',
-        'foto',
+        'no_hp',
     ];
 
     protected $appends = ['nama_siswa', 'nisn', 'nama_kelas'];
@@ -39,12 +39,12 @@ class Siswa extends Model
 
     public function kelas()
     {
-        return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
+        return $this->belongsTo(Kelas::class, 'id_rooms', 'id_rooms');
     }
 
     public function getNamaSiswaAttribute()
     {
-        return $this->nama;
+        return $this->nm_siswa;
     }
 
     public function getNisnAttribute()

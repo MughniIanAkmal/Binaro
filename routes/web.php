@@ -4,6 +4,7 @@ use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\RppController;
+use App\Http\Middleware\EnsureAuthenticated;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -14,7 +15,7 @@ Route::get('/', function () {
     return redirect('/rpp');
 });
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::prefix('rpp')->name('rpp.')->group(function () {
         Route::get('/', [RppController::class, 'index'])->name('index');
         Route::post('/', [RppController::class, 'store'])->name('store');

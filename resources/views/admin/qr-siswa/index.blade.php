@@ -1,11 +1,34 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>QR Code Siswa</title>
+@extends('layouts.app')
+
+@section('content')
 @include('qr-absen._styles')
 <style>
+    body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:#f8fafc;color:#1e293b;font-size:16px;line-height:1.5}
+    body > aside{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff;line-height:1.25}
+    body > aside h1{font-size:.875rem;line-height:1.25;color:#fff;margin:0}
+    body > aside p{margin:0}
+    body > aside a{color:inherit}
+    body > main{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#1e293b;line-height:1.5}
+    .wrap{max-width:none;margin:0;padding:32px}
+    .crumb{font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px}
+    h1{font-size:24px;line-height:1.25;letter-spacing:-.025em;color:#0f172a}
+    .lead{font-size:12px;margin:4px 0 24px;color:#64748b}
+    .panel{border-color:#e2e8f0;border-radius:12px;box-shadow:0 1px 2px rgba(15,23,42,.03)}
+    .progress{padding:20px;gap:16px;margin-bottom:16px}
+    .progress .txt{font-size:12px}
+    .sub{font-size:11px;color:#64748b}
+    .btn{border-color:#cbd5e1;border-radius:8px;padding:8px 12px;min-height:38px;font-size:12px;font-weight:700}
+    .btn.primary{background:#13527d;border-color:#13527d}
+    .btn.warn{background:#fef3c7;color:#92400e}
+    .btn.small{padding:6px 10px;min-height:32px;font-size:11px}
+    .tools{padding:12px 16px;gap:8px}
+    .tools input,.tools select{border-color:#cbd5e1;border-radius:8px;padding:8px 10px;min-height:38px;font-size:12px}
+    th{font-size:11px;padding:10px 16px;color:#64748b}
+    td{font-size:12px;padding:12px 16px}
+    .nm{font-size:12px;font-weight:700;color:#0f172a}
+    .pill{font-size:11px;padding:3px 8px}
+    .pagination li a,.pagination li span{font-size:11px;padding:6px 10px;border-radius:6px}
+    @media (max-width: 768px){.wrap{padding:20px 16px}.progress{align-items:stretch}}
     .card-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(23,31,44,0.42);z-index:50;padding:24px}
     .card-modal.show{display:flex}
     .card-box{width:min(560px,92vw);background:#f2f2f2;border-radius:18px;box-shadow:0 20px 50px rgba(15,23,42,.25);overflow:hidden;border:1px solid rgba(108,117,132,.2)}
@@ -27,8 +50,6 @@
     .card-btn.secondary{background:#f1f1f1}
     .sr-only{position:absolute;left:-9999px}
 </style>
-</head>
-<body>
 <div class="wrap">
     <div class="crumb">Admin / QR code siswa</div>
     <h1>QR code siswa</h1>
@@ -212,5 +233,4 @@
         }
     });
 </script>
-</body>
-</html>
+@endsection
