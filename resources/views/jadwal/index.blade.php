@@ -41,13 +41,24 @@
                             <td class="px-6 py-4 font-medium">{{ $loop->iteration }}</td>
                             <td class="px-6 py-4">{{ $jadwal->hari }}</td>
                             <td class="px-6 py-4 font-mono text-xs">{{ $jadwal->jam }}</td>
-                            <td class="px-6 py-4 font-semibold text-gray-900">{{ $jadwal->nama_mapel }}</td>
-                            <td class="px-6 py-4">{{ $jadwal->nama_guru }}</td>
+
+                            <!-- Mata Pelajaran -->
+                            <td class="px-6 py-4 font-semibold text-gray-900">
+                                {{ $jadwal->mataPelajaran->nama_mapel ?? $jadwal->nama_mapel ?? '-' }}
+                            </td>
+
+                            <!-- Guru -->
+                            <td class="px-6 py-4">
+                                {{ $jadwal->guru->nama_guru ?? $jadwal->nama_guru ?? '-' }}
+                            </td>
+
+                            <!-- Kelas -->
                             <td class="px-6 py-4">
                                 <span class="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md text-xs font-medium">
-                                    {{ $jadwal->nama_kelas }}
+                                    {{ $jadwal->kelas->pararel ?? $jadwal->nama_kelas ?? 'Belum Set' }}
                                 </span>
                             </td>
+
                             <td class="px-6 py-4 text-center">
                                 <a href="{{ route('jadwal.edit', $jadwal->id_jadwal) }}" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-md text-xs font-medium transition inline-block">
                                     Edit
