@@ -32,6 +32,11 @@ class Siswa extends Model
         return $this->hasMany(Absen::class, 'id_siswa', 'id_siswa');
     }
 
+    public function mataPelajaran()
+    {
+        return $this->belongsTo(MataPelajaran::class, 'id_mapel', 'id_mapel');
+    }
+
     public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
