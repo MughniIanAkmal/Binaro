@@ -6,6 +6,7 @@ use App\Http\Controllers\MapelController;
 use App\Http\Controllers\RppController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\JadwalController;
 use App\Http\Middleware\EnsureAuthenticated;
 use Illuminate\Support\Facades\Route;
 
@@ -58,6 +59,8 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::put('/{siswa}', [SiswaController::class, 'update'])->name('update');
         Route::delete('/{siswa}', [SiswaController::class, 'destroy'])->name('destroy');
     });
+
+    Route::resource('jadwal', JadwalController::class);
 });
 
 require __DIR__ . '/qr_absen.php';
