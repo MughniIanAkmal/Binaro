@@ -26,9 +26,10 @@
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('*absensi*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
             <i class="fas fa-qrcode w-5"></i> Kelola Absensi
         </a>
-        < href="{{ route('admin.qr.index') }}"
+        <a href="{{ route('admin.qr.index') }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('admin.qr.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
             <i class="fas fa-id-card w-5"></i> QR Siswa
+        </a>
 
         <a href="{{ route('jadwal.index') }}"
             class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('jadwal.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
