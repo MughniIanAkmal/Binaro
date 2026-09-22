@@ -4,6 +4,8 @@ use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MapelController;
 use App\Http\Controllers\RppController;
+use App\Http\Controllers\GuruController;
+use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -38,6 +40,23 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/{id}', [MapelController::class, 'update'])->name('update');
         Route::delete('/{id}', [MapelController::class, 'destroy'])->name('destroy');
     });
+
+    Route::prefix('guru')->name('guru.')->group(function () {
+        Route::get('/', [GuruController::class, 'index'])->name('index');
+        Route::get('/create', [GuruController::class, 'create'])->name('create');
+        Route::post('/', [GuruController::class, 'store'])->name('store');
+        Route::get('/{guru}/edit', [GuruController::class, 'edit'])->name('edit');
+        Route::put('/{guru}', [GuruController::class, 'update'])->name('update');
+        Route::delete('/{guru}', [GuruController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('siswa')->name('siswa.')->group(function () {
+        Route::get('/', [SiswaController::class, 'index'])->name('index');
+        Route::post('/', [SiswaController::class, 'store'])->name('store');
+        Route::get('/{siswa}/edit', [SiswaController::class, 'edit'])->name('edit');
+        Route::put('/{siswa}', [SiswaController::class, 'update'])->name('update');
+        Route::delete('/{siswa}', [SiswaController::class, 'destroy'])->name('destroy');
+    });
 });
 
-require __DIR__.'/qr_absen.php';
+require __DIR__ . '/qr_absen.php';
