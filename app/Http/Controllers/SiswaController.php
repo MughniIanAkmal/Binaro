@@ -45,9 +45,9 @@ class SiswaController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'nis' => 'nullable|string|unique:siswa,nisn',
+            'nis' => 'nullable|regex:/^[0-9]+$/|unique:siswa,nisn',
             'email' => 'nullable|email|unique:siswa,email',
-            'no_hp' => 'nullable|string|max:20',
+            'no_hp' => 'nullable|regex:/^[0-9]+$/',
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string',
             'username' => 'nullable|string|unique:siswa,username',
@@ -58,7 +58,7 @@ class SiswaController extends Controller
 
         $validated['nm_siswa'] = $validated['nama'];
         $validated['nisn'] = $validated['nis'] ?? null;
-        $validated['password'] = Hash::make($validated['password']);
+        // Password stored as plain text per request
 
         $newSiswa = Siswa::create($validated);
 
@@ -82,9 +82,9 @@ class SiswaController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'nis' => ['nullable', 'string', Rule::unique('siswa', 'nisn')->ignore($siswa->id_siswa, 'id_siswa')],
+            'nis' => ['nullable', 'regex:/^[0-9]+$/', Rule::unique('siswa', 'nisn')->ignore($siswa->id_siswa, 'id_siswa')],
             'email' => ['nullable', 'email', Rule::unique('siswa', 'email')->ignore($siswa->id_siswa, 'id_siswa')],
-            'no_hp' => 'nullable|string|max:20',
+            'no_hp' => 'nullable|regex:/^[0-9]+$/',
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string',
             'username' => ['nullable', 'string', Rule::unique('siswa', 'username')->ignore($siswa->id_siswa, 'id_siswa')],
@@ -96,9 +96,7 @@ class SiswaController extends Controller
         $validated['nm_siswa'] = $validated['nama'];
         $validated['nisn'] = $validated['nis'] ?? null;
 
-        if (!empty($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
+        if (empty($validated['password'])) {
             unset($validated['password']);
         }
 

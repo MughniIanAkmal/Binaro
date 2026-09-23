@@ -16,7 +16,7 @@
 
             <div class="mb-3">
                 <label>NIS</label>
-                <input type="text" name="nis" class="form-control" value="{{ old('nis', $siswa->nis) }}">
+                <input type="text" name="nis" class="form-control" value="{{ old('nis', $siswa->nis) }}" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/\D/g,'')">
                 @error('nis') <small class="text-danger">{{ $message }}</small> @enderror
             </div>
 
@@ -28,7 +28,7 @@
 
             <div class="mb-3">
                 <label>No HP</label>
-                <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp', $siswa->no_hp) }}">
+                <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp', $siswa->no_hp) }}" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/\D/g,'')">
             </div>
 
             <div class="mb-3">

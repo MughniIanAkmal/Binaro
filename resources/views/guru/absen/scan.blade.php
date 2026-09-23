@@ -115,7 +115,11 @@ async function kirim(kode, metode) {
         const data = await res.json();
         const sukses = res.ok && (data.status === 'ok' || data.status === 'duplikat');
         tampilkan(sukses ? 'ok' : 'err', data.message || 'Terjadi kesalahan.');
-        if (data.status === 'ok') tambahLog(data);
+        if (data.status === 'ok') {
+            tambahLog(data);
+            if (scanner) scanner.pause(); // Jeda scanner setelah sukses
+            setTimeout(function() { if (scanner) scanner.resume(); }, 3000); // Resume setelah 3 detik
+        }
     } catch (e) {
         tampilkan('err', 'Gagal terhubung ke server.');
     } finally {

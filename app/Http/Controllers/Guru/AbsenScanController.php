@@ -57,48 +57,71 @@ class AbsenScanController extends Controller
         $today = today()->toDateString();
 
         $absen = Absen::where('id_siswa', $siswa->id_siswa)
-            ->where(function ($q) use ($today) {
-                $q->where('tanggal', $today)
-                  ->orWhereDate('waktu_absen', $today);
-            })
+            ->where('tanggal', $today)
             ->first();
 
-        $baru = false;
-        if (! $absen) {
-            $guruId = session('user_type') === 'guru' ? session('user_id') : null;
-            if (! $guruId || ! DB::table('guru')->where('id_guru', $guruId)->exists()) {
-                $guruId = DB::table('guru')->value('id_guru');
-            }
-            if (! $guruId) {
-                $guruId = DB::table('guru')->insertGetId([
-                    'nip' => 'GURU-DEMO',
-                    'nama_guru' => 'Guru Demo',
-                    'created_at' => now(),
-                ], 'id_guru');
-            }
-
-            $metodeVal = ($data['metode'] ?? 'scan') === 'manual' ? 'manual_guru' : 'scan_qr';
-
-            $absen = Absen::create([
-                'id_guru'     => $guruId,
-                'id_siswa'    => $siswa->id_siswa,
-                'id_barcode'  => $barcode->id_barcode,
-                'metode'      => $metodeVal,
-                'status'      => 'Hadir',
-                'keterangan'  => 'Tepat Waktu',
-                'tanggal'     => $today,
-                'waktu_absen' => now(),
-            ]);
-            $baru = true;
+        if ($absen) {
+            return response()->json([
+                'status'  => 'duplikat',
+                'message' => "{$siswa->nama_siswa} sudah absen hari ini.",
+            ], 200);
         }
 
+        $guruId = session('user_type') === 'guru' ? session('user_id') : null;
+        if (! $guruId || ! DB::table('guru')->where('id_guru', $guruId)->exists()) {
+            $guruId = DB::table('guru')->value('id_guru');
+        }
+        if (! $guruId) {
+            $guruId = DB::table('guru')->insertGetId([
+                'nip' => 'GURU-DEMO',
+                'nama_guru' => 'Guru Demo',
+                'created_at' => now(),
+            ], 'id_guru');
+        }
+
+        $metodeVal = ($data['metode'] ?? 'scan') === 'manual' ? 'manual_guru' : 'scan_qr';
+        $waktu = now();
+        $timeStr = $waktu->format('H:i');
+
+        $batasAwal = \App\Models\AbsensiSetting::get('batas_awal', '07:00');
+        $batasTepat = \App\Models\AbsensiSetting::get('batas_tepat', '08:00');
+        $batasTutup = \App\Models\AbsensiSetting::get('batas_tutup', '12:00');
+
+        if ($timeStr > $batasTutup) {
+            return response()->json(['status' => 'err', 'message' => 'Sekolah sudah tutup.'], 400);
+        }
+
+        $absen = Absen::where('id_siswa', $siswa->id_siswa)
+            ->where('tanggal', $today)
+            ->first();
+
+        if ($absen) {
+            return response()->json(['status' => 'duplikat', 'message' => "{$siswa->nama_siswa} sudah absen hari ini."], 200);
+        }
+
+        if ($timeStr < $batasAwal) {
+            $keterangan = 'Datang Lebih Awal';
+        } elseif ($timeStr <= $batasTepat) {
+            $keterangan = 'Tepat Waktu';
+        } else {
+            $keterangan = 'Terlambat';
+        }
+        $absenData = Absen::create([
+            'id_guru'     => $guruId,
+            'id_siswa'    => $siswa->id_siswa,
+            'id_barcode'  => $barcode->id_barcode,
+            'metode'      => $metodeVal,
+            'status'      => 'Hadir',
+            'keterangan'  => $keterangan,
+            'tanggal'     => $today,
+            'waktu_absen' => $waktu,
+        ]);
+
         return response()->json([
-            'status'  => $baru ? 'ok' : 'duplikat',
-            'message' => $baru
-                ? "Hadir: {$siswa->nama_siswa}"
-                : "{$siswa->nama_siswa} sudah absen hari ini.",
+            'status'  => 'ok',
+            'message' => "Hadir: {$siswa->nama_siswa}",
             'siswa'   => ['nama' => $siswa->nama_siswa, 'kelas' => $siswa->nama_kelas],
-            'jam'     => $absen->waktu_absen?->format('H:i'),
+            'jam'     => $waktu->format('H:i'),
         ]);
     }
 }

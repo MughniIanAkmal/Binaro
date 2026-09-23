@@ -93,23 +93,36 @@ class AbsensiController extends Controller
         $now = now();
         $timeStr = $now->format('H:i');
 
-        // Evaluasi Keterangan Waktu Masuk (Window: 7:00 - 10:00)
-        if ($timeStr < '07:05') {
+        $batasAwal = \App\Models\AbsensiSetting::get('batas_awal', '07:00');
+        $batasTepat = \App\Models\AbsensiSetting::get('batas_tepat', '08:00');
+        $batasTutup = \App\Models\AbsensiSetting::get('batas_tutup', '12:00');
+
+        if ($timeStr > $batasTutup) {
+            return back()->with('error', 'Sekolah sudah tutup, absen tidak dapat dilakukan.');
+        }
+
+        if ($timeStr < $batasAwal) {
             $ket = 'Datang Lebih Awal';
-        } elseif ($timeStr <= '10:00') {
+        } elseif ($timeStr <= $batasTepat) {
             $ket = 'Tepat Waktu';
         } else {
             $ket = 'Terlambat';
         }
 
+        $existing = Absen::where('id_siswa', $barcode->id_siswa)
+            ->where('tanggal', $today)
+            ->first();
+
+        if ($existing) {
+            return back()->with('error', 'Siswa sudah melakukan absensi hari ini.');
+        }
+
         $idGuru = $request->id_guru ?? 1; // Default fallback guru piket/admin
 
-        Absen::updateOrCreate(
+        Absen::create(
             [
                 'id_siswa' => $barcode->id_siswa,
                 'tanggal' => $today,
-            ],
-            [
                 'id_guru' => $idGuru,
                 'id_barcode' => $barcode->id_barcode,
                 'metode' => 'scan_qr',
@@ -156,14 +169,18 @@ class AbsensiController extends Controller
         return back()->with('success', 'Status absensi siswa berhasil diperbarui.');
     }
 
-    public function destroy($id)
+    public function updateSettings(Request $request)
     {
-        $absen = Absen::findOrFail($id);
-        if ($absen->berkas_surat) {
-            Storage::disk('public')->delete($absen->berkas_surat);
-        }
-        $absen->delete();
+        $request->validate([
+            'batas_awal' => 'required|date_format:H:i',
+            'batas_tepat' => 'required|date_format:H:i',
+            'batas_tutup' => 'required|date_format:H:i',
+        ]);
 
-        return back()->with('success', 'Data absensi berhasil dihapus.');
+        \App\Models\AbsensiSetting::set('batas_awal', $request->batas_awal);
+        \App\Models\AbsensiSetting::set('batas_tepat', $request->batas_tepat);
+        \App\Models\AbsensiSetting::set('batas_tutup', $request->batas_tutup);
+
+        return back()->with('success', 'Pengaturan waktu berhasil disimpan.');
     }
 }

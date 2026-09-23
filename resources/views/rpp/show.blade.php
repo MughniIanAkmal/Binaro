@@ -16,7 +16,7 @@
                 &larr; Kembali
             </a>
             @if($rpp->file_rpp)
-                <a href="{{ route('rpp.download', $rpp->id_rpp) }}" class="px-3 py-1.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5">
+                <a href="{{ route('rpp.download', $rpp->id_rpp) }}" class="px-3 py-1.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-lg text-xs font-semibold transition flex items-center gap-1.5" target="_blank">
                     <i class="fas fa-download"></i> Unduh Berkas
                 </a>
             @endif

@@ -14,6 +14,7 @@
             <label class="block font-bold text-slate-700 mb-1">NIP (Nomor Induk Pegawai)</label>
             <input type="text" name="nip" value="{{ old('nip', data_get($g, 'nip', '')) }}"
                    placeholder="Contoh: 19800101001"
+                   inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/\D/g,'')"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
             @error('nip') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
@@ -32,6 +33,7 @@
             <label class="block font-bold text-slate-700 mb-1">Nomor HP / WhatsApp</label>
             <input type="text" name="no_hp" value="{{ old('no_hp', data_get($g, 'no_hp', '')) }}"
                    placeholder="Contoh: 081234567890"
+                   inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/\D/g,'')"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
             @error('no_hp') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>

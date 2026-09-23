@@ -14,6 +14,7 @@
             <label class="block font-bold text-slate-700 mb-1">NISN / NIS</label>
             <input type="text" name="nis" value="{{ old('nis', data_get($s, 'nisn', data_get($s, 'nis', '')) ) }}"
                    placeholder="Contoh: 0012345601"
+                   inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/\D/g,'')"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
             @error('nis') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
@@ -60,6 +61,7 @@
             <label class="block font-bold text-slate-700 mb-1">Nomor HP / WhatsApp Wali</label>
             <input type="text" name="no_hp" value="{{ old('no_hp', data_get($s, 'no_hp', '')) }}"
                    placeholder="Contoh: 081234567890"
+                   inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/\D/g,'')"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
             @error('no_hp') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>

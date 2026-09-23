@@ -8,7 +8,7 @@
 
 <div class="mb-3">
     <label>NIP</label>
-    <input type="text" name="nip" class="form-control" value="{{ old('nip', data_get($g, 'nip', '')) }}">
+    <input type="text" name="nip" class="form-control" value="{{ old('nip', data_get($g, 'nip', '')) }}" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/\D/g,'')">
     @error('nip') <small class="text-danger">{{ $message }}</small> @enderror
 </div>
 
@@ -20,7 +20,7 @@
 
 <div class="mb-3">
     <label>No HP</label>
-    <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp', data_get($g, 'no_hp', '')) }}">
+    <input type="text" name="no_hp" class="form-control" value="{{ old('no_hp', data_get($g, 'no_hp', '')) }}" inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/\D/g,'')">
 </div>
 
 <div class="mb-3">

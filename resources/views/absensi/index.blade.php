@@ -24,6 +24,9 @@
                     <i class="fas fa-qrcode"></i> Scan QR
                 </button>
             </form>
+            <button onclick="openSettingsModal()" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-amber-700 flex items-center gap-2 shadow-sm">
+                <i class="fas fa-cog text-xs"></i> Pengaturan Waktu
+            </button>
             <button class="bg-[#0F2C59] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-900 flex items-center gap-2 shadow-sm">
                 <i class="fas fa-lock text-xs"></i> Kunci & Kirim ke Dapodik
             </button>
@@ -180,6 +183,32 @@
 
 @include('absensi.modal-edit')
 
+<!-- Modal Settings -->
+<div id="settingsModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-200">
+        <h3 class="font-bold text-sm mb-4">Pengaturan Waktu Absen</h3>
+        <form action="{{ route('absensi.settings') }}" method="POST" class="space-y-4">
+            @csrf
+            <div>
+                <label class="text-xs font-bold">Jam Mulai Awal (Datang Lebih Awal)</label>
+                <input type="time" name="batas_awal" value="{{ \App\Models\AbsensiSetting::get('batas_awal', '07:00') }}" class="w-full px-3 py-2 border rounded-lg text-xs">
+            </div>
+            <div>
+                <label class="text-xs font-bold">Jam Tepat (Batas Hadir Tepat Waktu)</label>
+                <input type="time" name="batas_tepat" value="{{ \App\Models\AbsensiSetting::get('batas_tepat', '08:00') }}" class="w-full px-3 py-2 border rounded-lg text-xs">
+            </div>
+            <div>
+                <label class="text-xs font-bold">Jam Tutup (Sekolah Tutup / Batas Terlambat)</label>
+                <input type="time" name="batas_tutup" value="{{ \App\Models\AbsensiSetting::get('batas_tutup', '12:00') }}" class="w-full px-3 py-2 border rounded-lg text-xs">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 border rounded-lg text-xs font-semibold text-slate-600">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function openEditModal(idSiswa, nama, status, keterangan) {
     document.getElementById('modalIdSiswa').value = idSiswa;
@@ -193,6 +222,18 @@ function openEditModal(idSiswa, nama, status, keterangan) {
 
 function closeEditModal() {
     const modal = document.getElementById('editModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+function openSettingsModal() {
+    const modal = document.getElementById('settingsModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeSettingsModal() {
+    const modal = document.getElementById('settingsModal');
     modal.classList.add('hidden');
     modal.classList.remove('flex');
 }

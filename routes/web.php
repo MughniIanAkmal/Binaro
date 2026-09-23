@@ -34,6 +34,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::post('/scan-qr', [AbsensiController::class, 'scanQr'])->name('scan-qr');
         Route::post('/manual', [AbsensiController::class, 'updateManual'])->name('manual');
         Route::delete('/{id}', [AbsensiController::class, 'destroy'])->name('destroy');
+        Route::post('/settings', [AbsensiController::class, 'updateSettings'])->name('settings');
     });
 
     Route::prefix('mapel')->name('mapel.')->group(function () {

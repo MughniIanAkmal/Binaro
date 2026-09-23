@@ -30,9 +30,9 @@ class GuruController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'nip' => 'nullable|string|unique:guru,nip',
+            'nip' => 'nullable|regex:/^[0-9]+$/|unique:guru,nip',
             'email' => 'nullable|email|unique:guru,email',
-            'no_hp' => 'nullable|string|max:20',
+            'no_hp' => 'nullable|regex:/^[0-9]+$/',
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string',
             'username' => 'nullable|string|unique:guru,username',
@@ -40,7 +40,6 @@ class GuruController extends Controller
         ]);
 
         $validated['nama_guru'] = $validated['nama'];
-        $validated['password'] = Hash::make($validated['password']);
 
         Guru::create($validated);
 
@@ -56,9 +55,9 @@ class GuruController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'nip' => ['nullable', 'string', Rule::unique('guru', 'nip')->ignore($guru->id_guru, 'id_guru')],
+            'nip' => ['nullable', 'regex:/^[0-9]+$/', Rule::unique('guru', 'nip')->ignore($guru->id_guru, 'id_guru')],
             'email' => ['nullable', 'email', Rule::unique('guru', 'email')->ignore($guru->id_guru, 'id_guru')],
-            'no_hp' => 'nullable|string|max:20',
+            'no_hp' => 'nullable|regex:/^[0-9]+$/',
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string',
             'username' => ['nullable', 'string', Rule::unique('guru', 'username')->ignore($guru->id_guru, 'id_guru')],
@@ -67,9 +66,7 @@ class GuruController extends Controller
 
         $validated['nama_guru'] = $validated['nama'];
 
-        if (!empty($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
+        if (empty($validated['password'])) {
             unset($validated['password']);
         }
 
