@@ -9,7 +9,7 @@ class Barcode extends Model
     protected $table = 'barcode';
     protected $primaryKey = 'id_barcode';
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = ['id_siswa', 'kode_barcode'];
 

@@ -9,10 +9,16 @@ use Illuminate\Validation\Rule;
 
 class GuruController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $guru = Guru::latest()->paginate(10);
-        return view('guru.index', compact('guru'));
+        $search = $request->get('search') ?? $request->get('q');
+        $guru = Guru::when($search, function ($query, $search) {
+            $query->where('nama_guru', 'like', "%{$search}%")
+                  ->orWhere('nip', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+        })->latest('id_guru')->paginate(10)->withQueryString();
+
+        return view('guru.index', compact('guru', 'search'));
     }
 
     public function create()
@@ -25,14 +31,15 @@ class GuruController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'nip' => 'nullable|string|unique:guru,nip',
-            'email' => 'required|email|unique:guru,email',
+            'email' => 'nullable|email|unique:guru,email',
             'no_hp' => 'nullable|string|max:20',
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string',
-            'username' => 'required|string|unique:guru,username',
+            'username' => 'nullable|string|unique:guru,username',
             'password' => 'required|string|min:6|confirmed',
         ]);
 
+        $validated['nama_guru'] = $validated['nama'];
         $validated['password'] = Hash::make($validated['password']);
 
         Guru::create($validated);
@@ -50,13 +57,15 @@ class GuruController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'nip' => ['nullable', 'string', Rule::unique('guru', 'nip')->ignore($guru->id_guru, 'id_guru')],
-            'email' => ['required', 'email', Rule::unique('guru', 'email')->ignore($guru->id_guru, 'id_guru')],
+            'email' => ['nullable', 'email', Rule::unique('guru', 'email')->ignore($guru->id_guru, 'id_guru')],
             'no_hp' => 'nullable|string|max:20',
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string',
-            'username' => ['required', 'string', Rule::unique('guru', 'username')->ignore($guru->id_guru, 'id_guru')],
+            'username' => ['nullable', 'string', Rule::unique('guru', 'username')->ignore($guru->id_guru, 'id_guru')],
             'password' => 'nullable|string|min:6|confirmed',
         ]);
+
+        $validated['nama_guru'] = $validated['nama'];
 
         if (!empty($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);

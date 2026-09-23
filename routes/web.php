@@ -54,6 +54,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
 
     Route::prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/', [SiswaController::class, 'index'])->name('index');
+        Route::get('/create', [SiswaController::class, 'create'])->name('create');
         Route::post('/', [SiswaController::class, 'store'])->name('store');
         Route::get('/{siswa}/edit', [SiswaController::class, 'edit'])->name('edit');
         Route::put('/{siswa}', [SiswaController::class, 'update'])->name('update');

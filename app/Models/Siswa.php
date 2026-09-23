@@ -16,11 +16,17 @@ class Siswa extends Model
         'id_rooms',
         'nisn',
         'nm_siswa',
+        'nama',
+        'nis',
         'password',
         'no_hp',
+        'email',
+        'alamat',
+        'jenis_kelamin',
+        'username',
     ];
 
-    protected $appends = ['nama_siswa', 'nisn', 'nama_kelas'];
+    protected $appends = ['nama_siswa', 'nama', 'nis', 'nisn', 'nama_kelas'];
 
     public function barcode()
     {
@@ -44,7 +50,17 @@ class Siswa extends Model
 
     public function getNamaSiswaAttribute()
     {
-        return $this->nm_siswa;
+        return $this->attributes['nm_siswa'] ?? null;
+    }
+
+    public function getNamaAttribute()
+    {
+        return $this->attributes['nm_siswa'] ?? null;
+    }
+
+    public function setNamaAttribute($value)
+    {
+        $this->attributes['nm_siswa'] = $value;
     }
 
     public function getNisnAttribute()
@@ -52,8 +68,18 @@ class Siswa extends Model
         return $this->attributes['nisn'] ?? null;
     }
 
+    public function getNisAttribute()
+    {
+        return $this->attributes['nisn'] ?? null;
+    }
+
+    public function setNisAttribute($value)
+    {
+        $this->attributes['nisn'] = $value;
+    }
+
     public function getNamaKelasAttribute()
     {
-        return $this->kelas?->nama_kelas;
+        return $this->kelas?->pararel ?? $this->kelas?->nama_kelas ?? '-';
     }
 }

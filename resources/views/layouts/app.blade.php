@@ -35,7 +35,7 @@
         </div>
         @endif
 
-        @if($errors->any())
+        @if(isset($errors) && $errors->any())
         <div class="mx-8 mt-6 p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs">
             <div class="font-bold mb-1"><i class="fas fa-exclamation-circle mr-1"></i> Terjadi Kesalahan Input:</div>
             <ul class="list-disc list-inside space-y-0.5">

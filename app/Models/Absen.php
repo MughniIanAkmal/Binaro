@@ -12,7 +12,15 @@ class Absen extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'id_guru', 'id_siswa', 'id_barcode', 'metode', 'status', 'keterangan', 'berkas_surat', 'waktu_absen', 'tanggal',
+        'id_guru',
+        'id_siswa',
+        'id_barcode',
+        'metode',
+        'status',
+        'keterangan',
+        'berkas_surat',
+        'waktu_absen',
+        'tanggal',
     ];
 
     protected $casts = [

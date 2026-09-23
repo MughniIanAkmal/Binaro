@@ -13,29 +13,31 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('absens', function (Blueprint $table) {
-            $table->id('id_absen');
+        if (!Schema::hasTable('absens') && !Schema::hasTable('absen')) {
+            Schema::create('absens', function (Blueprint $table) {
+                $table->id('id_absen');
 
-            $table->foreignId('id_siswa')
-                ->constrained('siswas', 'id_siswa')
-                ->cascadeOnDelete();
+                $table->foreignId('id_siswa')
+                    ->constrained('siswas', 'id_siswa')
+                    ->cascadeOnDelete();
 
-            // guru yang melakukan scan (boleh kosong sampai login guru siap)
-            $table->unsignedBigInteger('id_guru')->nullable();
+                // guru yang melakukan scan (boleh kosong sampai login guru siap)
+                $table->unsignedBigInteger('id_guru')->nullable();
 
-            // QR yang dipakai (ERD: Absen "melalui" Barcode)
-            $table->foreignId('id_barcode')->nullable()
-                ->constrained('barcodes', 'id_barcode')
-                ->nullOnDelete();
+                // QR yang dipakai (ERD: Absen "melalui" Barcode)
+                $table->foreignId('id_barcode')->nullable()
+                    ->constrained('barcodes', 'id_barcode')
+                    ->nullOnDelete();
 
-            $table->date('tanggal');
-            $table->time('jam');
-            $table->string('metode', 10)->default('scan'); // scan | manual
-            $table->timestamps();
+                $table->date('tanggal');
+                $table->time('jam');
+                $table->string('metode', 10)->default('scan'); // scan | manual
+                $table->timestamps();
 
-            // satu siswa hanya boleh absen sekali per hari
-            $table->unique(['id_siswa', 'tanggal']);
-        });
+                // satu siswa hanya boleh absen sekali per hari
+                $table->unique(['id_siswa', 'tanggal']);
+            });
+        }
     }
 
     public function down(): void

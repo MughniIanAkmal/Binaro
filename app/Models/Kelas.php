@@ -15,6 +15,8 @@ class Kelas extends Model
         'pararel',
     ];
 
+    protected $appends = ['nama_kelas', 'id_kelas'];
+
     public function siswas()
     {
         return $this->hasMany(Siswa::class, 'id_rooms', 'id_rooms');
@@ -22,6 +24,11 @@ class Kelas extends Model
 
     public function getNamaKelasAttribute()
     {
-        return $this->pararel;
+        return $this->pararel ?? $this->attributes['nama_kelas'] ?? '';
+    }
+
+    public function getIdKelasAttribute()
+    {
+        return $this->id_rooms ?? $this->attributes['id_kelas'] ?? null;
     }
 }

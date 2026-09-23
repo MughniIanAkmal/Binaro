@@ -13,14 +13,18 @@ class AbsenScanController extends Controller
 {
     public function index()
     {
+        $today = today()->toDateString();
         $hariIni = Absen::with('siswa.kelas')
-            ->whereDate('waktu_absen', today())
+            ->where(function ($q) use ($today) {
+                $q->where('tanggal', $today)
+                  ->orWhereDate('waktu_absen', $today);
+            })
             ->orderByDesc('waktu_absen')
             ->get();
 
         $siswas = Siswa::with('barcode', 'kelas')
-            ->orderBy('id_kelas')
-            ->orderBy('nama')
+            ->orderBy('id_rooms')
+            ->orderBy('nm_siswa')
             ->get();
 
         return view('guru.absen.scan', compact('hariIni', 'siswas'));
@@ -50,14 +54,18 @@ class AbsenScanController extends Controller
         }
 
         $siswa = $barcode->siswa;
+        $today = today()->toDateString();
 
         $absen = Absen::where('id_siswa', $siswa->id_siswa)
-            ->whereDate('waktu_absen', today())
+            ->where(function ($q) use ($today) {
+                $q->where('tanggal', $today)
+                  ->orWhereDate('waktu_absen', $today);
+            })
             ->first();
 
         $baru = false;
         if (! $absen) {
-            $guruId = $request->user()?->id_guru;
+            $guruId = session('user_type') === 'guru' ? session('user_id') : null;
             if (! $guruId || ! DB::table('guru')->where('id_guru', $guruId)->exists()) {
                 $guruId = DB::table('guru')->value('id_guru');
             }
@@ -69,12 +77,16 @@ class AbsenScanController extends Controller
                 ], 'id_guru');
             }
 
+            $metodeVal = ($data['metode'] ?? 'scan') === 'manual' ? 'manual_guru' : 'scan_qr';
+
             $absen = Absen::create([
-                'id_guru'    => $guruId,
-                'id_siswa'   => $siswa->id_siswa,
-                'id_barcode' => $barcode->id_barcode,
-                'status'     => 'Hadir',
-                'tanggal'    => now()->toDateString(),
+                'id_guru'     => $guruId,
+                'id_siswa'    => $siswa->id_siswa,
+                'id_barcode'  => $barcode->id_barcode,
+                'metode'      => $metodeVal,
+                'status'      => 'Hadir',
+                'keterangan'  => 'Tepat Waktu',
+                'tanggal'     => $today,
                 'waktu_absen' => now(),
             ]);
             $baru = true;

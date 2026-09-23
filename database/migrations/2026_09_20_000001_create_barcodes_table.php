@@ -8,20 +8,22 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('barcodes', function (Blueprint $table) {
-            $table->id('id_barcode');
+        if (!Schema::hasTable('barcodes') && !Schema::hasTable('barcode')) {
+            Schema::create('barcodes', function (Blueprint $table) {
+                $table->id('id_barcode');
 
-            // 1 siswa = 1 QR code (relasi 1:1 sesuai ERD)
-            $table->foreignId('id_siswa')
-                ->unique()
-                ->constrained('siswas', 'id_siswa')
-                ->cascadeOnDelete();
+                // 1 siswa = 1 QR code (relasi 1:1 sesuai ERD)
+                $table->foreignId('id_siswa')
+                    ->unique()
+                    ->constrained('siswas', 'id_siswa')
+                    ->cascadeOnDelete();
 
-            // isi QR sekaligus kode cadangan yang diketik jika QR rusak
-            $table->string('kode', 20)->unique();
+                // isi QR sekaligus kode cadangan yang diketik jika QR rusak
+                $table->string('kode', 20)->unique();
 
-            $table->timestamps();
-        });
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void
