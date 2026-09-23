@@ -106,8 +106,16 @@
                                 </td>
                                 <td class="p-3.5 text-center">
                                     <div class="inline-flex gap-1">
+                                        @if($rpp->file_rpp)
+                                            <a href="{{ route('rpp.download', $rpp->id_rpp) }}" title="Unduh File RPP" class="w-7 h-7 rounded border border-emerald-200 text-emerald-600 hover:bg-emerald-50 flex items-center justify-center transition" target="_blank">
+                                                <i class="fas fa-file-pdf text-xs"></i>
+                                            </a>
+                                        @endif
                                         <button onclick="openViewModal({{ json_encode($rpp) }})" title="Lihat Detail" class="w-7 h-7 rounded border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
                                             <i class="fas fa-eye text-xs"></i>
+                                        </button>
+                                        <button onclick="openStatusModal({{ $rpp->id_rpp }}, 'terverifikasi', '{{ addslashes($rpp->judul_rpp) }}')" title="Verifikasi (Terverifikasi)" class="w-7 h-7 rounded border border-emerald-200 text-emerald-600 hover:bg-emerald-50 flex items-center justify-center transition">
+                                            <i class="fas fa-check text-xs"></i>
                                         </button>
                                         <button onclick="openStatusModal({{ $rpp->id_rpp }}, '{{ $rpp->status }}', '{{ addslashes($rpp->judul_rpp) }}')" title="Ubah Status Verifikasi" class="w-7 h-7 rounded border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
                                             <i class="fas fa-edit text-xs"></i>
@@ -267,6 +275,12 @@
                         <span class="text-slate-500 font-semibold block">Deskripsi</span>
                         <p id="viewDeskripsi" class="text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100"></p>
                     </div>
+                    <div id="viewFileWrap" class="hidden">
+                        <span class="text-slate-500 font-semibold block mb-1">Berkas RPP</span>
+                        <a id="viewFileLink" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold hover:bg-emerald-100 transition">
+                            <i class="fas fa-file-pdf"></i> <span id="viewFileText">Unduh Berkas RPP</span>
+                        </a>
+                    </div>
                     <div>
                         <span class="text-slate-500 font-semibold block mb-1">Status Supervisi</span>
                         <div id="viewStatusBadge"></div>
@@ -304,11 +318,22 @@
             m.classList.remove('flex');
         }
 
-        function openViewModal(rpp) {
+function openViewModal(rpp) {
             document.getElementById('viewJudul').innerText = rpp.judul_rpp;
-            document.getElementById('viewMapel').innerText = rpp.mata_pelajaran ? rpp.mata_pelajaran.nama_mapel : '-';
-            document.getElementById('viewGuru').innerText = rpp.guru ? rpp.guru.nama_guru : '-';
+            document.getElementById('viewMapel').innerText = rpp.mata_pelajaran ? rpp.mata_pelajaran nama_mapel : '-';
+            document.getElementById('viewGuru').innerText = rpp.guru ? rpp.guru nama_guru : '-';
             document.getElementById('viewDeskripsi').innerText = rpp.deskripsi || 'Tidak ada deskripsi.';
+
+            const fileWrap = document.getElementById('viewFileWrap');
+            const fileLink = document.getElementById('viewFileLink');
+            const fileText = document.getElementById('viewFileText');
+            if (rpp.file_rpp) {
+                fileWrap.classList.remove('hidden');
+                fileLink.href = '/rpp/' + rpp.id_rpp + '/download';
+                fileText.innerText = rpp.file_rpp.split('/').pop();
+            } else {
+                fileWrap.classList.add('hidden');
+            }
 
             const badge = document.getElementById('viewStatusBadge');
             if (rpp.status === 'terverifikasi') {

@@ -10,10 +10,10 @@
         <span class="inline-block bg-white/10 text-[10px] font-semibold px-2 py-1 rounded">TAHUN AJARAN 2024/2026</span>
     </div>
     <nav class="flex-1 p-3 space-y-1">
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:bg-white/10"><i class="fas fa-home w-5"></i> Dashboard</a>
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:bg-white/10"><i class="fas fa-user w-5"></i> Akun Guru</a>
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:bg-white/10"><i class="fas fa-user-graduate w-5"></i> Akun Siswa</a>
-        <a href="#" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:bg-white/10"><i class="fas fa-calendar-alt w-5"></i> Jadwal Mapel</a>
+        <a href="{{ route('rpp.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:bg-white/10"><i class="fas fa-home w-5"></i> Dashboard</a>
+        <a href="{{ route('guru.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:bg-white/10"><i class="fas fa-user w-5"></i> Akun Guru</a>
+        <a href="{{ route('siswa.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:bg-white/10"><i class="fas fa-user-graduate w-5"></i> Akun Siswa</a>
+        <a href="{{ route('jadwal.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white/80 hover:bg-white/10"><i class="fas fa-calendar-alt w-5"></i> Jadwal Mapel</a>
         <a href="{{ route('mapel.index') }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('*mapel*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
             <i class="fas fa-book-open w-5"></i> Kelola Mapel

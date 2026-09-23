@@ -1,0 +1,1 @@
+App\Models\Admin::where('nip', '19850101001')- 

@@ -74,6 +74,7 @@ class AbsenScanController extends Controller
                 'id_siswa'   => $siswa->id_siswa,
                 'id_barcode' => $barcode->id_barcode,
                 'status'     => 'Hadir',
+                'tanggal'    => now()->toDateString(),
                 'waktu_absen' => now(),
             ]);
             $baru = true;

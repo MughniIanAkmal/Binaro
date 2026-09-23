@@ -6,6 +6,7 @@ use App\Http\Controllers\MapelController;
 use App\Http\Controllers\RppController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\JadwalController;
 use App\Http\Middleware\EnsureAuthenticated;
 use Illuminate\Support\Facades\Route;
 
@@ -57,6 +58,15 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::get('/{siswa}/edit', [SiswaController::class, 'edit'])->name('edit');
         Route::put('/{siswa}', [SiswaController::class, 'update'])->name('update');
         Route::delete('/{siswa}', [SiswaController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('jadwal')->name('jadwal.')->group(function () {
+        Route::get('/', [JadwalController::class, 'index'])->name('index');
+        Route::get('/create', [JadwalController::class, 'create'])->name('create');
+        Route::post('/', [JadwalController::class, 'store'])->name('store');
+        Route::get('/{jadwal}/edit', [JadwalController::class, 'edit'])->name('edit');
+        Route::put('/{jadwal}', [JadwalController::class, 'update'])->name('update');
+        Route::delete('/{jadwal}', [JadwalController::class, 'destroy'])->name('destroy');
     });
 });
 

@@ -142,9 +142,11 @@
                         </td>
                         <td class="p-3.5">
                             @if($s->id_absen && $s->status_kehadiran != 'Alpa')
-                                <span class="font-medium text-slate-600">{{ $s->namaKeterangan ?? '-' }}</span>
+                                <span class="font-medium text-slate-600">{{ $s->keterangan ?? '-' }}</span>
                                 @if($s->berkas_surat)
-                                    <a href="{{ asset('storage/' . $s->berkas_surat) }}" target="_blank" class="ml-1 text-sky-600 hover:underline"><i class="fas fa-file-pdf"></i></a>
+                                    <a href="{{ asset('storage/' . $s->berkas_surat) }}" target="_blank" class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800 hover:bg-sky-200 transition">
+                                        <i class="fas fa-file-pdf"></i> Lihat Berkas
+                                    </a>
                                 @endif
                             @elseif($s->id_absen && $s->status_kehadiran == 'Alpa')
                                 <span class="text-rose-500 font-medium">Belum Ada Konfirmasi</span>
