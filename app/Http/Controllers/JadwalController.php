@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 class JadwalController extends Controller
 {
     // Menampilkan semua jadwal
-   // Menampilkan semua jadwal
     public function index()
     {
         $jadwals = Jadwal::query()
@@ -29,17 +28,16 @@ class JadwalController extends Controller
                 'guru.id_guru'
             )
             ->leftJoin(
-                'kelas',
+                '{kelas}',
                 'jadwal_mata_pelajaran.id_rooms',
                 '=',
-                'kelas.id_rooms'
+                '{id_rooms}.id_rooms'
             )
             ->select(
                 'jadwal_mata_pelajaran.*',
                 'mata_pelajaran.nama_mapel',
                 'guru.nama_guru',
-                // Jika kelas.pararel NULL, gunakan teks 'Belum Set'
-                DB::raw("COALESCE(kelas.pararel, 'Belum Set') as nama_kelas")
+                DB::raw("COALESCE(kelas.pararel, 'Belum Set') as nama_rooms")
             )
             ->get();
 
@@ -49,18 +47,17 @@ class JadwalController extends Controller
     // Menampilkan form tambah jadwal
     public function create()
     {
-        $kelas = Kelas::all();
+        $nama = Kelas::all();
         $guru = Guru::all();
         $mapel = MataPelajaran::all();
 
         return view('jadwal.create', compact(
-            'kelas',
+            'nama',
             'guru',
             'mapel'
         ));
     }
 
-    // Menyimpan jadwal baru
     // Menyimpan jadwal baru
     public function store(Request $request)
     {
@@ -69,10 +66,10 @@ class JadwalController extends Controller
             'jam'      => ['required', 'regex:/^[0-9]{2}\.[0-9]{2}-[0-9]{2}\.[0-9]{2}$/'],
             'id_mapel' => 'required',
             'id_guru'  => 'required',
-            'id_kelas' => 'required|exists:kelas,id_rooms', // Pastikan ID kelas valid ada di database
+            'id_rooms' => 'required|exists:rooms,id_rooms',
         ], [
             'jam.regex' => 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).',
-            'id_kelas.required' => 'Kelas wajib dipilih!',
+            'id_rooms.required' => 'Kelas wajib dipilih!',
         ]);
 
         Jadwal::create([
@@ -80,25 +77,25 @@ class JadwalController extends Controller
             'jam'      => $request->jam,
             'id_mapel' => $request->id_mapel,
             'id_guru'  => $request->id_guru,
-            'id_rooms' => $request->id_kelas,
+            'id_rooms' => $request->id_rooms,
         ]);
 
         return redirect()
             ->route('jadwal.index')
-            ->with('success', 'Jadwal berhasil ditambahkan.');
+            ->with('success', 'Jadwal sudah ditambahkan.');
     }
     // Menampilkan form edit
     public function edit($id)
     {
         $jadwal = Jadwal::findOrFail($id);
 
-        $kelas = Kelas::all();
+        $nama = Kelas::all();
         $guru = Guru::all();
         $mapel = MataPelajaran::all();
 
         return view('jadwal.edit', compact(
             'jadwal',
-            'kelas',
+            'nama',
             'guru',
             'mapel'
         ));
@@ -112,7 +109,7 @@ class JadwalController extends Controller
             'jam'      => ['required', 'regex:/^[0-9]{2}\.[0-9]{2}-[0-9]{2}\.[0-9]{2}$/'],
             'id_mapel' => 'required',
             'id_guru'  => 'required',
-            'id_kelas' => 'required',
+            'id_rooms' => 'required',
         ]);
 
         $jadwal = Jadwal::findOrFail($id);
@@ -122,11 +119,11 @@ class JadwalController extends Controller
             'jam'      => $request->jam,
             'id_mapel' => $request->id_mapel,
             'id_guru'  => $request->id_guru,
-            'id_rooms' => $request->id_kelas, // Pastikan disimpan ke id_rooms
+            'id_rooms' => $request->id_rooms,
         ]);
 
         return redirect()
             ->route('jadwal.index')
-            ->with('success', 'Jadwal berhasil diubah.');
+            ->with('success', 'Jadwal sudah diubah.');
     }
 }
