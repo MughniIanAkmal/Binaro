@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BarcodeController;
 use App\Http\Controllers\Guru\AbsenScanController;
 use App\Http\Middleware\EnsureAuthenticated;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\EnsureGuru;
 
 /*
  * Tambahkan di paling bawah routes/web.php:
@@ -25,8 +26,11 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::get('/{siswa}/cetak', [BarcodeController::class, 'cetak'])->name('cetak');
     });
 
-    Route::prefix('guru/absen')->name('guru.absen.')->group(function () {
-        Route::get('/', [AbsenScanController::class, 'index'])->name('index');
-        Route::post('/scan', [AbsenScanController::class, 'store'])->name('scan');
+    Route::middleware(EnsureGuru::class)
+        ->prefix('guru/absen')
+        ->name('guru.absen.')
+        ->group(function () {
+            Route::get('/', [AbsenScanController::class, 'index'])->name('index');
+            Route::post('/scan', [AbsenScanController::class, 'store'])->name('scan');
     });
 });

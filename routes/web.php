@@ -31,7 +31,9 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
 
     Route::prefix('absensi')->name('absensi.')->group(function () {
         Route::get('/', [AbsensiController::class, 'index'])->name('index');
-        Route::post('/scan-qr', [AbsensiController::class, 'scanQr'])->name('scan-qr');
+        Route::post('/scan-qr', [AbsensiController::class, 'scanQr'])
+            ->middleware(EnsureGuru::class)
+            ->name('scan-qr');
         Route::post('/manual', [AbsensiController::class, 'updateManual'])->name('manual');
         Route::delete('/{id}', [AbsensiController::class, 'destroy'])->name('destroy');
     });

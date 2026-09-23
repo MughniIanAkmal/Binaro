@@ -16,14 +16,15 @@
         </div>
         <div class="flex items-center gap-2">
             <!-- Form Scan QR Cepat -->
-            <form action="{{ route('absensi.scan-qr') }}" method="POST" class="flex gap-2">
-                @csrf
-                <input type="text" name="kode_barcode" placeholder="Scan Barcode / Input ID..." required
-                       class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
-                <button type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 flex items-center gap-1.5 shadow-sm">
-                    <i class="fas fa-qrcode"></i> Scan QR
-                </button>
-            </form>
+            @if (session('user_type') === 'guru')
+                <form action="{{ route('absensi.scan-qr') }}" method="POST" class="flex gap-2">
+                    @csrf
+                    <input type="text" name="kode_barcode" placeholder="Scan Barcode / Input ID..." required>
+                    <button type="submit">
+                        <i class="fas fa-qrcode"></i> Scan QR
+                    </button>
+                </form>
+            @endif
             <button class="bg-[#0F2C59] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-900 flex items-center gap-2 shadow-sm">
                 <i class="fas fa-lock text-xs"></i> Kunci & Kirim ke Dapodik
             </button>
