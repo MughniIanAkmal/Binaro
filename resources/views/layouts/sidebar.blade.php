@@ -38,10 +38,12 @@
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('admin.qr.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
             <i class="fas fa-id-card w-5"></i> QR Siswa
         </a>
-        <a href="{{ route('guru.absen.index') }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('guru.absen.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
-            <i class="fas fa-qrcode w-5"></i> Scan Presensi QR
-        </a>
+        @if (session('user_type') === 'guru')
+            <a href="{{ route('guru.absen.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('guru.absen.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
+                <i class="fas fa-qrcode w-5"></i> Scan Presensi QR
+            </a>
+        @endif
     </nav>
     <div class="p-4 border-t border-white/10 text-xs">
         <div class="flex items-center gap-2 mb-2 text-emerald-300">

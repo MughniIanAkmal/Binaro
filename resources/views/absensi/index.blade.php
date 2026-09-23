@@ -16,14 +16,16 @@
         </div>
         <div class="flex items-center gap-2">
             <!-- Form Scan QR Cepat -->
-            <form action="{{ route('absensi.scan-qr') }}" method="POST" class="flex gap-2">
-                @csrf
-                <input type="text" name="kode_barcode" placeholder="Scan Barcode / Input ID..." required
-                       class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
-                <button type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 flex items-center gap-1.5 shadow-sm">
-                    <i class="fas fa-qrcode"></i> Scan QR
-                </button>
-            </form>
+            @if (session('user_type') === 'guru')
+                <form action="{{ route('absensi.scan-qr') }}" method="POST" class="flex gap-2">
+                    @csrf
+                    <input type="text" name="kode_barcode" placeholder="Scan Barcode / Input ID..." required
+                           class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
+                    <button type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-emerald-700 flex items-center gap-1.5 shadow-sm">
+                        <i class="fas fa-qrcode"></i> Scan QR
+                    </button>
+                </form>
+            @endif
             <button onclick="openSettingsModal()" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-amber-700 flex items-center gap-2 shadow-sm">
                 <i class="fas fa-cog text-xs"></i> Pengaturan Waktu
             </button>
@@ -158,8 +160,8 @@
                             @endif
                         </td>
                         <td class="p-3.5 text-center">
-                            <button type="button" 
-                                    onclick="openEditModal({{ $s->id_siswa }}, '{{ addslashes($s->nm_siswa) }}', '{{ $status }}', '{{ addslashes($s->namaKeterangan ?? '') }}')" 
+                            <button type="button"
+                                    onclick="openEditModal({{ $s->id_siswa }}, '{{ addslashes($s->nm_siswa) }}', '{{ $status }}', '{{ addslashes($s->namaKeterangan ?? '') }}')"
                                     class="px-2.5 py-1 text-xs border border-slate-200 rounded-lg hover:bg-slate-100 font-semibold text-slate-700">
                                 <i class="fas fa-edit mr-1"></i> Edit
                             </button>
