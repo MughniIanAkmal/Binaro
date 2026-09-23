@@ -8,6 +8,7 @@ use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Middleware\EnsureAuthenticated;
+use App\Http\Middleware\EnsureGuruOrAdmin;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -32,7 +33,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::prefix('absensi')->name('absensi.')->group(function () {
         Route::get('/', [AbsensiController::class, 'index'])->name('index');
         Route::post('/scan-qr', [AbsensiController::class, 'scanQr'])
-            ->middleware(EnsureGuru::class)
+            ->middleware(EnsureGuruOrAdmin::class)
             ->name('scan-qr');
         Route::post('/manual', [AbsensiController::class, 'updateManual'])->name('manual');
         Route::delete('/{id}', [AbsensiController::class, 'destroy'])->name('destroy');

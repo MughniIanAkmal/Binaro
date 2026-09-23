@@ -16,7 +16,7 @@
         </div>
         <div class="flex items-center gap-2">
             <!-- Form Scan QR Cepat -->
-            @if (session('user_type') === 'guru')
+            @if (in_array(session('user_type'), ['guru', 'admin'], true))
                 <form action="{{ route('absensi.scan-qr') }}" method="POST" class="flex gap-2">
                     @csrf
                     <input type="text" name="kode_barcode" placeholder="Scan Barcode / Input ID..." required
