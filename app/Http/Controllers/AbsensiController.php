@@ -93,13 +93,11 @@ class AbsensiController extends Controller
         $now = now();
         $timeStr = $now->format('H:i');
 
-        // Evaluasi Keterangan Waktu Masuk
+        // Evaluasi Keterangan Waktu Masuk (Window: 7:00 - 10:00)
         if ($timeStr < '07:05') {
             $ket = 'Datang Lebih Awal';
-        } elseif ($timeStr <= '07:15') {
+        } elseif ($timeStr <= '10:00') {
             $ket = 'Tepat Waktu';
-        } elseif ($timeStr <= '07:30') {
-            $ket = 'Sentuh Jam Toleransi';
         } else {
             $ket = 'Terlambat';
         }

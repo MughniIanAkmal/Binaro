@@ -15,30 +15,7 @@ class JadwalController extends Controller
     public function index()
     {
         $jadwals = Jadwal::query()
-            ->leftJoin(
-                'mata_pelajaran',
-                'jadwal_mata_pelajaran.id_mapel',
-                '=',
-                'mata_pelajaran.id_mapel'
-            )
-            ->leftJoin(
-                'guru',
-                'jadwal_mata_pelajaran.id_guru',
-                '=',
-                'guru.id_guru'
-            )
-            ->leftJoin(
-                '{kelas}',
-                'jadwal_mata_pelajaran.id_rooms',
-                '=',
-                '{id_rooms}.id_rooms'
-            )
-            ->select(
-                'jadwal_mata_pelajaran.*',
-                'mata_pelajaran.nama_mapel',
-                'guru.nama_guru',
-                DB::raw("COALESCE(kelas.pararel, 'Belum Set') as nama_rooms")
-            )
+            ->with(['mataPelajaran', 'guru', 'kelas'])
             ->get();
 
         return view('jadwal.index', compact('jadwals'));
@@ -47,15 +24,11 @@ class JadwalController extends Controller
     // Menampilkan form tambah jadwal
     public function create()
     {
-        $nama = Kelas::all();
+        $kelas = Kelas::all();
         $guru = Guru::all();
         $mapel = MataPelajaran::all();
 
-        return view('jadwal.create', compact(
-            'nama',
-            'guru',
-            'mapel'
-        ));
+        return view('jadwal.create', compact('kelas', 'guru', 'mapel'));
     }
 
     // Menyimpan jadwal baru
@@ -66,39 +39,46 @@ class JadwalController extends Controller
             'jam'      => ['required', 'regex:/^[0-9]{2}\.[0-9]{2}-[0-9]{2}\.[0-9]{2}$/'],
             'id_mapel' => 'required',
             'id_guru'  => 'required',
-            'id_rooms' => 'required|exists:rooms,id_rooms',
+            'id_kelas' => 'required|exists:kelas,id_rooms',
         ], [
             'jam.regex' => 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).',
-            'id_rooms.required' => 'Kelas wajib dipilih!',
+            'id_kelas.required' => 'Kelas wajib dipilih!',
         ]);
+
+        // Cek duplikat: hari + jam + id_kelas + id_guru
+        $exists = Jadwal::where('hari', $request->hari)
+            ->where('jam', $request->jam)
+            ->where('id_rooms', $request->id_kelas)
+            ->where('id_guru', $request->id_guru)
+            ->exists();
+
+        if ($exists) {
+            return back()->withInput()->with('error', 'Jadwal sudah ada (duplikat hari, jam, guru, dan kelas).');
+        }
 
         Jadwal::create([
             'hari'     => $request->hari,
             'jam'      => $request->jam,
             'id_mapel' => $request->id_mapel,
             'id_guru'  => $request->id_guru,
-            'id_rooms' => $request->id_rooms,
+            'id_rooms' => $request->id_kelas,
         ]);
 
         return redirect()
             ->route('jadwal.index')
-            ->with('success', 'Jadwal sudah ditambahkan.');
+            ->with('success', 'Jadwal berhasil ditambahkan.');
     }
+
     // Menampilkan form edit
     public function edit($id)
     {
         $jadwal = Jadwal::findOrFail($id);
 
-        $nama = Kelas::all();
+        $kelas = Kelas::all();
         $guru = Guru::all();
         $mapel = MataPelajaran::all();
 
-        return view('jadwal.edit', compact(
-            'jadwal',
-            'nama',
-            'guru',
-            'mapel'
-        ));
+        return view('jadwal.edit', compact('jadwal', 'kelas', 'guru', 'mapel'));
     }
 
     // Mengupdate jadwal
@@ -109,21 +89,33 @@ class JadwalController extends Controller
             'jam'      => ['required', 'regex:/^[0-9]{2}\.[0-9]{2}-[0-9]{2}\.[0-9]{2}$/'],
             'id_mapel' => 'required',
             'id_guru'  => 'required',
-            'id_rooms' => 'required',
+            'id_kelas' => 'required',
         ]);
 
         $jadwal = Jadwal::findOrFail($id);
+
+        // Cek duplikat tapi exclude record ini
+        $exists = Jadwal::where('hari', $request->hari)
+            ->where('jam', $request->jam)
+            ->where('id_rooms', $request->id_kelas)
+            ->where('id_guru', $request->id_guru)
+            ->where('id_jadwal', '!=', $id)
+            ->exists();
+
+        if ($exists) {
+            return back()->withInput()->with('error', 'Jadwal sudah ada (duplikat hari, jam, guru, dan kelas).');
+        }
 
         $jadwal->update([
             'hari'     => $request->hari,
             'jam'      => $request->jam,
             'id_mapel' => $request->id_mapel,
             'id_guru'  => $request->id_guru,
-            'id_rooms' => $request->id_rooms,
+            'id_rooms' => $request->id_kelas,
         ]);
 
         return redirect()
             ->route('jadwal.index')
-            ->with('success', 'Jadwal sudah diubah.');
+            ->with('success', 'Jadwal berhasil diubah.');
     }
 }

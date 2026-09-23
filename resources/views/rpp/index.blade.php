@@ -120,6 +120,13 @@
                                         <button onclick="openStatusModal({{ $rpp->id_rpp }}, '{{ $rpp->status }}', '{{ addslashes($rpp->judul_rpp) }}')" title="Ubah Status Verifikasi" class="w-7 h-7 rounded border border-slate-200 text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
                                             <i class="fas fa-edit text-xs"></i>
                                         </button>
+                                        <form action="{{ route('rpp.destroy', $rpp->id_rpp) }}" method="POST" class="inline-flex" onsubmit="return confirm('Yakin ingin menghapus RPP ini?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" title="Hapus RPP" class="w-7 h-7 rounded border border-rose-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center transition ml-1">
+                                                <i class="fas fa-trash-alt text-xs"></i>
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
@@ -320,8 +327,8 @@
 
 function openViewModal(rpp) {
             document.getElementById('viewJudul').innerText = rpp.judul_rpp;
-            document.getElementById('viewMapel').innerText = rpp.mata_pelajaran ? rpp.mata_pelajaran nama_mapel : '-';
-            document.getElementById('viewGuru').innerText = rpp.guru ? rpp.guru nama_guru : '-';
+            document.getElementById('viewMapel').innerText = rpp.mata_pelajaran ? rpp.mata_pelajaran.nama_mapel : '-';
+            document.getElementById('viewGuru').innerText = rpp.guru ? rpp.guru.nama_guru : '-';
             document.getElementById('viewDeskripsi').innerText = rpp.deskripsi || 'Tidak ada deskripsi.';
 
             const fileWrap = document.getElementById('viewFileWrap');
