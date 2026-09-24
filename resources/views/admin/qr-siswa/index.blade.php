@@ -49,6 +49,7 @@
     .card-btn.primary{background:#2456C8;color:#fff;border-color:#2456C8}
     .card-btn.secondary{background:#f1f1f1}
     .sr-only{position:absolute;left:-9999px}
+    .tools input[type="search"],.tools button[type="submit"]{display:none}
 </style>
 <div class="wrap">
     <div class="crumb">Admin / QR code siswa</div>
@@ -70,10 +71,12 @@
         <a class="btn" href="{{ route('admin.qr.cetakKelas', request()->only('kelas')) }}" target="_blank">
             Cetak semua kartu{{ request('kelas') ? ' kelas '.request('kelas') : '' }}
         </a>
-        <form method="POST" action="{{ route('admin.qr.storeAll') }}">
-            @csrf
-            <button class="btn primary" type="submit" @disabled($sudah >= $total)>Buat semua yang belum punya</button>
-        </form>
+        @if ($sudah < $total)
+            <form method="POST" action="{{ route('admin.qr.storeAll') }}">
+                @csrf
+                <button class="btn primary" type="submit">Buat semua yang belum punya</button>
+            </form>
+        @endif
     </section>
 
     <section class="panel">

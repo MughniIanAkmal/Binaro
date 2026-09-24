@@ -48,5 +48,22 @@
 
         @yield('content')
     </main>
+    <script>
+        document.addEventListener('input', function (event) {
+            const field = event.target;
+            const isTextInput = field instanceof HTMLInputElement && ['text', 'search'].includes(field.type);
+            const isTextArea = field instanceof HTMLTextAreaElement;
+            if (!isTextInput && !isTextArea) {
+                return;
+            }
+
+            const allowedSymbols = ['email', 'no_hp', 'kode_barcode', 'kode', 'kodeManual', 'jam', 'search', 'q', 'alamat'];
+            if (allowedSymbols.includes(field.name) || allowedSymbols.includes(field.id)) {
+                return;
+            }
+
+            field.value = field.value.replace(/[^\p{L}\p{N} ]/gu, '');
+        });
+    </script>
 </body>
 </html>

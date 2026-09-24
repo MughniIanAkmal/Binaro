@@ -29,7 +29,7 @@
             <button onclick="openSettingsModal()" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-amber-700 flex items-center gap-2 shadow-sm">
                 <i class="fas fa-cog text-xs"></i> Pengaturan Waktu
             </button>
-            <button class="bg-[#0F2C59] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-900 flex items-center gap-2 shadow-sm">
+            <button class="hidden bg-[#0F2C59] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-900 flex items-center gap-2 shadow-sm">
                 <i class="fas fa-lock text-xs"></i> Kunci & Kirim ke Dapodik
             </button>
         </div>

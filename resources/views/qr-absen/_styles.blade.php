@@ -10,7 +10,7 @@
 }
 @media (prefers-color-scheme: dark){
   :root{
-    --bg:#0F1626; --surface:#18213A; --ink:#E9EEF9; --muted:#9AA8C4; --line:#2A3556;
+    --bg:#F2F5FA; --surface:#FFFFFF; --ink:#16223A; --muted:#5D6B85; --line:#DDE3EE;
     --brand:#6C93F2; --brand-ink:#0F1626;
     --ok:#4CC79A; --ok-soft:#173A31; --warn:#F2C25B; --warn-soft:#3B2F14;
     --err:#FF8A80; --err-soft:#3E1D1B;

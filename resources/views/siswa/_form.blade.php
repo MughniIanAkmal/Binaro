@@ -6,6 +6,7 @@
             <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Siswa <span class="text-rose-500">*</span></label>
             <input type="text" name="nama" required value="{{ old('nama', data_get($s, 'nama_siswa', data_get($s, 'nm_siswa', ''))) }}"
                    placeholder="Contoh: Aditya Pratama"
+                     oninput="this.value=this.value.replace(/[^\p{L} ]/gu,'')"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
             @error('nama') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
@@ -14,7 +15,7 @@
             <label class="block font-bold text-slate-700 mb-1">NISN / NIS</label>
             <input type="text" name="nis" value="{{ old('nis', data_get($s, 'nisn', data_get($s, 'nis', '')) ) }}"
                    placeholder="Contoh: 0012345601"
-                   inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/\D/g,'')"
+                   inputmode="numeric" pattern="[0-9]{0,12}" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'').slice(0,12)"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
             @error('nis') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
@@ -61,7 +62,7 @@
             <label class="block font-bold text-slate-700 mb-1">Nomor HP / WhatsApp Wali</label>
             <input type="text" name="no_hp" value="{{ old('no_hp', data_get($s, 'no_hp', '')) }}"
                    placeholder="Contoh: 081234567890"
-                   inputmode="numeric" pattern="[0-9]*" oninput="this.value=this.value.replace(/\D/g,'')"
+                                     inputmode="numeric" pattern="[0-9]{0,12}" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'').slice(0,12)"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
             @error('no_hp') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
@@ -82,6 +83,7 @@
             <label class="block font-bold text-slate-700 mb-1">Username Login</label>
             <input type="text" name="username" value="{{ old('username', data_get($s, 'username', '')) }}"
                    placeholder="Username login siswa"
+                     oninput="this.value=this.value.replace(/[^A-Za-z0-9]/g,'')"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
             @error('username') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>

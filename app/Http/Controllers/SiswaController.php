@@ -44,13 +44,13 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'nis' => 'nullable|regex:/^[0-9]+$/|unique:siswa,nisn',
+            'nama' => 'required|regex:/^[\pL ]+$/u|max:255',
+            'nis' => 'nullable|digits_between:1,12|unique:siswa,nisn',
             'email' => 'nullable|email|unique:siswa,email',
-            'no_hp' => 'nullable|regex:/^[0-9]+$/',
+            'no_hp' => 'nullable|digits_between:1,12',
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string',
-            'username' => 'nullable|string|unique:siswa,username',
+            'username' => 'nullable|regex:/^[A-Za-z0-9]+$/|unique:siswa,username',
             'password' => 'required|string|min:6|confirmed',
             'id_mapel' => 'nullable|exists:mata_pelajaran,id_mapel',
             'id_rooms' => 'nullable|exists:kelas,id_rooms',
@@ -81,13 +81,13 @@ class SiswaController extends Controller
     public function update(Request $request, Siswa $siswa)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'nis' => ['nullable', 'regex:/^[0-9]+$/', Rule::unique('siswa', 'nisn')->ignore($siswa->id_siswa, 'id_siswa')],
+            'nama' => 'required|regex:/^[\pL ]+$/u|max:255',
+            'nis' => ['nullable', 'digits_between:1,12', Rule::unique('siswa', 'nisn')->ignore($siswa->id_siswa, 'id_siswa')],
             'email' => ['nullable', 'email', Rule::unique('siswa', 'email')->ignore($siswa->id_siswa, 'id_siswa')],
-            'no_hp' => 'nullable|regex:/^[0-9]+$/',
+            'no_hp' => 'nullable|digits_between:1,12',
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string',
-            'username' => ['nullable', 'string', Rule::unique('siswa', 'username')->ignore($siswa->id_siswa, 'id_siswa')],
+            'username' => ['nullable', 'regex:/^[A-Za-z0-9]+$/', Rule::unique('siswa', 'username')->ignore($siswa->id_siswa, 'id_siswa')],
             'password' => 'nullable|string|min:6|confirmed',
             'id_mapel' => 'nullable|exists:mata_pelajaran,id_mapel',
             'id_rooms' => 'nullable|exists:kelas,id_rooms',
