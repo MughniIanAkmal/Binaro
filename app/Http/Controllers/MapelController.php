@@ -10,21 +10,31 @@ class MapelController extends Controller
     public function index(Request $request)
     {
         $search = $request->get('search');
+        $userType = session('user_type');
 
-        $mapelList = MataPelajaran::when($search, function ($q) use ($search) {
-            $q->where(function ($sub) use ($search) {
-                $sub->where('nama_mapel', 'like', "%{$search}%")
-                    ->orWhere('deskripsi', 'like', "%{$search}%");
-            });
-        })->orderBy('nama_mapel')->paginate(10)->withQueryString();
+        $mapelList = MataPelajaran::withCount(['bab', 'siswas'])
+            ->when($search, function ($q) use ($search) {
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('nama_mapel', 'like', "%{$search}%")
+                        ->orWhere('deskripsi', 'like', "%{$search}%");
+                });
+            })->orderBy('nama_mapel')->paginate(10)->withQueryString();
 
         $total = MataPelajaran::count();
+
+        if ($userType === 'admin') {
+            return view('admin.mapel.index', compact('mapelList', 'total', 'search'));
+        }
 
         return view('mapel.index', compact('mapelList', 'total', 'search'));
     }
 
     public function store(Request $request)
     {
+        if (session('user_type') === 'admin') {
+            return redirect()->route('mapel.index')->with('error', 'Administrator hanya memiliki izin melihat dan menghapus mata pelajaran. Pengelolaan konten dilakukan oleh Guru.');
+        }
+
         $request->validate([
             'nama_mapel' => 'required|string|max:100|unique:mata_pelajaran,nama_mapel',
             'deskripsi'  => 'nullable|string|max:1000',
@@ -44,6 +54,10 @@ class MapelController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (session('user_type') === 'admin') {
+            return redirect()->route('mapel.index')->with('error', 'Administrator hanya memiliki izin melihat dan menghapus mata pelajaran. Pengelolaan konten dilakukan oleh Guru.');
+        }
+
         $mapel = MataPelajaran::findOrFail($id);
 
         $request->validate([

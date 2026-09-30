@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
 use App\Models\Absen;
+use App\Models\AbsensiSetting;
 use App\Models\Barcode;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
@@ -57,17 +58,18 @@ class AbsenScanController extends Controller
         $today = today()->toDateString();
 
         $absen = Absen::where('id_siswa', $siswa->id_siswa)
-            ->where('tanggal', $today)
+            ->whereDate('tanggal', $today)
             ->first();
 
         if ($absen) {
             return response()->json([
                 'status'  => 'duplikat',
-                'message' => "{$siswa->nama_siswa} sudah absen hari ini.",
+                'success' => false,
+                'message' => "{$siswa->nm_siswa} sudah absen hari ini.",
             ], 200);
         }
 
-        $guruId = session('user_type') === 'guru' ? session('user_id') : null;
+        $guruId = session('user_type') === 'guru' ? session('user_id') : ($request->user()?->id_guru ?? null);
         if (! $guruId || ! DB::table('guru')->where('id_guru', $guruId)->exists()) {
             $guruId = DB::table('guru')->value('id_guru');
         }
@@ -83,20 +85,12 @@ class AbsenScanController extends Controller
         $waktu = now();
         $timeStr = $waktu->format('H:i');
 
-        $batasAwal = \App\Models\AbsensiSetting::get('batas_awal', '07:00');
-        $batasTepat = \App\Models\AbsensiSetting::get('batas_tepat', '08:00');
-        $batasTutup = \App\Models\AbsensiSetting::get('batas_tutup', '12:00');
+        $batasAwal = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_awal', '07:00') : '07:00';
+        $batasTepat = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_tepat', '08:00') : '08:00';
+        $batasTutup = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_tutup', '12:00') : '12:00';
 
         if ($timeStr > $batasTutup) {
             return response()->json(['status' => 'err', 'message' => 'Sekolah sudah tutup.'], 400);
-        }
-
-        $absen = Absen::where('id_siswa', $siswa->id_siswa)
-            ->where('tanggal', $today)
-            ->first();
-
-        if ($absen) {
-            return response()->json(['status' => 'duplikat', 'message' => "{$siswa->nama_siswa} sudah absen hari ini."], 200);
         }
 
         if ($timeStr < $batasAwal) {
@@ -106,6 +100,7 @@ class AbsenScanController extends Controller
         } else {
             $keterangan = 'Terlambat';
         }
+
         $absenData = Absen::create([
             'id_guru'     => $guruId,
             'id_siswa'    => $siswa->id_siswa,
@@ -119,8 +114,9 @@ class AbsenScanController extends Controller
 
         return response()->json([
             'status'  => 'ok',
-            'message' => "Hadir: {$siswa->nama_siswa}",
-            'siswa'   => ['nama' => $siswa->nama_siswa, 'kelas' => $siswa->nama_kelas],
+            'success' => true,
+            'message' => "Hadir: {$siswa->nm_siswa}",
+            'siswa'   => ['nama' => $siswa->nm_siswa, 'kelas' => $siswa->nama_kelas],
             'jam'     => $waktu->format('H:i'),
         ]);
     }

@@ -169,6 +169,72 @@ class AbsensiController extends Controller
         return back()->with('success', 'Status absensi siswa berhasil diperbarui.');
     }
 
+    public function rekap(Request $request)
+    {
+        $guru = \App\Models\Guru::find(session('user_id'));
+        $selectedDate = $request->input('tanggal', now()->toDateString());
+        $selectedKelas = $request->input('id_rooms');
+        $selectedStatus = $request->input('status');
+
+        $totalSiswa = Siswa::when($selectedKelas, fn($q) => $q->where('id_rooms', $selectedKelas))->count();
+
+        $absensToday = Absen::where('tanggal', $selectedDate)
+            ->when($selectedKelas, fn($q) => $q->whereHas('siswa', fn($s) => $s->where('id_rooms', $selectedKelas)))
+            ->get();
+
+        $hadir = $absensToday->where('status', 'Hadir')->count();
+        $izin = $absensToday->where('status', 'Izin')->count();
+        $sakit = $absensToday->where('status', 'Sakit')->count();
+        $alpa = $absensToday->where('status', 'Alpa')->count();
+        $persentase = $totalSiswa > 0 ? round(($hadir / $totalSiswa) * 100, 1) : 0;
+
+        $summary = [
+            'total_siswa' => $totalSiswa,
+            'hadir' => $hadir,
+            'izin' => $izin,
+            'sakit' => $sakit,
+            'alpa' => $alpa,
+            'persentase' => $persentase,
+        ];
+
+        $query = Siswa::with(['kelas', 'absens'])
+            ->leftJoin('absen', function ($join) use ($selectedDate) {
+                $join->on('siswa.id_siswa', '=', 'absen.id_siswa')->where('absen.tanggal', $selectedDate);
+            })
+            ->leftJoin('guru as pencatat', 'absen.id_guru', '=', 'pencatat.id_guru')
+            ->leftJoin('kelas', 'siswa.id_rooms', '=', 'kelas.id_rooms')
+            ->select([
+                'siswa.id_siswa', 'siswa.nm_siswa', 'siswa.nisn', 'siswa.id_rooms',
+                'kelas.pararel as nama_kelas', 'absen.id_absen', 'absen.metode',
+                'absen.status', 'absen.waktu_absen', 'pencatat.nama_guru as nama_guru_pencatat',
+            ]);
+
+        if ($selectedKelas) $query->where('siswa.id_rooms', $selectedKelas);
+        if ($selectedStatus) $query->where('absen.status', $selectedStatus);
+
+        $siswaList = $query->orderBy('siswa.nm_siswa')->paginate(20)->withQueryString();
+
+        $alpaAlertSiswaIds = Absen::where('status', 'Alpa')
+            ->where('tanggal', '>=', now()->subDays(7)->toDateString())
+            ->selectRaw('id_siswa, count(*) as total')
+            ->groupBy('id_siswa')->having('total', '>', 2)->pluck('id_siswa')->toArray();
+
+        $kelasList = Kelas::all();
+
+        return view('admin.absensi.rekap', compact('summary', 'siswaList', 'kelasList', 'selectedDate', 'selectedKelas', 'selectedStatus', 'alpaAlertSiswaIds', 'guru'));
+    }
+
+    public function destroy($id)
+    {
+        $absen = Absen::findOrFail($id);
+        if ($absen->berkas_surat) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($absen->berkas_surat);
+        }
+        $absen->delete();
+
+        return back()->with('success', 'Data absensi berhasil dihapus.');
+    }
+
     public function updateSettings(Request $request)
     {
         $request->validate([

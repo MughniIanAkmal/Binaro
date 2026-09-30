@@ -2,17 +2,31 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Siswa;
-use App\Models\MataPelajaran;
 use App\Models\Kelas;
+use App\Models\MataPelajaran;
+use App\Models\Siswa;
+use App\Models\Barcode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class SiswaController extends Controller
 {
+    public function dashboard()
+    {
+        $siswa = null;
+        if (session()->has('user_id') && session('user_type') === 'siswa') {
+            $siswa = Siswa::with(['kelas', 'mataPelajaran'])->find(session('user_id'));
+        }
+        return view('siswa.dashboard', compact('siswa'));
+    }
+
     public function index(Request $request)
     {
+        if (session('user_type') === 'siswa') {
+            return redirect()->route('siswa.dashboard');
+        }
+
         $search = $request->get('search') ?? $request->get('q');
         $idRooms = $request->get('id_rooms');
 
@@ -44,31 +58,40 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => 'required|regex:/^[\pL ]+$/u|max:255',
-            'nis' => 'nullable|digits_between:1,12|unique:siswa,nisn',
-            'email' => 'nullable|email|unique:siswa,email',
-            'no_hp' => 'nullable|digits_between:1,12',
+            'nama' => 'required|string|max:255',
+            'nis' => 'required|string|max:20|unique:siswa,nisn',
+            'email' => 'required|email|max:100|unique:siswa,email',
+            'no_hp' => 'nullable|string|max:20',
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string',
-            'username' => 'nullable|regex:/^[A-Za-z0-9]+$/|unique:siswa,username',
+            'username' => 'required|string|max:50|unique:siswa,username',
             'password' => 'required|string|min:6|confirmed',
             'id_mapel' => 'nullable|exists:mata_pelajaran,id_mapel',
             'id_rooms' => 'nullable|exists:kelas,id_rooms',
         ]);
 
-        $validated['nm_siswa'] = $validated['nama'];
-        $validated['nisn'] = $validated['nis'] ?? null;
-        // Password stored as plain text per request
+        $data = [
+            'nm_siswa' => $validated['nama'],
+            'nisn' => $validated['nis'],
+            'email' => $validated['email'],
+            'no_hp' => $validated['no_hp'] ?? null,
+            'jenis_kelamin' => $validated['jenis_kelamin'] ?? null,
+            'alamat' => $validated['alamat'] ?? null,
+            'username' => $validated['username'],
+            'password' => $validated['password'], // store plain-text password for backward compatibility
+            'id_mapel' => $validated['id_mapel'] ?? null,
+            'id_rooms' => $validated['id_rooms'] ?? null,
+        ];
 
-        $newSiswa = Siswa::create($validated);
+        $newSiswa = Siswa::create($data);
 
-        // Generate QR code secara otomatis untuk siswa baru
-        \App\Models\Barcode::firstOrCreate(
+        // Auto generate QR code
+        Barcode::firstOrCreate(
             ['id_siswa' => $newSiswa->id_siswa],
-            ['kode_barcode' => \App\Models\Barcode::buatKodeUnik()]
+            ['kode_barcode' => Barcode::buatKodeUnik()]
         );
 
-        return redirect()->route('siswa.index')->with('success', 'Data siswa dan QR code berhasil ditambahkan.');
+        return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil ditambahkan.');
     }
 
     public function edit(Siswa $siswa)
@@ -81,26 +104,35 @@ class SiswaController extends Controller
     public function update(Request $request, Siswa $siswa)
     {
         $validated = $request->validate([
-            'nama' => 'required|regex:/^[\pL ]+$/u|max:255',
-            'nis' => ['nullable', 'digits_between:1,12', Rule::unique('siswa', 'nisn')->ignore($siswa->id_siswa, 'id_siswa')],
-            'email' => ['nullable', 'email', Rule::unique('siswa', 'email')->ignore($siswa->id_siswa, 'id_siswa')],
-            'no_hp' => 'nullable|digits_between:1,12',
+            'nama' => 'required|string|max:255',
+            'nis' => ['required', 'string', 'max:20', Rule::unique('siswa', 'nisn')->ignore($siswa->id_siswa, 'id_siswa')],
+            'email' => ['required', 'email', 'max:100', Rule::unique('siswa', 'email')->ignore($siswa->id_siswa, 'id_siswa')],
+            'no_hp' => 'nullable|string|max:20',
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string',
-            'username' => ['nullable', 'regex:/^[A-Za-z0-9]+$/', Rule::unique('siswa', 'username')->ignore($siswa->id_siswa, 'id_siswa')],
+            'username' => ['required', 'string', 'max:50', Rule::unique('siswa', 'username')->ignore($siswa->id_siswa, 'id_siswa')],
             'password' => 'nullable|string|min:6|confirmed',
             'id_mapel' => 'nullable|exists:mata_pelajaran,id_mapel',
             'id_rooms' => 'nullable|exists:kelas,id_rooms',
         ]);
 
-        $validated['nm_siswa'] = $validated['nama'];
-        $validated['nisn'] = $validated['nis'] ?? null;
+        $data = [
+            'nm_siswa' => $validated['nama'],
+            'nisn' => $validated['nis'],
+            'email' => $validated['email'],
+            'no_hp' => $validated['no_hp'] ?? null,
+            'jenis_kelamin' => $validated['jenis_kelamin'] ?? null,
+            'alamat' => $validated['alamat'] ?? null,
+            'username' => $validated['username'],
+            'id_mapel' => $validated['id_mapel'] ?? null,
+            'id_rooms' => $validated['id_rooms'] ?? null,
+        ];
 
-        if (empty($validated['password'])) {
-            unset($validated['password']);
+        if (!empty($validated['password'])) {
+            $data['password'] = $validated['password'];
         }
 
-        $siswa->update($validated);
+        $siswa->update($data);
 
         return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil diperbarui.');
     }

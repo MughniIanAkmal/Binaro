@@ -10,17 +10,17 @@
         <span class="inline-block bg-white/10 text-[10px] font-semibold px-2 py-1 rounded">TAHUN AJARAN 2024/2026</span>
     </div>
     <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
-        <a href="{{ route('rpp.index') }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('rpp.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
-            <i class="fas fa-book w-5"></i> Kelola RPP
+        <a href="{{ route('admin.dashboard') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('admin.dashboard') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
+            <i class="fas fa-home w-5"></i> Dashboard
         </a>
         <a href="{{ route('guru.index') }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('guru.*') && !Route::is('guru.absen.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
-            <i class="fas fa-user-tie w-5"></i> Data Guru
+            <i class="fas fa-user-tie w-5"></i> Akun Guru
         </a>
         <a href="{{ route('siswa.index') }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('siswa.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
-            <i class="fas fa-user-graduate w-5"></i> Data Siswa
+            <i class="fas fa-user-graduate w-5"></i> Akun Siswa
         </a>
         <a href="{{ route('jadwal.index') }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('jadwal.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
@@ -30,20 +30,14 @@
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('mapel.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
             <i class="fas fa-book-open w-5"></i> Kelola Mapel
         </a>
-        <a href="{{ route('absensi.index') }}"
-           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('absensi.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
-            <i class="fas fa-clipboard-check w-5"></i> Rekap Absensi
+        <a href="{{ route('rpp.index') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('rpp.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
+            <i class="fas fa-book w-5"></i> Kelola RPP
         </a>
         <a href="{{ route('admin.qr.index') }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('admin.qr.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
             <i class="fas fa-id-card w-5"></i> QR Siswa
         </a>
-        @if (session('user_type') === 'guru')
-            <a href="{{ route('guru.absen.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('guru.absen.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
-                <i class="fas fa-qrcode w-5"></i> Scan Presensi QR
-            </a>
-        @endif
     </nav>
     <div class="p-4 border-t border-white/10 text-xs">
         <div class="flex items-center gap-2 mb-2 text-emerald-300">

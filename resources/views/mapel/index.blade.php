@@ -1,8 +1,8 @@
-@extends('layouts.app')
+@extends('layouts.guru')
 
 @section('content')
 <!-- Content Body -->
-<div class="p-8 space-y-6">
+<div class="space-y-6">
     <!-- Page Title -->
     <div class="flex justify-between items-start">
         <div>
@@ -81,15 +81,21 @@
                             <p class="text-slate-600 text-xs line-clamp-2 max-w-md">{{ $mapel->deskripsi ?: '-' }}</p>
                         </td>
                         <td class="p-3.5 text-center">
-                            <div class="inline-flex gap-1">
+                            <div class="inline-flex items-center gap-1.5">
+                                <a href="{{ route('guru.bab.index', $mapel->id_mapel) }}"
+                                   title="Kelola Bab & Materi Pembelajaran"
+                                   class="px-2.5 py-1 rounded-lg border border-[#13527D]/30 text-[#13527D] hover:bg-sky-50 flex items-center gap-1 text-[11px] font-bold transition">
+                                    <i class="fas fa-layer-group text-[10px]"></i>
+                                    <span>Kelola Bab</span>
+                                </a>
                                 <button onclick="openEditModal({{ $mapel->id_mapel }}, {{ json_encode($mapel->nama_mapel) }}, {{ json_encode($mapel->deskripsi ?? '') }})"
-                                        title="Edit"
-                                        class="w-7 h-7 rounded border border-slate-200 text-amber-600 hover:bg-amber-50 flex items-center justify-center transition">
+                                        title="Edit Mata Pelajaran"
+                                        class="w-7 h-7 rounded-lg border border-slate-200 text-amber-600 hover:bg-amber-50 flex items-center justify-center transition">
                                     <i class="fas fa-pencil-alt text-xs"></i>
                                 </button>
                                 <button onclick="openDeleteModal({{ $mapel->id_mapel }}, {{ json_encode($mapel->nama_mapel) }})"
-                                        title="Hapus"
-                                        class="w-7 h-7 rounded border border-slate-200 text-rose-500 hover:bg-rose-50 flex items-center justify-center transition">
+                                        title="Hapus Mata Pelajaran"
+                                        class="w-7 h-7 rounded-lg border border-slate-200 text-rose-500 hover:bg-rose-50 flex items-center justify-center transition">
                                     <i class="fas fa-trash-alt text-xs"></i>
                                 </button>
                             </div>
