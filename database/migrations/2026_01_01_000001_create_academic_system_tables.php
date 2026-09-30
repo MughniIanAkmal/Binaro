@@ -65,6 +65,7 @@ return new class extends Migration {
             $table->string('nm_siswa', 100);
             $table->string('no_hp', 20)->nullable();
             $table->string('password', 255);
+            $table->string('foto_profil', 255)->nullable();
             $table->timestamps();
         });
 
@@ -73,6 +74,8 @@ return new class extends Migration {
             $table->id('id_barcode');
             $table->foreignId('id_siswa')->constrained('siswa', 'id_siswa')->cascadeOnDelete();
             $table->string('kode_barcode', 100)->unique();
+            $table->string('qr_image_path', 255)->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
 
@@ -162,6 +165,7 @@ return new class extends Migration {
             $table->text('catatan_revisi')->nullable();
             $table->string('file_rpp', 255)->nullable();
             $table->timestamps();
+            $table->unique(['id_guru', 'id_mapel'], 'uq_guru_mapel');
         });
 
         // 16. Absen
@@ -170,10 +174,10 @@ return new class extends Migration {
             $table->foreignId('id_guru')->constrained('guru', 'id_guru')->cascadeOnDelete();
             $table->foreignId('id_siswa')->constrained('siswa', 'id_siswa')->cascadeOnDelete();
             $table->foreignId('id_barcode')->nullable()->constrained('barcode', 'id_barcode')->nullOnDelete();
-            $table->enum('metode', ['scan_qr', 'manual_guru'])->default('scan_qr');
             $table->enum('status', ['Hadir', 'Izin', 'Sakit', 'Alpa'])->default('Hadir');
             $table->string('keterangan', 255)->nullable();
             $table->string('berkas_surat', 255)->nullable();
+            $table->enum('metode', ['scan_qr', 'manual_guru'])->default('scan_qr');
             $table->timestamp('waktu_absen')->useCurrent();
             $table->date('tanggal');
             $table->unique(['id_siswa', 'tanggal'], 'uq_siswa_tanggal');

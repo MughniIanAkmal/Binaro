@@ -2,13 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Guru extends Model
+class Guru extends Authenticatable
 {
     protected $table = 'guru';
     protected $primaryKey = 'id_guru';
-    protected $guarded = ['id_guru'];
+    public $timestamps = true;
+
+    protected $fillable = [
+        'nip',
+        'nama_guru',
+        'no_hp',
+        'email',
+        'alamat',
+        'jenis_kelamin',
+        'username',
+        'password',
+    ];
 
     protected $appends = ['nama'];
 
@@ -30,5 +41,25 @@ class Guru extends Model
     public function jadwal()
     {
         return $this->hasMany(JadwalMataPelajaran::class, 'id_guru', 'id_guru');
+    }
+
+    public function jadwalMataPelajaran()
+    {
+        return $this->hasMany(JadwalMataPelajaran::class, 'id_guru', 'id_guru');
+    }
+
+    public function absens()
+    {
+        return $this->hasMany(Absen::class, 'id_guru', 'id_guru');
+    }
+
+    public function pr()
+    {
+        return $this->hasMany(Pr::class, 'id_guru', 'id_guru');
+    }
+
+    public function quiz()
+    {
+        return $this->hasMany(Quiz::class, 'id_guru', 'id_guru');
     }
 }

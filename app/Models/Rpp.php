@@ -8,7 +8,9 @@ class Rpp extends Model
 {
     protected $table = 'rpp';
     protected $primaryKey = 'id_rpp';
-    protected $guarded = ['id_rpp'];
+    public $timestamps = true;
+
+    protected $fillable = ['id_guru', 'id_rooms', 'id_mapel', 'judul_rpp', 'deskripsi', 'komponen_checklist', 'status', 'file_rpp'];
 
     protected $casts = [
         'komponen_checklist' => 'array',
@@ -19,13 +21,13 @@ class Rpp extends Model
         return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
     }
 
-    public function mataPelajaran()
-    {
-        return $this->belongsTo(MataPelajaran::class, 'id_mapel', 'id_mapel');
-    }
-
     public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'id_rooms', 'id_rooms');
+    }
+
+    public function mataPelajaran()
+    {
+        return $this->belongsTo(MataPelajaran::class, 'id_mapel', 'id_mapel');
     }
 }

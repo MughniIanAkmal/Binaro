@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::table('siswa', function (Blueprint $table) {
             if (!Schema::hasColumn('siswa', 'email')) {
-                $table->string('email')->nullable()->unique()->after('no_hp');
+                $table->string('email', 100)->nullable()->unique()->after('nm_siswa');
             }
             if (!Schema::hasColumn('siswa', 'alamat')) {
                 $table->text('alamat')->nullable()->after('email');
@@ -18,7 +18,7 @@ return new class extends Migration {
                 $table->enum('jenis_kelamin', ['L', 'P'])->nullable()->after('alamat');
             }
             if (!Schema::hasColumn('siswa', 'username')) {
-                $table->string('username')->nullable()->unique()->after('jenis_kelamin');
+                $table->string('username', 50)->nullable()->unique()->after('jenis_kelamin');
             }
         });
     }

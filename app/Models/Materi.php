@@ -19,4 +19,9 @@ class Materi extends Model
     {
         return $this->belongsTo(Bab::class, 'id_bab', 'id_bab');
     }
+
+    public function quiz()
+    {
+        return $this->belongsTo(Quiz::class, 'id_quiz', 'id_quiz');
+    }
 }

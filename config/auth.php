@@ -40,6 +40,22 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'sanctum' => [
+            'driver' => 'session',
+            'provider' => 'users',
+        ],
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admin',
+        ],
+        'guru' => [
+            'driver' => 'session',
+            'provider' => 'guru',
+        ],
+        'siswa' => [
+            'driver' => 'session',
+            'provider' => 'siswa',
+        ],
     ],
 
     /*
@@ -64,11 +80,18 @@ return [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
-
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'admin' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Admin::class,
+        ],
+        'guru' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Guru::class,
+        ],
+        'siswa' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Siswa::class,
+        ],
     ],
 
     /*

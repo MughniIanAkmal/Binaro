@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Siswa extends Model
+class Siswa extends Authenticatable
 {
     protected $table = 'siswa';
     protected $primaryKey = 'id_siswa';
-
     public $timestamps = true;
 
     protected $fillable = [
@@ -18,12 +17,13 @@ class Siswa extends Model
         'nm_siswa',
         'nama',
         'nis',
-        'password',
         'no_hp',
         'email',
         'alamat',
         'jenis_kelamin',
         'username',
+        'password',
+        'foto_profil',
     ];
 
     protected $appends = ['nama_siswa', 'nama', 'nis', 'nisn', 'nama_kelas'];
@@ -48,6 +48,16 @@ class Siswa extends Model
         return $this->belongsTo(Kelas::class, 'id_rooms', 'id_rooms');
     }
 
+    public function hasilNilai()
+    {
+        return $this->hasMany(HasilNilai::class, 'id_siswa', 'id_siswa');
+    }
+
+    public function notifikasis()
+    {
+        return $this->hasMany(Notifikasi::class, 'id_siswa', 'id_siswa');
+    }
+
     public function getNamaSiswaAttribute()
     {
         return $this->attributes['nm_siswa'] ?? null;
@@ -61,6 +71,11 @@ class Siswa extends Model
     public function setNamaAttribute($value)
     {
         $this->attributes['nm_siswa'] = $value;
+    }
+
+    public function getNisnAccessorAttribute()
+    {
+        return $this->attributes['nisn'] ?? null;
     }
 
     public function getNisnAttribute()
