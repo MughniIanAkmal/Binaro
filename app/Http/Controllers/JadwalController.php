@@ -31,6 +31,51 @@ class JadwalController extends Controller
         return view('jadwal.create', compact('kelas', 'guru', 'mapel'));
     }
 
+    // Menampilkan detail jadwal
+    public function show($id)
+    {
+        $jadwal = Jadwal::with(['mataPelajaran', 'guru', 'kelas'])->findOrFail($id);
+
+        return view('jadwal.show', compact('jadwal'));
+    }
+
+    // Validasi format jam dan mencegah jam mundur / sama
+    private function validateJamPelajaran($jam)
+    {
+        $parts = explode('-', $jam);
+        if (count($parts) !== 2) {
+            return 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).';
+        }
+
+        $jamMulai = trim($parts[0]);
+        $jamSelesai = trim($parts[1]);
+
+        $mulaiParts = explode('.', $jamMulai);
+        $selesaiParts = explode('.', $jamSelesai);
+
+        if (count($mulaiParts) !== 2 || count($selesaiParts) !== 2) {
+            return 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).';
+        }
+
+        $hMulai = (int)$mulaiParts[0];
+        $mMulai = (int)$mulaiParts[1];
+        $hSelesai = (int)$selesaiParts[0];
+        $mSelesai = (int)$selesaiParts[1];
+
+        if ($hMulai < 0 || $hMulai > 23 || $mMulai < 0 || $mMulai > 59 || $hSelesai < 0 || $hSelesai > 23 || $mSelesai < 0 || $mSelesai > 59) {
+            return 'Nilai jam atau menit tidak valid! Jam harus rentang 00-23 dan menit rentang 00-59.';
+        }
+
+        $totalMulai = ($hMulai * 60) + $mMulai;
+        $totalSelesai = ($hSelesai * 60) + $mSelesai;
+
+        if ($totalSelesai <= $totalMulai) {
+            return "Jam pelajaran tidak valid! Jam selesai ({$jamSelesai}) tidak boleh lebih awal atau sama dengan jam mulai ({$jamMulai}).";
+        }
+
+        return null;
+    }
+
     // Menyimpan jadwal baru
     public function store(Request $request)
     {
@@ -44,6 +89,12 @@ class JadwalController extends Controller
             'jam.regex' => 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).',
             'id_kelas.required' => 'Kelas wajib dipilih!',
         ]);
+
+        // Cek validasi jam mundur / human error
+        $jamError = $this->validateJamPelajaran($request->jam);
+        if ($jamError) {
+            return back()->withInput()->withErrors(['jam' => $jamError])->with('error', $jamError);
+        }
 
         // Cek duplikat: hari + jam + id_kelas + id_guru
         $exists = Jadwal::where('hari', $request->hari)
@@ -90,7 +141,16 @@ class JadwalController extends Controller
             'id_mapel' => 'required',
             'id_guru'  => 'required',
             'id_kelas' => 'required',
+        ], [
+            'jam.regex' => 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).',
+            'id_kelas.required' => 'Kelas wajib dipilih!',
         ]);
+
+        // Cek validasi jam mundur / human error
+        $jamError = $this->validateJamPelajaran($request->jam);
+        if ($jamError) {
+            return back()->withInput()->withErrors(['jam' => $jamError])->with('error', $jamError);
+        }
 
         $jadwal = Jadwal::findOrFail($id);
 
@@ -117,5 +177,16 @@ class JadwalController extends Controller
         return redirect()
             ->route('jadwal.index')
             ->with('success', 'Jadwal berhasil diubah.');
+    }
+
+    // Menghapus jadwal
+    public function destroy($id)
+    {
+        $jadwal = Jadwal::findOrFail($id);
+        $jadwal->delete();
+
+        return redirect()
+            ->route('jadwal.index')
+            ->with('success', 'Jadwal berhasil dihapus.');
     }
 }

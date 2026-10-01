@@ -202,6 +202,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::get('/', [JadwalController::class, 'index'])->name('index');
         Route::get('/create', [JadwalController::class, 'create'])->name('create');
         Route::post('/', [JadwalController::class, 'store'])->name('store');
+        Route::get('/{jadwal}', [JadwalController::class, 'show'])->name('show');
         Route::get('/{jadwal}/edit', [JadwalController::class, 'edit'])->name('edit');
         Route::put('/{jadwal}', [JadwalController::class, 'update'])->name('update');
         Route::delete('/{jadwal}', [JadwalController::class, 'destroy'])->name('destroy');

@@ -68,6 +68,10 @@
                     required
                 >
                 <p class="text-xs text-gray-400 mt-1">*Gunakan format titik (contoh: 07.00-08.00) agar lolos validasi controller.</p>
+                <div id="jam-error-warning" class="hidden mt-2 p-2.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-xs font-semibold flex items-center gap-2">
+                    <i class="fas fa-exclamation-triangle text-rose-500"></i>
+                    <span id="jam-error-text">Jam pelajaran tidak boleh mundur!</span>
+                </div>
             </div>
 
             <!-- Select Mata Pelajaran -->
@@ -121,4 +125,59 @@
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const jamInput = document.getElementById('jam');
+    const warningBox = document.getElementById('jam-error-warning');
+    const warningText = document.getElementById('jam-error-text');
+    const form = document.querySelector('form');
+
+    function checkJamValidity() {
+        const val = jamInput.value.trim();
+        const pattern = /^(\d{2})\.(\d{2})-(\d{2})\.(\d{2})$/;
+        const match = val.match(pattern);
+
+        if (!match) {
+            warningBox.classList.add('hidden');
+            return true;
+        }
+
+        const hMulai = parseInt(match[1], 10);
+        const mMulai = parseInt(match[2], 10);
+        const hSelesai = parseInt(match[3], 10);
+        const mSelesai = parseInt(match[4], 10);
+
+        if (hMulai > 23 || mMulai > 59 || hSelesai > 23 || mSelesai > 59) {
+            warningText.textContent = 'Format jam atau menit tidak valid (Jam: 00-23, Menit: 00-59).';
+            warningBox.classList.remove('hidden');
+            return false;
+        }
+
+        const totalMulai = (hMulai * 60) + mMulai;
+        const totalSelesai = (hSelesai * 60) + mSelesai;
+
+        if (totalSelesai <= totalMulai) {
+            const strMulai = `${match[1]}.${match[2]}`;
+            const strSelesai = `${match[3]}.${match[4]}`;
+            warningText.textContent = `Jam pelajaran tidak valid! Jam selesai (${strSelesai}) tidak boleh lebih awal atau sama dengan jam mulai (${strMulai}).`;
+            warningBox.classList.remove('hidden');
+            return false;
+        }
+
+        warningBox.classList.add('hidden');
+        return true;
+    }
+
+    jamInput.addEventListener('input', checkJamValidity);
+    jamInput.addEventListener('blur', checkJamValidity);
+
+    form.addEventListener('submit', function (e) {
+        if (!checkJamValidity()) {
+            e.preventDefault();
+            jamInput.focus();
+        }
+    });
+});
+</script>
 @endsection

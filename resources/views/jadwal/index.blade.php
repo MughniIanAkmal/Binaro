@@ -53,9 +53,21 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <a href="{{ route('jadwal.edit', $jadwal->id_jadwal) }}" class="bg-amber-500 hover:bg-amber-600 text-white px-3 py-1.5 rounded-md text-xs font-medium transition inline-block">
-                                    Edit
-                                </a>
+                                <div class="flex items-center justify-center gap-1.5 flex-nowrap">
+                                    <a href="{{ route('jadwal.show', $jadwal->id_jadwal) }}" class="bg-sky-600 hover:bg-sky-700 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition inline-flex items-center gap-1 shadow-sm" title="Lihat Detail">
+                                        <i class="fas fa-eye text-[11px]"></i> Detail
+                                    </a>
+                                    <a href="{{ route('jadwal.edit', $jadwal->id_jadwal) }}" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition inline-flex items-center gap-1 shadow-sm" title="Edit Jadwal">
+                                        <i class="fas fa-pen text-[11px]"></i> Edit
+                                    </a>
+                                    <form action="{{ route('jadwal.destroy', $jadwal->id_jadwal) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal mata pelajaran ini?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition inline-flex items-center gap-1 shadow-sm" title="Hapus Jadwal">
+                                            <i class="fas fa-trash text-[11px]"></i> Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
