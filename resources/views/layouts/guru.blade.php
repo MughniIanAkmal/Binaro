@@ -68,6 +68,15 @@
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.notifikasi_pr.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
                 <i class="fas fa-bell w-4 text-amber-300"></i> Notifikasi PR
             </a>
+
+            <!-- 5. Menu RPP & Modul Ajar (Kurikulum Merdeka) -->
+            <a href="{{ route('guru.rpp.index') }}"
+               class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.rpp.*') || request()->is('rpp-guru*') || (request()->routeIs('rpp.*') && session('user_type') === 'guru') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
+                <span class="flex items-center gap-3">
+                    <i class="fas fa-file-signature w-4 text-amber-300"></i> RPP & Modul Ajar
+                </span>
+                <span class="bg-amber-400 text-slate-900 text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm">Baru</span>
+            </a>
         </nav>
 
         <div class="p-4 border-t border-white/10 text-xs">
@@ -105,6 +114,41 @@
                 </div>
             </div>
         </header>
+
+        <!-- Flash Alerts -->
+        @if(session('success'))
+        <div class="mx-8 mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2.5">
+                <i class="fas fa-check-circle text-emerald-600 text-base"></i>
+                <span class="font-medium">{{ session('success') }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700"><i class="fas fa-times"></i></button>
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="mx-8 mt-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2.5">
+                <i class="fas fa-circle-exclamation text-rose-600 text-base"></i>
+                <span class="font-medium">{{ session('error') }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700"><i class="fas fa-times"></i></button>
+        </div>
+        @endif
+
+        @if(isset($errors) && $errors->any())
+        <div class="mx-8 mt-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs shadow-sm">
+            <div class="font-bold mb-1.5 flex items-center gap-2 text-rose-700">
+                <i class="fas fa-triangle-exclamation"></i>
+                <span>Terjadi Kesalahan Input:</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 pl-1 text-slate-700">
+                @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
 
         <!-- Page Content -->
         <div class="p-8 space-y-6 flex-1">

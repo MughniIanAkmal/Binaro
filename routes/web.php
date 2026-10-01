@@ -15,6 +15,7 @@ use App\Http\Controllers\Guru\NotifikasiPrController;
 use App\Http\Controllers\Siswa\SiswaNotifikasiPrController;
 use App\Http\Middleware\EnsureAuthenticated;
 use App\Http\Middleware\EnsureRole;
+use App\Http\Middleware\EnsureGuruOrAdmin;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -114,7 +115,11 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             Route::get('/export/{idQuiz}', [QuizController::class, 'exportRekap'])->name('export');
         });
 
+<<<<<<< Updated upstream
         // Kelola Notifikasi PR (CRUD + Kirim Notifikasi ke Siswa)
+=======
+        // Notifikasi & Pekerjaan Rumah (PR)
+>>>>>>> Stashed changes
         Route::prefix('notifikasi-pr')->name('notifikasi_pr.')->group(function () {
             Route::get('/', [NotifikasiPrController::class, 'index'])->name('index');
             Route::get('/create', [NotifikasiPrController::class, 'create'])->name('create');
@@ -126,7 +131,19 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             Route::post('/kirim', [NotifikasiPrController::class, 'kirim'])->name('kirim');
             Route::delete('/notifikasi/{id}', [NotifikasiPrController::class, 'destroyNotifikasi'])->name('destroy_notifikasi');
         });
+
+        // RPP & Modul Ajar (Portal Guru)
+        Route::prefix('rpp')->name('rpp.')->group(function () {
+            Route::get('/', [RppController::class, 'guruIndex'])->name('index');
+            Route::post('/', [RppController::class, 'store'])->name('store');
+            Route::get('/{id}', [RppController::class, 'show'])->name('show');
+            Route::put('/{id}', [RppController::class, 'update'])->name('update');
+            Route::delete('/{id}', [RppController::class, 'destroy'])->name('destroy');
+            Route::get('/{id}/download', [RppController::class, 'download'])->name('download');
+        });
     });
+
+    Route::middleware([EnsureRole::class . ':admin,guru'])->get('/rpp-guru', [RppController::class, 'guruIndex'])->name('rpp_guru.index');
 
     // 5. Akun Guru CRUD (Role: Admin)
     Route::middleware([EnsureRole::class . ':admin'])->prefix('guru')->name('guru.')->group(function () {
