@@ -43,7 +43,8 @@ class AdminController extends Controller
 
         $recentGuru = Guru::latest()->take(5)->get();
         $recentSiswa = Siswa::with('kelas')->latest()->take(5)->get();
+        $absensiSetting = class_exists(\App\Models\AbsensiSetting::class) ? \App\Models\AbsensiSetting::getSettings() : null;
 
-        return view('admin.dashboard', compact('admin', 'stats', 'recentGuru', 'recentSiswa'));
+        return view('admin.dashboard', compact('admin', 'stats', 'recentGuru', 'recentSiswa', 'absensiSetting'));
     }
 }

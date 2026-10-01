@@ -59,6 +59,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     // 2. Absensi Harian - Admin & Guru
     Route::middleware([EnsureRole::class . ':admin,guru'])->prefix('absensi')->name('absensi.')->group(function () {
         Route::get('/', [AbsensiController::class, 'index'])->name('index');
+        Route::get('/rekap', [AbsensiController::class, 'rekap'])->name('rekap');
         Route::post('/scan-qr', [AbsensiController::class, 'scanQr'])
             ->middleware(EnsureGuruOrAdmin::class)
             ->name('scan-qr');
@@ -79,7 +80,10 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::middleware([EnsureRole::class . ':guru'])->prefix('guru')->name('guru.')->group(function () {
         Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
         Route::get('/jadwal-mengajar', [GuruController::class, 'jadwalMengajar'])->name('jadwal.index');
+        Route::get('/jadwal', [GuruController::class, 'jadwalMengajar'])->name('jadwal');
         Route::get('/absensi/rekap', [AbsensiController::class, 'rekap'])->name('absensi.rekap');
+        Route::get('/absensi', [AbsensiController::class, 'rekap'])->name('absensi');
+        Route::get('/rekap-absensi', [AbsensiController::class, 'rekap']);
 
         // Materi Management & Learning Hierarchy (PRD 4.1)
         Route::get('/mapel-belajar', [MateriController::class, 'mapelGrid'])->name('mapel.browse');
@@ -188,10 +192,14 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::get('/sub-bab/{idSubBab}/materi', [SiswaLearningController::class, 'subBabMateri'])->name('sub_bab.materi');
         Route::get('/materi/{idMateri}', [SiswaLearningController::class, 'viewMateri'])->name('materi.view');
 
-        // Ujian Online Siswa (Sahabat Belajar)
+        // Ujian Online Resmi CBT Siswa (Sahabat Belajar)
         Route::get('/ujian', [SiswaLearningController::class, 'daftarUjian'])->name('ujian.index');
         Route::get('/ujian/{idQuiz}/petunjuk', [SiswaLearningController::class, 'petunjukUjian'])->name('ujian.petunjuk');
+        Route::get('/ujian/{idQuiz}/play', [SiswaLearningController::class, 'playUjian'])->name('ujian.play');
+        Route::post('/ujian/{idQuiz}/submit', [SiswaLearningController::class, 'submitUjian'])->name('ujian.submit');
+        Route::get('/ujian/{idQuiz}/result', [SiswaLearningController::class, 'resultUjian'])->name('ujian.result');
 
+        // Kuis Evaluasi Materi Pembelajaran (Sub-Bab)
         Route::get('/quiz/{idQuiz}/play', [SiswaLearningController::class, 'playQuiz'])->name('quiz.play');
         Route::post('/quiz/{idQuiz}/submit', [SiswaLearningController::class, 'submitQuiz'])->name('quiz.submit');
         Route::get('/quiz/{idQuiz}/result', [SiswaLearningController::class, 'resultQuiz'])->name('quiz.result');
@@ -220,11 +228,13 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::delete('/{siswa}', [SiswaController::class, 'destroy'])->name('destroy');
     });
 
-    // 8. Admin Dashboard (Role: Admin)
+    // 8. Admin Dashboard & Pengaturan (Role: Admin)
     Route::middleware([EnsureRole::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         Route::get('/', function() { return redirect()->route('admin.dashboard'); });
         Route::get('/absensi/rekap', [AbsensiController::class, 'rekap'])->name('absensi.rekap');
+        Route::get('/absensi/settings', [AbsensiController::class, 'settingsView'])->name('absensi.settings');
+        Route::post('/absensi/settings', [AbsensiController::class, 'updateSettings'])->name('absensi.settings.update');
     });
 
     // 9. Jadwal (Role: Admin & Guru)

@@ -20,12 +20,19 @@ class QuizController extends Controller
     public function storeSoal(Request $request, $idQuiz)
     {
         $request->validate([
-            'pertanyaan' => 'required|string',
-            'opsi_a' => 'required|string',
-            'opsi_b' => 'required|string',
-            'opsi_c' => 'required|string',
-            'opsi_d' => 'required|string',
+            'pertanyaan'    => 'required|string|max:1000',
+            'opsi_a'        => 'required|string|max:255',
+            'opsi_b'        => 'required|string|max:255',
+            'opsi_c'        => 'required|string|max:255',
+            'opsi_d'        => 'required|string|max:255',
             'kunci_jawaban' => 'required|in:A,B,C,D',
+        ], [
+            'pertanyaan.required' => 'Pertanyaan soal wajib diisi.',
+            'pertanyaan.max'      => 'Pertanyaan soal maksimal 1000 karakter.',
+            'opsi_a.max'          => 'Pilihan A maksimal 255 karakter.',
+            'opsi_b.max'          => 'Pilihan B maksimal 255 karakter.',
+            'opsi_c.max'          => 'Pilihan C maksimal 255 karakter.',
+            'opsi_d.max'          => 'Pilihan D maksimal 255 karakter.',
         ]);
 
         SoalQuiz::create([
@@ -48,25 +55,42 @@ class QuizController extends Controller
         return back()->with('success', 'Soal berhasil dihapus.');
     }
 
-    // Import Soal via CSV/Excel
     public function importSoal(Request $request, $idQuiz)
     {
+        $excelExtensionValidator = function ($attribute, $value, $fail) {
+            if ($value) {
+                $ext = strtolower($value->getClientOriginalExtension());
+                if (!in_array($ext, ['xlsx', 'xls', 'csv'])) {
+                    $fail('File kuis wajib berformat spreadsheet Excel / CSV (.xlsx, .xls, atau .csv). Format selain Excel/CSV tidak diperbolehkan.');
+                }
+            }
+        };
+
         $request->validate([
-            'file_excel' => 'required|file|mimes:csv,txt,xlsx,xls|max:5120',
+            'file_excel' => ['required', 'file', 'max:5120', $excelExtensionValidator],
+        ], [
+            'file_excel.required' => 'Silakan pilih file Excel / CSV (.xlsx, .xls, .csv) untuk diunggah.',
+            'file_excel.file'     => 'File kuis yang diunggah tidak valid.',
+            'file_excel.max'      => 'Ukuran file Excel / CSV maksimal 5 MB.',
         ]);
 
         $file = $request->file('file_excel');
-        $handle = fopen($file->getRealPath(), 'r');
-        if (!$handle) {
-            return back()->with('error', 'Gagal membaca file.');
+        $filePath = $file->getRealPath();
+        $ext = strtolower($file->getClientOriginalExtension());
+
+        $rows = \App\Services\ExcelService::parseFile($filePath, $ext);
+
+        if (empty($rows)) {
+            return back()->with('error', 'Gagal membaca isi data file Excel / CSV. Pastikan format tabel sesuai template.');
         }
 
-        $header = fgetcsv($handle, 1000, ',');
+        // Baris pertama diasumsikan sebagai Header kolom
+        $header = array_shift($rows);
         $rowCount = 0;
         $inserted = 0;
         $errors = [];
 
-        while (($data = fgetcsv($handle, 1000, ',')) !== FALSE) {
+        foreach ($rows as $data) {
             $rowCount++;
             if ($rowCount > 50) {
                 $errors[] = "Batas maksimal 50 soal terlampaui.";
@@ -74,7 +98,7 @@ class QuizController extends Controller
             }
 
             if (count($data) < 6) {
-                $errors[] = "Baris #{$rowCount}: Kolom kurang dari 6.";
+                $errors[] = "Baris #{$rowCount}: Kolom kurang dari 6 (Pertanyaan, Opsi A-D, Kunci).";
                 continue;
             }
 
@@ -82,12 +106,12 @@ class QuizController extends Controller
             $kunciUpper = strtoupper($kunci);
 
             if (empty($pertanyaan) || empty($a) || empty($b) || empty($c) || empty($d)) {
-                $errors[] = "Baris #{$rowCount}: Kolom pertanyaan atau opsi ada yang kosong.";
+                $errors[] = "Baris #{$rowCount}: Pertanyaan atau pilihan jawaban tidak boleh kosong.";
                 continue;
             }
 
             if (!in_array($kunciUpper, ['A', 'B', 'C', 'D'])) {
-                $errors[] = "Baris #{$rowCount}: Kunci jawaban ('{$kunci}') harus A, B, C, atau D.";
+                $errors[] = "Baris #{$rowCount}: Kunci jawaban ('{$kunci}') tidak valid. Wajib diisi huruf A, B, C, atau D.";
                 continue;
             }
 
@@ -103,33 +127,23 @@ class QuizController extends Controller
             $inserted++;
         }
 
-        fclose($handle);
-
         if (!empty($errors)) {
             return back()->with('error', "Import selesai dengan catatan: " . implode(' ', array_slice($errors, 0, 3)));
         }
 
-        return back()->with('success', "Berhasil mengimpor {$inserted} soal.");
+        return back()->with('success', "Berhasil mengimpor {$inserted} soal dari file Excel.");
     }
 
-    // Download CSV template
+    // Download template Excel (.xlsx)
     public function downloadTemplate()
     {
-        $filename = "template_soal_kuis.csv";
-        $headers = [
-            "Content-Type" => "text/csv; charset=UTF-8",
-            "Content-Disposition" => "attachment; filename=\"$filename\"",
-        ];
+        $content = \App\Services\ExcelService::generateQuizTemplate();
 
-        $callback = function () {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['pertanyaan', 'opsi_a', 'opsi_b', 'opsi_c', 'opsi_d', 'kunci_jawaban']);
-            fputcsv($file, ['Berapakah 2 + 2?', '3', '4', '5', '6', 'B']);
-            fputcsv($file, ['Ibu kota Indonesia adalah?', 'Bandung', 'Surabaya', 'Jakarta', 'Medan', 'C']);
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return response($content, 200, [
+            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => 'attachment; filename="template_soal_kuis.xlsx"',
+            'Cache-Control'       => 'max-age=0',
+        ]);
     }
 
     // Rekap Nilai Kuis Guru
@@ -205,11 +219,9 @@ class QuizController extends Controller
                 'required',
                 'string',
                 'max:1000',
-                'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\"\/\(\)\!\?\n\r]+$/u',
             ],
         ], [
             'catatan_guru.required' => 'Catatan umpan balik tidak boleh kosong.',
-            'catatan_guru.regex' => 'Catatan umpan balik tidak boleh mengandung simbol aneh seperti $, @, #, %, ^, &, *, +, =, ~, <, >.',
         ]);
 
         $hasil = HasilKuisSiswa::findOrFail($request->id_hasil);
@@ -237,10 +249,7 @@ class QuizController extends Controller
                 'nullable',
                 'string',
                 'max:500',
-                'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\"\/\(\)\!\?\n\r]+$/u',
             ],
-        ], [
-            'pesan_tambahan.regex' => 'Pesan tambahan tidak boleh mengandung simbol aneh seperti $, @, #, %, ^, &, *, +, =, ~, <, >.',
         ]);
 
         $hasil = HasilKuisSiswa::with(['siswa', 'quiz'])->findOrFail($request->id_hasil);
@@ -264,6 +273,12 @@ class QuizController extends Controller
             'id_pr' => null,
             'pesan' => trim($pesan),
             'status_baca' => false,
+        ]);
+
+        // Tandai bahwa nilai telah dikirim/dirilis oleh guru
+        $hasil->update([
+            'status_kirim' => true,
+            'waktu_kirim' => now(),
         ]);
 
         if ($request->ajax() || $request->wantsJson()) {
@@ -301,6 +316,13 @@ class QuizController extends Controller
                 'pesan' => trim($pesan),
                 'status_baca' => false,
             ]);
+
+            // Tandai nilai telah dirilis ke siswa
+            $h->update([
+                'status_kirim' => true,
+                'waktu_kirim' => now(),
+            ]);
+
             $terkirim++;
         }
 

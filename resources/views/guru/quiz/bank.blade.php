@@ -24,19 +24,6 @@
         </div>
     </div>
 
-    @if(session('error'))
-    <div class="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-lg flex items-center gap-2">
-        <i class="fas fa-exclamation-circle text-rose-500"></i>
-        <span>{{ session('error') }}</span>
-    </div>
-    @endif
-
-    @if(session('success'))
-    <div class="p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg flex items-center gap-2">
-        <i class="fas fa-check-circle text-emerald-500"></i>
-        <span>{{ session('success') }}</span>
-    </div>
-    @endif
 
     <!-- Question List -->
     <div class="space-y-3">
@@ -90,24 +77,24 @@
             @csrf
             <div>
                 <label class="block font-semibold text-slate-700 mb-1">Pertanyaan</label>
-                <textarea name="pertanyaan" required rows="2" placeholder="Tuliskan soal..." class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]"></textarea>
+                <textarea name="pertanyaan" required rows="2" maxlength="1000" placeholder="Tuliskan soal (maksimal 1000 karakter)..." class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-2">
                 <div>
                     <label class="block font-semibold text-slate-700 mb-1">Opsi A</label>
-                    <input type="text" name="opsi_a" required class="w-full px-3 py-2 border border-slate-200 rounded-lg">
+                    <input type="text" name="opsi_a" required maxlength="255" placeholder="Pilihan A" class="w-full px-3 py-2 border border-slate-200 rounded-lg">
                 </div>
                 <div>
                     <label class="block font-semibold text-slate-700 mb-1">Opsi B</label>
-                    <input type="text" name="opsi_b" required class="w-full px-3 py-2 border border-slate-200 rounded-lg">
+                    <input type="text" name="opsi_b" required maxlength="255" placeholder="Pilihan B" class="w-full px-3 py-2 border border-slate-200 rounded-lg">
                 </div>
                 <div>
                     <label class="block font-semibold text-slate-700 mb-1">Opsi C</label>
-                    <input type="text" name="opsi_c" required class="w-full px-3 py-2 border border-slate-200 rounded-lg">
+                    <input type="text" name="opsi_c" required maxlength="255" placeholder="Pilihan C" class="w-full px-3 py-2 border border-slate-200 rounded-lg">
                 </div>
                 <div>
                     <label class="block font-semibold text-slate-700 mb-1">Opsi D</label>
-                    <input type="text" name="opsi_d" required class="w-full px-3 py-2 border border-slate-200 rounded-lg">
+                    <input type="text" name="opsi_d" required maxlength="255" placeholder="Pilihan D" class="w-full px-3 py-2 border border-slate-200 rounded-lg">
                 </div>
             </div>
             <div>
@@ -127,26 +114,26 @@
     </div>
 </div>
 
-<!-- Modal Import Excel/CSV -->
+<!-- Modal Import Excel Only -->
 <div id="modal-import-soal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-lg max-w-md w-full p-5 border border-slate-200">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-bold text-slate-900">Import Soal Excel / CSV</h3>
+            <h3 class="text-sm font-bold text-slate-900">Import Soal Excel / CSV (.xlsx / .xls / .csv)</h3>
             <button onclick="closeModal('modal-import-soal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
         </div>
-        <form action="{{ route('guru.quiz.import', $quiz->id_quiz) }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
+        <form action="{{ route('guru.quiz.import', $quiz->id_quiz) }}" method="POST" enctype="multipart/form-data" onsubmit="return validateBankExcelForm()" class="space-y-4 text-xs">
             @csrf
-            <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg space-y-2">
-                <p class="font-semibold text-slate-700">Unduh Format Template:</p>
+            <div class="p-3 bg-emerald-50/60 border border-emerald-200 rounded-lg space-y-2">
+                <p class="font-bold text-emerald-900">Format Template Soal Excel / CSV:</p>
                 <a href="{{ route('guru.quiz.template.download') }}" class="inline-flex items-center gap-1.5 text-xs text-[#13527D] font-bold hover:underline">
-                    <i class="fas fa-file-csv"></i> Download Template CSV (.csv)
+                    <i class="fas fa-file-excel text-emerald-600"></i> Download Template Excel (.xlsx)
                 </a>
             </div>
 
             <div>
-                <label class="block font-semibold text-slate-700 mb-1">Upload File Soal (.csv / .xlsx)</label>
-                <input type="file" name="file_excel" accept=".csv, .xlsx, .xls" required class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50">
-                <p class="text-[10px] text-slate-400 mt-1">Maksimal 50 soal per file.</p>
+                <label class="block font-bold text-slate-700 mb-1">Unggah File Soal Excel / CSV (.xlsx / .xls / .csv) <span class="text-rose-500">*</span></label>
+                <input type="file" name="file_excel" id="bank-file-excel" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" required onchange="validateBankExcel(this)" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#13527D]">
+                <p class="text-[10px] text-slate-500 mt-1">Menerima format spreadsheet Excel (.xlsx, .xls) atau CSV (.csv). Maksimal 50 soal per file. Format file selain Excel/CSV ditolak.</p>
             </div>
 
             <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
@@ -160,5 +147,22 @@
 <script>
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+function validateBankExcel(input) {
+    if (!input || !input.files || !input.files[0]) return true;
+    const file = input.files[0];
+    const name = file.name.toLowerCase();
+    if (!name.endsWith('.xlsx') && !name.endsWith('.xls') && !name.endsWith('.csv')) {
+        alert('Format file ditolak!\n\nBagian kuis HANYA menerima berkas spreadsheet Excel (.xlsx, .xls) atau CSV (.csv).\nFile "' + file.name + '" bukan berkas Excel/CSV yang diizinkan.');
+        input.value = '';
+        return false;
+    }
+    return true;
+}
+
+function validateBankExcelForm() {
+    const input = document.getElementById('bank-file-excel');
+    return validateBankExcel(input);
+}
 </script>
 @endsection

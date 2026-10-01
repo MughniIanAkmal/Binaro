@@ -2,7 +2,7 @@
 
 @section('content')
 <!-- Content Body -->
-<div class="space-y-6">
+<div class="p-8 space-y-6">
     <!-- Page Title -->
     <div class="flex justify-between items-start">
         <div>
@@ -137,16 +137,18 @@
                 <label class="block font-bold text-slate-700 mb-1">
                     Nama Mata Pelajaran <span class="text-rose-500">*</span>
                 </label>
-                <input type="text" name="nama_mapel" required
+                <input type="text" name="nama_mapel" required maxlength="100"
+                       oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\&\-\(\)\/\.]/g, '');"
                        placeholder="Contoh: Matematika, Bahasa Indonesia, IPA..."
                        class="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition">
+                <span class="text-[10px] text-slate-400 mt-0.5 block">Maksimal 100 karakter (huruf, angka, spasi, simbol & - ( ) / .).</span>
             </div>
             <div>
                 <label class="block font-bold text-slate-700 mb-1">
                     Deskripsi Singkat Mapel
                 </label>
-                <textarea name="deskripsi" rows="3"
-                          placeholder="Tuliskan deskripsi singkat mengenai cakupan materi atau tujuan mapel..."
+                <textarea name="deskripsi" rows="3" maxlength="1000"
+                          placeholder="Tuliskan deskripsi singkat mengenai cakupan materi atau tujuan mapel (maksimal 1000 karakter)..."
                           class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition"></textarea>
             </div>
             <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
@@ -182,15 +184,17 @@
                 <label class="block font-bold text-slate-700 mb-1">
                     Nama Mata Pelajaran <span class="text-rose-500">*</span>
                 </label>
-                <input type="text" id="editNamaMapel" name="nama_mapel" required
+                <input type="text" id="editNamaMapel" name="nama_mapel" required maxlength="100"
+                       oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\&\-\(\)\/\.]/g, '');"
                        class="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition">
+                <span class="text-[10px] text-slate-400 mt-0.5 block">Maksimal 100 karakter.</span>
             </div>
             <div>
                 <label class="block font-bold text-slate-700 mb-1">
                     Deskripsi Singkat Mapel
                 </label>
-                <textarea id="editDeskripsi" name="deskripsi" rows="3"
-                          placeholder="Tuliskan deskripsi singkat mengenai cakupan materi atau tujuan mapel..."
+                <textarea id="editDeskripsi" name="deskripsi" rows="3" maxlength="1000"
+                          placeholder="Tuliskan deskripsi singkat mengenai cakupan materi atau tujuan mapel (maksimal 1000 karakter)..."
                           class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition"></textarea>
             </div>
             <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">

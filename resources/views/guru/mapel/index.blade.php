@@ -18,19 +18,6 @@
         </div>
     </div>
 
-    @if(session('error'))
-    <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
-        <i class="fas fa-exclamation-circle text-rose-500"></i>
-        <span>{{ session('error') }}</span>
-    </div>
-    @endif
-
-    @if(session('success'))
-    <div class="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl flex items-center gap-2">
-        <i class="fas fa-check-circle text-emerald-500"></i>
-        <span>{{ session('success') }}</span>
-    </div>
-    @endif
 
     <!-- Grid Card Mata Pelajaran -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

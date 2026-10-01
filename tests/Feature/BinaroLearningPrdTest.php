@@ -356,4 +356,84 @@ class BinaroLearningPrdTest extends TestCase
         $exportRes->assertOk();
         $this->assertStringContainsString('text/csv', $exportRes->headers->get('content-type'));
     }
+
+    public function test_inputs_accept_math_and_educational_symbols()
+    {
+        $guru = Guru::create([
+            'nama_guru' => 'Guru Simbol',
+            'nip'       => '198501012010011005',
+            'password'  => 'pass123',
+        ]);
+        $session = ['user_id' => $guru->id_guru, 'user_type' => 'guru'];
+
+        $mapel = MataPelajaran::create(['nama_mapel' => 'Matematika & Sains']);
+        $bab = Bab::create(['id_mapel' => $mapel->id_mapel, 'nama_bab' => 'Bab 1: Aljabar (+, -, *, /)']);
+        $subBab = SubBab::create(['id_bab' => $bab->id_bab, 'nama_sub_bab' => 'Sub 1: Persamaan & Pertidaksamaan (<, >)']);
+        $quiz = Quiz::create(['id_sub_bab' => $subBab->id_sub_bab, 'judul_quiz' => 'Kuis 1: 100% Aljabar!']);
+
+        // 1. Store Soal with math/punctuation symbols
+        $pertanyaan = 'Jika 3x + 15 = 45 / 1, berapakah nilai x? (Apakah x > 5?)';
+        $soalRes = $this->withSession($session)->post("/guru/quiz/{$quiz->id_quiz}/soal", [
+            'pertanyaan'    => $pertanyaan,
+            'opsi_a'        => 'x = 10 (100% benar)',
+            'opsi_b'        => 'x < 5 & x != 0',
+            'opsi_c'        => 'x + 2 = 12',
+            'opsi_d'        => 'x = 0; "tak tentu"',
+            'kunci_jawaban' => 'A',
+        ]);
+        $soalRes->assertSessionHas('success');
+
+        $this->assertDatabaseHas('soal_quiz', [
+            'id_quiz'    => $quiz->id_quiz,
+            'pertanyaan' => $pertanyaan,
+            'opsi_a'     => 'x = 10 (100% benar)',
+        ]);
+
+        // 2. Feedback note with symbols
+        $siswa = Siswa::create(['nm_siswa' => 'Siti Aljabar', 'nisn' => '9988776655', 'password' => '123']);
+        $hasil = HasilKuisSiswa::create([
+            'id_quiz'      => $quiz->id_quiz,
+            'id_siswa'     => $siswa->id_siswa,
+            'jumlah_benar' => 5,
+            'jumlah_salah' => 0,
+            'nilai_akhir'  => 100.00,
+        ]);
+
+        $feedbackText = 'Hebat! Nilai kamu 100%. Pelajari lagi rumus x + y = z & tanda < atau >.';
+        $fbRes = $this->withSession($session)->post('/rekap-ujian/feedback', [
+            'id_hasil'     => $hasil->id_hasil,
+            'catatan_guru' => $feedbackText,
+        ]);
+        $fbRes->assertSessionHas('success');
+
+        $hasil->refresh();
+        $this->assertEquals($feedbackText, $hasil->catatan_guru);
+
+        // 3. RPP judul rejects symbols as per human-error guardrail, but accepts clean text
+        $rppJudulSymbol = 'RPP Merdeka (+, -, *, /) & Diskon 50%';
+        $rppResSymbol = $this->withSession($session)->post('/rpp', [
+            'id_guru'       => $guru->id_guru,
+            'id_mapel'      => $mapel->id_mapel,
+            'judul_rpp'     => $rppJudulSymbol,
+            'status'        => 'menunggu_review',
+        ]);
+        $rppResSymbol->assertSessionHasErrors(['judul_rpp']);
+
+        $rppJudulValid = 'RPP Merdeka Operasi Hitung dan Diskon 50 Persen';
+        $rppDeskripsi = 'Tujuan pembelajaran siswa memahami perbandingan 1 banding 2';
+        $rppRes = $this->withSession($session)->post('/rpp', [
+            'id_guru'       => $guru->id_guru,
+            'id_mapel'      => $mapel->id_mapel,
+            'judul_rpp'     => $rppJudulValid,
+            'deskripsi'     => $rppDeskripsi,
+            'status'        => 'menunggu_review',
+        ]);
+        $rppRes->assertSessionHas('success');
+
+        $this->assertDatabaseHas('rpp', [
+            'id_guru'   => $guru->id_guru,
+            'judul_rpp' => $rppJudulValid,
+            'deskripsi' => $rppDeskripsi,
+        ]);
+    }
 }

@@ -131,6 +131,14 @@ class RoutingAuditTest extends TestCase
         // Unauthorized access to Guru Account Creation (Admin only)
         $response = $this->withSession($session)->get('/guru/create');
         $response->assertRedirect('/guru/dashboard');
+
+        // Access Guru Jadwal Mengajar
+        $response = $this->withSession($session)->get('/guru/jadwal-mengajar');
+        $response->assertStatus(200);
+
+        // Access Guru Rekap Absensi
+        $response = $this->withSession($session)->get('/guru/absensi/rekap');
+        $response->assertStatus(200);
     }
 
     public function test_admin_role_route_access()
@@ -141,6 +149,13 @@ class RoutingAuditTest extends TestCase
             'user_type' => 'admin',
             'user_name' => 'Administrator',
         ];
+
+        // Access Admin Dashboard & root admin
+        $response = $this->withSession($session)->get('/admin/dashboard');
+        $response->assertStatus(200);
+
+        $response = $this->withSession($session)->get('/admin');
+        $response->assertRedirect('/admin/dashboard');
 
         // Access Admin Rekap
         $response = $this->withSession($session)->get('/admin/absensi/rekap');

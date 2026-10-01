@@ -36,16 +36,26 @@ class MapelController extends Controller
         }
 
         $request->validate([
-            'nama_mapel' => 'required|string|max:100|unique:mata_pelajaran,nama_mapel',
+            'nama_mapel' => [
+                'required',
+                'string',
+                'min:2',
+                'max:100',
+                'regex:/^[a-zA-Z0-9\s\&\-\(\)\/\.]+$/u',
+                'unique:mata_pelajaran,nama_mapel',
+            ],
             'deskripsi'  => 'nullable|string|max:1000',
         ], [
             'nama_mapel.required' => 'Nama mata pelajaran wajib diisi.',
-            'nama_mapel.unique'   => 'Nama mata pelajaran sudah terdaftar.',
+            'nama_mapel.min'      => 'Nama mata pelajaran minimal 2 karakter.',
             'nama_mapel.max'      => 'Nama mata pelajaran maksimal 100 karakter.',
+            'nama_mapel.unique'   => 'Nama mata pelajaran sudah terdaftar.',
+            'nama_mapel.regex'    => 'Nama mata pelajaran hanya boleh mengandung huruf, angka, spasi, dan karakter (&, -, (, ), /, .).',
+            'deskripsi.max'       => 'Deskripsi mata pelajaran maksimal 1000 karakter.',
         ]);
 
         MataPelajaran::create([
-            'nama_mapel' => $request->nama_mapel,
+            'nama_mapel' => trim($request->nama_mapel),
             'deskripsi'  => $request->deskripsi,
         ]);
 
@@ -61,16 +71,26 @@ class MapelController extends Controller
         $mapel = MataPelajaran::findOrFail($id);
 
         $request->validate([
-            'nama_mapel' => 'required|string|max:100|unique:mata_pelajaran,nama_mapel,' . $id . ',id_mapel',
+            'nama_mapel' => [
+                'required',
+                'string',
+                'min:2',
+                'max:100',
+                'regex:/^[a-zA-Z0-9\s\&\-\(\)\/\.]+$/u',
+                'unique:mata_pelajaran,nama_mapel,' . $id . ',id_mapel',
+            ],
             'deskripsi'  => 'nullable|string|max:1000',
         ], [
             'nama_mapel.required' => 'Nama mata pelajaran wajib diisi.',
-            'nama_mapel.unique'   => 'Nama mata pelajaran sudah terdaftar.',
+            'nama_mapel.min'      => 'Nama mata pelajaran minimal 2 karakter.',
             'nama_mapel.max'      => 'Nama mata pelajaran maksimal 100 karakter.',
+            'nama_mapel.unique'   => 'Nama mata pelajaran sudah terdaftar.',
+            'nama_mapel.regex'    => 'Nama mata pelajaran hanya boleh mengandung huruf, angka, spasi, dan karakter (&, -, (, ), /, .).',
+            'deskripsi.max'       => 'Deskripsi mata pelajaran maksimal 1000 karakter.',
         ]);
 
         $mapel->update([
-            'nama_mapel' => $request->nama_mapel,
+            'nama_mapel' => trim($request->nama_mapel),
             'deskripsi'  => $request->deskripsi,
         ]);
 
