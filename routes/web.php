@@ -140,6 +140,9 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     // 6. Siswa Dashboard & Learning Engine (Role: Siswa)
     Route::middleware([EnsureRole::class . ':siswa'])->prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
+        Route::get('/profil', [SiswaController::class, 'profile'])->name('profile');
+        Route::put('/profil', [SiswaController::class, 'updateProfile'])->name('profile.update');
+        Route::put('/password', [SiswaController::class, 'updatePassword'])->name('password.update');
         Route::get('/mapel', [SiswaLearningController::class, 'mapelIndex'])->name('mapel.index');
         Route::get('/mapel/{idMapel}', [SiswaLearningController::class, 'materiIndex'])->name('materi.index');
         Route::get('/sub-bab/{idSubBab}/materi', [SiswaLearningController::class, 'subBabMateri'])->name('sub_bab.materi');
