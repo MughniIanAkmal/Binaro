@@ -63,6 +63,12 @@
                 <i class="fas fa-chart-pie w-4 text-sky-300"></i> Rekap Absensi
             </a>
 
+            <!-- 3b. Menu Scan Absensi (QR) -->
+            <a href="{{ route('guru.absen.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.absen.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
+                <i class="fas fa-qrcode w-4 text-emerald-300"></i> Scan Absensi
+            </a>
+
             <!-- 4. Menu Kelola Notifikasi PR -->
             <a href="{{ route('guru.notifikasi_pr.index') }}"
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.notifikasi_pr.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">

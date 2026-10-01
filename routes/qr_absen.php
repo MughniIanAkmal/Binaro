@@ -21,4 +21,5 @@ Route::middleware([EnsureAuthenticated::class, EnsureRole::class . ':admin'])->p
 Route::middleware([EnsureAuthenticated::class, EnsureRole::class . ':admin,guru'])->prefix('guru/absen')->name('guru.absen.')->group(function () {
     Route::get('/', [AbsenScanController::class, 'index'])->name('index');
     Route::post('/scan', [AbsenScanController::class, 'store'])->name('scan');
+    Route::post('/izin', [AbsenScanController::class, 'storeIzin'])->name('izin');
 });

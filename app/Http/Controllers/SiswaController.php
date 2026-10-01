@@ -44,31 +44,55 @@ class SiswaController extends Controller
 
     public function updatePassword(Request $request)
     {
-        $request->validate([
-            'password_lama' => 'required|string',
-            'password' => 'required|string|min:6|confirmed',
-        ], [
-            'password.confirmed' => 'Konfirmasi password baru tidak sama.',
-            'password.min' => 'Password baru minimal 6 karakter.',
-        ]);
+        $passwordLama = trim((string) $request->input('password_lama'));
+        $passwordBaru = (string) $request->input('password');
+        $konfirmasi = (string) $request->input('password_confirmation');
+
+        $fieldErrors = [];
+
+        // 1. Password lama wajib diisi (dicek kecocokannya di bawah)
+        if ($passwordLama === '') {
+            $fieldErrors['password_lama'] = 'Password lama wajib diisi.';
+        }
+
+        // 3. Password baru minimal 6 karakter
+        if ($passwordBaru === '') {
+            $fieldErrors['password'] = 'Password baru wajib diisi.';
+        } elseif (mb_strlen($passwordBaru) < 6) {
+            $fieldErrors['password'] = 'Password baru minimal 6 karakter.';
+        }
+
+        // 2. Konfirmasi harus sama dengan password baru
+        if ($konfirmasi === '') {
+            $fieldErrors['password_confirmation'] = 'Konfirmasi password baru wajib diisi.';
+        } elseif ($passwordBaru !== '' && $konfirmasi !== $passwordBaru) {
+            $fieldErrors['password_confirmation'] = 'Konfirmasi password baru tidak sesuai.';
+        }
+
+        if (!empty($fieldErrors)) {
+            return back()->withErrors($fieldErrors)->with('open_password', true);
+        }
 
         $siswa = Siswa::find(session('user_id'));
         if (!$siswa) {
             return redirect()->route('login')->with('error', 'Sesi berakhir. Silakan login kembali.');
         }
 
+        // 1. Password lama salah
         $stored = trim((string) $siswa->password);
-        $inputLama = trim($request->input('password_lama'));
 
-        $cocok = ($inputLama === $stored)
-            || (str_starts_with($stored, '$2y$') && \Illuminate\Support\Facades\Hash::check($inputLama, $stored))
-            || (md5($inputLama) === $stored);
+        $cocok = ($passwordLama === $stored)
+            || (str_starts_with($stored, '$2y$') && Hash::check($passwordLama, $stored))
+            || (md5($passwordLama) === $stored);
 
         if (!$cocok) {
-            return back()->with('error', 'Password lama salah.')->with('open_password', true);
+            return back()
+                ->withErrors(['password_lama' => 'Password lama salah. Periksa kembali password Anda saat ini.'])
+                ->with('open_password', true);
         }
 
-        $siswa->update(['password' => $request->input('password')]);
+        // Simpan apa adanya (plain text) agar terlihat di database — tanpa Hash::make, sesuai permintaan.
+        $siswa->update(['password' => $passwordBaru]);
 
         return back()->with('success', 'Password berhasil diubah.');
     }
@@ -80,15 +104,30 @@ class SiswaController extends Controller
             return redirect()->route('login')->with('error', 'Sesi berakhir. Silakan login kembali.');
         }
 
-        $validated = $request->validate([
-            'username' => ['required', 'string', 'max:50', Rule::unique('siswa', 'username')->ignore($siswa->id_siswa, 'id_siswa')],
-            'email' => ['required', 'email', 'max:100', Rule::unique('siswa', 'email')->ignore($siswa->id_siswa, 'id_siswa')],
-            'no_hp' => 'nullable|string|max:20',
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'username' => ['required', 'string', 'max:25', 'regex:/^(?=.*[A-Za-z])[A-Za-z ]+$/', Rule::unique('siswa', 'username')->ignore($siswa->id_siswa, 'id_siswa')],
+            'email' => ['required', 'string', 'email:rfc', 'max:100', 'regex:/@/', Rule::unique('siswa', 'email')->ignore($siswa->id_siswa, 'id_siswa')],
+            'no_hp' => ['nullable', 'string', 'max:12', 'regex:/^[0-9]*$/'],
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string|max:500',
+        ], [
+            'username.required' => 'Username wajib diisi.',
+            'username.max' => 'Username maksimal 25 huruf.',
+            'username.regex' => 'Username hanya boleh berisi huruf (A-Z) dan spasi, tanpa angka atau simbol.',
+            'username.unique' => 'Username sudah dipakai siswa lain.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Email harus valid dan mengandung tanda @, contoh: nama@email.com.',
+            'email.regex' => 'Email harus mengandung tanda @, contoh: nama@email.com.',
+            'email.unique' => 'Email sudah dipakai siswa lain.',
+            'no_hp.max' => 'No. HP maksimal 12 angka.',
+            'no_hp.regex' => 'No. HP hanya boleh berisi angka (0-9).',
         ]);
 
-        $siswa->update($validated);
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput()->with('open_edit', true);
+        }
+
+        $siswa->update($validator->validated());
 
         return back()->with('success', 'Keterangan berhasil diperbarui.');
     }

@@ -98,10 +98,9 @@ class AbsensiController extends Controller
         $batasTutup = \App\Models\AbsensiSetting::get('batas_tutup', '12:00');
 
         if ($timeStr > $batasTutup) {
-            return back()->with('error', 'Sekolah sudah tutup, absen tidak dapat dilakukan.');
-        }
-
-        if ($timeStr < $batasAwal) {
+            // Melewati batas waktu admin: tetap tercatat sebagai Terlambat.
+            $ket = 'Terlambat';
+        } elseif ($timeStr < $batasAwal) {
             $ket = 'Datang Lebih Awal';
         } elseif ($timeStr <= $batasTepat) {
             $ket = 'Tepat Waktu';

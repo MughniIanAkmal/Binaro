@@ -122,20 +122,32 @@
                     Ubah Password
                 </h3>
                 <p class="text-[11px] text-slate-400 mb-4 ml-10">Minimal 6 karakter. Jangan bagikan ke siapapun.</p>
-                <form action="{{ route('siswa.password.update') }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs ml-0 md:ml-10">
+                <form id="formPassword" action="{{ route('siswa.password.update') }}" method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs ml-0 md:ml-10" novalidate>
                     @csrf
                     @method('PUT')
                     <div>
                         <label class="block font-bold text-slate-700 mb-1.5">Password Lama</label>
-                        <input type="password" name="password_lama" required placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition">
+                        <input type="password" id="password_lama" name="password_lama" required placeholder="••••••••" class="w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl focus:outline-none focus:bg-white transition @error('password_lama') border-rose-400 focus:border-rose-500 @else border-slate-200 focus:border-[#13527D] @enderror">
+                        <p id="warn_password_lama" class="hidden mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600"><i class="fas fa-circle-exclamation"></i><span></span></p>
+                        @error('password_lama')
+                        <p class="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600"><i class="fas fa-circle-exclamation"></i><span>{{ $message }}</span></p>
+                        @enderror
                     </div>
                     <div>
                         <label class="block font-bold text-slate-700 mb-1.5">Password Baru</label>
-                        <input type="password" name="password" required minlength="6" placeholder="Min. 6 karakter" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition">
+                        <input type="password" id="password_baru" name="password" required minlength="6" placeholder="Min. 6 karakter" class="w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl focus:outline-none focus:bg-white transition @error('password') border-rose-400 focus:border-rose-500 @else border-slate-200 focus:border-[#13527D] @enderror">
+                        <p id="warn_password" class="hidden mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600"><i class="fas fa-circle-exclamation"></i><span></span></p>
+                        @error('password')
+                        <p class="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600"><i class="fas fa-circle-exclamation"></i><span>{{ $message }}</span></p>
+                        @enderror
                     </div>
                     <div>
                         <label class="block font-bold text-slate-700 mb-1.5">Konfirmasi Baru</label>
-                        <input type="password" name="password_confirmation" required minlength="6" placeholder="Ulangi password" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition">
+                        <input type="password" id="password_konfirmasi" name="password_confirmation" required minlength="6" placeholder="Ulangi password" class="w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl focus:outline-none focus:bg-white transition @error('password_confirmation') border-rose-400 focus:border-rose-500 @else border-slate-200 focus:border-[#13527D] @enderror">
+                        <p id="warn_password_confirmation" class="hidden mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600"><i class="fas fa-circle-exclamation"></i><span></span></p>
+                        @error('password_confirmation')
+                        <p class="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600"><i class="fas fa-circle-exclamation"></i><span>{{ $message }}</span></p>
+                        @enderror
                     </div>
                     <div class="md:col-span-3 flex justify-end">
                         <button type="submit" class="px-6 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white font-bold rounded-xl transition">
@@ -187,7 +199,7 @@
             <h3 class="font-bold text-sm"><i class="fas fa-pen mr-2"></i>Edit Keterangan</h3>
             <button type="button" onclick="toggleModal('modal-edit')" class="text-white/70 hover:text-white"><i class="fas fa-times"></i></button>
         </div>
-        <form action="{{ route('siswa.profile.update') }}" method="POST" class="p-5 space-y-3 text-xs">
+        <form id="formEdit" action="{{ route('siswa.profile.update') }}" method="POST" class="p-5 space-y-3 text-xs" novalidate>
             @csrf
             @method('PUT')
             <div class="grid grid-cols-2 gap-3">
@@ -205,17 +217,29 @@
                 </div>
             </div>
             <div>
-                <label class="block font-bold text-slate-700 mb-1">Username</label>
-                <input type="text" name="username" required maxlength="50" value="{{ old('username', $siswa->username) }}" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] transition">
+                <label class="block font-bold text-slate-700 mb-1">Username <span class="font-normal text-slate-400">(huruf + spasi, maks. 25)</span></label>
+                <input type="text" id="edit_username" name="username" required maxlength="25" pattern="[A-Za-z ]+" title="Hanya huruf A-Z dan spasi, maksimal 25" value="{{ old('username', $siswa->username) }}" oninput="this.value=this.value.replace(/[^A-Za-z ]/g,'').slice(0,25)" class="w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl focus:outline-none focus:bg-white transition @error('username') border-rose-400 @else border-slate-200 focus:border-[#13527D] @enderror">
+                <p class="text-[10px] text-slate-400 mt-1"><span id="count_username">0</span>/25 huruf dan spasi.</p>
+                @error('username')
+                <p class="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600"><i class="fas fa-circle-exclamation"></i><span>{{ $message }}</span></p>
+                @enderror
             </div>
             <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1">Email</label>
-                    <input type="email" name="email" required maxlength="100" value="{{ old('email', $siswa->email) }}" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] transition">
+                    <label class="block font-bold text-slate-700 mb-1">Email <span class="font-normal text-slate-400">(wajib ada @)</span></label>
+                    <input type="email" id="edit_email" name="email" required maxlength="100" value="{{ old('email', $siswa->email) }}" oninput="cekEmailLive(this)" class="w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl focus:outline-none focus:bg-white transition @error('email') border-rose-400 @else border-slate-200 focus:border-[#13527D] @enderror">
+                    <p id="warn_email" class="hidden mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600"><i class="fas fa-circle-exclamation"></i><span>Email harus mengandung tanda @.</span></p>
+                    @error('email')
+                    <p class="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600"><i class="fas fa-circle-exclamation"></i><span>{{ $message }}</span></p>
+                    @enderror
                 </div>
                 <div>
-                    <label class="block font-bold text-slate-700 mb-1">No. HP</label>
-                    <input type="text" name="no_hp" maxlength="20" value="{{ old('no_hp', $siswa->no_hp) }}" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] transition">
+                    <label class="block font-bold text-slate-700 mb-1">No. HP <span class="font-normal text-slate-400">(angka, maks. 12)</span></label>
+                    <input type="text" id="edit_nohp" name="no_hp" inputmode="numeric" maxlength="12" pattern="[0-9]*" title="Hanya angka, maksimal 12" value="{{ old('no_hp', $siswa->no_hp) }}" oninput="this.value=this.value.replace(/[^0-9]/g,'').slice(0,12)" class="w-full px-3.5 py-2.5 bg-slate-50 border rounded-xl focus:outline-none focus:bg-white transition @error('no_hp') border-rose-400 @else border-slate-200 focus:border-[#13527D] @enderror">
+                    <p class="text-[10px] text-slate-400 mt-1"><span id="count_nohp">0</span>/12 angka saja.</p>
+                    @error('no_hp')
+                    <p class="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-rose-600"><i class="fas fa-circle-exclamation"></i><span>{{ $message }}</span></p>
+                    @enderror
                 </div>
             </div>
             <div>
@@ -252,11 +276,97 @@ document.addEventListener('keydown', e => {
 });
 function cetakQR() {
     const img = document.getElementById('qrImage');
+    if (!img) { alert('QR belum tersedia. Hubungi admin / guru.'); return; }
     const kode = @json($siswa->barcode->kode_barcode ?? '-');
     const nama = @json($namaSiswa);
     const w = window.open('', '_blank', 'width=480,height=640');
-    w.document.write('<html><head><title>Cetak QR - ' + nama + '</title><style>body{font-family:sans-serif;text-align:center;padding:32px}img{width:320px;height:320px}h2{margin:0}p{color:#555}.kode{font-weight:900;letter-spacing:.2em;font-size:20px}</style></head><body><h2>' + nama + '</h2><p>{{ $namaKelas }} &bull; {{ $nisn }}</p>' + (img ? '<img src="' + img.src + '">' : '') + '<p class="kode">' + kode + '</p><script>window.onload=function(){window.print()}<\/script></body></html>');
+    if (!w) { alert('Popup diblokir browser. Izinkan popup untuk situs ini lalu coba lagi.'); return; }
+    w.document.write('<html><head><title>Cetak QR - ' + nama + '</title><style>body{font-family:sans-serif;text-align:center;padding:32px}img{width:320px;height:320px}h2{margin:0}p{color:#555}.kode{font-weight:900;letter-spacing:.2em;font-size:20px}</style></head><body><h2>' + nama + '</h2><p>{{ $namaKelas }} &bull; {{ $nisn }}</p><img src="' + img.src + '"><p class="kode">' + kode + '</p><script>window.onload=function(){window.print()}<\/script></body></html>');
     w.document.close();
 }
+// Peringatan langsung saat mengetik: 1) password lama kosong, 2) <6 karakter, 3) konfirmasi tidak sesuai
+(function () {
+    const lama = document.getElementById('password_lama');
+    const baru = document.getElementById('password_baru');
+    const konf = document.getElementById('password_konfirmasi');
+    const form = document.getElementById('formPassword');
+    if (!lama || !baru || !konf || !form) return;
+
+    function showWarn(input, boxId, msg) {
+        const box = document.getElementById(boxId);
+        if (!box) return;
+        const text = box.querySelector('span');
+        if (msg) {
+            box.classList.remove('hidden');
+            if (text) text.textContent = msg;
+            input.classList.add('border-rose-400');
+            input.classList.remove('border-slate-200');
+        } else {
+            box.classList.add('hidden');
+            input.classList.remove('border-rose-400');
+            input.classList.add('border-slate-200');
+        }
+    }
+
+    function validateLive() {
+        // Aturan 3: minimal 6 karakter (hanya tampil jika sudah diisi)
+        showWarn(baru, 'warn_password', baru.value !== '' && baru.value.length < 6 ? 'Password baru minimal 6 karakter.' : '');
+        // Aturan 2: konfirmasi harus sama (hanya tampil jika keduanya sudah diisi)
+        showWarn(konf, 'warn_password_confirmation', konf.value !== '' && baru.value !== '' && konf.value !== baru.value ? 'Konfirmasi password baru tidak sesuai.' : '');
+        // Aturan 1 (client): password lama wajib diisi — ditandai saat submit kosong
+        if (document.activeElement === lama || lama.value !== '') {
+            showWarn(lama, 'warn_password_lama', lama.value === '' ? 'Password lama wajib diisi.' : '');
+        }
+    }
+
+    [lama, baru, konf].forEach(el => el.addEventListener('input', validateLive));
+
+    form.addEventListener('submit', function (e) {
+        let batal = false;
+        if (lama.value.trim() === '') { showWarn(lama, 'warn_password_lama', 'Password lama wajib diisi. Diisi dulu password Anda saat ini.'); batal = true; }
+        if (baru.value.length < 6) { showWarn(baru, 'warn_password', 'Password baru minimal 6 karakter.'); batal = true; }
+        if (konf.value !== baru.value) { showWarn(konf, 'warn_password_confirmation', 'Konfirmasi password baru tidak sesuai. Samakan dengan password baru.'); batal = true; }
+        if (batal) { e.preventDefault(); lama.classList.contains('border-rose-400') ? lama.focus() : (baru.classList.contains('border-rose-400') ? baru.focus() : konf.focus()); }
+    });
+})();
+function cekEmailLive(input) {
+    const box = document.getElementById('warn_email');
+    if (!box) return;
+    if (input.value !== '' && !input.value.includes('@')) {
+        box.classList.remove('hidden');
+        input.classList.add('border-rose-400');
+    } else {
+        box.classList.add('hidden');
+        input.classList.remove('border-rose-400');
+    }
+}
+// Batasan & validasi form Edit Keterangan: username huruf maks 25, no HP angka maks 12, email wajib @
+(function () {
+    const u = document.getElementById('edit_username');
+    const hp = document.getElementById('edit_nohp');
+    const em = document.getElementById('edit_email');
+    const form = document.getElementById('formEdit');
+    const cu = document.getElementById('count_username');
+    const ch = document.getElementById('count_nohp');
+    function refreshCount() {
+        if (u && cu) cu.textContent = u.value.length;
+        if (hp && ch) ch.textContent = hp.value.length;
+    }
+    if (u) u.addEventListener('input', refreshCount);
+    if (hp) hp.addEventListener('input', refreshCount);
+    refreshCount();
+    if (!form) return;
+    form.addEventListener('submit', function (e) {
+        let msg = '';
+        if (u && !/^(?=.*[A-Za-z])[A-Za-z ]+$/.test(u.value)) msg = 'Username hanya boleh berisi huruf (A-Z) dan spasi, maksimal 25.';
+        else if (u && u.value.length > 25) msg = 'Username maksimal 25 huruf.';
+        else if (em && !em.value.includes('@')) msg = 'Email harus mengandung tanda @, contoh: nama@email.com.';
+        else if (hp && hp.value !== '' && (!/^[0-9]+$/.test(hp.value) || hp.value.length > 12)) msg = 'No. HP hanya angka dan maksimal 12.';
+        if (msg) { e.preventDefault(); alert(msg); }
+    });
+})();
+@if(session('open_edit') || $errors->has('username') || $errors->has('email') || $errors->has('no_hp'))
+toggleModal('modal-edit');
+@endif
 </script>
 @endsection

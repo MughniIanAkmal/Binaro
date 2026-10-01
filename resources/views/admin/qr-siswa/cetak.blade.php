@@ -14,7 +14,7 @@
 .idcard .who{font-size:19px;font-weight:800;line-height:1.25;margin:0}
 .idcard .meta{font-size:13px;color:#4A5875;margin:4px 0 14px}
 .idcard .codebox{display:flex;flex-direction:column;align-items:center;gap:4px;padding:12px;border:1px dashed #B7C1D6;border-radius:10px}
-.idcard .codebox svg{width:130px;height:130px}
+.idcard .codebox svg,.idcard .codebox img{width:130px;height:130px}
 .kode-label{font-size:12px;color:#4A5875;margin-top:4px}
 .kode{font-size:15px;letter-spacing:.08em;font-weight:800}
 @media print{
@@ -50,7 +50,7 @@
                             $qr = new \chillerlan\QRCode\QRCode();
                             $svg = $qr->render($s->barcode->kode);
                         @endphp
-                        {!! $svg !!}
+                        <img src="{{ $svg }}" alt="QR {{ $s->nama_siswa }}">
                         <div class="kode-label">Kode unik (dipakai jika QR rusak)</div>
                         <div class="kode">{{ $s->barcode->kode }}</div>
                     </div>
