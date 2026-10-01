@@ -1,175 +1,166 @@
 @extends('layouts.siswa')
 
 @section('content')
-<div class="max-w-xl mx-auto space-y-4 pb-20">
-    <!-- Top Header Bar with Back Button (Sesuai Gambar 4) -->
-    <div class="bg-[#13527D] -mx-4 -mt-4 sm:mx-0 sm:mt-0 sm:rounded-2xl px-4 py-3.5 text-white shadow-md flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <a href="{{ route('siswa.ujian.index') }}" class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+<div class="max-w-6xl mx-auto space-y-6 pb-16">
+    @php
+        $mapelName = $quiz->subBab->bab->mataPelajaran->nama_mapel ?? ($quiz->mataPelajaran->nama_mapel ?? 'Mata Pelajaran');
+        $babName = $quiz->subBab->bab->nama_bab ?? null;
+        $subBabName = $quiz->subBab->nama_sub_bab ?? null;
+        $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu');
+        $durasi = $quiz->durasi_menit ?? 20;
+        $isLulus = $hasil->nilai_akhir >= 75;
+
+        $backUrl = route('siswa.dashboard');
+        if ($quiz->materi) {
+            $backUrl = route('siswa.materi.view', $quiz->materi->id_materi);
+        } elseif ($quiz->subBab) {
+            $backUrl = route('siswa.sub_bab.materi', $quiz->subBab->id_sub_bab);
+        } elseif ($quiz->id_mapel) {
+            $backUrl = route('siswa.materi.index', $quiz->id_mapel);
+        }
+    @endphp
+
+    <!-- Top Header Bar with Back Button to Materi -->
+    <div class="bg-[#13527D] rounded-3xl p-5 sm:p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <a href="{{ $backUrl }}" class="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition shrink-0" title="Kembali ke Materi Belajar">
                 <i class="fas fa-arrow-left text-sm"></i>
             </a>
-            <h1 class="text-base font-black tracking-tight">Hasil Ujian Siswa</h1>
-        </div>
-        <div class="w-9 h-9 rounded-full border-2 border-white/40 overflow-hidden bg-white/20 flex items-center justify-center">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ urlencode(session('user_name', 'Siswa')) }}" alt="Avatar" class="w-full h-full object-cover">
-        </div>
-    </div>
-
-    <!-- Top Celebration Banner (Sesuai Gambar 4) -->
-    <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 border border-amber-100 flex items-center justify-center text-2xl shrink-0 shadow-xs">
-            <i class="fas fa-bullhorn"></i>
-        </div>
-        <div>
-            <h2 class="text-sm font-black text-slate-900 leading-snug">
-                Hebat, {{ session('user_name', 'Budi Santoso') }}!
-            </h2>
-            <p class="text-xs text-slate-500 mt-0.5">
-                Ujian telah selesai dikumpulkan tepat waktu!
-            </p>
-        </div>
-    </div>
-
-    <!-- Main Score Circular Gauge Card (Sesuai Gambar 4) -->
-    <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm text-center space-y-4">
-        <div>
-            @if($hasil->nilai_akhir >= 75)
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <i class="fas fa-check-circle text-emerald-600"></i> LULUS KKM (Target: 75)
-            </span>
-            @else
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-rose-50 text-rose-700 border border-rose-200">
-                <i class="fas fa-circle-exclamation text-rose-600"></i> Perlu Remedial (Target: 75)
-            </span>
-            @endif
-        </div>
-
-        <!-- Circular Score Ring Gauge -->
-        <div class="relative w-44 h-44 mx-auto flex items-center justify-center">
-            <svg viewBox="0 0 120 120" class="w-full h-full transform -rotate-90">
-                <!-- Background Circle -->
-                <circle cx="60" cy="60" r="48" fill="transparent" stroke="#E2E8F0" stroke-width="10" />
-                <!-- Progress Circle -->
-                @php
-                    $circumference = 2 * pi() * 48;
-                    $scorePercent = max(min($hasil->nilai_akhir, 100), 0);
-                    $strokeOffset = $circumference - ($scorePercent / 100 * $circumference);
-                    $gaugeColor = $hasil->nilai_akhir >= 75 ? '#13527D' : '#E11D48';
-                @endphp
-                <circle cx="60" cy="60" r="48" fill="transparent" stroke="{{ $gaugeColor }}" stroke-width="10"
-                        stroke-dasharray="{{ $circumference }}" stroke-dashoffset="{{ $strokeOffset }}" stroke-linecap="round" />
-            </svg>
-
-            <!-- Center Score Number -->
-            <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <span class="text-4xl font-black text-[#13527D] tracking-tight leading-none">
-                    {{ round($hasil->nilai_akhir) }}
-                </span>
-                <span class="text-[11px] font-bold text-slate-400 mt-1">
-                    dari 100
-                </span>
-            </div>
-        </div>
-
-        <!-- Grade Verbal Status -->
-        <div>
-            <h3 class="text-sm font-black text-slate-800">
-                @if($hasil->nilai_akhir >= 85)
-                    Sangat Baik & Membanggakan
-                @elseif($hasil->nilai_akhir >= 75)
-                    Baik & Memenuhi Target KKM
-                @else
-                    Perlu Latihan & Bimbingan Remedial
-                @endif
-            </h3>
-        </div>
-    </div>
-
-    <!-- 3 Stat KPI Cards (Sesuai Gambar 4) -->
-    <div class="grid grid-cols-3 gap-3">
-        <!-- 1. Benar -->
-        <div class="bg-[#13527D] text-white p-4 rounded-2xl shadow-sm text-center space-y-1">
-            <div class="w-7 h-7 rounded-xl bg-white text-[#13527D] flex items-center justify-center mx-auto text-xs font-black shadow-xs">
-                <i class="fas fa-check"></i>
-            </div>
-            <div class="text-xl font-black">{{ $hasil->jumlah_benar }}</div>
-            <div class="text-[11px] font-bold text-white/80">Jawaban Benar</div>
-        </div>
-
-        <!-- 2. Salah -->
-        <div class="bg-amber-500 text-white p-4 rounded-2xl shadow-sm text-center space-y-1">
-            <div class="w-7 h-7 rounded-xl bg-white text-amber-500 flex items-center justify-center mx-auto text-xs font-black shadow-xs">
-                <i class="fas fa-times"></i>
-            </div>
-            <div class="text-xl font-black">{{ $hasil->jumlah_salah }}</div>
-            <div class="text-[11px] font-bold text-white/80">Jawaban Salah</div>
-        </div>
-
-        <!-- 3. Durasi Menit -->
-        <div class="bg-[#0E3D5D] text-white p-4 rounded-2xl shadow-sm text-center space-y-1">
-            <div class="w-7 h-7 rounded-xl bg-white text-[#0E3D5D] flex items-center justify-center mx-auto text-xs font-black shadow-xs">
-                <i class="fas fa-clock"></i>
-            </div>
-            <div class="text-xl font-black">38'</div>
-            <div class="text-[11px] font-bold text-white/80">Menit</div>
-        </div>
-    </div>
-
-    <!-- Subject & Teacher Card (Sesuai Gambar 4) -->
-    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#13527D] flex items-center justify-center text-lg shrink-0">
-                <i class="fas fa-calculator"></i>
-            </div>
             <div>
-                <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">MATA PELAJARAN</span>
-                <h4 class="text-sm font-black text-slate-900 leading-tight">
-                    {{ $quiz->judul_quiz }}
-                </h4>
-                <p class="text-[11px] text-slate-500 mt-0.5">
-                    {{ $quiz->subBab->bab->mataPelajaran->guru->nama_guru ?? 'Ibu Sarah Wijaya, S.Pd.' }}
-                </p>
-            </div>
-        </div>
-
-        <!-- Catatan Guru Quote Box -->
-        <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-start gap-3">
-            <div class="w-9 h-9 rounded-full overflow-hidden bg-[#13527D] text-white flex items-center justify-center shrink-0">
-                <i class="fas fa-chalkboard-user text-sm"></i>
-            </div>
-            <div class="space-y-1">
-                <span class="text-[10px] font-black text-[#13527D] flex items-center gap-1 uppercase tracking-wide">
-                    <i class="fas fa-comment-dots text-xs"></i> Catatan Guru
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-900 shadow-xs flex items-center gap-1.5 w-max">
+                    <i class="fas fa-brain text-[10px]"></i> Hasil Kuis Pemahaman Materi
                 </span>
-                <p class="text-xs text-slate-700 leading-relaxed italic font-medium">
-                    &ldquo;Bagus sekali pemahaman materi pecahannya, pertahankan ya {{ explode(' ', session('user_name', 'Budi'))[0] }}!&rdquo;
+                <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white mt-1">
+                    {{ $quiz->judul_quiz }}
+                </h1>
+                <p class="text-xs text-sky-200 mt-0.5">
+                    {{ $mapelName }}@if($babName) &bull; {{ $babName }}@endif @if($subBabName) &bull; {{ $subBabName }}@endif &bull; Guru: {{ $guruName }}
                 </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="{{ $backUrl }}"
+               class="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition flex items-center gap-2">
+                <i class="fas fa-book-open text-xs"></i>
+                <span>Kembali ke Materi</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- ================= SCORE & SUMMARY CARD ================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        <!-- Left: Circular Gauge Card (5/12) -->
+        <div class="lg:col-span-5 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm flex flex-col justify-between items-center text-center space-y-4">
+            <div>
+                @if($isLulus)
+                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <i class="fas fa-check-circle text-emerald-600"></i> PEMAHAMAN BAIK (Skor &ge; 75)
+                </span>
+                @else
+                <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-amber-50 text-amber-700 border border-amber-200">
+                    <i class="fas fa-triangle-exclamation text-amber-600"></i> PERLU BELAJAR LAGI (Skor &lt; 75)
+                </span>
+                @endif
+            </div>
+
+            <!-- Circular Gauge -->
+            <div class="relative w-48 h-48 mx-auto flex items-center justify-center">
+                <svg viewBox="0 0 120 120" class="w-full h-full transform -rotate-90">
+                    <circle cx="60" cy="60" r="48" fill="transparent" stroke="#E2E8F0" stroke-width="10" />
+                    @php
+                        $circumference = 2 * pi() * 48;
+                        $scorePercent = max(min($hasil->nilai_akhir, 100), 0);
+                        $strokeOffset = $circumference - ($scorePercent / 100 * $circumference);
+                        $gaugeColor = $isLulus ? '#059669' : '#D97706';
+                    @endphp
+                    <circle cx="60" cy="60" r="48" fill="transparent" stroke="{{ $gaugeColor }}" stroke-width="10"
+                            stroke-dasharray="{{ $circumference }}" stroke-dashoffset="{{ $strokeOffset }}" stroke-linecap="round" />
+                </svg>
+
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span class="text-5xl font-black text-slate-900 tracking-tight leading-none">
+                        {{ round($hasil->nilai_akhir) }}
+                    </span>
+                    <span class="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">Skor Kuis</span>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-xs text-slate-500 max-w-xs leading-relaxed">
+                    @if($isLulus)
+                    Selamat! Anda telah memahami materi ini dengan sangat baik. Lanjutkan mempelajari materi berikutnya!
+                    @else
+                    Jangan berkecil hati! Anda dapat membaca ulang materi dan mendiskusikannya dengan guru.
+                    @endif
+                </p>
+            </div>
+        </div>
+
+        <!-- Right: Breakdown & Meta Info (7/12) -->
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm flex flex-col justify-between space-y-6">
+            <div>
+                <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
+                    <i class="fas fa-chart-pie text-[#13527D]"></i> Ringkasan Kuis Materi
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">Hasil pengerjaan latihan evaluasi sub-bab pembelajaran</p>
+            </div>
+
+            <!-- Stats Grid (3 Kolom) -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-center">
+                    <span class="text-2xl font-black text-emerald-600 block">{{ $hasil->jumlah_benar }}</span>
+                    <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wide">Jawaban Benar</span>
+                </div>
+                <div class="p-4 rounded-2xl bg-rose-50 border border-rose-100 text-center">
+                    <span class="text-2xl font-black text-rose-600 block">{{ $hasil->jumlah_salah }}</span>
+                    <span class="text-[11px] font-bold text-rose-800 uppercase tracking-wide">Jawaban Salah</span>
+                </div>
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center">
+                    <span class="text-2xl font-black text-slate-700 block">{{ count($reviewDetails) }}</span>
+                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Total Soal</span>
+                </div>
+            </div>
+
+            <!-- Detail List Meta -->
+            <div class="space-y-2.5 text-xs border-t border-slate-100 pt-4">
+                <div class="flex items-center justify-between text-slate-600">
+                    <span>Mata Pelajaran:</span>
+                    <span class="font-bold text-slate-900">{{ $mapelName }}</span>
+                </div>
+                <div class="flex items-center justify-between text-slate-600">
+                    <span>Nama Peserta:</span>
+                    <span class="font-bold text-slate-900">{{ session('user_name', 'Siswa') }}</span>
+                </div>
+                <div class="flex items-center justify-between text-slate-600">
+                    <span>Waktu Selesai:</span>
+                    <span class="font-bold text-slate-900">{{ $hasil->created_at ? $hasil->created_at->format('d M Y, H:i') : now()->format('d M Y, H:i') }} WIB</span>
+                </div>
+            </div>
+
+            <!-- Actions Footer -->
+            <div class="pt-2 flex flex-col sm:flex-row items-center gap-3">
+                <a href="#section-pembahasan"
+                   class="w-full sm:flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i class="fas fa-list-check text-xs"></i>
+                    <span>Lihat Pembahasan Soal</span>
+                </a>
+                <a href="{{ $backUrl }}"
+                   class="w-full sm:flex-1 py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+                    <i class="fas fa-arrow-left text-xs"></i>
+                    <span>Kembali ke Materi Belajar</span>
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Action Buttons (Sesuai Gambar 4) -->
-    <div class="space-y-2.5 pt-1">
-        <button type="button" onclick="document.getElementById('section-pembahasan').classList.toggle('hidden')"
-                class="w-full py-3.5 bg-white border-2 border-[#13527D] text-[#13527D] hover:bg-sky-50 rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 shadow-xs">
-            <i class="fas fa-book-open"></i>
-            <span>Lihat Pembahasan Soal</span>
-        </button>
-
-        <a href="{{ route('siswa.ujian.index') }}"
-           class="w-full py-3.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 shadow-sm">
-            <i class="fas fa-arrow-left"></i>
-            <span>Kembali ke Daftar Ujian</span>
-        </a>
-    </div>
-
-    <!-- Collapsible Pembahasan Soal -->
-    <div id="section-pembahasan" class="hidden space-y-3 pt-2">
-        <div class="flex items-center justify-between px-1">
-            <h4 class="text-xs font-black text-slate-800 flex items-center gap-1.5">
-                <i class="fas fa-list-check text-[#13527D]"></i> Pembahasan Butir Soal
+    <!-- ================= PEMBAHASAN SOAL LENGKAP ================= -->
+    <div id="section-pembahasan" class="space-y-4 pt-4">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex items-center justify-between">
+            <h4 class="text-sm font-black text-slate-900 flex items-center gap-2">
+                <i class="fas fa-list-check text-[#13527D]"></i> Pembahasan Butir Soal Kuis Materi
             </h4>
-            <span class="text-[10px] text-slate-400 font-bold">{{ count($reviewDetails) }} Soal</span>
+            <span class="text-xs text-slate-500 font-bold">{{ count($reviewDetails) }} Soal Lengkap</span>
         </div>
 
         @foreach($reviewDetails as $idx => $item)
@@ -178,42 +169,62 @@
             $userAns = $item['user_answer'];
             $key = $item['kunci_jawaban'];
         @endphp
-        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs space-y-3">
+        <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/90 shadow-xs space-y-4">
             <div class="flex items-start justify-between gap-3">
-                <div class="flex items-start gap-2">
-                    <span class="w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center shrink-0 {{ $isCorrect === true ? 'bg-emerald-600 text-white' : ($isCorrect === false ? 'bg-rose-600 text-white' : 'bg-slate-700 text-white') }}">
+                <div class="flex items-start gap-3">
+                    <span class="w-8 h-8 rounded-xl text-xs font-black flex items-center justify-center shrink-0 {{ $isCorrect === true ? 'bg-emerald-600 text-white' : ($isCorrect === false ? 'bg-rose-600 text-white' : 'bg-slate-700 text-white') }}">
                         {{ $idx + 1 }}
                     </span>
-                    <p class="text-xs font-bold text-slate-800 leading-snug">
-                        {{ $item['pertanyaan'] }}
-                    </p>
+                    <div class="space-y-2">
+                        <div class="text-sm font-bold text-slate-900 leading-relaxed">
+                            {!! nl2br(e($item['pertanyaan'])) !!}
+                        </div>
+
+                        <!-- Gambar Soal Jika Ada -->
+                        @if(!empty($item['gambar']))
+                        <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 max-w-md">
+                            <img src="{{ asset('storage/' . $item['gambar']) }}" alt="Gambar Soal {{ $idx + 1 }}" class="rounded-lg max-h-60 object-contain">
+                        </div>
+                        @endif
+                    </div>
                 </div>
-                <div>
+
+                <div class="shrink-0">
                     @if($isCorrect === true)
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Benar</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <i class="fas fa-check text-[10px]"></i> Benar
+                    </span>
                     @elseif($isCorrect === false)
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">Salah</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-800 border border-rose-300">
+                        <i class="fas fa-times text-[10px]"></i> Salah
+                    </span>
+                    @else
+                    <span class="px-3 py-1 rounded-full text-xs font-black bg-slate-100 text-slate-700">
+                        Tidak Dijawab
+                    </span>
                     @endif
                 </div>
             </div>
 
-            <!-- Options Preview -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs pl-8">
+            <!-- Options Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:pl-11">
                 @foreach(['A' => $item['opsi_a'], 'B' => $item['opsi_b'], 'C' => $item['opsi_c'], 'D' => $item['opsi_d']] as $optKey => $optVal)
                 @php
                     $isCorrectKey = ($optKey === $key);
                     $isUserChoice = ($optKey === $userAns);
-                    $style = 'bg-slate-50 border-slate-200 text-slate-600';
+                    $style = 'bg-slate-50 border-slate-200 text-slate-700';
                     if ($isCorrectKey) {
-                        $style = 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold';
+                        $style = 'bg-emerald-50 border-2 border-emerald-400 text-emerald-900 font-bold';
                     } elseif ($isUserChoice && !$isCorrect) {
-                        $style = 'bg-rose-50 border-rose-300 text-rose-900 line-through';
+                        $style = 'bg-rose-50 border-2 border-rose-400 text-rose-900 line-through';
                     }
                 @endphp
-                <div class="p-2 rounded-xl border {{ $style }} flex items-center justify-between text-[11px]">
+                <div class="p-3 rounded-xl border {{ $style }} flex items-center justify-between text-xs">
                     <span><strong>{{ $optKey }}.</strong> {{ $optVal }}</span>
                     @if($isCorrectKey)
-                    <i class="fas fa-check text-emerald-600 text-[10px]"></i>
+                    <span class="text-[10px] font-black uppercase text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">Kunci</span>
+                    @elseif($isUserChoice)
+                    <span class="text-[10px] font-black uppercase text-rose-700 bg-rose-100 px-2 py-0.5 rounded-md">Jawabanmu</span>
                     @endif
                 </div>
                 @endforeach
@@ -221,29 +232,13 @@
         </div>
         @endforeach
     </div>
-</div>
 
-<!-- Mobile Bottom Navigation Bar (Sesuai Gambar 4) -->
-<nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#13527D] text-white border-t border-white/10 shadow-2xl py-2 px-6 flex justify-between items-center sm:hidden">
-    <a href="{{ route('siswa.dashboard') }}" class="flex flex-col items-center gap-1 text-white/70 hover:text-white transition">
-        <i class="fas fa-house text-base"></i>
-        <span class="text-[10px] font-medium">Beranda</span>
-    </a>
-    <a href="{{ route('siswa.mapel.index') }}" class="flex flex-col items-center gap-1 text-white/70 hover:text-white transition">
-        <i class="fas fa-book-open text-base"></i>
-        <span class="text-[10px] font-medium">Mapel</span>
-    </a>
-    <a href="{{ route('siswa.ujian.index') }}" class="flex flex-col items-center gap-1 text-amber-400 font-bold">
-        <i class="fas fa-clipboard-question text-base"></i>
-        <span class="text-[10px]">Ujian</span>
-    </a>
-    <a href="{{ route('jadwal.index') }}" class="flex flex-col items-center gap-1 text-white/70 hover:text-white transition">
-        <i class="fas fa-calendar-days text-base"></i>
-        <span class="text-[10px] font-medium">Jadwal</span>
-    </a>
-    <a href="{{ route('logout.get') }}" class="flex flex-col items-center gap-1 text-white/70 hover:text-white transition">
-        <i class="fas fa-user-circle text-base"></i>
-        <span class="text-[10px] font-medium">Profil</span>
-    </a>
-</nav>
+    <!-- Bottom Return CTA -->
+    <div class="text-center pt-4">
+        <a href="{{ $backUrl }}" class="px-6 py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-2 shadow-sm">
+            <i class="fas fa-book-open"></i>
+            <span>Kembali ke Materi Belajar</span>
+        </a>
+    </div>
+</div>
 @endsection

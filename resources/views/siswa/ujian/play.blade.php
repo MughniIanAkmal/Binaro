@@ -3,36 +3,25 @@
 @section('content')
 <div class="max-w-7xl mx-auto space-y-6 pb-20">
     @php
-        $mapelName = $quiz->subBab->bab->mataPelajaran->nama_mapel ?? ($quiz->mataPelajaran->nama_mapel ?? 'Mata Pelajaran');
-        $babName = $quiz->subBab->bab->nama_bab ?? null;
-        $subBabName = $quiz->subBab->nama_sub_bab ?? null;
-        $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu');
-        $durasiMenit = $quiz->durasi_menit ?? 30;
-
-        $backUrl = route('siswa.dashboard');
-        if ($quiz->materi) {
-            $backUrl = route('siswa.materi.view', $quiz->materi->id_materi);
-        } elseif ($quiz->subBab) {
-            $backUrl = route('siswa.sub_bab.materi', $quiz->subBab->id_sub_bab);
-        } elseif ($quiz->id_mapel) {
-            $backUrl = route('siswa.materi.index', $quiz->id_mapel);
-        }
+        $mapelName = $quiz->mataPelajaran->nama_mapel ?? ($quiz->subBab->bab->mataPelajaran->nama_mapel ?? 'Ujian Siswa');
+        $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? ($quiz->subBab->bab->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu'));
+        $durasiMenit = $quiz->durasi_menit ?? 60;
     @endphp
 
-    <!-- Top Desktop Kuis Header Bar -->
+    <!-- Top Desktop CBT Header Bar -->
     <div class="bg-[#13527D] rounded-3xl p-5 sm:p-6 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-            <a href="{{ $backUrl }}" onclick="return confirm('Apakah Anda yakin ingin keluar dari lembar kuis materi? Jawaban yang belum dikirim akan hilang.');"
-               class="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition shrink-0" title="Kembali ke Materi Belajar">
+            <a href="{{ route('siswa.ujian.index') }}" onclick="return confirm('Apakah Anda yakin ingin keluar dari lembar ujian? Waktu akan terus berjalan.');"
+               class="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition shrink-0" title="Kembali ke Daftar Ujian">
                 <i class="fas fa-arrow-left text-sm"></i>
             </a>
             <div>
                 <div class="flex items-center gap-2 flex-wrap">
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-900 shadow-xs flex items-center gap-1">
-                        <i class="fas fa-brain text-[10px]"></i> Kuis Materi Pembelajaran
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-900 shadow-xs">
+                        CBT Online
                     </span>
                     <span class="text-xs text-sky-200 font-medium">
-                        {{ $mapelName }}@if($babName) &bull; {{ $babName }}@endif @if($subBabName) &bull; {{ $subBabName }}@endif
+                        {{ $mapelName }} &bull; Guru: {{ $guruName }}
                     </span>
                 </div>
                 <h1 class="text-lg sm:text-xl font-black tracking-tight text-white mt-0.5">
@@ -45,23 +34,23 @@
         <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
             <!-- Countdown Timer Badge -->
             <div class="flex items-center gap-2.5 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/20 shadow-xs">
-                <div class="w-8 h-8 rounded-xl bg-amber-400 text-slate-900 flex items-center justify-center text-sm shadow-xs">
+                <div class="w-8 h-8 rounded-xl bg-amber-400 text-slate-900 flex items-center justify-center text-sm shadow-xs animate-pulse">
                     <i class="fas fa-stopwatch"></i>
                 </div>
                 <div>
-                    <span class="text-[9px] uppercase font-extrabold text-sky-200 block tracking-wider">Waktu Kuis</span>
+                    <span class="text-[9px] uppercase font-extrabold text-sky-200 block tracking-wider">Sisa Waktu</span>
                     <span id="timer-display" class="font-mono font-black text-base text-white">00:00:00</span>
                 </div>
             </div>
 
             <!-- Profile Info -->
             <div class="hidden sm:flex items-center gap-3 bg-white/10 px-3.5 py-2 rounded-2xl border border-white/10">
-                <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-emerald-300 font-bold">
-                    <i class="fas fa-user-graduate text-xs"></i>
+                <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-amber-300 font-bold">
+                    <i class="fas fa-user-check text-xs"></i>
                 </div>
                 <div class="text-left text-xs">
                     <div class="font-bold text-white truncate max-w-[120px]">{{ session('user_name', 'Siswa') }}</div>
-                    <div class="text-[10px] text-white/70">Peserta Kuis</div>
+                    <div class="text-[10px] text-white/70">Peserta Aktif</div>
                 </div>
             </div>
         </div>
@@ -71,7 +60,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <!-- ================= KOLOM KIRI: LEMBAR SOAL ================= -->
         <div class="lg:col-span-8 xl:col-span-9 space-y-5">
-            <form id="form-quiz" action="{{ route('siswa.quiz.submit', $quiz->id_quiz) }}" method="POST">
+            <form id="form-quiz" action="{{ route('siswa.ujian.submit', $quiz->id_quiz) }}" method="POST">
                 @csrf
 
                 @foreach($soals as $index => $soal)
@@ -239,12 +228,12 @@
                     </div>
                 </div>
 
-                <!-- Action Button: Selesaikan Kuis Materi -->
+                <!-- Action Button: Selesaikan Ujian -->
                 <div class="pt-2">
                     <button type="button" onclick="confirmSubmitExam()"
                             class="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
                         <i class="fas fa-check-double text-xs"></i>
-                        <span>Selesaikan Kuis Materi</span>
+                        <span>Selesaikan Ujian</span>
                     </button>
                 </div>
             </div>
@@ -252,7 +241,7 @@
     </div>
 </div>
 
-<!-- ================= MODAL KONFIRMASI PENGUMPULAN KUIS MATERI ================= -->
+<!-- ================= MODAL KONFIRMASI PENGUMPULAN UJIAN ================= -->
 <div id="modal-confirm-submit" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-200 transform transition-all text-center">
         <div class="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl mx-auto shadow-inner">
@@ -260,9 +249,9 @@
         </div>
 
         <div>
-            <h3 class="text-lg font-black text-slate-900">Selesaikan Kuis Materi?</h3>
+            <h3 class="text-lg font-black text-slate-900">Kumpulkan Ujian Sekarang?</h3>
             <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-                Pastikan seluruh pertanyaan pemahaman materi telah dijawab. Nilai dan pembahasan butir kuis akan langsung ditampilkan.
+                Pastikan Anda telah memeriksa kembali seluruh butir soal. Setelah dikumpulkan, lembar ujian tidak dapat diubah kembali.
             </p>
         </div>
 
@@ -289,7 +278,7 @@
             </button>
             <button type="button" onclick="executeFinalSubmit()"
                     class="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black rounded-xl shadow-md transition">
-                Ya, Selesaikan
+                Ya, Kumpulkan
             </button>
         </div>
     </div>
@@ -520,7 +509,7 @@
                 clearInterval(interval);
                 localStorage.removeItem(storageKey);
                 timerDisplay.textContent = '00:00:00';
-                alert('Waktu pengerjaan kuis materi telah berakhir! Lembar kuis Anda akan dikumpulkan otomatis.');
+                alert('Waktu ujian telah berakhir! Lembar jawaban Anda akan dikumpulkan otomatis.');
                 executeFinalSubmit();
                 return;
             }

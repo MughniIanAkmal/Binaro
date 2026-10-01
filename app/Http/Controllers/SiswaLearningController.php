@@ -57,39 +57,66 @@ class SiswaLearningController extends Controller
     }
 
     // 3.5 Daftar Ujian Siswa (Online Exams)
+    // 3.5 Daftar Ujian Siswa (Online Exams Resmi - Bukan Kuis Materi)
     public function daftarUjian(Request $request)
     {
         $siswaId = session('user_id');
         $siswa = \App\Models\Siswa::with('kelas')->find($siswaId);
 
-        // Fetch all quizzes with their mapel and subBab
-        $allQuizzes = Quiz::with(['subBab.bab.mataPelajaran', 'hasilSiswa' => function($q) use ($siswaId) {
-            $q->where('id_siswa', $siswaId);
-        }])->get();
+        // Fetch all official exams (where id_sub_bab is NULL)
+        $allQuizzes = Quiz::whereNull('id_sub_bab')
+            ->with([
+                'mataPelajaran',
+                'guru',
+                'soal',
+                'targetSiswa',
+                'hasilSiswa' => function($q) use ($siswaId) {
+                    if ($siswaId) {
+                        $q->where('id_siswa', $siswaId);
+                    }
+                }
+            ])->latest('id_quiz')->get();
 
-        $ujianTersedia = $allQuizzes->filter(function($q) {
+        // Filter target siswa jika tipe pilihan
+        $accessibleQuizzes = $allQuizzes->filter(function($q) use ($siswaId) {
+            if ($q->target_tipe === 'pilihan' && $siswaId) {
+                return $q->targetSiswa->contains('id_siswa', $siswaId);
+            }
+            return true;
+        })->values();
+
+        $ujianTersedia = $accessibleQuizzes->filter(function($q) {
             return $q->hasilSiswa->isEmpty();
         })->values();
 
-        $ujianSelesai = $allQuizzes->filter(function($q) {
+        $ujianSelesai = $accessibleQuizzes->filter(function($q) {
             return $q->hasilSiswa->isNotEmpty();
         })->values();
 
-        // Latest result for the "Nilai Ujian Terakhir" section
-        $latestHasil = HasilKuisSiswa::with(['quiz.subBab.bab.mataPelajaran'])
+        // Latest result for the "Nilai Ujian Terakhir" section (hanya ujian resmi yang sudah dirilis/dikirim oleh guru)
+        $latestHasil = HasilKuisSiswa::with(['quiz.mataPelajaran'])
+            ->whereHas('quiz', function($q) {
+                $q->whereNull('id_sub_bab');
+            })
             ->where('id_siswa', $siswaId)
-            ->latest()
+            ->where('status_kirim', true)
+            ->latest('id_hasil')
             ->first();
 
         return view('siswa.ujian.index', compact('siswa', 'ujianTersedia', 'ujianSelesai', 'latestHasil'));
     }
 
-    // 3.6 Petunjuk Ujian (Exam Instructions before Start)
+    // 3.6 Petunjuk Ujian Resmi (Exam Instructions before Start)
     public function petunjukUjian($idQuiz)
     {
-        $quiz = Quiz::with(['subBab.bab.mataPelajaran', 'soal'])->findOrFail($idQuiz);
+        $quiz = Quiz::with(['mataPelajaran', 'guru', 'subBab.bab.mataPelajaran', 'soal'])->findOrFail($idQuiz);
         $siswaId = session('user_id');
         $siswa = \App\Models\Siswa::with('kelas')->find($siswaId);
+
+        // Jika ini adalah kuis materi, arahkan ke kuis materi play langsung
+        if (!empty($quiz->id_sub_bab)) {
+            return redirect()->route('siswa.quiz.play', $idQuiz);
+        }
 
         // Check if already taken
         $alreadySubmitted = HasilKuisSiswa::where('id_quiz', $idQuiz)
@@ -97,18 +124,18 @@ class SiswaLearningController extends Controller
             ->first();
 
         if ($alreadySubmitted) {
-            return redirect()->route('siswa.quiz.result', $idQuiz);
+            return redirect()->route('siswa.ujian.result', $idQuiz);
         }
 
-        $totalSoal = $quiz->soal()->count() ?: 20;
+        $totalSoal = $quiz->soal()->count();
 
         return view('siswa.ujian.petunjuk', compact('quiz', 'siswa', 'totalSoal'));
     }
 
-    // 4. Play Quiz (Random 5 Soal)
+    // 4. Play Quiz / Ujian (Menampilkan Soal)
     public function playQuiz($idQuiz)
     {
-        $quiz = Quiz::with('subBab.bab.mataPelajaran')->findOrFail($idQuiz);
+        $quiz = Quiz::with(['mataPelajaran', 'guru', 'subBab.bab.mataPelajaran', 'materi'])->findOrFail($idQuiz);
         $siswaId = session('user_id');
 
         // Guardrail: UNIQUE(id_quiz, id_siswa) session lock
@@ -117,21 +144,43 @@ class SiswaLearningController extends Controller
                                           ->first();
 
         if ($alreadySubmitted) {
-            return redirect()->route('siswa.quiz.result', $idQuiz)
-                             ->with('info', 'Anda telah menyelesaikan kuis ini sebelumnya.');
+            $targetRoute = !empty($quiz->id_sub_bab) ? 'siswa.quiz.result' : (request()->routeIs('siswa.ujian.*') ? 'siswa.ujian.result' : 'siswa.quiz.result');
+            $infoMsg = !empty($quiz->id_sub_bab) ? 'Anda telah menyelesaikan kuis materi ini sebelumnya.' : 'Anda telah mengumpulkan lembar ujian ini sebelumnya.';
+            return redirect()->route($targetRoute, $idQuiz)->with('info', $infoMsg);
         }
 
-        // Randomize 5 questions from question bank
-        $soals = SoalQuiz::where('id_quiz', $idQuiz)
-                         ->inRandomOrder()
-                         ->take(5)
-                         ->get();
+        // Ambil butir soal
+        // Jika kuis sub-bab materi dan memiliki bank soal > 5, ambil 5 soal sesuai rule PRD kuis sub-bab.
+        // Jika ujian resmi, ambil seluruh soal yang dibuat guru.
+        if ($quiz->id_sub_bab && SoalQuiz::where('id_quiz', $idQuiz)->count() > 5) {
+            $soals = SoalQuiz::where('id_quiz', $idQuiz)->inRandomOrder()->take(5)->get();
+        } else {
+            $soals = SoalQuiz::where('id_quiz', $idQuiz)->orderBy('id_soal', 'asc')->get();
+        }
 
         if ($soals->isEmpty()) {
-            return back()->with('error', 'Bank soal untuk kuis ini belum tersedia.');
+            $errorMsg = !empty($quiz->id_sub_bab)
+                ? 'Guru belum menginput butir soal untuk kuis ini.'
+                : 'Guru belum menginput butir soal untuk ujian ini. Silakan hubungi guru pengampu.';
+            return back()->with('error', $errorMsg);
+        }
+
+        // Pisahkan tampilan: Kuis Materi vs Ujian Online Resmi CBT
+        if (empty($quiz->id_sub_bab)) {
+            return view('siswa.ujian.play', compact('quiz', 'soals'));
         }
 
         return view('siswa.quiz.play', compact('quiz', 'soals'));
+    }
+
+    // 4.1 Play Ujian Online CBT Resmi
+    public function playUjian($idQuiz)
+    {
+        $quiz = Quiz::with(['mataPelajaran', 'guru', 'subBab.bab.mataPelajaran'])->findOrFail($idQuiz);
+        if (!empty($quiz->id_sub_bab)) {
+            return redirect()->route('siswa.quiz.play', $idQuiz);
+        }
+        return $this->playQuiz($idQuiz);
     }
 
     // 5. Submit Quiz & Auto-grading
@@ -140,28 +189,42 @@ class SiswaLearningController extends Controller
         $quiz = Quiz::findOrFail($idQuiz);
         $siswaId = session('user_id');
 
+        $request->validate([
+            'jawaban' => 'nullable|array',
+            'jawaban.*' => 'nullable|string|max:5',
+        ]);
+
+        $isKuis = !empty($quiz->id_sub_bab);
+        $targetResultRoute = $isKuis 
+            ? 'siswa.quiz.result' 
+            : ($request->routeIs('siswa.ujian.*') ? 'siswa.ujian.result' : 'siswa.quiz.result');
+
         // Prevent double submit
         $existing = HasilKuisSiswa::where('id_quiz', $idQuiz)
                                   ->where('id_siswa', $siswaId)
                                   ->first();
         if ($existing) {
-            return redirect()->route('siswa.quiz.result', $idQuiz);
+            return redirect()->route($targetResultRoute, $idQuiz);
         }
 
         $answers = $request->input('jawaban', []); // array [id_soal => 'A']
-        $soalIds = array_keys($answers);
 
-        $soals = SoalQuiz::whereIn('id_soal', $soalIds)->get();
+        if ($quiz->id_sub_bab && count($answers) <= 5 && SoalQuiz::where('id_quiz', $idQuiz)->count() > 5) {
+            $allQuizSoals = SoalQuiz::whereIn('id_soal', array_keys($answers))->get();
+        } else {
+            $allQuizSoals = SoalQuiz::where('id_quiz', $idQuiz)->orderBy('id_soal', 'asc')->get();
+        }
+
+        $totalSoal = max($allQuizSoals->count(), 1);
 
         $jumlahBenar = 0;
         $jumlahSalah = 0;
-        $totalSoal = max(count($soals), 1);
         $reviewDetails = [];
 
-        foreach ($soals as $soal) {
+        foreach ($allQuizSoals as $soal) {
             $userAns = strtoupper($answers[$soal->id_soal] ?? '');
             $kunci = strtoupper($soal->kunci_jawaban);
-            $isCorrect = ($userAns === $kunci);
+            $isCorrect = (!empty($userAns) && $userAns === $kunci);
 
             if ($isCorrect) {
                 $jumlahBenar++;
@@ -172,6 +235,7 @@ class SiswaLearningController extends Controller
             $reviewDetails[] = [
                 'id_soal' => $soal->id_soal,
                 'pertanyaan' => $soal->pertanyaan,
+                'gambar' => $soal->gambar,
                 'opsi_a' => $soal->opsi_a,
                 'opsi_b' => $soal->opsi_b,
                 'opsi_c' => $soal->opsi_c,
@@ -184,24 +248,39 @@ class SiswaLearningController extends Controller
 
         $nilaiAkhir = round(($jumlahBenar / $totalSoal) * 100, 2);
 
+        // Nilai ujian online (tanpa id_sub_bab) ditahan sampai guru merilis nilai melalui fitur 'Kirim Nilai ke Semua Siswa'.
+        // Untuk kuis materi latihan sub-bab mandiri, nilai langsung ditampilkan agar siswa tahu pemahamannya.
+        $statusKirim = $isKuis;
+
         HasilKuisSiswa::create([
             'id_quiz' => $idQuiz,
             'id_siswa' => $siswaId,
             'jumlah_benar' => $jumlahBenar,
             'jumlah_salah' => $jumlahSalah,
             'nilai_akhir' => $nilaiAkhir,
+            'status_kirim' => $statusKirim,
+            'waktu_kirim' => $statusKirim ? now() : null,
         ]);
 
         session()->flash('quiz_review_' . $idQuiz, $reviewDetails);
 
-        return redirect()->route('siswa.quiz.result', $idQuiz)
-                         ->with('success', 'Kuis berhasil dikirim.');
+        $pesan = $isKuis
+            ? 'Kuis materi berhasil diselesaikan! Berikut ringkasan nilai dan pembahasannya.'
+            : 'Lembar jawaban ujian berhasil dikumpulkan.';
+
+        return redirect()->route($targetResultRoute, $idQuiz)->with('success', $pesan);
+    }
+
+    // 5.1 Submit Ujian Online CBT Resmi
+    public function submitUjian(Request $request, $idQuiz)
+    {
+        return $this->submitQuiz($request, $idQuiz);
     }
 
     // 6. View Quiz Result / Review
     public function resultQuiz($idQuiz)
     {
-        $quiz = Quiz::with('subBab.bab.mataPelajaran')->findOrFail($idQuiz);
+        $quiz = Quiz::with(['mataPelajaran', 'guru', 'subBab.bab.mataPelajaran', 'materi'])->findOrFail($idQuiz);
         $siswaId = session('user_id');
 
         $hasil = HasilKuisSiswa::where('id_quiz', $idQuiz)
@@ -210,11 +289,12 @@ class SiswaLearningController extends Controller
 
         $reviewDetails = session('quiz_review_' . $idQuiz, null);
         if (!$reviewDetails) {
-            $quizSoals = SoalQuiz::where('id_quiz', $idQuiz)->take(5)->get();
+            $quizSoals = SoalQuiz::where('id_quiz', $idQuiz)->orderBy('id_soal', 'asc')->get();
             $reviewDetails = $quizSoals->map(function ($s) {
                 return [
                     'id_soal' => $s->id_soal,
                     'pertanyaan' => $s->pertanyaan,
+                    'gambar' => $s->gambar,
                     'opsi_a' => $s->opsi_a,
                     'opsi_b' => $s->opsi_b,
                     'opsi_c' => $s->opsi_c,
@@ -226,7 +306,22 @@ class SiswaLearningController extends Controller
             })->toArray();
         }
 
+        // Pisahkan tampilan: Kuis Materi vs Ujian Online Resmi CBT
+        if (empty($quiz->id_sub_bab)) {
+            return view('siswa.ujian.result', compact('quiz', 'hasil', 'reviewDetails'));
+        }
+
         return view('siswa.quiz.result', compact('quiz', 'hasil', 'reviewDetails'));
+    }
+
+    // 6.1 View Ujian Online Result
+    public function resultUjian($idQuiz)
+    {
+        $quiz = Quiz::with(['mataPelajaran', 'guru', 'subBab.bab.mataPelajaran'])->findOrFail($idQuiz);
+        if (!empty($quiz->id_sub_bab)) {
+            return redirect()->route('siswa.quiz.result', $idQuiz);
+        }
+        return $this->resultQuiz($idQuiz);
     }
 
     // 7. Jadwal Mapel Siswa (read-only, tersambung ke jadwal yang dibuat admin)

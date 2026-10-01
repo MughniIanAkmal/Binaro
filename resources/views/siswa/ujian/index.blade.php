@@ -1,306 +1,381 @@
 @extends('layouts.siswa')
 
 @section('content')
-<div class="max-w-xl mx-auto space-y-5 pb-16">
-    <!-- Top App Bar (Sahabat Belajar) -->
-    <div class="bg-[#13527D] -mx-4 -mt-4 sm:mx-0 sm:mt-0 sm:rounded-2xl p-4 text-white shadow-md flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center shadow-md">
-                <i class="fas fa-graduation-cap text-lg"></i>
-            </div>
-            <div>
-                <span class="text-[10px] font-extrabold tracking-wider text-amber-300 uppercase block">SAHABAT BELAJAR</span>
-                <h1 class="text-base font-black tracking-tight leading-tight">Ujian Online</h1>
-            </div>
-        </div>
-        <div class="flex items-center gap-3">
-            <button class="relative w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
-                <i class="fas fa-bell text-sm"></i>
-                <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-400"></span>
-            </button>
-            <div class="w-9 h-9 rounded-full border-2 border-white/40 overflow-hidden bg-white/20 flex items-center justify-center">
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ urlencode(session('user_name', 'Siswa')) }}" alt="Avatar" class="w-full h-full object-cover">
-            </div>
-        </div>
-    </div>
-
-    <!-- Banner Penilaian Semester -->
-    <div class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-center justify-between gap-4">
+<div class="max-w-7xl mx-auto space-y-6 pb-16">
+    <!-- Clean Page Header (Tanpa Banner Biru Besar) -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-            <h2 class="text-base font-black text-slate-900 leading-tight">Penilaian Semester Siswa</h2>
-            <p class="text-xs text-slate-500 mt-1">Baca soal dengan teliti dan jangan lupa berdoa ya!</p>
-        </div>
-        <div class="w-12 h-12 rounded-2xl bg-sky-50 text-[#13527D] flex items-center justify-center text-xl shrink-0 shadow-xs">
-            <i class="fas fa-brain"></i>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-[#13527D] text-white flex items-center justify-center text-sm shadow-xs">
+                    <i class="fas fa-clipboard-question"></i>
+                </span>
+                <span>Ujian Online Siswa</span>
+            </h1>
+            <p class="text-xs text-slate-500 mt-1">Daftar evaluasi dan ujian kompetensi yang dapat dikerjakan.</p>
         </div>
     </div>
 
-    <!-- Filter Tabs (Tersedia vs Selesai) -->
-    <div class="bg-slate-100 p-1.5 rounded-2xl flex gap-1 text-xs font-bold">
-        <button type="button" onclick="switchUjianTab('tersedia')" id="tab-btn-tersedia"
-                class="flex-1 py-2.5 rounded-xl bg-[#13527D] text-white shadow-sm flex items-center justify-center gap-2 transition">
-            <i class="fas fa-clipboard-list text-[11px]"></i>
-            <span>Tersedia</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] bg-white/20 font-black">
-                {{ $ujianTersedia->count() > 0 ? $ujianTersedia->count() : 2 }}
-            </span>
-        </button>
-        <button type="button" onclick="switchUjianTab('selesai')" id="tab-btn-selesai"
-                class="flex-1 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2 transition">
-            <i class="fas fa-circle-check text-[11px]"></i>
-            <span>Selesai</span>
-            <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-200 font-black text-slate-700">
-                {{ $ujianSelesai->count() > 0 ? $ujianSelesai->count() : 3 }}
-            </span>
-        </button>
+    <!-- Filter & Navigation Bar -->
+    <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+        <!-- Tabs -->
+        <div class="flex gap-2 w-full sm:w-auto">
+            <button type="button" onclick="switchUjianTab('tersedia')" id="tab-btn-tersedia"
+                    class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#13527D] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition">
+                <i class="fas fa-clipboard-list text-sm"></i>
+                <span>Ujian Tersedia</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] bg-white/20 font-black">
+                    {{ $ujianTersedia->count() }}
+                </span>
+            </button>
+            <button type="button" onclick="switchUjianTab('selesai')" id="tab-btn-selesai"
+                    class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 text-xs font-bold flex items-center justify-center gap-2.5 transition">
+                <i class="fas fa-circle-check text-sm"></i>
+                <span>Riwayat Selesai</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] bg-slate-200 text-slate-700 font-black">
+                    {{ $ujianSelesai->count() }}
+                </span>
+            </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative w-full sm:w-72">
+            <input type="text" id="search-ujian-input" onkeyup="filterUjianCards()" placeholder="Cari nama ujian atau mapel..."
+                   class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#13527D] focus:border-transparent outline-none transition">
+            <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+        </div>
     </div>
 
-    <!-- ================= TAB TERSEDIA ================= -->
-    <div id="content-tersedia" class="space-y-4">
+    <!-- ================= TAB 1: UJIAN TERSEDIA ================= -->
+    <div id="content-tersedia">
         @if($ujianTersedia->count() > 0)
-            @foreach($ujianTersedia as $idx => $quiz)
-            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-3.5 hover:border-[#13527D]/40 transition">
-                <!-- Badges -->
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-50 text-[#13527D] border border-sky-100 flex items-center gap-1">
-                        <i class="fas fa-book-bookmark text-[9px]"></i> {{ $quiz->subBab->bab->mataPelajaran->nama_mapel ?? 'Matematika' }}
-                    </span>
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Bisa Dikerjakan
-                    </span>
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 flex items-center gap-1">
-                        <i class="fas fa-calendar-day text-[9px]"></i> Hari Ini
-                    </span>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grid-tersedia">
+            @foreach($ujianTersedia as $quiz)
+            @php
+                $mapelName = $quiz->mataPelajaran->nama_mapel ?? ($quiz->subBab->bab->mataPelajaran->nama_mapel ?? 'Mata Pelajaran Umum');
+                $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? ($quiz->subBab->bab->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu'));
+                $totalSoal = $quiz->soal->count();
+                $durasi = $quiz->durasi_menit ?? 60;
+                $level = strtolower($quiz->tingkat_level ?? 'sedang');
+            @endphp
+            <div class="ujian-card bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm hover:shadow-md hover:border-[#13527D]/40 transition flex flex-col justify-between group"
+                 data-title="{{ strtolower($quiz->judul_quiz) }}" data-mapel="{{ strtolower($mapelName) }}">
+                <div class="space-y-4">
+                    <!-- Badges -->
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-50 text-[#13527D] border border-sky-100 flex items-center gap-1.5 truncate max-w-[180px]">
+                            <i class="fas fa-book-open text-[10px]"></i> {{ $mapelName }}
+                        </span>
+
+                        @if($level === 'mudah')
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Level Mudah
+                            </span>
+                        @elseif($level === 'susah')
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Level Sulit
+                            </span>
+                        @else
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Level Sedang
+                            </span>
+                        @endif
+                    </div>
+
+                    <!-- Judul & Guru -->
+                    <div>
+                        <h3 class="text-base font-black text-slate-900 group-hover:text-[#13527D] transition leading-snug line-clamp-2">
+                            {{ $quiz->judul_quiz }}
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
+                            <i class="fas fa-chalkboard-user text-slate-400"></i>
+                            <span class="truncate">Guru: {{ $guruName }}</span>
+                        </p>
+                        @if($quiz->deskripsi)
+                        <p class="text-xs text-slate-400 mt-1 line-clamp-2 leading-relaxed">
+                            {{ $quiz->deskripsi }}
+                        </p>
+                        @endif
+                    </div>
+
+                    <!-- Meta Info Box (Waktu, Soal, Status) -->
+                    <div class="grid grid-cols-2 gap-2 bg-slate-50/80 p-3 rounded-xl border border-slate-100 text-xs font-bold text-slate-600">
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-sky-100/70 text-sky-700 flex items-center justify-center text-xs">
+                                <i class="fas fa-stopwatch"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 block font-medium">Durasi</span>
+                                <span>{{ $durasi }} Menit</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-lg bg-indigo-100/70 text-indigo-700 flex items-center justify-center text-xs">
+                                <i class="fas fa-list-check"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] text-slate-400 block font-medium">Jumlah Soal</span>
+                                <span>{{ $totalSoal }} Butir</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Title & Guru -->
-                <div>
-                    <h3 class="text-sm font-extrabold text-slate-900 leading-snug">
-                        {{ $quiz->judul_quiz }}
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
-                        <i class="fas fa-chalkboard-user text-slate-400"></i>
-                        <span>Guru: {{ $quiz->subBab->bab->mataPelajaran->guru->nama_guru ?? 'Ibu Sarah Wijaya, S.Pd.' }}</span>
-                    </p>
+                <!-- Action Button: Open Petunjuk Modal -->
+                <div class="pt-5 border-t border-slate-100 mt-4">
+                    <button type="button"
+                            onclick="openPetunjukModal({
+                                id: {{ $quiz->id_quiz }},
+                                judul: '{{ addslashes($quiz->judul_quiz) }}',
+                                mapel: '{{ addslashes($mapelName) }}',
+                                guru: '{{ addslashes($guruName) }}',
+                                durasi: {{ $durasi }},
+                                totalSoal: {{ $totalSoal }},
+                                level: '{{ ucfirst($level) }}',
+                                playUrl: '{{ route('siswa.ujian.play', $quiz->id_quiz) }}'
+                            })"
+                            class="w-full py-3 bg-[#13527D] hover:bg-[#0E3D5D] active:scale-[0.99] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+                        <i class="fas fa-play text-[10px]"></i>
+                        <span>Mulai Ujian</span>
+                        <i class="fas fa-arrow-right text-[11px] ml-1"></i>
+                    </button>
                 </div>
-
-                <!-- Info Bar (Waktu & Butir Soal) -->
-                <div class="bg-slate-50 rounded-xl p-2.5 flex items-center justify-center gap-4 text-xs font-bold text-slate-600 border border-slate-100">
-                    <span class="flex items-center gap-1.5">
-                        <i class="fas fa-clock text-sky-600"></i> 60 Menit
-                    </span>
-                    <span class="text-slate-300">•</span>
-                    <span class="flex items-center gap-1.5">
-                        <i class="fas fa-list-check text-indigo-600"></i> {{ $quiz->soal()->count() ?: 20 }} Soal Pilihan Ganda
-                    </span>
-                </div>
-
-                <!-- Button Mulai -->
-                <a href="{{ route('siswa.ujian.petunjuk', $quiz->id_quiz) }}"
-                   class="w-full py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
-                    <span>Mulai Ujian</span>
-                    <i class="fas fa-arrow-right text-[11px]"></i>
-                </a>
             </div>
             @endforeach
-        @else
-            <!-- Card Demo 1: Penilaian Tengah Semester: Matematika Kelas 4B (Sesuai Gambar 1) -->
-            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-3.5 hover:border-[#13527D]/40 transition">
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-sky-50 text-[#13527D] border border-sky-100 flex items-center gap-1">
-                        <i class="fas fa-book-bookmark text-[9px]"></i> Matematika
-                    </span>
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Bisa Dikerjakan
-                    </span>
-                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 flex items-center gap-1">
-                        <i class="fas fa-calendar-day text-[9px]"></i> Hari Ini
-                    </span>
-                </div>
-
-                <div>
-                    <h3 class="text-sm font-extrabold text-slate-900 leading-snug">
-                        Penilaian Tengah Semester: Matematika Kelas 4B
-                    </h3>
-                    <p class="text-xs text-slate-500 mt-1 flex items-center gap-1.5">
-                        <i class="fas fa-chalkboard-user text-slate-400"></i>
-                        <span>Guru: Ibu Sarah Wijaya, S.Pd.</span>
-                    </p>
-                </div>
-
-                <div class="bg-slate-50 rounded-xl p-2.5 flex items-center justify-center gap-4 text-xs font-bold text-slate-600 border border-slate-100">
-                    <span class="flex items-center gap-1.5">
-                        <i class="fas fa-clock text-sky-600"></i> 60 Menit
-                    </span>
-                    <span class="text-slate-300">•</span>
-                    <span class="flex items-center gap-1.5">
-                        <i class="fas fa-list-check text-indigo-600"></i> 20 Soal Pilihan Ganda
-                    </span>
-                </div>
-
-                @php $firstQuiz = \App\Models\Quiz::first(); @endphp
-                @if($firstQuiz)
-                <a href="{{ route('siswa.ujian.petunjuk', $firstQuiz->id_quiz) }}"
-                   class="w-full py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
-                    <span>Mulai Ujian</span>
-                    <i class="fas fa-arrow-right text-[11px]"></i>
-                </a>
-                @endif
-            </div>
-        @endif
-
-        <!-- Card Demo 2: Kuis Harian: IPAS - Daur Hidup Hewan (Belum Dimulai, Sesuai Gambar 1) -->
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-3.5 opacity-90">
-            <div class="flex items-center gap-2 flex-wrap">
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-100 flex items-center gap-1">
-                    <i class="fas fa-leaf text-[9px]"></i> IPAS
-                </span>
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">
-                    Belum Dimulai
-                </span>
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 flex items-center gap-1">
-                    <i class="fas fa-calendar-day text-[9px]"></i> Besok, 09.00 WIB
-                </span>
-            </div>
-
-            <div>
-                <h3 class="text-sm font-extrabold text-slate-900 leading-snug">
-                    Kuis Harian: IPAS – Daur Hidup Hewan
-                </h3>
-                <p class="text-xs text-slate-500 mt-1">
-                    Materi Metamorfosis Sempurna & Tidak Sempurna
-                </p>
-            </div>
-
-            <div class="bg-slate-50 rounded-xl p-2.5 flex items-center justify-center gap-4 text-xs font-bold text-slate-500 border border-slate-100">
-                <span class="flex items-center gap-1.5">
-                    <i class="fas fa-clock text-slate-400"></i> 45 Menit
-                </span>
-                <span class="text-slate-300">•</span>
-                <span class="flex items-center gap-1.5">
-                    <i class="fas fa-book-open text-slate-400"></i> 15 Soal Kuis
-                </span>
-            </div>
-
-            <button type="button" disabled
-                    class="w-full py-3 bg-slate-100 text-slate-400 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-not-allowed border border-slate-200">
-                <i class="fas fa-lock text-[11px]"></i>
-                <span>Dibuka Besok jam 09.00</span>
-            </button>
         </div>
+        @else
+        <!-- Empty State Tersedia -->
+        <div class="bg-white rounded-3xl p-12 border border-slate-200 text-center max-w-xl mx-auto space-y-4 shadow-xs">
+            <div class="w-20 h-20 rounded-3xl bg-sky-50 text-[#13527D] flex items-center justify-center text-3xl mx-auto shadow-inner">
+                <i class="fas fa-clipboard-check"></i>
+            </div>
+            <h3 class="text-base font-black text-slate-900">Belum Ada Ujian Online Tersedia</h3>
+            <p class="text-xs text-slate-500 leading-relaxed max-w-md mx-auto">
+                Saat ini belum ada ujian baru yang dijadwalkan oleh guru untuk Anda. Periksa kembali jadwal pembelajaran atau lihat materi yang telah dipelajari.
+            </p>
+            <div class="pt-2">
+                <a href="{{ route('siswa.mapel.index') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+                    <i class="fas fa-book-open"></i> Pelajari Materi
+                </a>
+            </div>
+        </div>
+        @endif
     </div>
 
-    <!-- ================= TAB SELESAI ================= -->
-    <div id="content-selesai" class="space-y-4 hidden">
-        @forelse($ujianSelesai as $qSelesai)
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-3.5">
-            <div class="flex items-center justify-between">
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 flex items-center gap-1">
-                    <i class="fas fa-check-circle"></i> Selesai Dikerjakan
-                </span>
-                <span class="text-xs font-black text-emerald-600 bg-emerald-100/60 px-2.5 py-0.5 rounded-full">
-                    Skor: {{ number_format($qSelesai->hasilSiswa->first()->nilai_akhir ?? 90, 0) }}
-                </span>
+    <!-- ================= TAB 2: UJIAN SELESAI ================= -->
+    <div id="content-selesai" class="hidden">
+        @if($ujianSelesai->count() > 0)
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grid-selesai">
+            @foreach($ujianSelesai as $quiz)
+            @php
+                $mapelName = $quiz->mataPelajaran->nama_mapel ?? ($quiz->subBab->bab->mataPelajaran->nama_mapel ?? 'Mata Pelajaran');
+                $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu');
+                $hasil = $quiz->hasilSiswa->first();
+                $nilai = $hasil ? $hasil->nilai_akhir : 0;
+                $isLulus = $nilai >= 75;
+                $isPublished = (bool)($hasil?->status_kirim ?? false);
+            @endphp
+            <div class="ujian-card bg-white rounded-2xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between"
+                 data-title="{{ strtolower($quiz->judul_quiz) }}" data-mapel="{{ strtolower($mapelName) }}">
+                <div class="space-y-3.5">
+                    <div class="flex items-center justify-between">
+                        <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-50 text-[#13527D] border border-sky-100">
+                            {{ $mapelName }}
+                        </span>
+                        @if($isPublished)
+                            @if($isLulus)
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                Lulus KKM
+                            </span>
+                            @else
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-50 text-rose-700 border border-rose-200">
+                                Remedial
+                            </span>
+                            @endif
+                        @else
+                            <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                                <i class="fas fa-clock text-[9px]"></i> Menunggu Rilis Nilai
+                            </span>
+                        @endif
+                    </div>
+
+                    <div>
+                        <h3 class="text-base font-black text-slate-900 leading-snug">{{ $quiz->judul_quiz }}</h3>
+                        <p class="text-xs text-slate-500 mt-1">Guru: {{ $guruName }}</p>
+                    </div>
+
+                    <!-- Score Card Mini -->
+                    @if($isPublished)
+                    <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-100 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-600">Nilai Akhir Ujian:</span>
+                        <span class="text-lg font-black {{ $isLulus ? 'text-emerald-600' : 'text-rose-600' }}">
+                            {{ round($nilai) }} <span class="text-xs text-slate-400 font-medium">/ 100</span>
+                        </span>
+                    </div>
+                    @else
+                    <div class="bg-amber-50/70 rounded-xl p-3 border border-amber-200/80 flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center text-xs shrink-0">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <span class="text-xs text-amber-900 font-medium">Nilai belum dirilis oleh guru pengampu.</span>
+                    </div>
+                    @endif
+                </div>
+
+                <div class="pt-4 border-t border-slate-100 mt-4">
+                    <a href="{{ route('siswa.ujian.result', $quiz->id_quiz) }}"
+                       class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-[#13527D] rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                        <i class="fas fa-eye text-xs"></i>
+                        <span>{{ $isPublished ? 'Lihat Hasil & Evaluasi' : 'Lihat Status Ujian' }}</span>
+                    </a>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @else
+        <div class="bg-white rounded-3xl p-12 border border-slate-200 text-center max-w-xl mx-auto space-y-3 shadow-xs">
+            <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-2xl mx-auto">
+                <i class="fas fa-hourglass-start"></i>
+            </div>
+            <h3 class="text-base font-black text-slate-800">Belum Ada Riwayat Ujian</h3>
+            <p class="text-xs text-slate-500">Anda belum pernah menyelesaikan ujian online di platform ini.</p>
+        </div>
+        @endif
+    </div>
+
+    <!-- Section Nilai Ujian Terakhir (Desktop Card Banner) -->
+    @if($latestHasil && $latestHasil->quiz)
+    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-500 flex items-center justify-center text-2xl shrink-0 shadow-xs">
+                <i class="fas fa-award"></i>
             </div>
             <div>
-                <h3 class="text-sm font-extrabold text-slate-900 leading-snug">{{ $qSelesai->judul_quiz }}</h3>
-                <p class="text-xs text-slate-500 mt-1">
-                    {{ $qSelesai->subBab->bab->mataPelajaran->nama_mapel ?? 'Mata Pelajaran' }} &bull; Selesai Tepat Waktu
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-bold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-100">
+                        {{ $latestHasil->quiz->mataPelajaran->nama_mapel ?? ($latestHasil->quiz->subBab->bab->mataPelajaran->nama_mapel ?? 'Mata Pelajaran') }}
+                    </span>
+                    <span class="text-xs text-slate-400 font-medium">Ujian Terakhir Dikerjakan</span>
+                </div>
+                <h4 class="text-sm sm:text-base font-black text-slate-900 mt-1">
+                    {{ $latestHasil->quiz->judul_quiz }}
+                </h4>
+                <p class="text-xs text-slate-500 mt-0.5">
+                    Diselesaikan pada {{ $latestHasil->created_at->format('d M Y, H:i') }} WIB &bull; Benar: {{ $latestHasil->jumlah_benar }}, Salah: {{ $latestHasil->jumlah_salah }}
                 </p>
             </div>
-            <a href="{{ route('siswa.quiz.result', $qSelesai->id_quiz) }}"
-               class="w-full py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-[#13527D] rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5">
-                <i class="fas fa-eye"></i> Lihat Hasil Ujian
+        </div>
+
+        <div class="flex items-center gap-4 shrink-0 w-full md:w-auto justify-between md:justify-end">
+            <div class="text-right">
+                <span class="text-[10px] uppercase font-extrabold text-slate-400 block tracking-wider">Skor Kamu</span>
+                <span class="text-2xl font-black text-[#13527D]">{{ round($latestHasil->nilai_akhir) }}</span>
+                <span class="text-xs font-bold text-slate-400">/ 100</span>
+            </div>
+            <a href="{{ route('siswa.ujian.result', $latestHasil->id_quiz) }}"
+               class="px-5 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs">
+                <span>Detail Hasil</span>
+                <i class="fas fa-chevron-right text-[10px]"></i>
             </a>
         </div>
-        @empty
-        <div class="bg-white rounded-2xl p-8 border border-slate-200 text-center text-slate-400 text-xs">
-            <i class="fas fa-clipboard-check text-3xl mb-2 text-slate-300"></i>
-            <p>Belum ada ujian yang selesai dikerjakan.</p>
-        </div>
-        @endforelse
     </div>
+    @endif
+</div>
 
-    <!-- Section Nilai Ujian Terakhir (Sesuai Gambar 1) -->
-    <div class="space-y-3 pt-2">
-        <div class="flex items-center justify-between">
-            <h3 class="text-xs font-extrabold text-slate-900">Nilai Ujian Terakhir</h3>
-            <button onclick="switchUjianTab('selesai')" class="text-[11px] font-bold text-[#13527D] hover:underline flex items-center gap-1">
-                <span>Semua</span>
-                <i class="fas fa-chevron-right text-[9px]"></i>
-            </button>
-        </div>
+<!-- ================= MODAL POP-UP: PETUNJUK UJIAN ================= -->
+<div id="modal-petunjuk-ujian" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl w-full max-w-2xl p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-200 transform transition-all relative">
+        <!-- Close Button -->
+        <button type="button" onclick="closePetunjukModal()" class="absolute top-5 right-5 w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
+            <i class="fas fa-times text-sm"></i>
+        </button>
 
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-500 border border-amber-100 flex items-center justify-center text-xl shrink-0 shadow-xs">
-                    <i class="fas fa-award"></i>
-                </div>
-                <div>
-                    <span class="text-[10px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-full">
-                        {{ $latestHasil->quiz->subBab->bab->mataPelajaran->nama_mapel ?? 'Bahasa Indonesia' }}
-                    </span>
-                    <h4 class="text-xs font-bold text-slate-900 mt-1">
-                        {{ $latestHasil->quiz->judul_quiz ?? 'Ulangan Harian Puisi A' }}
-                    </h4>
-                    <p class="text-[10px] text-slate-400 mt-0.5">
-                        {{ $latestHasil ? $latestHasil->created_at->format('d M') : '12 Mei' }} &bull; Sangat Memuaskan!
-                    </p>
-                </div>
+        <!-- Header Modal -->
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-[#13527D] text-white flex items-center justify-center text-2xl shadow-md shrink-0">
+                <i class="fas fa-file-signature"></i>
             </div>
-
-            <div class="text-right shrink-0">
-                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-amber-500 text-white shadow-xs">
-                    <i class="fas fa-star text-[10px]"></i> {{ number_format($latestHasil->nilai_akhir ?? 95, 0) }} - Hebat!
+            <div>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-50 text-[#13527D] border border-sky-100">
+                    Konfirmasi Pelaksanaan Ujian
                 </span>
-                @if($latestHasil)
-                <a href="{{ route('siswa.quiz.result', $latestHasil->id_quiz) }}" class="block text-[11px] font-bold text-[#13527D] hover:underline mt-1">
-                    Lihat Hasil &rarr;
-                </a>
-                @else
-                <span class="block text-[11px] font-bold text-[#13527D] mt-1">Lihat Hasil &rarr;</span>
-                @endif
+                <h3 id="modal-ujian-judul" class="text-lg font-black text-slate-900 mt-1 leading-tight">
+                    Judul Ujian Online
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5 flex items-center gap-2">
+                    <span id="modal-ujian-mapel" class="font-bold text-slate-700">Matematika</span> &bull;
+                    <span id="modal-ujian-guru">Guru Pengampu</span>
+                </p>
             </div>
         </div>
-    </div>
 
-    <!-- Banner Tips Sahabat Belajar (Sesuai Gambar 1) -->
-    <div class="bg-[#13527D] rounded-2xl p-4 text-white shadow-sm flex items-center gap-3.5">
-        <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-amber-300 text-lg shrink-0">
-            <i class="fas fa-lightbulb"></i>
+        <!-- 4 Grid Ringkasan Petunjuk (Waktu, Durasi, Kesusahan Soal, Jumlah Soal) Sesuai Permintaan User -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <!-- 1. Waktu / Status -->
+            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
+                <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mx-auto text-xs">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 block uppercase">Waktu</span>
+                <span class="text-xs font-black text-slate-800">Hari Ini</span>
+            </div>
+
+            <!-- 2. Durasi -->
+            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
+                <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto text-xs">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 block uppercase">Durasi</span>
+                <span id="modal-ujian-durasi" class="text-xs font-black text-slate-800">60 Menit</span>
+            </div>
+
+            <!-- 3. Kesusahan Soal -->
+            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
+                <div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mx-auto text-xs">
+                    <i class="fas fa-gauge-high"></i>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 block uppercase">Tingkat Soal</span>
+                <span id="modal-ujian-level" class="text-xs font-black text-purple-700">Sedang</span>
+            </div>
+
+            <!-- 4. Jumlah Soal -->
+            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
+                <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto text-xs">
+                    <i class="fas fa-list-ol"></i>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 block uppercase">Jumlah Soal</span>
+                <span id="modal-ujian-jumlah" class="text-xs font-black text-slate-800">20 Soal</span>
+            </div>
         </div>
-        <div>
-            <h4 class="text-xs font-black text-amber-300">Tips Sahabat Belajar</h4>
-            <p class="text-[11px] text-sky-100 leading-relaxed mt-0.5">
-                Kerjakan soal yang mudah dulu ya, agar waktumu cukup dan nilaimu maksimal!
-            </p>
+
+        <!-- Tata Tertib & Petunjuk Pengerjaan -->
+        <div class="bg-sky-50/70 border border-sky-100 rounded-2xl p-4 space-y-2">
+            <h4 class="text-xs font-black text-[#13527D] flex items-center gap-1.5">
+                <i class="fas fa-circle-info"></i> Petunjuk & Peraturan Ujian:
+            </h4>
+            <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
+                <li>Pastikan koneksi internet Anda stabil sebelum menekan tombol <strong>Mulai Kerjakan</strong>.</li>
+                <li>Waktu pengerjaan akan otomatis berjalan mundur saat lembar ujian dibuka.</li>
+                <li>Jawaban yang dipilih akan otomatis tersimpan oleh sistem secara real-time.</li>
+                <li>Dilarang membuka tab browser lain atau bekerja sama dengan orang lain selama ujian berlangsung.</li>
+                <li>Jika waktu habis, jawaban yang telah dipilih akan dikumpulkan otomatis.</li>
+            </ul>
+        </div>
+
+        <!-- Tombol Aksi -->
+        <div class="flex items-center justify-end gap-3 pt-2">
+            <button type="button" onclick="closePetunjukModal()"
+                    class="px-5 py-3 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition">
+                Batal
+            </button>
+            <a id="modal-ujian-btn-mulai" href="#"
+               class="px-6 py-3 rounded-xl bg-[#13527D] hover:bg-[#0E3D5D] active:scale-[0.99] text-white text-xs font-black shadow-md flex items-center gap-2 transition">
+                <span>Mulai Kerjakan Sekarang</span>
+                <i class="fas fa-arrow-right text-[11px]"></i>
+            </a>
         </div>
     </div>
 </div>
-
-<!-- Mobile Bottom Navigation Bar (Sesuai Gambar 1 & Gambar 4) -->
-<nav class="fixed bottom-0 left-0 right-0 z-40 bg-[#13527D] text-white border-t border-white/10 shadow-2xl py-2 px-6 flex justify-between items-center sm:hidden">
-    <a href="{{ route('siswa.dashboard') }}" class="flex flex-col items-center gap-1 text-white/70 hover:text-white transition">
-        <i class="fas fa-house text-base"></i>
-        <span class="text-[10px] font-medium">Beranda</span>
-    </a>
-    <a href="{{ route('siswa.mapel.index') }}" class="flex flex-col items-center gap-1 text-white/70 hover:text-white transition">
-        <i class="fas fa-book-open text-base"></i>
-        <span class="text-[10px] font-medium">Mapel</span>
-    </a>
-    <a href="{{ route('siswa.ujian.index') }}" class="flex flex-col items-center gap-1 text-amber-400 font-bold">
-        <i class="fas fa-clipboard-question text-base"></i>
-        <span class="text-[10px]">Ujian</span>
-    </a>
-    <a href="{{ route('jadwal.index') }}" class="flex flex-col items-center gap-1 text-white/70 hover:text-white transition">
-        <i class="fas fa-calendar-days text-base"></i>
-        <span class="text-[10px] font-medium">Jadwal</span>
-    </a>
-    <a href="{{ route('logout.get') }}" class="flex flex-col items-center gap-1 text-white/70 hover:text-white transition">
-        <i class="fas fa-user-circle text-base"></i>
-        <span class="text-[10px] font-medium">Profil</span>
-    </a>
-</nav>
 
 <script>
     function switchUjianTab(tab) {
@@ -312,14 +387,50 @@
         if (tab === 'tersedia') {
             cTersedia.classList.remove('hidden');
             cSelesai.classList.add('hidden');
-            btnTersedia.className = 'flex-1 py-2.5 rounded-xl bg-[#13527D] text-white shadow-sm flex items-center justify-center gap-2 transition';
-            btnSelesai.className = 'flex-1 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2 transition';
+            btnTersedia.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#13527D] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition';
+            btnSelesai.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 text-xs font-bold flex items-center justify-center gap-2.5 transition';
         } else {
             cTersedia.classList.add('hidden');
             cSelesai.classList.remove('hidden');
-            btnSelesai.className = 'flex-1 py-2.5 rounded-xl bg-[#13527D] text-white shadow-sm flex items-center justify-center gap-2 transition';
-            btnTersedia.className = 'flex-1 py-2.5 rounded-xl text-slate-600 hover:text-slate-900 flex items-center justify-center gap-2 transition';
+            btnSelesai.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#13527D] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition';
+            btnTersedia.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 text-xs font-bold flex items-center justify-center gap-2.5 transition';
         }
+    }
+
+    function openPetunjukModal(data) {
+        document.getElementById('modal-ujian-judul').textContent = data.judul;
+        document.getElementById('modal-ujian-mapel').textContent = data.mapel;
+        document.getElementById('modal-ujian-guru').textContent = 'Guru: ' + data.guru;
+        document.getElementById('modal-ujian-durasi').textContent = data.durasi + ' Menit';
+        document.getElementById('modal-ujian-jumlah').textContent = data.totalSoal + ' Soal';
+        document.getElementById('modal-ujian-level').textContent = data.level;
+        document.getElementById('modal-ujian-btn-mulai').href = data.playUrl;
+
+        document.getElementById('modal-petunjuk-ujian').classList.remove('hidden');
+    }
+
+    function closePetunjukModal() {
+        document.getElementById('modal-petunjuk-ujian').classList.add('hidden');
+    }
+
+    // Close on background click
+    document.getElementById('modal-petunjuk-ujian')?.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closePetunjukModal();
+        }
+    });
+
+    function filterUjianCards() {
+        const query = document.getElementById('search-ujian-input').value.toLowerCase();
+        document.querySelectorAll('.ujian-card').forEach(card => {
+            const title = card.getAttribute('data-title') || '';
+            const mapel = card.getAttribute('data-mapel') || '';
+            if (title.includes(query) || mapel.includes(query)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
     }
 </script>
 @endsection
