@@ -8,6 +8,7 @@ use App\Models\MataPelajaran;
 use App\Models\Guru;
 use App\Models\JadwalMataPelajaran;
 use App\Models\Notifikasi;
+use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
@@ -79,20 +80,17 @@ class RppController extends Controller
         // KPI Guru
         $totalRpp = (clone $baseQuery)->count();
         $siapAjar = (clone $baseQuery)->where('status', 'terverifikasi')->count();
-        $mediaProyektor = (clone $baseQuery)->where(function ($q) {
-            $q->whereJsonContains('komponen_checklist->video', true)
-              ->orWhereJsonContains('komponen_checklist->video', '1')
-              ->orWhereJsonContains('komponen_checklist->soal_proyektor', true)
-              ->orWhere('deskripsi', 'like', '%video%')
-              ->orWhere('deskripsi', 'like', '%proyektor%');
-        })->count();
-        $perluDilengkapi = (clone $baseQuery)->whereIn('status', ['draft', 'perlu_revisi'])->count();
+        $menungguReview = (clone $baseQuery)->where('status', 'menunggu_review')->count();
+        $perluRevisi = (clone $baseQuery)->where('status', 'perlu_revisi')->count();
+        $draftCount = (clone $baseQuery)->where('status', 'draft')->count();
 
         $kpiGuru = [
             'total' => $totalRpp,
             'siap_ajar' => $siapAjar,
-            'media_proyektor' => $mediaProyektor > 0 ? $mediaProyektor : ($totalRpp > 0 ? min($totalRpp, 15) : 0),
-            'perlu_dilengkapi' => $perluDilengkapi,
+            'menunggu_review' => $menungguReview,
+            'perlu_revisi' => $perluRevisi,
+            'draft' => $draftCount,
+            'perlu_dilengkapi' => $perluRevisi + $draftCount,
         ];
 
         // Query Filter List
@@ -100,14 +98,18 @@ class RppController extends Controller
 
         // Filter Tab
         $tab = $request->get('tab', 'semua');
-        if ($tab === 'jadwal') {
-            $query->where(function ($q) {
-                $q->whereNotNull('target_jadwal')->where('target_jadwal', '!=', '');
-            })->where('status', '!=', 'draft');
+        if ($tab === 'menunggu') {
+            $query->where('status', 'menunggu_review');
+        } elseif ($tab === 'disetujui' || $tab === 'arsip') {
+            $query->where('status', 'terverifikasi');
+        } elseif ($tab === 'revisi') {
+            $query->where('status', 'perlu_revisi');
         } elseif ($tab === 'draft') {
             $query->where('status', 'draft');
-        } elseif ($tab === 'arsip') {
-            $query->where('status', 'terverifikasi');
+        } elseif ($tab === 'jadwal') {
+            $query->where(function ($q) {
+                $q->whereNotNull('target_jadwal')->where('target_jadwal', '!=', '');
+            })->where('status', 'terverifikasi');
         }
 
         // Filter Kelas
@@ -154,6 +156,10 @@ class RppController extends Controller
 
     public function store(Request $request)
     {
+        if (session('user_type') === 'admin') {
+            return back()->with('error', 'Administrator tidak dapat menambahkan RPP langsung. RPP diajukan oleh guru untuk diverifikasi.');
+        }
+
         $idGuru = $request->input('id_guru');
         if (!$idGuru && session('user_type') === 'guru') {
             $idGuru = session('user_id');
@@ -168,19 +174,46 @@ class RppController extends Controller
             'id_mapel'      => 'required|exists:mata_pelajaran,id_mapel',
             'id_rooms'      => 'nullable|exists:kelas,id_rooms',
             'id_jadwal'     => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
-            'judul_rpp'     => ['required','string','max:150', 'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\/\(\)]+$/u'],
-            'deskripsi'     => ['nullable','string','max:1000', 'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\/\(\)\n\r]+$/u'],
-            'alokasi_waktu' => 'nullable|string|max:100',
-            'fase'          => 'nullable|string|max:50',
-            'modul_ke'      => 'nullable|string|max:50',
-            'target_jadwal' => 'nullable|string|max:150',
-            'ruang'         => 'nullable|string|max:100',
+            'judul_rpp'     => [
+                'required',
+                'string',
+                'min:3',
+                'max:100',
+                'regex:/^[a-zA-Z0-9\s]+$/u',
+            ],
+            'deskripsi'     => ['nullable', 'string', 'max:500'],
+            'alokasi_waktu' => ['nullable', 'string', 'max:4'],
+            'fase'          => ['nullable', 'string', 'max:20'],
+            'modul_ke'      => ['nullable', 'string', 'max:20', 'regex:/^[a-zA-Z0-9\s]+$/u'],
+            'target_jadwal' => ['nullable', 'string', 'max:50'],
+            'ruang'         => ['nullable', 'string', 'max:50'],
             'target_tanggal'=> 'nullable|string|max:50',
+            'custom_tags'   => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if (empty($value)) return;
+                    $tags = is_array($value) ? $value : array_filter(array_map('trim', explode(',', $value)));
+                    foreach ($tags as $tag) {
+                        if (!preg_match('/^[a-zA-Z0-9\s]+$/u', $tag)) {
+                            $fail('Label / Tag hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).');
+                            return;
+                        }
+                    }
+                }
+            ],
             'status'        => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
             'file_rpp'      => 'nullable|file|mimes:pdf,docx,doc|max:10240',
         ], [
-            'judul_rpp.regex'  => 'Judul RPP hanya boleh mengandung huruf, angka, spasi, dan tanda baca dasar (. , : ; - \' / ()).',
-            'deskripsi.regex'  => 'Capaian Pembelajaran (TP) hanya boleh mengandung huruf, angka, spasi, dan tanda baca dasar. Simbol seperti $, @, #, %, ^, &, * tidak diperbolehkan.',
+            'judul_rpp.required' => 'Topik / Judul Modul Ajar wajib diisi.',
+            'judul_rpp.min'      => 'Topik / Judul Modul Ajar minimal 3 karakter.',
+            'judul_rpp.max'      => 'Topik / Judul Modul Ajar maksimal 100 karakter.',
+            'judul_rpp.regex'    => 'Topik / Judul Modul Ajar hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
+            'modul_ke.max'       => 'Nomor Modul atau Bab maksimal 20 karakter.',
+            'modul_ke.regex'     => 'Nomor Modul atau Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
+            'alokasi_waktu.max'  => 'Alokasi Waktu maksimal 4 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
+            'target_jadwal.max'  => 'Target Roster Jadwal maksimal 50 karakter.',
+            'ruang.max'          => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
+            'deskripsi.max'      => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
         ]);
 
         if ($request->hasFile('file_rpp')) {
@@ -204,12 +237,18 @@ class RppController extends Controller
             'tags' => $customTags,
         ];
 
-        if (empty($validated['status'])) {
+        if (session('user_type') === 'guru' || empty($validated['status'])) {
             $validated['status'] = $request->input('action') === 'draft' ? 'draft' : 'menunggu_review';
         }
 
         Rpp::create($validated);
-        return back()->with('success', 'Modul Ajar RPP sukses ditambahkan.');
+
+        $redirectRoute = session('user_type') === 'guru' ? route('guru.rpp.index') : route('rpp.index');
+        if ($validated['status'] === 'menunggu_review') {
+            return redirect($redirectRoute)->with('success', 'Modul Ajar RPP berhasil dikirim. Status saat ini: "Menunggu Persetujuan Admin" dan belum bisa diaplikasikan hingga disetujui (di-accept) oleh Administrator.');
+        }
+
+        return redirect($redirectRoute)->with('success', 'Draf Modul Ajar RPP berhasil disimpan.');
     }
 
     public function show(Request $request, $id)
@@ -240,19 +279,46 @@ class RppController extends Controller
             'id_mapel'      => 'required|exists:mata_pelajaran,id_mapel',
             'id_rooms'      => 'nullable|exists:kelas,id_rooms',
             'id_jadwal'     => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
-            'judul_rpp'     => ['required','string','max:150', 'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\/\(\)]+$/u'],
-            'deskripsi'     => ['nullable','string','max:1000', 'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\/\(\)\n\r]+$/u'],
-            'alokasi_waktu' => 'nullable|string|max:100',
-            'fase'          => 'nullable|string|max:50',
-            'modul_ke'      => 'nullable|string|max:50',
-            'target_jadwal' => 'nullable|string|max:150',
-            'ruang'         => 'nullable|string|max:100',
+            'judul_rpp'     => [
+                'required',
+                'string',
+                'min:3',
+                'max:100',
+                'regex:/^[a-zA-Z0-9\s]+$/u',
+            ],
+            'deskripsi'     => ['nullable', 'string', 'max:500'],
+            'alokasi_waktu' => ['nullable', 'string', 'max:4'],
+            'fase'          => ['nullable', 'string', 'max:20'],
+            'modul_ke'      => ['nullable', 'string', 'max:20', 'regex:/^[a-zA-Z0-9\s]+$/u'],
+            'target_jadwal' => ['nullable', 'string', 'max:50'],
+            'ruang'         => ['nullable', 'string', 'max:50'],
             'target_tanggal'=> 'nullable|string|max:50',
+            'custom_tags'   => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if (empty($value)) return;
+                    $tags = is_array($value) ? $value : array_filter(array_map('trim', explode(',', $value)));
+                    foreach ($tags as $tag) {
+                        if (!preg_match('/^[a-zA-Z0-9\s]+$/u', $tag)) {
+                            $fail('Label / Tag hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).');
+                            return;
+                        }
+                    }
+                }
+            ],
             'status'        => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
             'file_rpp'      => 'nullable|file|mimes:pdf,docx,doc|max:10240',
         ], [
-            'judul_rpp.regex' => 'Judul RPP hanya boleh mengandung huruf, angka, spasi, dan tanda baca dasar (. , : ; - \' / ()).',
-            'deskripsi.regex' => 'Capaian Pembelajaran (TP) hanya boleh mengandung huruf, angka, spasi, dan tanda baca dasar. Simbol seperti $, @, #, %, ^, &, * tidak diperbolehkan.',
+            'judul_rpp.required' => 'Topik / Judul Modul Ajar wajib diisi.',
+            'judul_rpp.min'      => 'Topik / Judul Modul Ajar minimal 3 karakter.',
+            'judul_rpp.max'      => 'Topik / Judul Modul Ajar maksimal 100 karakter.',
+            'judul_rpp.regex'    => 'Topik / Judul Modul Ajar hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
+            'modul_ke.max'       => 'Nomor Modul atau Bab maksimal 20 karakter.',
+            'modul_ke.regex'     => 'Nomor Modul atau Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
+            'alokasi_waktu.max'  => 'Alokasi Waktu maksimal 4 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
+            'target_jadwal.max'  => 'Target Roster Jadwal maksimal 50 karakter.',
+            'ruang.max'          => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
+            'deskripsi.max'      => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
         ]);
 
         if ($request->hasFile('file_rpp')) {
@@ -279,19 +345,29 @@ class RppController extends Controller
             'tags' => $customTags,
         ];
 
-        if ($request->filled('status')) {
+        if (session('user_type') === 'guru') {
+            // Jika guru menyimpan sebagai draf, status draf. Jika diajukan, status menunggu_review agar admin menerima/menolak
+            $validated['status'] = $request->input('action') === 'draft' ? 'draft' : 'menunggu_review';
+        } elseif ($request->filled('status')) {
             $validated['status'] = $request->status;
         }
 
         $rpp->update($validated);
-        return back()->with('success', 'RPP sukses diperbarui.');
+
+        $redirectRoute = session('user_type') === 'guru' ? route('guru.rpp.index') : route('rpp.index');
+        if (session('user_type') === 'guru' && ($validated['status'] ?? '') === 'menunggu_review') {
+            return redirect($redirectRoute)->with('success', 'Perubahan RPP berhasil dikirim. Status: "Menunggu Persetujuan Admin" dan belum bisa diaplikasikan hingga disetujui (di-accept) oleh Administrator.');
+        }
+
+        return redirect($redirectRoute)->with('success', 'RPP sukses diperbarui.');
     }
 
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
             'status' => 'required|in:draft,menunggu_review,terverifikasi,perlu_revisi',
-            'catatan' => 'nullable|string'
+            'catatan' => 'nullable|string|max:1000',
+            'catatan_revisi' => 'nullable|string|max:1000',
         ]);
 
         $rpp = Rpp::where('id_rpp', $id)->first();
@@ -299,19 +375,20 @@ class RppController extends Controller
             abort(404, 'RPP tidak ditemukan.');
         }
 
+        $catatan = $request->input('catatan_revisi') ?? $request->input('catatan');
+
         $rpp->update([
             'status' => $request->status,
-            'catatan_revisi' => $request->catatan,
+            'catatan_revisi' => $catatan,
         ]);
 
-        Notifikasi::create([
-            'id_guru' => $rpp->id_guru,
-            'id_siswa' => 1,
-            'pesan' => "Status RPP '{$rpp->judul_rpp}' diperbarui menjadi: " . strtoupper($request->status),
-            'status_baca' => false,
-        ]);
+        $pesanSukses = match($request->status) {
+            'terverifikasi' => "Permintaan RPP '{$rpp->judul_rpp}' berhasil diterima dan disetujui.",
+            'perlu_revisi'  => "Permintaan RPP '{$rpp->judul_rpp}' dikembalikan ke guru untuk revisi.",
+            default => "Status RPP berhasil diperbarui.",
+        };
 
-        return back()->with('success', 'Status RPP sukses diperbarui.');
+        return back()->with('success', $pesanSukses);
     }
 
     public function destroy($id)
