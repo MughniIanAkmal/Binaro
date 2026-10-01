@@ -1,6 +1,7 @@
 @extends('layouts.guru')
 
 @section('content')
+<div class="p-8 space-y-6">
 <!-- Profile Banner -->
 <div class="bg-gradient-to-r from-[#0E385D] to-[#165B96] rounded-xl p-6 text-white shadow-md flex justify-between items-center flex-wrap gap-4">
     <div class="flex items-center gap-4">
@@ -215,5 +216,6 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 @endsection
