@@ -62,6 +62,11 @@
                 </span>
                 @endif
             </a>
+            <a href="{{ route('siswa.profile') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('siswa.profile') ? 'active-item' : 'text-white/80 hover:bg-white/10' }}">
+                <i class="fas fa-user-circle w-4"></i>
+                <span class="flex-1">Profil Saya</span>
+            </a>
         </nav>
 
         <div class="p-3 border-t border-white/10">

@@ -21,6 +21,78 @@ class SiswaController extends Controller
         return view('siswa.dashboard', compact('siswa'));
     }
 
+    public function profile()
+    {
+        $siswa = Siswa::with(['kelas', 'mataPelajaran', 'barcode'])
+            ->find(session('user_id'));
+
+        if (!$siswa) {
+            return redirect()->route('login')->with('error', 'Sesi berakhir. Silakan login kembali.');
+        }
+
+        $qrSvg = null;
+        if ($siswa->barcode) {
+            try {
+                $qrSvg = (new \chillerlan\QRCode\QRCode())->render($siswa->barcode->kode_barcode);
+            } catch (\Throwable $e) {
+                $qrSvg = null;
+            }
+        }
+
+        return view('siswa.profile', compact('siswa', 'qrSvg'));
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'password_lama' => 'required|string',
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'password.confirmed' => 'Konfirmasi password baru tidak sama.',
+            'password.min' => 'Password baru minimal 6 karakter.',
+        ]);
+
+        $siswa = Siswa::find(session('user_id'));
+        if (!$siswa) {
+            return redirect()->route('login')->with('error', 'Sesi berakhir. Silakan login kembali.');
+        }
+
+        $stored = trim((string) $siswa->password);
+        $inputLama = trim($request->input('password_lama'));
+
+        $cocok = ($inputLama === $stored)
+            || (str_starts_with($stored, '$2y$') && \Illuminate\Support\Facades\Hash::check($inputLama, $stored))
+            || (md5($inputLama) === $stored);
+
+        if (!$cocok) {
+            return back()->with('error', 'Password lama salah.')->with('open_password', true);
+        }
+
+        $siswa->update(['password' => $request->input('password')]);
+
+        return back()->with('success', 'Password berhasil diubah.');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $siswa = Siswa::find(session('user_id'));
+        if (!$siswa) {
+            return redirect()->route('login')->with('error', 'Sesi berakhir. Silakan login kembali.');
+        }
+
+        $validated = $request->validate([
+            'username' => ['required', 'string', 'max:50', Rule::unique('siswa', 'username')->ignore($siswa->id_siswa, 'id_siswa')],
+            'email' => ['required', 'email', 'max:100', Rule::unique('siswa', 'email')->ignore($siswa->id_siswa, 'id_siswa')],
+            'no_hp' => 'nullable|string|max:20',
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'alamat' => 'nullable|string|max:500',
+        ]);
+
+        $siswa->update($validated);
+
+        return back()->with('success', 'Keterangan berhasil diperbarui.');
+    }
+
     public function index(Request $request)
     {
         if (session('user_type') === 'siswa') {
