@@ -478,7 +478,7 @@
     </div>
     @endif
 
-    <!-- 3 Bottom Feature Integration Cards -->
+    {{-- <!-- 3 Bottom Feature Integration Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
         <!-- 1. Sinkronisasi Roster Kelas -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-3">
@@ -532,7 +532,7 @@
         </div>
     </div>
 
-</div>
+</div> --}}
 
     <!-- Include Modals RPP (Tambah, Edit, Detail & Script Interaktif) -->
     @include('rpp-guru.modals')

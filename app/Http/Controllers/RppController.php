@@ -164,20 +164,23 @@ class RppController extends Controller
         $request->merge(['id_guru' => $idGuru]);
 
         $validated = $request->validate([
-            'id_guru' => 'required|exists:guru,id_guru',
-            'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
-            'id_rooms' => 'nullable|exists:kelas,id_rooms',
-            'id_jadwal' => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
-            'judul_rpp' => 'required|string|max:150',
-            'deskripsi' => 'nullable|string',
+            'id_guru'       => 'required|exists:guru,id_guru',
+            'id_mapel'      => 'required|exists:mata_pelajaran,id_mapel',
+            'id_rooms'      => 'nullable|exists:kelas,id_rooms',
+            'id_jadwal'     => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
+            'judul_rpp'     => ['required','string','max:150', 'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\/\(\)]+$/u'],
+            'deskripsi'     => ['nullable','string','max:1000', 'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\/\(\)\n\r]+$/u'],
             'alokasi_waktu' => 'nullable|string|max:100',
-            'fase' => 'nullable|string|max:50',
-            'modul_ke' => 'nullable|string|max:50',
+            'fase'          => 'nullable|string|max:50',
+            'modul_ke'      => 'nullable|string|max:50',
             'target_jadwal' => 'nullable|string|max:150',
-            'ruang' => 'nullable|string|max:100',
-            'target_tanggal' => 'nullable|string|max:50',
-            'status' => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
-            'file_rpp' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+            'ruang'         => 'nullable|string|max:100',
+            'target_tanggal'=> 'nullable|string|max:50',
+            'status'        => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
+            'file_rpp'      => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+        ], [
+            'judul_rpp.regex'  => 'Judul RPP hanya boleh mengandung huruf, angka, spasi, dan tanda baca dasar (. , : ; - \' / ()).',
+            'deskripsi.regex'  => 'Capaian Pembelajaran (TP) hanya boleh mengandung huruf, angka, spasi, dan tanda baca dasar. Simbol seperti $, @, #, %, ^, &, * tidak diperbolehkan.',
         ]);
 
         if ($request->hasFile('file_rpp')) {
@@ -234,19 +237,22 @@ class RppController extends Controller
         }
 
         $validated = $request->validate([
-            'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
-            'id_rooms' => 'nullable|exists:kelas,id_rooms',
-            'id_jadwal' => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
-            'judul_rpp' => 'required|string|max:150',
-            'deskripsi' => 'nullable|string',
+            'id_mapel'      => 'required|exists:mata_pelajaran,id_mapel',
+            'id_rooms'      => 'nullable|exists:kelas,id_rooms',
+            'id_jadwal'     => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
+            'judul_rpp'     => ['required','string','max:150', 'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\/\(\)]+$/u'],
+            'deskripsi'     => ['nullable','string','max:1000', 'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\/\(\)\n\r]+$/u'],
             'alokasi_waktu' => 'nullable|string|max:100',
-            'fase' => 'nullable|string|max:50',
-            'modul_ke' => 'nullable|string|max:50',
+            'fase'          => 'nullable|string|max:50',
+            'modul_ke'      => 'nullable|string|max:50',
             'target_jadwal' => 'nullable|string|max:150',
-            'ruang' => 'nullable|string|max:100',
-            'target_tanggal' => 'nullable|string|max:50',
-            'status' => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
-            'file_rpp' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+            'ruang'         => 'nullable|string|max:100',
+            'target_tanggal'=> 'nullable|string|max:50',
+            'status'        => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
+            'file_rpp'      => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+        ], [
+            'judul_rpp.regex' => 'Judul RPP hanya boleh mengandung huruf, angka, spasi, dan tanda baca dasar (. , : ; - \' / ()).',
+            'deskripsi.regex' => 'Capaian Pembelajaran (TP) hanya boleh mengandung huruf, angka, spasi, dan tanda baca dasar. Simbol seperti $, @, #, %, ^, &, * tidak diperbolehkan.',
         ]);
 
         if ($request->hasFile('file_rpp')) {

@@ -113,6 +113,10 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             Route::get('/template/download', [QuizController::class, 'downloadTemplate'])->name('template.download');
             Route::get('/rekap', [QuizController::class, 'rekap'])->name('rekap');
             Route::get('/export/{idQuiz}', [QuizController::class, 'exportRekap'])->name('export');
+            Route::post('/rekap/feedback', [QuizController::class, 'simpanFeedback'])->name('rekap.feedback');
+            Route::post('/rekap/kirim', [QuizController::class, 'kirimNilai'])->name('rekap.kirim');
+            Route::post('/rekap/kirim-semua/{idQuiz}', [QuizController::class, 'kirimNilaiSemua'])->name('rekap.kirim_semua');
+            Route::post('/rekap/jadwalkan-remedial/{idQuiz}', [QuizController::class, 'jadwalkanRemedial'])->name('rekap.jadwalkan_remedial');
         });
 
         // Kelola Notifikasi PR (CRUD + Kirim Notifikasi ke Siswa)
@@ -140,6 +144,11 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     });
 
     Route::middleware([EnsureRole::class . ':admin,guru'])->get('/rpp-guru', [RppController::class, 'guruIndex'])->name('rpp_guru.index');
+    Route::middleware([EnsureRole::class . ':admin,guru'])->get('/rekap-ujian', [QuizController::class, 'rekap'])->name('rekap_ujian.index');
+    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/feedback', [QuizController::class, 'simpanFeedback'])->name('rekap_ujian.feedback');
+    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/kirim', [QuizController::class, 'kirimNilai'])->name('rekap_ujian.kirim');
+    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/kirim-semua/{idQuiz}', [QuizController::class, 'kirimNilaiSemua'])->name('rekap_ujian.kirim_semua');
+    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/jadwalkan-remedial/{idQuiz}', [QuizController::class, 'jadwalkanRemedial'])->name('rekap_ujian.jadwalkan_remedial');
 
     // 5. Akun Guru CRUD (Role: Admin)
     Route::middleware([EnsureRole::class . ':admin'])->prefix('guru')->name('guru.')->group(function () {

@@ -139,14 +139,19 @@ class QuizController extends Controller
         $selectedQuizId = $request->query('quiz_id', $quizzes->first()?->id_quiz);
 
         $hasils = collect();
+        $selectedQuiz = null;
         if ($selectedQuizId) {
+            $selectedQuiz = Quiz::with('subBab.bab.mataPelajaran')->find($selectedQuizId);
             $hasils = HasilKuisSiswa::with('siswa')
                                     ->where('id_quiz', $selectedQuizId)
                                     ->latest()
                                     ->get();
         }
 
-        return view('guru.quiz.rekap', compact('quizzes', 'selectedQuizId', 'hasils'));
+        // Use rich rekap-ujian view when accessed via /rekap-ujian URL
+        $view = request()->routeIs('rekap_ujian.index') ? 'rekap-ujian.index' : 'guru.quiz.rekap';
+
+        return view($view, compact('quizzes', 'selectedQuizId', 'selectedQuiz', 'hasils'));
     }
 
     // Export Rekap Nilai to Excel / CSV stream
@@ -169,7 +174,7 @@ class QuizController extends Controller
             fputcsv($file, ["Bab / Sub-Bab", ($quiz->subBab?->bab?->nama_bab ?? '-') . " / " . ($quiz->subBab?->nama_sub_bab ?? '-')]);
             fputcsv($file, []);
             // Headers
-            fputcsv($file, ['No', 'NISN', 'Nama Siswa', 'Benar', 'Salah', 'Nilai Akhir', 'Waktu Submit']);
+            fputcsv($file, ['No', 'NISN', 'Nama Siswa', 'Benar', 'Salah', 'Nilai Akhir', 'Waktu (Menit)', 'Keaktifan', 'Catatan Guru', 'Waktu Submit']);
 
             foreach ($hasils as $idx => $row) {
                 fputcsv($file, [
@@ -179,6 +184,9 @@ class QuizController extends Controller
                     $row->jumlah_benar,
                     $row->jumlah_salah,
                     $row->nilai_akhir,
+                    $row->waktu_menit ?? '-',
+                    $row->nilai_keaktifan ? $row->nilai_keaktifan . ' Poin' : '-',
+                    $row->catatan_guru ?? '-',
                     $row->created_at?->format('Y-m-d H:i:s') ?? '-',
                 ]);
             }
@@ -186,5 +194,146 @@ class QuizController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    // Simpan Umpan Balik Guru untuk Siswa
+    public function simpanFeedback(Request $request)
+    {
+        $request->validate([
+            'id_hasil' => 'required|exists:hasil_kuis_siswa,id_hasil',
+            'catatan_guru' => [
+                'required',
+                'string',
+                'max:1000',
+                'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\"\/\(\)\!\?\n\r]+$/u',
+            ],
+        ], [
+            'catatan_guru.required' => 'Catatan umpan balik tidak boleh kosong.',
+            'catatan_guru.regex' => 'Catatan umpan balik tidak boleh mengandung simbol aneh seperti $, @, #, %, ^, &, *, +, =, ~, <, >.',
+        ]);
+
+        $hasil = HasilKuisSiswa::findOrFail($request->id_hasil);
+        $hasil->update([
+            'catatan_guru' => $request->catatan_guru,
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Umpan balik berhasil disimpan.',
+                'catatan_guru' => $hasil->catatan_guru,
+            ]);
+        }
+
+        return back()->with('success', 'Umpan balik berhasil disimpan.');
+    }
+
+    // Kirim Nilai & Umpan Balik ke Notifikasi Siswa
+    public function kirimNilai(Request $request)
+    {
+        $request->validate([
+            'id_hasil' => 'required|exists:hasil_kuis_siswa,id_hasil',
+            'pesan_tambahan' => [
+                'nullable',
+                'string',
+                'max:500',
+                'regex:/^[a-zA-Z0-9\s\pL\.\,\:\;\-\'\"\/\(\)\!\?\n\r]+$/u',
+            ],
+        ], [
+            'pesan_tambahan.regex' => 'Pesan tambahan tidak boleh mengandung simbol aneh seperti $, @, #, %, ^, &, *, +, =, ~, <, >.',
+        ]);
+
+        $hasil = HasilKuisSiswa::with(['siswa', 'quiz'])->findOrFail($request->id_hasil);
+
+        $guruId = session('user_id');
+        if (session('user_type') !== 'guru' || !$guruId) {
+            $guruId = \App\Models\Guru::value('id_guru');
+        }
+
+        $pesan = "Hasil Ujian [{$hasil->quiz?->judul_quiz}]: Nilai Anda adalah " . number_format($hasil->nilai_akhir, 0) . ". ";
+        if ($hasil->catatan_guru) {
+            $pesan .= "Catatan Guru: {$hasil->catatan_guru}. ";
+        }
+        if ($request->filled('pesan_tambahan')) {
+            $pesan .= "Pesan: " . $request->pesan_tambahan;
+        }
+
+        \App\Models\Notifikasi::create([
+            'id_guru' => $guruId,
+            'id_siswa' => $hasil->id_siswa,
+            'id_pr' => null,
+            'pesan' => trim($pesan),
+            'status_baca' => false,
+        ]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Nilai dan umpan balik berhasil dikirim ke siswa.',
+            ]);
+        }
+
+        return back()->with('success', 'Nilai dan umpan balik berhasil dikirim ke siswa.');
+    }
+
+    // Kirim Nilai ke Seluruh Siswa
+    public function kirimNilaiSemua(Request $request, $idQuiz)
+    {
+        $quiz = Quiz::findOrFail($idQuiz);
+        $hasils = HasilKuisSiswa::where('id_quiz', $idQuiz)->get();
+
+        $guruId = session('user_id');
+        if (session('user_type') !== 'guru' || !$guruId) {
+            $guruId = \App\Models\Guru::value('id_guru');
+        }
+
+        $terkirim = 0;
+        foreach ($hasils as $h) {
+            $pesan = "Hasil Ujian [{$quiz->judul_quiz}]: Nilai akhir Anda adalah " . number_format($h->nilai_akhir, 0) . ". ";
+            if ($h->catatan_guru) {
+                $pesan .= "Catatan: {$h->catatan_guru}";
+            }
+
+            \App\Models\Notifikasi::create([
+                'id_guru' => $guruId,
+                'id_siswa' => $h->id_siswa,
+                'id_pr' => null,
+                'pesan' => trim($pesan),
+                'status_baca' => false,
+            ]);
+            $terkirim++;
+        }
+
+        return back()->with('success', "Berhasil mengirim nilai ujian ke {$terkirim} siswa.");
+    }
+
+    // Jadwalkan Remedial Otomatis untuk Siswa Nilai < KKM (70)
+    public function jadwalkanRemedial(Request $request, $idQuiz)
+    {
+        $quiz = Quiz::findOrFail($idQuiz);
+        $remedials = HasilKuisSiswa::where('id_quiz', $idQuiz)
+                                    ->where('nilai_akhir', '<', 70)
+                                    ->get();
+
+        if ($remedials->isEmpty()) {
+            return back()->with('info', 'Tidak ada siswa yang memerlukan remedial untuk ujian ini.');
+        }
+
+        $guruId = session('user_id');
+        if (session('user_type') !== 'guru' || !$guruId) {
+            $guruId = \App\Models\Guru::value('id_guru');
+        }
+
+        foreach ($remedials as $h) {
+            \App\Models\Notifikasi::create([
+                'id_guru' => $guruId,
+                'id_siswa' => $h->id_siswa,
+                'id_pr' => null,
+                'pesan' => "Pemberitahuan Remedial [{$quiz->judul_quiz}]: Anda dijadwalkan mengikuti sesi remedial penguatan materi. Silakan pelajari kembali bab terkait di menu Pembelajaran.",
+                'status_baca' => false,
+            ]);
+        }
+
+        return back()->with('success', "Jadwal remedial berhasil diterbitkan dan dinotifikasikan ke {$remedials->count()} siswa.");
     }
 }
