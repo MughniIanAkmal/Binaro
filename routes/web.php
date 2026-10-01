@@ -11,6 +11,7 @@ use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SiswaLearningController;
 use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\Guru\NotifikasiPrController;
 use App\Http\Middleware\EnsureAuthenticated;
 use App\Http\Middleware\EnsureRole;
 use Illuminate\Support\Facades\Route;
@@ -110,6 +111,19 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             Route::get('/template/download', [QuizController::class, 'downloadTemplate'])->name('template.download');
             Route::get('/rekap', [QuizController::class, 'rekap'])->name('rekap');
             Route::get('/export/{idQuiz}', [QuizController::class, 'exportRekap'])->name('export');
+        });
+
+        // Kelola Notifikasi & Tugas PR (CRUD + Kirim Notifikasi ke Siswa)
+        Route::prefix('notifikasi-pr')->name('notifikasi_pr.')->group(function () {
+            Route::get('/', [NotifikasiPrController::class, 'index'])->name('index');
+            Route::get('/create', [NotifikasiPrController::class, 'create'])->name('create');
+            Route::post('/', [NotifikasiPrController::class, 'store'])->name('store');
+            Route::get('/{id}', [NotifikasiPrController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [NotifikasiPrController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [NotifikasiPrController::class, 'update'])->name('update');
+            Route::delete('/{id}', [NotifikasiPrController::class, 'destroy'])->name('destroy');
+            Route::post('/kirim', [NotifikasiPrController::class, 'kirim'])->name('kirim');
+            Route::delete('/notifikasi/{id}', [NotifikasiPrController::class, 'destroyNotifikasi'])->name('destroy_notifikasi');
         });
     });
 

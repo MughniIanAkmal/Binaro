@@ -62,6 +62,12 @@
                class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.absensi.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
                 <i class="fas fa-chart-pie w-4 text-sky-300"></i> Rekap Absensi
             </a>
+
+            <!-- 4. Menu Kelola Notifikasi PR -->
+            <a href="{{ route('guru.notifikasi_pr.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.notifikasi_pr.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
+                <i class="fas fa-bell w-4 text-amber-300"></i> Notifikasi PR
+            </a>
         </nav>
 
         <div class="p-4 border-t border-white/10 text-xs">
