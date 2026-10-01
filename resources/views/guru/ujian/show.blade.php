@@ -1,7 +1,7 @@
 @extends('layouts.guru')
 
 @section('content')
-<div class="space-y-6 pb-12">
+<div class="p-8 space-y-6 pb-12">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -54,8 +54,23 @@
         </div>
 
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm">
-            <div class="text-[10px] font-bold text-slate-400 uppercase">Durasi Pengerjaan</div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase">Durasi & Waktu Per Soal</div>
             <div class="text-lg font-bold text-slate-800 mt-0.5">{{ $quiz->durasi_menit ?? 60 }} <span class="text-xs font-normal text-slate-500">Menit</span></div>
+            @php
+                $soalCount = $quiz->soal->count();
+                $durasiMenit = $quiz->durasi_menit ?? 60;
+                $detikPerSoal = $soalCount > 0 ? round(($durasiMenit * 60) / $soalCount) : 0;
+                $menitPerSoal = floor($detikPerSoal / 60);
+                $sisaDetik = $detikPerSoal % 60;
+            @endphp
+            <div class="text-[10px] font-semibold text-[#13527D] mt-0.5 flex items-center gap-1">
+                <i class="fas fa-stopwatch text-[9px]"></i>
+                @if($soalCount > 0)
+                    <span>Rata-rata: {{ $menitPerSoal > 0 ? $menitPerSoal . 'm ' : '' }}{{ $sisaDetik > 0 ? $sisaDetik . 's' : '' }} / soal</span>
+                @else
+                    <span>(Belum ada butir soal)</span>
+                @endif
+            </div>
         </div>
 
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm">
@@ -309,7 +324,7 @@
             <!-- Teks Pertanyaan -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Pertanyaan Soal <span class="text-rose-500">*</span></label>
-                <textarea name="pertanyaan" rows="3" required placeholder="Tuliskan pertanyaan ujian secara lengkap..." class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition"></textarea>
+                <textarea name="pertanyaan" rows="3" required maxlength="2000" placeholder="Tuliskan pertanyaan ujian secara lengkap (maksimal 2000 karakter)..." class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition"></textarea>
             </div>
 
             <!-- Upload Gambar Pendukung (Opsional) -->
@@ -317,7 +332,7 @@
                 <label class="block text-xs font-bold text-slate-700 mb-1">
                     <i class="far fa-image text-slate-400 mr-1"></i> Gambar Pendukung Soal <span class="text-slate-400 font-normal">(Opsional)</span>
                 </label>
-                <input type="file" name="gambar" accept="image/*" class="text-xs text-slate-500 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-white file:text-slate-700 hover:file:bg-slate-100 cursor-pointer" onchange="previewImage(this, 'preview-modal-add')">
+                <input type="file" name="gambar" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" class="text-xs text-slate-500 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-white file:text-slate-700 hover:file:bg-slate-100 cursor-pointer" onchange="previewImage(this, 'preview-modal-add')">
                 <div id="preview-modal-add" class="mt-2 hidden">
                     <img src="" alt="Preview Gambar" class="max-h-36 rounded-lg border border-slate-200 object-contain">
                 </div>
@@ -333,7 +348,7 @@
                             <input type="radio" name="kunci_jawaban" value="{{ $huruf }}" {{ $huruf === 'A' ? 'checked' : '' }} class="text-emerald-600 focus:ring-0">
                             <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center">{{ $huruf }}</span>
                         </label>
-                        <input type="text" name="opsi_{{ strtolower($huruf) }}" required placeholder="Pilihan {{ $huruf }}" class="w-full text-xs border-0 bg-transparent focus:ring-0 p-0 text-slate-800">
+                        <input type="text" name="opsi_{{ strtolower($huruf) }}" required maxlength="255" placeholder="Pilihan {{ $huruf }}" class="w-full text-xs border-0 bg-transparent focus:ring-0 p-0 text-slate-800">
                     </div>
                     @endforeach
                 </div>
@@ -380,7 +395,7 @@
             <!-- Teks Pertanyaan -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Pertanyaan Soal <span class="text-rose-500">*</span></label>
-                <textarea id="edit-pertanyaan" name="pertanyaan" rows="3" required class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition"></textarea>
+                <textarea id="edit-pertanyaan" name="pertanyaan" rows="3" required maxlength="2000" placeholder="Tuliskan pertanyaan ujian secara lengkap (maksimal 2000 karakter)..." class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition"></textarea>
             </div>
 
             <!-- Gambar Pendukung -->
@@ -403,7 +418,7 @@
 
                 <div>
                     <label class="text-[11px] text-slate-500 block mb-1">Ganti / Unggah Gambar Baru:</label>
-                    <input type="file" name="gambar" accept="image/*" class="text-xs text-slate-500 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-white file:text-slate-700 hover:file:bg-slate-100 cursor-pointer" onchange="previewImage(this, 'preview-modal-edit')">
+                    <input type="file" name="gambar" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" class="text-xs text-slate-500 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-white file:text-slate-700 hover:file:bg-slate-100 cursor-pointer" onchange="previewImage(this, 'preview-modal-edit')">
                 </div>
                 <div id="preview-modal-edit" class="mt-2 hidden">
                     <img src="" alt="Preview Gambar Baru" class="max-h-36 rounded-lg border border-slate-200 object-contain">
@@ -420,7 +435,7 @@
                             <input type="radio" id="edit-kunci-{{ $huruf }}" name="kunci_jawaban" value="{{ $huruf }}" class="text-emerald-600 focus:ring-0">
                             <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center">{{ $huruf }}</span>
                         </label>
-                        <input type="text" id="edit-opsi-{{ strtolower($huruf) }}" name="opsi_{{ strtolower($huruf) }}" required class="w-full text-xs border-0 bg-transparent focus:ring-0 p-0 text-slate-800">
+                        <input type="text" id="edit-opsi-{{ strtolower($huruf) }}" name="opsi_{{ strtolower($huruf) }}" required maxlength="255" class="w-full text-xs border-0 bg-transparent focus:ring-0 p-0 text-slate-800">
                     </div>
                     @endforeach
                 </div>

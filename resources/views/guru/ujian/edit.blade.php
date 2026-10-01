@@ -1,7 +1,7 @@
 @extends('layouts.guru')
 
 @section('content')
-<div class="space-y-6 max-w-4xl mx-auto pb-12">
+<div class="p-8 space-y-6 pb-12">
     <!-- Header -->
     <div class="flex items-center justify-between">
         <div>
@@ -53,7 +53,11 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">
                         Judul Ujian <span class="text-rose-500">*</span>
                     </label>
-                    <input type="text" name="judul_quiz" value="{{ old('judul_quiz', $quiz->judul_quiz) }}" required class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition font-medium">
+                    <input type="text" name="judul_quiz" id="edit-ujian-judul-quiz" value="{{ old('judul_quiz', $quiz->judul_quiz) }}" required maxlength="100" placeholder="Contoh: Penilaian Harian Matematika Operasi Hitung" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, ''); document.getElementById('counter-edit-ujian-judul').textContent = this.value.length + '/100';" class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition font-medium">
+                    <div class="flex items-center justify-between mt-1 text-[10px]">
+                        <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf dan spasi (angka dan simbol tidak diperbolehkan).</span>
+                        <span id="counter-edit-ujian-judul" class="font-bold text-slate-600">{{ strlen(old('judul_quiz', $quiz->judul_quiz)) }}/100</span>
+                    </div>
                 </div>
 
                 <!-- Mata Pelajaran -->
@@ -77,8 +81,67 @@
                         Durasi Ujian (Menit) <span class="text-rose-500">*</span>
                     </label>
                     <div class="relative">
-                        <input type="number" name="durasi_menit" value="{{ old('durasi_menit', $quiz->durasi_menit ?? 60) }}" min="5" max="300" required class="w-full pl-3.5 pr-14 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition font-medium">
+                        <input type="number" id="input-durasi-menit" name="durasi_menit" value="{{ old('durasi_menit', $quiz->durasi_menit ?? 60) }}" min="5" max="300" required oninput="calculateWaktuPerSoal()" class="w-full pl-3.5 pr-14 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition font-medium">
                         <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs text-slate-400 font-semibold pointer-events-none">Menit</span>
+                    </div>
+                </div>
+
+                <!-- KALKULASI OTOMATIS WAKTU PER SOAL -->
+                <div class="md:col-span-2">
+                    <div class="p-4 bg-gradient-to-r from-sky-50 to-indigo-50/60 rounded-2xl border border-sky-200 shadow-xs">
+                        <div class="flex items-center justify-between pb-2 border-b border-sky-200/60">
+                            <span class="text-xs font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fas fa-stopwatch text-[#13527D]"></i>
+                                <span>Kalkulasi Otomatis Alokasi Waktu per Soal</span>
+                            </span>
+                            <span class="text-[10px] font-semibold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-full border border-sky-200">
+                                Sistem Otomatis
+                            </span>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 items-center">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Durasi Total Ujian:</label>
+                                <div class="text-xs font-extrabold text-[#13527D] bg-white px-3 py-2 rounded-xl border border-sky-200 flex items-center justify-between">
+                                    <span id="badge-durasi-menit">{{ $quiz->durasi_menit ?? 60 }}</span>
+                                    <span class="text-[10px] font-semibold text-slate-400">Menit</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Target / Jumlah Soal:</label>
+                                <div class="relative">
+                                    <input type="number" id="calc-input-soal" min="1" max="200" value="{{ $quiz->soal->count() > 0 ? $quiz->soal->count() : 20 }}" oninput="calculateWaktuPerSoal()" class="w-full pl-3 pr-12 py-2 text-xs font-bold text-slate-800 bg-white border border-sky-200 rounded-xl focus:outline-none focus:border-[#13527D]">
+                                    <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-[10px] text-slate-400 font-semibold pointer-events-none">Soal</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Rata-rata Waktu Tiap Soal:</label>
+                                <div class="p-2 bg-white rounded-xl border-2 border-[#13527D] shadow-xs flex items-center justify-between">
+                                    <div>
+                                        <span id="result-waktu-per-soal" class="text-xs font-black text-[#13527D]">3 Menit</span>
+                                        <span id="result-detik-per-soal" class="block text-[10px] font-bold text-slate-500">(180 Detik / Soal)</span>
+                                    </div>
+                                    <div class="w-8 h-8 rounded-lg bg-[#13527D] text-white flex items-center justify-center text-xs">
+                                        <i class="fas fa-hourglass-half"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-2.5 pt-2 border-t border-sky-200/50 flex flex-col sm:flex-row sm:items-center justify-between text-[11px] text-slate-600 gap-1.5">
+                            <span id="calc-formula-desc">
+                                <i class="fas fa-circle-check text-emerald-600 mr-1"></i>
+                                Rumus: <strong class="text-slate-800">Durasi ÷ Jumlah Soal = Waktu per Butir Soal</strong>
+                            </span>
+                            @if($quiz->soal->count() > 0)
+                            <button type="button" onclick="document.getElementById('calc-input-soal').value = {{ $quiz->soal->count() }}; calculateWaktuPerSoal();" class="text-[10px] font-bold text-[#13527D] hover:underline flex items-center gap-1 self-start sm:self-auto">
+                                <i class="fas fa-arrows-rotate"></i>
+                                <span>Reset ke jumlah soal saat ini ({{ $quiz->soal->count() }} soal)</span>
+                            </button>
+                            @endif
+                        </div>
                     </div>
                 </div>
 
@@ -122,7 +185,7 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">
                         Deskripsi / Petunjuk Pengerjaan <span class="text-slate-400 font-normal">(Opsional)</span>
                     </label>
-                    <textarea name="deskripsi" rows="2" class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition">{{ old('deskripsi', $quiz->deskripsi) }}</textarea>
+                    <textarea name="deskripsi" rows="2" maxlength="1000" placeholder="Tuliskan petunjuk pengerjaan ujian bagi siswa (maksimal 1000 karakter)..." class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition">{{ old('deskripsi', $quiz->deskripsi) }}</textarea>
                 </div>
             </div>
         </div>
@@ -229,5 +292,51 @@ function checkClassSiswa(className) {
     const anyUnchecked = Array.from(cbs).some(cb => !cb.checked);
     cbs.forEach(cb => cb.checked = anyUnchecked);
 }
+function calculateWaktuPerSoal() {
+    const durasiInput = document.getElementById('input-durasi-menit');
+    const soalInput = document.getElementById('calc-input-soal');
+    if (!durasiInput || !soalInput) return;
+
+    let durasi = parseInt(durasiInput.value) || 0;
+    let totalSoal = parseInt(soalInput.value) || 0;
+
+    const badgeDurasi = document.getElementById('badge-durasi-menit');
+    if (badgeDurasi) badgeDurasi.textContent = durasi;
+
+    const resWaktu = document.getElementById('result-waktu-per-soal');
+    const resDetik = document.getElementById('result-detik-per-soal');
+    const formulaDesc = document.getElementById('calc-formula-desc');
+
+    if (durasi <= 0 || totalSoal <= 0) {
+        if (resWaktu) resWaktu.textContent = '-';
+        if (resDetik) resDetik.textContent = '(0 Detik / Soal)';
+        if (formulaDesc) formulaDesc.innerHTML = '<i class="fas fa-circle-info text-amber-500 mr-1"></i> Masukkan durasi dan jumlah soal valid untuk kalkulasi.';
+        return;
+    }
+
+    const totalSeconds = durasi * 60;
+    const secPerSoal = Math.round(totalSeconds / totalSoal);
+    const m = Math.floor(secPerSoal / 60);
+    const s = secPerSoal % 60;
+
+    let timeText = '';
+    if (m > 0 && s > 0) {
+        timeText = `${m} Menit ${s} Detik`;
+    } else if (m > 0) {
+        timeText = `${m} Menit`;
+    } else {
+        timeText = `${s} Detik`;
+    }
+
+    if (resWaktu) resWaktu.textContent = timeText;
+    if (resDetik) resDetik.textContent = `(${secPerSoal} Detik / Soal)`;
+    if (formulaDesc) {
+        formulaDesc.innerHTML = `<i class="fas fa-circle-check text-emerald-600 mr-1"></i> Rumus: <strong class="text-slate-800">${durasi} Menit ÷ ${totalSoal} Soal = ${timeText} per butir soal (${secPerSoal} Detik)</strong>`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    calculateWaktuPerSoal();
+});
 </script>
 @endsection

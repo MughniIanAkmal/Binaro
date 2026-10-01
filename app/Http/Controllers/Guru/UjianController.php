@@ -24,7 +24,8 @@ class UjianController extends Controller
         $level = $request->get('level');
         $mapelId = $request->get('mapel_id');
 
-        $query = Quiz::with(['mataPelajaran', 'guru', 'soal', 'targetSiswa', 'hasilSiswa'])
+        $query = Quiz::whereNull('id_sub_bab')
+            ->with(['mataPelajaran', 'guru', 'soal', 'targetSiswa', 'hasilSiswa'])
             ->withCount(['soal', 'hasilSiswa']);
 
         if ($search) {
@@ -46,10 +47,15 @@ class UjianController extends Controller
         $ujians = $query->latest('id_quiz')->paginate(10)->withQueryString();
         $mapels = MataPelajaran::orderBy('nama_mapel')->get();
 
-        // Statistik singkat
-        $totalUjian = Quiz::count();
-        $totalSoal = SoalQuiz::count();
-        $totalHasil = DB::table('hasil_kuis_siswa')->count();
+        // Statistik singkat (khusus ujian online resmi)
+        $totalUjian = Quiz::whereNull('id_sub_bab')->count();
+        $totalSoal = SoalQuiz::whereHas('quiz', function($q) {
+            $q->whereNull('id_sub_bab');
+        })->count();
+        $totalHasil = DB::table('hasil_kuis_siswa')
+            ->join('quiz', 'hasil_kuis_siswa.id_quiz', '=', 'quiz.id_quiz')
+            ->whereNull('quiz.id_sub_bab')
+            ->count();
 
         return view('guru.ujian.index', compact('ujians', 'mapels', 'search', 'level', 'mapelId', 'totalUjian', 'totalSoal', 'totalHasil'));
     }
@@ -75,20 +81,39 @@ class UjianController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'judul_quiz'    => 'required|string|max:150',
+            'judul_quiz'    => [
+                'required',
+                'string',
+                'min:3',
+                'max:100',
+                'regex:/^[a-zA-Z\s]+$/u',
+            ],
             'id_mapel'      => 'required|exists:mata_pelajaran,id_mapel',
             'tingkat_level' => 'required|in:mudah,sedang,susah',
             'durasi_menit'  => 'required|integer|min:5|max:300',
             'target_tipe'   => 'required|in:semua,pilihan',
             'target_siswa'  => 'nullable|array',
             'target_siswa.*'=> 'exists:siswa,id_siswa',
-            'deskripsi'     => 'nullable|string',
+            'deskripsi'     => 'nullable|string|max:1000',
+            'soal'          => 'nullable|array',
+            'soal.*.pertanyaan' => 'nullable|string|max:2000',
+            'soal.*.opsi_a' => 'nullable|string|max:255',
+            'soal.*.opsi_b' => 'nullable|string|max:255',
+            'soal.*.opsi_c' => 'nullable|string|max:255',
+            'soal.*.opsi_d' => 'nullable|string|max:255',
+            'soal.*.kunci_jawaban' => 'nullable|in:A,B,C,D',
+            'soal.*.bobot_nilai' => 'nullable|numeric|min:1|max:100',
+            'soal.*.gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
         ], [
             'judul_quiz.required'    => 'Judul ujian wajib diisi.',
+            'judul_quiz.min'         => 'Judul ujian minimal 3 karakter.',
+            'judul_quiz.max'         => 'Judul ujian maksimal 100 karakter.',
+            'judul_quiz.regex'       => 'Judul ujian hanya boleh berisi huruf dan spasi (tidak boleh mengandung angka maupun simbol).',
             'id_mapel.required'      => 'Mata pelajaran wajib dipilih.',
             'tingkat_level.required' => 'Tingkatan level ujian wajib dipilih (mudah, sedang, atau susah).',
             'durasi_menit.required'  => 'Durasi ujian wajib diisi (minimal 5 menit).',
             'target_tipe.required'   => 'Pilih sasaran peserta ujian (Semua Siswa atau Siswa Tertentu).',
+            'deskripsi.max'          => 'Deskripsi ujian maksimal 1000 karakter.',
         ]);
 
         if ($request->target_tipe === 'pilihan' && empty($request->target_siswa)) {
@@ -205,19 +230,29 @@ class UjianController extends Controller
         $quiz = Quiz::findOrFail($id);
 
         $request->validate([
-            'judul_quiz'    => 'required|string|max:150',
+            'judul_quiz'    => [
+                'required',
+                'string',
+                'min:3',
+                'max:100',
+                'regex:/^[a-zA-Z\s]+$/u',
+            ],
             'id_mapel'      => 'required|exists:mata_pelajaran,id_mapel',
             'tingkat_level' => 'required|in:mudah,sedang,susah',
             'durasi_menit'  => 'required|integer|min:5|max:300',
             'target_tipe'   => 'required|in:semua,pilihan',
             'target_siswa'  => 'nullable|array',
             'target_siswa.*'=> 'exists:siswa,id_siswa',
-            'deskripsi'     => 'nullable|string',
+            'deskripsi'     => 'nullable|string|max:1000',
         ], [
             'judul_quiz.required'    => 'Judul ujian wajib diisi.',
+            'judul_quiz.min'         => 'Judul ujian minimal 3 karakter.',
+            'judul_quiz.max'         => 'Judul ujian maksimal 100 karakter.',
+            'judul_quiz.regex'       => 'Judul ujian hanya boleh berisi huruf dan spasi (tidak boleh mengandung angka maupun simbol).',
             'id_mapel.required'      => 'Mata pelajaran wajib dipilih.',
             'tingkat_level.required' => 'Tingkatan level ujian wajib dipilih.',
             'durasi_menit.required'  => 'Durasi ujian wajib diisi.',
+            'deskripsi.max'          => 'Deskripsi ujian maksimal 1000 karakter.',
         ]);
 
         if ($request->target_tipe === 'pilihan' && empty($request->target_siswa)) {
@@ -246,7 +281,7 @@ class UjianController extends Controller
 
             DB::commit();
 
-            return redirect()->route('guru.ujian.index')
+            return redirect()->route('guru.ujian.show', $quiz->id_quiz)
                 ->with('success', 'Data ujian online berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -286,7 +321,7 @@ class UjianController extends Controller
         $quiz = Quiz::findOrFail($idQuiz);
 
         $request->validate([
-            'pertanyaan'    => 'required|string',
+            'pertanyaan'    => 'required|string|max:2000',
             'gambar'        => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
             'opsi_a'        => 'required|string|max:255',
             'opsi_b'        => 'required|string|max:255',
@@ -296,12 +331,17 @@ class UjianController extends Controller
             'bobot_nilai'   => 'required|numeric|min:1|max:100',
         ], [
             'pertanyaan.required'    => 'Teks pertanyaan soal wajib diisi.',
+            'pertanyaan.max'         => 'Teks pertanyaan soal maksimal 2000 karakter.',
             'gambar.image'           => 'File pendukung harus berupa gambar valid (JPEG, PNG, WEBP, GIF).',
             'gambar.max'             => 'Ukuran gambar maksimal 2MB.',
             'opsi_a.required'        => 'Pilihan A wajib diisi.',
+            'opsi_a.max'             => 'Pilihan A maksimal 255 karakter.',
             'opsi_b.required'        => 'Pilihan B wajib diisi.',
+            'opsi_b.max'             => 'Pilihan B maksimal 255 karakter.',
             'opsi_c.required'        => 'Pilihan C wajib diisi.',
+            'opsi_c.max'             => 'Pilihan C maksimal 255 karakter.',
             'opsi_d.required'        => 'Pilihan D wajib diisi.',
+            'opsi_d.max'             => 'Pilihan D maksimal 255 karakter.',
             'kunci_jawaban.required' => 'Kunci jawaban wajib dipilih.',
             'bobot_nilai.required'   => 'Bobot nilai soal wajib ditentukan.',
         ]);
@@ -335,7 +375,7 @@ class UjianController extends Controller
         $soal = SoalQuiz::where('id_quiz', $idQuiz)->findOrFail($idSoal);
 
         $request->validate([
-            'pertanyaan'    => 'required|string',
+            'pertanyaan'    => 'required|string|max:2000',
             'gambar'        => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
             'opsi_a'        => 'required|string|max:255',
             'opsi_b'        => 'required|string|max:255',
@@ -343,6 +383,21 @@ class UjianController extends Controller
             'opsi_d'        => 'required|string|max:255',
             'kunci_jawaban' => 'required|in:A,B,C,D',
             'bobot_nilai'   => 'required|numeric|min:1|max:100',
+        ], [
+            'pertanyaan.required'    => 'Teks pertanyaan soal wajib diisi.',
+            'pertanyaan.max'         => 'Teks pertanyaan soal maksimal 2000 karakter.',
+            'gambar.image'           => 'File pendukung harus berupa gambar valid (JPEG, PNG, WEBP, GIF).',
+            'gambar.max'             => 'Ukuran gambar maksimal 2MB.',
+            'opsi_a.required'        => 'Pilihan A wajib diisi.',
+            'opsi_a.max'             => 'Pilihan A maksimal 255 karakter.',
+            'opsi_b.required'        => 'Pilihan B wajib diisi.',
+            'opsi_b.max'             => 'Pilihan B maksimal 255 karakter.',
+            'opsi_c.required'        => 'Pilihan C wajib diisi.',
+            'opsi_c.max'             => 'Pilihan C maksimal 255 karakter.',
+            'opsi_d.required'        => 'Pilihan D wajib diisi.',
+            'opsi_d.max'             => 'Pilihan D maksimal 255 karakter.',
+            'kunci_jawaban.required' => 'Kunci jawaban wajib dipilih.',
+            'bobot_nilai.required'   => 'Bobot nilai soal wajib ditentukan.',
         ]);
 
         $data = [

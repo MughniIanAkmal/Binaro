@@ -83,19 +83,14 @@
                 <i class="fas fa-times text-xs"></i>
             </button>
         </div>
-        <form method="POST" action="{{ route('rekap_ujian.feedback') }}" onsubmit="return validateFeedbackInput(document.getElementById('modal-feedback-text'))" class="p-5 space-y-4">
+        <form method="POST" action="{{ route('rekap_ujian.feedback') }}" class="p-5 space-y-4">
             @csrf
             <input type="hidden" name="id_hasil" id="modal-feedback-id">
             <div>
                 <label class="block text-[11px] font-semibold text-slate-600 mb-1.5">Catatan untuk Siswa</label>
                 <textarea name="catatan_guru" id="modal-feedback-text" rows="4" required
                     placeholder="Tulis catatan umpan balik yang membangun untuk siswa..."
-                    oninput="validateFeedbackInput(this)"
                     class="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-amber-400 resize-none bg-slate-50 transition"></textarea>
-                <p id="err-feedback-symbol" class="hidden mt-1.5 text-[11px] text-rose-600 font-semibold flex items-center gap-1.5">
-                    <i class="fas fa-exclamation-circle text-rose-500"></i>
-                    <span>Catatan tidak boleh mengandung simbol aneh seperti $, @, #, %, ^, &, *, +, =, ~, &lt;, &gt;.</span>
-                </p>
             </div>
             <div class="flex gap-2">
                 <button type="button" onclick="closeFeedbackModal()" class="flex-1 py-2.5 text-xs font-semibold border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition">Batal</button>
@@ -180,29 +175,7 @@
 
     // ---------- Modal: Umpan Balik ----------
     function validateFeedbackInput(textarea) {
-        const forbiddenRegex = /[\$@#%^&*+=~<>\\{}[\]|`]/;
-        const errEl = document.getElementById('err-feedback-symbol');
-        const btnSubmit = document.getElementById('btn-submit-feedback');
-
-        if (!textarea) return true;
-
-        if (forbiddenRegex.test(textarea.value)) {
-            if (errEl) errEl.classList.remove('hidden');
-            textarea.classList.add('border-rose-400', 'bg-rose-50/50');
-            if (btnSubmit) {
-                btnSubmit.disabled = true;
-                btnSubmit.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-            return false;
-        } else {
-            if (errEl) errEl.classList.add('hidden');
-            textarea.classList.remove('border-rose-400', 'bg-rose-50/50');
-            if (btnSubmit) {
-                btnSubmit.disabled = false;
-                btnSubmit.classList.remove('opacity-50', 'cursor-not-allowed');
-            }
-            return true;
-        }
+        return true;
     }
 
     function openFeedbackModal(idHasil, nama, currentFeedback) {
@@ -210,7 +183,6 @@
         document.getElementById('modal-feedback-nama').textContent = nama;
         const textarea = document.getElementById('modal-feedback-text');
         textarea.value = (currentFeedback && currentFeedback !== 'Belum ada catatan') ? currentFeedback : '';
-        validateFeedbackInput(textarea);
         document.getElementById('modal-feedback').classList.remove('hidden');
     }
     function closeFeedbackModal() {

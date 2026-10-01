@@ -1,7 +1,7 @@
 @extends('layouts.guru')
 
 @section('content')
-<div class="space-y-6">
+<div class="p-8 space-y-6">
 
     {{-- ===== BREADCRUMB ===== --}}
     <nav class="flex items-center gap-2 text-[11px] text-slate-400 font-medium">
@@ -314,6 +314,16 @@
                                 @else
                                 <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-600 border border-rose-200">
                                     REMEDIAL
+                                </span>
+                                @endif
+
+                                @if($row->status_kirim)
+                                <span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                                    <i class="fas fa-check text-[8px]"></i> Terkirim
+                                </span>
+                                @else
+                                <span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
+                                    <i class="fas fa-clock text-[8px]"></i> Belum Dikirim
                                 </span>
                                 @endif
                             </div>

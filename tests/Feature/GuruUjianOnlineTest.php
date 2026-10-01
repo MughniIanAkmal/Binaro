@@ -90,7 +90,7 @@ class GuruUjianOnlineTest extends TestCase
     {
         Storage::fake('public');
 
-        $image = UploadedFile::fake()->image('diagram_lingkaran.png');
+        $image = UploadedFile::fake()->create('diagram_lingkaran.png', 10, 'image/png');
 
         $payload = [
             'judul_quiz'    => 'Ujian Tengah Semester Ganjil',
@@ -157,7 +157,7 @@ class GuruUjianOnlineTest extends TestCase
         $response->assertSee('Level Mudah');
 
         // Tambah soal baru lewat endpoint storeSoal
-        $soalImage = UploadedFile::fake()->image('fotosintesis.jpg');
+        $soalImage = UploadedFile::fake()->create('fotosintesis.jpg', 10, 'image/jpeg');
         $soalResponse = $this->withSession(['user_type' => 'guru', 'user_id' => $this->guru->id_guru])
             ->post(route('guru.ujian.soal.store', $quiz->id_quiz), [
                 'pertanyaan'    => 'Apa zat hijau daun pada tumbuhan?',
@@ -272,5 +272,170 @@ class GuruUjianOnlineTest extends TestCase
 
         $delQuizResponse->assertRedirect(route('guru.ujian.index'));
         $this->assertDatabaseMissing('quiz', ['id_quiz' => $quiz->id_quiz]);
+    }
+
+    public function test_guru_can_create_and_update_soal_with_math_and_special_symbols()
+    {
+        $quiz = Quiz::create([
+            'id_guru'       => $this->guru->id_guru,
+            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz'    => 'Ujian Matematika & Simbol: 100% Valid!',
+            'tingkat_level' => 'sedang',
+            'durasi_menit'  => 60,
+            'target_tipe'   => 'semua',
+        ]);
+
+        $pertanyaanWithSymbols = 'Jika (2x + 5) * 3 = 45, berapakah nilai x? Dan apakah x > 5 atau x <= 10?';
+        $opsiA = 'x = 10 (100% benar)';
+        $opsiB = 'x < 5 & x != 0';
+        $opsiC = 'x + 2 = 12 / 2';
+        $opsiD = 'x = 0; "tidak terdefinisi"';
+
+        // Add soal via POST route guru.ujian.soal.store
+        $response = $this->withSession(['user_type' => 'guru', 'user_id' => $this->guru->id_guru])
+            ->post(route('guru.ujian.soal.store', $quiz->id_quiz), [
+                'pertanyaan'    => $pertanyaanWithSymbols,
+                'opsi_a'        => $opsiA,
+                'opsi_b'        => $opsiB,
+                'opsi_c'        => $opsiC,
+                'opsi_d'        => $opsiD,
+                'kunci_jawaban' => 'A',
+                'bobot_nilai'   => 15,
+            ]);
+
+        $response->assertRedirect(route('guru.ujian.show', $quiz->id_quiz));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('soal_quiz', [
+            'id_quiz'    => $quiz->id_quiz,
+            'pertanyaan' => $pertanyaanWithSymbols,
+            'opsi_a'     => $opsiA,
+            'opsi_b'     => $opsiB,
+            'opsi_c'     => $opsiC,
+            'opsi_d'     => $opsiD,
+        ]);
+
+        $soal = SoalQuiz::where('id_quiz', $quiz->id_quiz)->first();
+
+        // Update soal with more complex symbols
+        $updatedPertanyaan = 'Berapakah hasil dari 25% * 400 + (10 - 2) / 2 = ...?';
+        $updateResponse = $this->withSession(['user_type' => 'guru', 'user_id' => $this->guru->id_guru])
+            ->put(route('guru.ujian.soal.update', [$quiz->id_quiz, $soal->id_soal]), [
+                'pertanyaan'    => $updatedPertanyaan,
+                'opsi_a'        => '104 (x = 104)',
+                'opsi_b'        => '96 (x < 100)',
+                'opsi_c'        => '100 (x = 100)',
+                'opsi_d'        => '110 (x > 105)',
+                'kunci_jawaban' => 'A',
+                'bobot_nilai'   => 20,
+            ]);
+
+        $updateResponse->assertRedirect(route('guru.ujian.show', $quiz->id_quiz));
+        $soal->refresh();
+        $this->assertEquals($updatedPertanyaan, $soal->pertanyaan);
+        $this->assertEquals('104 (x = 104)', $soal->opsi_a);
+    }
+
+    public function test_guru_cannot_input_numbers_in_judul_quiz()
+    {
+        $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
+
+        // 1. Judul mengandung angka -> ditolak
+        $resNumber = $this->withSession($session)->post(route('guru.ujian.store'), [
+            'judul_quiz'    => 'Ujian Tengah Semester 1',
+            'id_mapel'      => $this->mapel->id_mapel,
+            'tingkat_level' => 'mudah',
+            'durasi_menit'  => 60,
+            'target_tipe'   => 'semua',
+        ]);
+        $resNumber->assertSessionHasErrors(['judul_quiz']);
+
+        // 2. Judul mengandung angka lain -> ditolak
+        $resNumber2 = $this->withSession($session)->post(route('guru.ujian.store'), [
+            'judul_quiz'    => 'Ulangan Harian Matematika Kelas 4',
+            'id_mapel'      => $this->mapel->id_mapel,
+            'tingkat_level' => 'mudah',
+            'durasi_menit'  => 60,
+            'target_tipe'   => 'semua',
+        ]);
+        $resNumber2->assertSessionHasErrors(['judul_quiz']);
+
+        // 3. Judul tanpa angka (hanya huruf dan spasi) -> sukses
+        $resValid = $this->withSession($session)->post(route('guru.ujian.store'), [
+            'judul_quiz'    => 'Ulangan Harian Matematika Tingkat Empat',
+            'id_mapel'      => $this->mapel->id_mapel,
+            'tingkat_level' => 'mudah',
+            'durasi_menit'  => 60,
+            'target_tipe'   => 'semua',
+        ]);
+        $resValid->assertRedirect();
+        $this->assertDatabaseHas('quiz', [
+            'judul_quiz' => 'Ulangan Harian Matematika Tingkat Empat',
+        ]);
+
+        $quiz = Quiz::where('judul_quiz', 'Ulangan Harian Matematika Tingkat Empat')->first();
+
+        // 4. Update dengan angka -> ditolak
+        $resUpdateNumber = $this->withSession($session)->put(route('guru.ujian.update', $quiz->id_quiz), [
+            'judul_quiz'    => 'Ulangan Harian Matematika Revisi 2',
+            'id_mapel'      => $this->mapel->id_mapel,
+            'tingkat_level' => 'mudah',
+            'durasi_menit'  => 60,
+            'target_tipe'   => 'semua',
+        ]);
+        $resUpdateNumber->assertSessionHasErrors(['judul_quiz']);
+
+        // 5. Update tanpa angka -> sukses
+        $resUpdateValid = $this->withSession($session)->put(route('guru.ujian.update', $quiz->id_quiz), [
+            'judul_quiz'    => 'Ulangan Harian Matematika Revisi Dua',
+            'id_mapel'      => $this->mapel->id_mapel,
+            'tingkat_level' => 'mudah',
+            'durasi_menit'  => 60,
+            'target_tipe'   => 'semua',
+        ]);
+        $resUpdateValid->assertRedirect();
+        $quiz->refresh();
+        $this->assertEquals('Ulangan Harian Matematika Revisi Dua', $quiz->judul_quiz);
+    }
+
+    public function test_ujian_views_render_time_per_question_calculator()
+    {
+        $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
+
+        // 1. Create page renders calculation widget
+        $createRes = $this->withSession($session)->get(route('guru.ujian.create'));
+        $createRes->assertStatus(200);
+        $createRes->assertSee('Kalkulasi Otomatis Alokasi Waktu per Soal');
+        $createRes->assertSee('calc-input-soal');
+        $createRes->assertSee('result-waktu-per-soal');
+
+        // 2. Show page renders time per question
+        $quiz = Quiz::create([
+            'id_guru'       => $this->guru->id_guru,
+            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz'    => 'Ujian Penilaian Harian Sains',
+            'tingkat_level' => 'mudah',
+            'durasi_menit'  => 60,
+            'target_tipe'   => 'semua',
+        ]);
+
+        for ($i = 1; $i <= 20; $i++) {
+            SoalQuiz::create([
+                'id_quiz' => $quiz->id_quiz,
+                'pertanyaan' => 'Pertanyaan nomor ' . $i,
+                'opsi_a' => 'A',
+                'opsi_b' => 'B',
+                'opsi_c' => 'C',
+                'opsi_d' => 'D',
+                'kunci_jawaban' => 'A',
+                'bobot_nilai' => 5,
+            ]);
+        }
+
+        $showRes = $this->withSession($session)->get(route('guru.ujian.show', $quiz->id_quiz));
+        $showRes->assertStatus(200);
+        $showRes->assertSee('Durasi & Waktu Per Soal', false);
+        // 60 minutes / 20 questions = 3 minutes per question
+        $showRes->assertSee('Rata-rata: 3m', false);
     }
 }
