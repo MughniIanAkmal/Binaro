@@ -204,4 +204,28 @@ class JadwalCrudTest extends TestCase
             'id_jadwal' => $jadwal->id_jadwal,
         ]);
     }
+
+    public function test_admin_cannot_input_jam_exceeding_school_closing_time()
+    {
+        // School closing time is default 12:00 in absensi_settings
+        \App\Models\AbsensiSetting::set('batas_tutup', '12:00');
+
+        $response = $this->withSession(['user_type' => 'admin', 'user_id' => 1])
+            ->from(route('jadwal.create'))
+            ->post(route('jadwal.store'), [
+                'hari'     => 'Senin',
+                'jam'      => '10.00-13.00', // Exceeds 12.00
+                'id_mapel' => $this->mapel->id_mapel,
+                'id_guru'  => $this->guru->id_guru,
+                'id_kelas' => $this->kelas->id_rooms,
+            ]);
+
+        $response->assertRedirect(route('jadwal.create'));
+        $response->assertSessionHasErrors('jam');
+        $response->assertSessionHas('error');
+
+        $this->assertDatabaseMissing('jadwal_mata_pelajaran', [
+            'jam' => '10.00-13.00',
+        ]);
+    }
 }

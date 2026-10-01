@@ -14,6 +14,10 @@ class JadwalController extends Controller
     // Menampilkan semua jadwal
     public function index()
     {
+        if (session('user_type') === 'guru') {
+            return redirect()->route('guru.jadwal.index');
+        }
+
         $jadwals = Jadwal::query()
             ->with(['mataPelajaran', 'guru', 'kelas'])
             ->get();
@@ -27,8 +31,10 @@ class JadwalController extends Controller
         $kelas = Kelas::all();
         $guru = Guru::all();
         $mapel = MataPelajaran::all();
+        $jamTutup = \App\Models\AbsensiSetting::get('batas_tutup', '12:00');
+        $jamAwal = \App\Models\AbsensiSetting::get('batas_awal', '07:00');
 
-        return view('jadwal.create', compact('kelas', 'guru', 'mapel'));
+        return view('jadwal.create', compact('kelas', 'guru', 'mapel', 'jamTutup', 'jamAwal'));
     }
 
     // Menampilkan detail jadwal
@@ -39,10 +45,11 @@ class JadwalController extends Controller
         return view('jadwal.show', compact('jadwal'));
     }
 
-    // Validasi format jam dan mencegah jam mundur / sama
+    // Validasi format jam dan mencegah jam mundur / sama / melebihi jam tutup sekolah
     private function validateJamPelajaran($jam)
     {
-        $parts = explode('-', $jam);
+        $jamClean = preg_replace('/\s+/', '', str_replace(':', '.', (string)$jam));
+        $parts = explode('-', $jamClean);
         if (count($parts) !== 2) {
             return 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).';
         }
@@ -70,7 +77,20 @@ class JadwalController extends Controller
         $totalSelesai = ($hSelesai * 60) + $mSelesai;
 
         if ($totalSelesai <= $totalMulai) {
-            return "Jam pelajaran tidak valid! Jam selesai ({$jamSelesai}) tidak boleh lebih awal atau sama dengan jam mulai ({$jamMulai}).";
+            return "Jam pelajaran terbalik atau tidak valid! Jam selesai ({$jamSelesai}) tidak boleh lebih awal atau sama dengan jam mulai ({$jamMulai}).";
+        }
+
+        // Cek jam tutup sekolah
+        $batasTutup = \App\Models\AbsensiSetting::get('batas_tutup', '12:00');
+        $tutupClean = str_replace('.', ':', (string)$batasTutup);
+        $tutupParts = explode(':', $tutupClean);
+        $hTutup = (int)($tutupParts[0] ?? 12);
+        $mTutup = (int)($tutupParts[1] ?? 0);
+        $totalTutup = ($hTutup * 60) + $mTutup;
+
+        if ($totalSelesai > $totalTutup) {
+            $jamTutupDisplay = str_replace(':', '.', $batasTutup);
+            return "Jam selesai pelajaran ({$jamSelesai}) melebihi jam tutup sekolah ({$jamTutupDisplay})! Sesuaikan jadwal atau ubah jam tutup sekolah di menu Pengaturan Jam Absen.";
         }
 
         return null;
@@ -79,15 +99,22 @@ class JadwalController extends Controller
     // Menyimpan jadwal baru
     public function store(Request $request)
     {
+        if ($request->has('jam')) {
+            $request->merge(['jam' => preg_replace('/\s+/', '', str_replace(':', '.', (string)$request->jam))]);
+        }
         $request->validate([
-            'hari'     => 'required',
+            'hari'     => ['required', 'string', 'in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu'],
             'jam'      => ['required', 'regex:/^[0-9]{2}\.[0-9]{2}-[0-9]{2}\.[0-9]{2}$/'],
-            'id_mapel' => 'required',
-            'id_guru'  => 'required',
-            'id_kelas' => 'required|exists:kelas,id_rooms',
+            'id_mapel' => ['required', 'exists:mata_pelajaran,id_mapel'],
+            'id_guru'  => ['required', 'exists:guru,id_guru'],
+            'id_kelas' => ['required', 'exists:kelas,id_rooms'],
         ], [
-            'jam.regex' => 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).',
+            'hari.in'           => 'Pilihan hari tidak valid!',
+            'id_mapel.exists'   => 'Mata pelajaran yang dipilih tidak valid!',
+            'id_guru.exists'    => 'Guru yang dipilih tidak valid!',
+            'jam.regex'         => 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).',
             'id_kelas.required' => 'Kelas wajib dipilih!',
+            'id_kelas.exists'   => 'Kelas yang dipilih tidak valid!',
         ]);
 
         // Cek validasi jam mundur / human error
@@ -128,22 +155,31 @@ class JadwalController extends Controller
         $kelas = Kelas::all();
         $guru = Guru::all();
         $mapel = MataPelajaran::all();
+        $jamTutup = \App\Models\AbsensiSetting::get('batas_tutup', '12:00');
+        $jamAwal = \App\Models\AbsensiSetting::get('batas_awal', '07:00');
 
-        return view('jadwal.edit', compact('jadwal', 'kelas', 'guru', 'mapel'));
+        return view('jadwal.edit', compact('jadwal', 'kelas', 'guru', 'mapel', 'jamTutup', 'jamAwal'));
     }
 
     // Mengupdate jadwal
     public function update(Request $request, $id)
     {
+        if ($request->has('jam')) {
+            $request->merge(['jam' => preg_replace('/\s+/', '', str_replace(':', '.', (string)$request->jam))]);
+        }
         $request->validate([
-            'hari'     => 'required',
+            'hari'     => ['required', 'string', 'in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu'],
             'jam'      => ['required', 'regex:/^[0-9]{2}\.[0-9]{2}-[0-9]{2}\.[0-9]{2}$/'],
-            'id_mapel' => 'required',
-            'id_guru'  => 'required',
-            'id_kelas' => 'required',
+            'id_mapel' => ['required', 'exists:mata_pelajaran,id_mapel'],
+            'id_guru'  => ['required', 'exists:guru,id_guru'],
+            'id_kelas' => ['required', 'exists:kelas,id_rooms'],
         ], [
-            'jam.regex' => 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).',
+            'hari.in'           => 'Pilihan hari tidak valid!',
+            'id_mapel.exists'   => 'Mata pelajaran yang dipilih tidak valid!',
+            'id_guru.exists'    => 'Guru yang dipilih tidak valid!',
+            'jam.regex'         => 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).',
             'id_kelas.required' => 'Kelas wajib dipilih!',
+            'id_kelas.exists'   => 'Kelas yang dipilih tidak valid!',
         ]);
 
         // Cek validasi jam mundur / human error

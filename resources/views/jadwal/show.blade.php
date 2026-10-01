@@ -1,21 +1,23 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-6">
+<div class="p-8 space-y-6">
     <!-- Breadcrumb & Header -->
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex justify-between items-start flex-wrap gap-4">
         <div>
-            <div class="flex items-center gap-2 text-xs font-semibold mb-2">
-                <span class="bg-sky-100 text-sky-700 px-2.5 py-1 rounded-md flex items-center gap-1">
-                    <i class="fas fa-calendar-alt"></i> Kelola Jadwal Pelajaran
-                </span>
-                <span class="text-gray-400">Dashboard &gt; Jadwal Pelajaran &gt; Detail Jadwal</span>
+            <div class="flex items-center gap-2 text-[11px] font-semibold mb-1 text-slate-400">
+                <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-600 transition">Dashboard</a>
+                <i class="fas fa-chevron-right text-[9px] text-slate-300"></i>
+                <a href="{{ route('jadwal.index') }}" class="hover:text-slate-600 transition">Jadwal Pelajaran</a>
+                <i class="fas fa-chevron-right text-[9px] text-slate-300"></i>
+                <span class="text-[#13527D] font-bold">Detail Jadwal</span>
             </div>
-            <h1 class="text-2xl font-bold text-gray-800">Detail Jadwal Mata Pelajaran</h1>
-            <p class="text-sm text-gray-500 mt-1">Informasi lengkap jadwal mata pelajaran dan guru pengampu.</p>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Detail Jadwal Mata Pelajaran</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Informasi lengkap jadwal mata pelajaran dan guru pengampu.</p>
         </div>
-        <a href="{{ route('jadwal.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
-            <i class="fas fa-arrow-left text-xs"></i> Kembali
+        <a href="{{ route('jadwal.index') }}" class="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition flex items-center gap-1.5 shadow-xs">
+            <i class="fas fa-arrow-left text-slate-400"></i>
+            <span>Kembali ke Jadwal</span>
         </a>
     </div>
 

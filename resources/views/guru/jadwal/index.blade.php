@@ -1,7 +1,7 @@
 @extends('layouts.guru')
 
 @section('content')
-<div class="space-y-6 max-w-6xl mx-auto pb-12">
+<div class="p-8 space-y-6 pb-12">
     @include('guru.jadwal._header')
     @include('guru.jadwal._summary')
     @include('guru.jadwal._day-tabs')

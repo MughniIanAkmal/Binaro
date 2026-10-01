@@ -1,16 +1,29 @@
-@extends('layouts.app')
+@extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
 
 @section('content')
-<div class="p-6">
-    <!-- Header Halaman -->
-    <div class="flex justify-between items-center mb-6">
+<div class="p-8 space-y-6">
+    <!-- Header Halaman & Breadcrumb -->
+    <div class="flex justify-between items-start flex-wrap gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-gray-800">Jadwal Mata Pelajaran</h1>
-            <p class="text-sm text-gray-500 mt-1">Data jadwal pembelajaran</p>
+            <div class="flex items-center gap-2 text-[11px] font-semibold mb-1 text-slate-400">
+                <a href="{{ session('user_type') === 'guru' ? route('guru.dashboard') : route('admin.dashboard') }}" class="hover:text-slate-600 transition">Dashboard</a>
+                <i class="fas fa-chevron-right text-[9px] text-slate-300"></i>
+                <span class="text-[#13527D] font-bold">Jadwal Pelajaran</span>
+            </div>
+            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Jadwal Mata Pelajaran</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Kelola alokasi waktu dan jadwal pembelajaran rombel kelas SDN Kalitapen 01.</p>
         </div>
-        <a href="{{ route('jadwal.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
-            + Tambah Jadwal
-        </a>
+        <div class="flex items-center gap-2.5">
+            @if(session('user_type') === 'admin')
+            <a href="{{ route('admin.absensi.settings') }}" class="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition flex items-center gap-1.5 shadow-xs">
+                <i class="fas fa-clock text-slate-500"></i>
+                <span>Setting Jam Absen</span>
+            </a>
+            @endif
+            <a href="{{ route('jadwal.create') }}" class="bg-[#13527D] hover:bg-[#0E3D5D] text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <i class="fas fa-plus"></i> Tambah Jadwal
+            </a>
+        </div>
     </div>
 
     <!-- Alert Sukses -->
