@@ -40,6 +40,28 @@
                class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('siswa.ujian.*') || request()->routeIs('siswa.quiz.*') ? 'active-item' : 'text-white/80 hover:bg-white/10' }}">
                 <i class="fas fa-clipboard-question w-4"></i> Ujian Online
             </a>
+            @php
+                $notifBelumBacaCount = 0;
+                $activeSiswaId = session('user_id');
+                if ($activeSiswaId && session('user_type') === 'siswa') {
+                    $notifBelumBacaCount = \App\Models\Notifikasi::where('id_siswa', $activeSiswaId)->where('status_baca', 0)->count();
+                } else {
+                    $demoSiswa = \App\Models\Siswa::first();
+                    if ($demoSiswa) {
+                        $notifBelumBacaCount = \App\Models\Notifikasi::where('id_siswa', $demoSiswa->id_siswa)->where('status_baca', 0)->count();
+                    }
+                }
+            @endphp
+            <a href="{{ route('siswa.notifikasi_pr.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('siswa.notifikasi_pr.*') ? 'active-item' : 'text-white/80 hover:bg-white/10' }}">
+                <i class="fas fa-bell w-4"></i>
+                <span class="flex-1">Notifikasi PR</span>
+                @if($notifBelumBacaCount > 0)
+                <span class="bg-amber-400 text-slate-900 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight">
+                    {{ $notifBelumBacaCount > 99 ? '99+' : $notifBelumBacaCount }}
+                </span>
+                @endif
+            </a>
         </nav>
 
         <div class="p-3 border-t border-white/10">

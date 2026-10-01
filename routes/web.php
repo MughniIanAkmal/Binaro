@@ -12,6 +12,7 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SiswaLearningController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\Guru\NotifikasiPrController;
+use App\Http\Controllers\Siswa\SiswaNotifikasiPrController;
 use App\Http\Middleware\EnsureAuthenticated;
 use App\Http\Middleware\EnsureRole;
 use Illuminate\Support\Facades\Route;
@@ -152,6 +153,15 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::get('/quiz/{idQuiz}/play', [SiswaLearningController::class, 'playQuiz'])->name('quiz.play');
         Route::post('/quiz/{idQuiz}/submit', [SiswaLearningController::class, 'submitQuiz'])->name('quiz.submit');
         Route::get('/quiz/{idQuiz}/result', [SiswaLearningController::class, 'resultQuiz'])->name('quiz.result');
+
+    }); // end siswa group
+
+    // Notifikasi PR Siswa (Role: Siswa, serta Guru & Admin untuk pengujian portal siswa)
+    Route::middleware([EnsureRole::class . ':siswa,guru,admin'])->prefix('siswa/notifikasi-pr')->name('siswa.notifikasi_pr.')->group(function () {
+        Route::get('/', [SiswaNotifikasiPrController::class, 'index'])->name('index');
+        Route::get('/{id}', [SiswaNotifikasiPrController::class, 'show'])->name('show');
+        Route::post('/{id}/baca', [SiswaNotifikasiPrController::class, 'tandaiBaca'])->name('tandai_baca');
+        Route::post('/baca-semua', [SiswaNotifikasiPrController::class, 'tandaiBacaSemua'])->name('baca_semua');
     });
 
     // 7. Akun Siswa CRUD (Role: Admin & Guru)
