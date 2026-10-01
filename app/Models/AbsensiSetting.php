@@ -21,4 +21,13 @@ class AbsensiSetting extends Model
     {
         static::updateOrCreate(['key' => $key], ['value' => $value]);
     }
+
+    public static function getSettings(): \Illuminate\Support\Fluent
+    {
+        return new \Illuminate\Support\Fluent([
+            'batas_awal' => static::get('batas_awal', '07:00'),
+            'batas_tepat' => static::get('batas_tepat', '08:00'),
+            'batas_tutup' => static::get('batas_tutup', '12:00'),
+        ]);
+    }
 }

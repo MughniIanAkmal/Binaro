@@ -26,7 +26,10 @@
                 </p>
             </div>
 
-            <div class="flex items-center gap-2 self-start md:self-center">
+            <div class="flex items-center gap-2 self-start md:self-center flex-wrap">
+                <a href="{{ route('admin.absensi.settings') }}" class="px-4 py-2 bg-amber-400 hover:bg-amber-500 rounded-xl text-xs font-black text-slate-900 transition flex items-center gap-2 shadow-sm">
+                    <i class="fas fa-clock"></i> Setting Jam Absen
+                </a>
                 <a href="{{ route('jadwal.index') }}" class="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-xs font-bold text-white transition flex items-center gap-2">
                     <i class="fas fa-calendar-alt"></i> Jadwal Pelajaran
                 </a>
@@ -104,6 +107,52 @@
         </a>
     </div>
 
+    <!-- Setting Jam Absensi & Jam Operasional Sekolah Banner -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">
+                        Pengaturan Jam Absensi & Jam Tutup Sekolah
+                    </h3>
+                    <p class="text-xs text-slate-500">
+                        Ambang batas kehadiran siswa SDN Kalitapen 01 yang tersinkronisasi otomatis dengan Jadwal Pelajaran.
+                    </p>
+                </div>
+            </div>
+            <a href="{{ route('admin.absensi.settings') }}" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-xs">
+                <i class="fas fa-sliders text-xs"></i>
+                <span>Kelola Jam Absen</span>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-1">
+            <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-100">
+                <span class="text-[10px] font-bold text-sky-600 uppercase block">1. Datang Lebih Awal</span>
+                <div class="text-base font-black text-sky-900 mt-0.5">&lt; {{ $absensiSetting->batas_awal ?? '07:00' }} WIB</div>
+                <p class="text-[11px] text-sky-700 mt-1">Siswa hadir sebelum jam 7.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-100">
+                <span class="text-[10px] font-bold text-emerald-600 uppercase block">2. Tepat Waktu</span>
+                <div class="text-base font-black text-emerald-900 mt-0.5">{{ $absensiSetting->batas_awal ?? '07:00' }} - {{ $absensiSetting->batas_tepat ?? '08:00' }}</div>
+                <p class="text-[11px] text-emerald-700 mt-1">Presensi jam 7 hingga jam 8.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-100">
+                <span class="text-[10px] font-bold text-amber-600 uppercase block">3. Terlambat</span>
+                <div class="text-base font-black text-amber-900 mt-0.5">{{ $absensiSetting->batas_tepat ?? '08:00' }} - {{ $absensiSetting->batas_tutup ?? '12:00' }}</div>
+                <p class="text-[11px] text-amber-700 mt-1">Presensi jam 8 s/d jam tutup.</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-100">
+                <span class="text-[10px] font-bold text-rose-600 uppercase block">4. Sekolah Tutup / Alpa</span>
+                <div class="text-base font-black text-rose-900 mt-0.5">&gt; {{ $absensiSetting->batas_tutup ?? '12:00' }} WIB</div>
+                <p class="text-[11px] text-rose-700 mt-1">Maksimal jam pelajaran jadwal.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Quick Action Shortcut Hub -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -115,7 +164,14 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+            <a href="{{ route('admin.absensi.settings') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-amber-500 hover:bg-amber-50/40 transition text-center flex flex-col items-center gap-2 group">
+                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700">Jam Absen</span>
+            </a>
+
             <a href="{{ route('guru.create') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#13527D] hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
                 <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#13527D] group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
                     <i class="fas fa-user-plus"></i>
@@ -148,14 +204,14 @@
                 <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
                     <i class="fas fa-calendar-alt"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-700">Jadwal Pelajaran</span>
+                <span class="text-xs font-bold text-slate-700">Jadwal</span>
             </a>
 
             <a href="{{ route('admin.qr.index') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#13527D] hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
                 <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
                     <i class="fas fa-qrcode"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-700">Barcode Siswa</span>
+                <span class="text-xs font-bold text-slate-700">QR Siswa</span>
             </a>
         </div>
     </div>

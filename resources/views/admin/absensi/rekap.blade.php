@@ -1,7 +1,7 @@
 @extends(session('user_type') === 'admin' ? 'layouts.app' : 'layouts.guru')
 
 @section('content')
-<div class="space-y-6">
+<div class="p-8 space-y-6">
     <!-- Header Title & Action Buttons -->
     <div class="flex justify-between items-start flex-wrap gap-4">
         <div>

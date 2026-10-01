@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
 
 @section('content')
 <div class="p-8 space-y-6">
@@ -26,9 +26,15 @@
                     </button>
                 </form>
             @endif
-            <button onclick="openSettingsModal()" class="bg-amber-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-amber-700 flex items-center gap-2 shadow-sm">
-                <i class="fas fa-cog text-xs"></i> Pengaturan Waktu
+            @if(session('user_type') === 'admin')
+            <a href="{{ route('admin.absensi.settings') }}" class="bg-[#13527D] hover:bg-[#0E3D5D] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm transition">
+                <i class="fas fa-clock text-xs"></i> Pengaturan Jam Absen
+            </a>
+            @else
+            <button onclick="openSettingsModal()" class="bg-[#13527D] hover:bg-[#0E3D5D] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm transition">
+                <i class="fas fa-clock text-xs"></i> Pengaturan Waktu
             </button>
+            @endif
             <button class="hidden bg-[#0F2C59] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-900 flex items-center gap-2 shadow-sm">
                 <i class="fas fa-lock text-xs"></i> Kunci & Kirim ke Dapodik
             </button>
@@ -189,7 +195,7 @@
 <div id="settingsModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-200">
         <h3 class="font-bold text-sm mb-4">Pengaturan Waktu Absen</h3>
-        <form action="{{ route('absensi.settings') }}" method="POST" class="space-y-4">
+        <form action="{{ route('admin.absensi.settings.update') }}" method="POST" class="space-y-4">
             @csrf
             <div>
                 <label class="text-xs font-bold">Jam Mulai Awal (Datang Lebih Awal)</label>

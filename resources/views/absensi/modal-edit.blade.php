@@ -22,12 +22,15 @@
             </div>
             <div>
                 <label class="block font-bold text-slate-700 mb-1">Keterangan Tambahan</label>
-                <input type="text" name="namaKeterangan" id="modalKeterangan" placeholder="Contoh: Surat Dokter Terlampir / Acara Keluarga" 
+                <input type="text" name="keterangan" id="modalKeterangan" placeholder="Contoh: Surat Dokter Terlampir / Acara Keluarga" 
+                       maxlength="255"
                        class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]">
+                <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 255 karakter</p>
             </div>
             <div>
                 <label class="block font-bold text-slate-700 mb-1">Upload Berkas/Surat (Opsional)</label>
-                <input type="file" name="berkas_surat" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg bg-slate-50 text-[11px]">
+                <input type="file" name="berkas_surat" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png" class="w-full px-3 py-1.5 border border-slate-200 rounded-lg bg-slate-50 text-[11px]">
+                <p class="text-[10px] text-slate-400 mt-0.5">Format: PDF, JPG, PNG (Maks. 5MB)</p>
             </div>
             <div class="flex justify-end gap-2 pt-2">
                 <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-100">Batal</button>

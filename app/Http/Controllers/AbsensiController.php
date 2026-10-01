@@ -200,6 +200,8 @@ class AbsensiController extends Controller
             $ket = 'Terlambat';
         }
 
+        $idGuru = $request->id_guru ?? 1; // Default fallback guru piket/admin
+
         $existing = Absen::where('id_siswa', $barcode->id_siswa)
             ->where('tanggal', $today)
             ->first();
@@ -222,8 +224,6 @@ class AbsensiController extends Controller
             return back()->with('error', 'Siswa sudah melakukan absensi hari ini.');
         }
 
-        $idGuru = $request->id_guru ?? 1; // Default fallback guru piket/admin
-
         Absen::create(
             [
                 'id_siswa' => $barcode->id_siswa,
@@ -242,6 +242,10 @@ class AbsensiController extends Controller
 
     public function updateManual(Request $request)
     {
+        if (!$request->filled('keterangan') && $request->filled('namaKeterangan')) {
+            $request->merge(['keterangan' => $request->input('namaKeterangan')]);
+        }
+
         $request->validate([
             'id_siswa' => 'required|exists:siswa,id_siswa',
             'status' => 'required|in:Hadir,Izin,Sakit,Alpa',
@@ -343,18 +347,43 @@ class AbsensiController extends Controller
         return back()->with('success', 'Data absensi berhasil dihapus.');
     }
 
+    public function settingsView()
+    {
+        $batasAwal = \App\Models\AbsensiSetting::get('batas_awal', '07:00');
+        $batasTepat = \App\Models\AbsensiSetting::get('batas_tepat', '08:00');
+        $batasTutup = \App\Models\AbsensiSetting::get('batas_tutup', '12:00');
+
+        return view('admin.absensi.settings', compact('batasAwal', 'batasTepat', 'batasTutup'));
+    }
+
     public function updateSettings(Request $request)
     {
         $request->validate([
             'batas_awal' => 'required|date_format:H:i',
             'batas_tepat' => 'required|date_format:H:i',
             'batas_tutup' => 'required|date_format:H:i',
+        ], [
+            'batas_awal.required' => 'Jam awal wajib diisi.',
+            'batas_tepat.required' => 'Jam tepat waktu wajib diisi.',
+            'batas_tutup.required' => 'Jam tutup sekolah wajib diisi.',
         ]);
+
+        $awal = strtotime($request->batas_awal);
+        $tepat = strtotime($request->batas_tepat);
+        $tutup = strtotime($request->batas_tutup);
+
+        if ($awal >= $tepat) {
+            return back()->withInput()->withErrors(['batas_tepat' => 'Batas jam tepat waktu harus lebih lambat dari batas datang lebih awal.'])->with('error', 'Batas jam tepat waktu harus lebih lambat dari batas datang lebih awal.');
+        }
+
+        if ($tepat >= $tutup) {
+            return back()->withInput()->withErrors(['batas_tutup' => 'Jam tutup sekolah harus lebih lambat dari batas jam tepat waktu.'])->with('error', 'Jam tutup sekolah harus lebih lambat dari batas jam tepat waktu.');
+        }
 
         \App\Models\AbsensiSetting::set('batas_awal', $request->batas_awal);
         \App\Models\AbsensiSetting::set('batas_tepat', $request->batas_tepat);
         \App\Models\AbsensiSetting::set('batas_tutup', $request->batas_tutup);
 
-        return back()->with('success', 'Pengaturan waktu berhasil disimpan.');
+        return redirect()->route('admin.absensi.settings')->with('success', 'Pengaturan jam absensi & jam operasional sekolah berhasil disimpan.');
     }
 }

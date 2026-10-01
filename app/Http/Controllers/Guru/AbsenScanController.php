@@ -63,6 +63,26 @@ class AbsenScanController extends Controller
         $siswa = $barcode->siswa;
         $today = today()->toDateString();
 
+        $guruId = $this->resolveGuruId($request);
+        $metodeVal = ($data['metode'] ?? 'scan') === 'manual' ? 'manual_guru' : 'scan_qr';
+        $waktu = now();
+        $timeStr = $waktu->format('H:i');
+
+        $batasAwal = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_awal', '07:00') : '07:00';
+        $batasTepat = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_tepat', '08:00') : '08:00';
+        $batasTutup = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_tutup', '12:00') : '12:00';
+
+        if ($timeStr > $batasTutup) {
+            // Melewati batas waktu admin: tetap tercatat, status Hadir dengan keterangan Terlambat.
+            $keterangan = 'Terlambat';
+        } elseif ($timeStr < $batasAwal) {
+            $keterangan = 'Datang Lebih Awal';
+        } elseif ($timeStr <= $batasTepat) {
+            $keterangan = 'Tepat Waktu';
+        } else {
+            $keterangan = 'Terlambat';
+        }
+
         $absen = Absen::where('id_siswa', $siswa->id_siswa)
             ->whereDate('tanggal', $today)
             ->first();
@@ -94,27 +114,6 @@ class AbsenScanController extends Controller
                 'success' => false,
                 'message' => "{$siswa->nm_siswa} sudah absen hari ini.",
             ], 200);
-        }
-
-        $guruId = $this->resolveGuruId($request);
-
-        $metodeVal = ($data['metode'] ?? 'scan') === 'manual' ? 'manual_guru' : 'scan_qr';
-        $waktu = now();
-        $timeStr = $waktu->format('H:i');
-
-        $batasAwal = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_awal', '07:00') : '07:00';
-        $batasTepat = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_tepat', '08:00') : '08:00';
-        $batasTutup = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_tutup', '12:00') : '12:00';
-
-        if ($timeStr > $batasTutup) {
-            // Melewati batas waktu admin: tetap tercatat, status Hadir dengan keterangan Terlambat.
-            $keterangan = 'Terlambat';
-        } elseif ($timeStr < $batasAwal) {
-            $keterangan = 'Datang Lebih Awal';
-        } elseif ($timeStr <= $batasTepat) {
-            $keterangan = 'Tepat Waktu';
-        } else {
-            $keterangan = 'Terlambat';
         }
 
         $absenData = Absen::create([
