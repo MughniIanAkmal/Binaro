@@ -78,6 +78,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     // 4. Guru Dashboard & Pembelajaran (Role: Guru)
     Route::middleware([EnsureRole::class . ':guru'])->prefix('guru')->name('guru.')->group(function () {
         Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
+        Route::get('/jadwal-mengajar', [GuruController::class, 'jadwalMengajar'])->name('jadwal.index');
         Route::get('/absensi/rekap', [AbsensiController::class, 'rekap'])->name('absensi.rekap');
 
         // Materi Management & Learning Hierarchy (PRD 4.1)

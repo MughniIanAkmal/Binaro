@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Guru;
+use App\Models\JadwalMataPelajaran;
 use App\Models\MataPelajaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -110,5 +111,53 @@ class GuruController extends Controller
     {
         $guru->delete();
         return redirect()->route('guru.index')->with('success', 'Data guru berhasil dihapus.');
+    }
+
+    /**
+     * Jadwal Mengajar Guru (read-only, Senin–Sabtu).
+     * Menampilkan apa saja yang diajar guru tersebut,
+     * jam ke-berapa, dan keterangan jam (dari–sampai).
+     */
+    public function jadwalMengajar()
+    {
+        $guru = null;
+        if (session()->has('user_id') && session('user_type') === 'guru') {
+            $guru = Guru::find(session('user_id'));
+        }
+
+        $jadwals = JadwalMataPelajaran::with(['mataPelajaran', 'kelas', 'guru'])
+            ->when($guru, fn($q) => $q->where('id_guru', $guru->id_guru))
+            ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')")
+            ->orderBy('jam')
+            ->get();
+
+        $jadwalPerHari = [
+            'Senin'  => $jadwals->where('hari', 'Senin')->values(),
+            'Selasa' => $jadwals->where('hari', 'Selasa')->values(),
+            'Rabu'   => $jadwals->where('hari', 'Rabu')->values(),
+            'Kamis'  => $jadwals->where('hari', 'Kamis')->values(),
+            'Jumat'  => $jadwals->where('hari', 'Jumat')->values(),
+            'Sabtu'  => $jadwals->where('hari', 'Sabtu')->values(),
+        ];
+
+        $hariMap = [
+            'Monday'    => 'Senin',
+            'Tuesday'   => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday'  => 'Kamis',
+            'Friday'    => 'Jumat',
+            'Saturday'  => 'Sabtu',
+            'Sunday'    => 'Minggu',
+        ];
+
+        $hariIni    = $hariMap[date('l')] ?? 'Senin';
+        $totalSesi  = $jadwals->count();
+        $totalMapel = $jadwals->pluck('id_mapel')->unique()->count();
+        $totalKelas = $jadwals->pluck('id_rooms')->unique()->count();
+
+        return view('guru.jadwal.index', compact(
+            'guru', 'jadwals', 'jadwalPerHari', 'hariIni',
+            'totalSesi', 'totalMapel', 'totalKelas'
+        ));
     }
 }
