@@ -74,4 +74,19 @@ class Quiz extends Model
     {
         return $this->hasOne(Materi::class, 'id_quiz', 'id_quiz');
     }
+
+    public function mataPelajaran()
+    {
+        return $this->belongsTo(MataPelajaran::class, 'id_mapel', 'id_mapel');
+    }
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
+    }
+
+    public function targetSiswa()
+    {
+        return $this->belongsToMany(Siswa::class, 'quiz_target_siswa', 'id_quiz', 'id_siswa')->withTimestamps();
+    }
 }

@@ -12,6 +12,7 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SiswaLearningController;
 use App\Http\Controllers\JadwalController;
 use App\Http\Controllers\Guru\NotifikasiPrController;
+use App\Http\Controllers\Guru\UjianController;
 use App\Http\Controllers\Siswa\SiswaNotifikasiPrController;
 use App\Http\Middleware\EnsureAuthenticated;
 use App\Http\Middleware\EnsureRole;
@@ -117,6 +118,21 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             Route::post('/rekap/kirim', [QuizController::class, 'kirimNilai'])->name('rekap.kirim');
             Route::post('/rekap/kirim-semua/{idQuiz}', [QuizController::class, 'kirimNilaiSemua'])->name('rekap.kirim_semua');
             Route::post('/rekap/jadwalkan-remedial/{idQuiz}', [QuizController::class, 'jadwalkanRemedial'])->name('rekap.jadwalkan_remedial');
+        });
+
+        // CRUD Ujian Online (Guru)
+        Route::prefix('ujian')->name('ujian.')->group(function () {
+            Route::get('/', [UjianController::class, 'index'])->name('index');
+            Route::get('/create', [UjianController::class, 'create'])->name('create');
+            Route::post('/', [UjianController::class, 'store'])->name('store');
+            Route::get('/{id}', [UjianController::class, 'show'])->name('show');
+            Route::get('/{id}/edit', [UjianController::class, 'edit'])->name('edit');
+            Route::put('/{id}', [UjianController::class, 'update'])->name('update');
+            Route::delete('/{id}', [UjianController::class, 'destroy'])->name('destroy');
+            // Soal management
+            Route::post('/{idQuiz}/soal', [UjianController::class, 'storeSoal'])->name('soal.store');
+            Route::put('/{idQuiz}/soal/{idSoal}', [UjianController::class, 'updateSoal'])->name('soal.update');
+            Route::delete('/{idQuiz}/soal/{idSoal}', [UjianController::class, 'destroySoal'])->name('soal.destroy');
         });
 
         // Kelola Notifikasi PR (CRUD + Kirim Notifikasi ke Siswa)

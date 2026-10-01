@@ -75,6 +75,12 @@
                 <i class="fas fa-bell w-4 text-amber-300"></i> Notifikasi PR
             </a>
 
+            <!-- 4b. Menu Ujian Online (CRUD Ujian & Soal) -->
+            <a href="{{ route('guru.ujian.index') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.ujian.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
+                <i class="fas fa-file-circle-question w-4 text-emerald-300"></i> Ujian Online
+            </a>
+
             <!-- 5. Menu RPP & Modul Ajar (Kurikulum Merdeka) -->
             <a href="{{ route('guru.rpp.index') }}"
                class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.rpp.*') || request()->is('rpp-guru*') || (request()->routeIs('rpp.*') && session('user_type') === 'guru') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
