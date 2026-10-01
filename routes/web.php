@@ -195,6 +195,10 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::post('/quiz/{idQuiz}/submit', [SiswaLearningController::class, 'submitQuiz'])->name('quiz.submit');
         Route::get('/quiz/{idQuiz}/result', [SiswaLearningController::class, 'resultQuiz'])->name('quiz.result');
 
+        // Jadwal Mapel Siswa (read-only)
+        Route::get('/jadwal-mapel', [SiswaLearningController::class, 'jadwalIndex'])->name('jadwal_mapel.index');
+        Route::get('/jadwal', [SiswaLearningController::class, 'jadwalIndex'])->name('jadwal.index');
+
     }); // end siswa group
 
     // Notifikasi PR Siswa (Role: Siswa, serta Guru & Admin untuk pengujian portal siswa)

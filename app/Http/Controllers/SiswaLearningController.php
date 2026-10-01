@@ -228,4 +228,60 @@ class SiswaLearningController extends Controller
 
         return view('siswa.quiz.result', compact('quiz', 'hasil', 'reviewDetails'));
     }
+
+    // 7. Jadwal Mapel Siswa (read-only, tersambung ke jadwal yang dibuat admin)
+    public function jadwalIndex()
+    {
+        $siswaId = session('user_id');
+        $siswa   = \App\Models\Siswa::with('kelas')->find($siswaId);
+
+        // Query jadwal berdasarkan kelas siswa
+        $query = \App\Models\JadwalMataPelajaran::with(['mataPelajaran', 'guru', 'kelas']);
+        if ($siswa && $siswa->id_rooms) {
+            $query->where('id_rooms', $siswa->id_rooms);
+        }
+
+        $jadwals = $query
+            ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')")
+            ->orderBy('jam')
+            ->get();
+
+        // Fallback: tampilkan semua jadwal jika kelas siswa kosong
+        if ($jadwals->isEmpty()) {
+            $jadwals = \App\Models\JadwalMataPelajaran::with(['mataPelajaran', 'guru', 'kelas'])
+                ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')")
+                ->orderBy('jam')
+                ->get();
+        }
+
+        // Kelompokkan per hari
+        $jadwalPerHari = [
+            'Senin'  => $jadwals->where('hari', 'Senin')->values(),
+            'Selasa' => $jadwals->where('hari', 'Selasa')->values(),
+            'Rabu'   => $jadwals->where('hari', 'Rabu')->values(),
+            'Kamis'  => $jadwals->where('hari', 'Kamis')->values(),
+            'Jumat'  => $jadwals->where('hari', 'Jumat')->values(),
+            'Sabtu'  => $jadwals->where('hari', 'Sabtu')->values(),
+        ];
+
+        $hariMap = [
+            'Monday'    => 'Senin',
+            'Tuesday'   => 'Selasa',
+            'Wednesday' => 'Rabu',
+            'Thursday'  => 'Kamis',
+            'Friday'    => 'Jumat',
+            'Saturday'  => 'Sabtu',
+            'Sunday'    => 'Minggu',
+        ];
+
+        $hariIni    = $hariMap[date('l')] ?? 'Senin';
+        $totalSesi  = $jadwals->count();
+        $totalMapel = $jadwals->pluck('id_mapel')->unique()->count();
+        $totalGuru  = $jadwals->pluck('id_guru')->unique()->count();
+
+        return view('siswa.jadwal-mapel.index', compact(
+            'siswa', 'jadwals', 'jadwalPerHari', 'hariIni',
+            'totalSesi', 'totalMapel', 'totalGuru'
+        ));
+    }
 }
