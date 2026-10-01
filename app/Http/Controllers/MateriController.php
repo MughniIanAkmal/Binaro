@@ -85,7 +85,18 @@ class MateriController extends Controller
     {
         $request->validate([
             'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
-            'nama_bab' => 'required|string|max:150',
+            'nama_bab' => [
+                'required',
+                'string',
+                'min:3',
+                'max:100',
+                'regex:/^[a-zA-Z0-9\s]+$/u',
+            ],
+        ], [
+            'nama_bab.required' => 'Nama Bab wajib diisi.',
+            'nama_bab.min'      => 'Nama Bab minimal terdiri dari 3 karakter.',
+            'nama_bab.max'      => 'Nama Bab maksimal 100 karakter.',
+            'nama_bab.regex'    => 'Nama Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol atau karakter khusus).',
         ]);
 
         // Guardrail: Anti-duplikasi nama bab di mapel sama
@@ -109,7 +120,18 @@ class MateriController extends Controller
     {
         $request->validate([
             'id_bab' => 'required|exists:bab,id_bab',
-            'nama_sub_bab' => 'required|string|max:150',
+            'nama_sub_bab' => [
+                'required',
+                'string',
+                'min:3',
+                'max:100',
+                'regex:/^[a-zA-Z0-9\s]+$/u',
+            ],
+        ], [
+            'nama_sub_bab.required' => 'Nama Sub-Bab wajib diisi.',
+            'nama_sub_bab.min'      => 'Nama Sub-Bab minimal terdiri dari 3 karakter.',
+            'nama_sub_bab.max'      => 'Nama Sub-Bab maksimal 100 karakter.',
+            'nama_sub_bab.regex'    => 'Nama Sub-Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol atau karakter khusus).',
         ]);
 
         // Guardrail: Anti-duplikasi nama sub-bab di bab sama
@@ -131,13 +153,53 @@ class MateriController extends Controller
 
     public function storeMateri(Request $request)
     {
+        $videoValidator = function ($attribute, $value, $fail) use ($request) {
+            if ($request->tipe_materi === 'video' && $value) {
+                $val = trim($value);
+                if (preg_match('#(drive\.google\.com|docs\.google\.com|google\.com/file|google\.com/drive|dropbox\.com|onedrive\.live\.com)#i', $val)) {
+                    $fail('Tautan Google Drive atau penyimpanan cloud lainnya dilarang. Harap gunakan tautan YouTube atau file video langsung (.mp4).');
+                    return;
+                }
+                $isYt = (bool) (preg_match('#^(https?:\/\/)?(www\.|m\.)?(youtube(?:-nocookie)?\.com\/(?:watch\?.*v=|embed\/|shorts\/|live\/)|youtu\.be\/)[a-zA-Z0-9_\-]+#i', $val) || preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?|shorts|live)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $val));
+                $isMp4 = (bool) preg_match('#^https?:\/\/[^\s]+\.mp4(\?[^\s]*)?$#i', $val);
+
+                if (!$isYt && !$isMp4) {
+                    $fail('URL Video pembelajaran HANYA boleh berupa tautan YouTube (youtube.com / youtu.be) atau file video langsung berformat MP4 (.mp4). Link lain seperti Google Drive dilarang.');
+                }
+            }
+        };
+
+        $excelValidator = function ($attribute, $value, $fail) use ($request) {
+            if ($request->tipe_materi === 'kuis' && $value) {
+                $ext = strtolower($value->getClientOriginalExtension());
+                if (!in_array($ext, ['xlsx', 'xls', 'csv'])) {
+                    $fail('File kuis wajib berformat spreadsheet Excel / CSV (.xlsx, .xls, atau .csv). Format file lainnya tidak diperbolehkan.');
+                }
+            }
+        };
+
         $request->validate([
-            'id_sub_bab' => 'required|exists:sub_bab,id_sub_bab',
-            'judul_materi' => 'required|string|max:200',
-            'tipe_materi' => 'required|in:video,dokumen,kuis',
-            'url_video' => 'nullable|required_if:tipe_materi,video|max:255',
-            'file_pdf' => 'nullable|required_if:tipe_materi,dokumen|file|mimes:pdf|max:10240', // Max 10MB
-            'isi_materi' => 'nullable|string',
+            'id_sub_bab'   => 'required|exists:sub_bab,id_sub_bab',
+            'judul_materi' => [
+                'required',
+                'string',
+                'min:3',
+                'max:100',
+                'regex:/^[a-zA-Z0-9\s]+$/u',
+            ],
+            'tipe_materi'  => 'required|in:video,dokumen,kuis',
+            'url_video'    => ['nullable', 'required_if:tipe_materi,video', 'max:255', $videoValidator],
+            'file_pdf'     => 'nullable|required_if:tipe_materi,dokumen|file|mimes:pdf|max:10240', // Max 10MB
+            'file_excel'   => ['nullable', 'file', 'max:5120', $excelValidator],
+            'isi_materi'   => 'nullable|string',
+        ], [
+            'judul_materi.required' => 'Nama materi wajib diisi.',
+            'judul_materi.min'      => 'Nama materi minimal 3 karakter.',
+            'judul_materi.max'      => 'Nama materi maksimal 100 karakter.',
+            'judul_materi.regex'    => 'Nama materi hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol atau karakter khusus).',
+            'url_video.required_if' => 'URL Video wajib diisi jika memilih tipe materi Video.',
+            'file_pdf.required_if'  => 'File dokumen PDF wajib diunggah jika memilih tipe Dokumen.',
+            'file_pdf.mimes'        => 'File materi harus berformat PDF (.pdf).',
         ]);
 
         $subBab = SubBab::findOrFail($request->id_sub_bab);
@@ -154,6 +216,34 @@ class MateriController extends Controller
                 'judul_quiz' => 'Kuis: ' . $request->judul_materi,
             ]);
             $idQuiz = $quiz->id_quiz;
+
+            if ($request->hasFile('file_excel')) {
+                $ext = strtolower($request->file('file_excel')->getClientOriginalExtension());
+                $rows = \App\Services\ExcelService::parseFile(
+                    $request->file('file_excel')->getRealPath(),
+                    $ext
+                );
+                if (!empty($rows)) {
+                    array_shift($rows); // skip header
+                    foreach ($rows as $r) {
+                        if (count($r) >= 6) {
+                            [$pertanyaan, $a, $b, $c, $d, $kunci] = array_map('trim', array_slice($r, 0, 6));
+                            $kUpper = strtoupper($kunci);
+                            if ($pertanyaan && $a && $b && $c && $d && in_array($kUpper, ['A', 'B', 'C', 'D'])) {
+                                SoalQuiz::create([
+                                    'id_quiz' => $idQuiz,
+                                    'pertanyaan' => $pertanyaan,
+                                    'opsi_a' => $a,
+                                    'opsi_b' => $b,
+                                    'opsi_c' => $c,
+                                    'opsi_d' => $d,
+                                    'kunci_jawaban' => $kUpper,
+                                ]);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         Materi::create([
@@ -174,11 +264,50 @@ class MateriController extends Controller
     {
         $materi = Materi::findOrFail($id);
 
+        $videoValidator = function ($attribute, $value, $fail) use ($request) {
+            if ($request->tipe_materi === 'video' && $value) {
+                $val = trim($value);
+                if (preg_match('#(drive\.google\.com|docs\.google\.com|google\.com/file|google\.com/drive|dropbox\.com|onedrive\.live\.com)#i', $val)) {
+                    $fail('Tautan Google Drive atau penyimpanan cloud lainnya dilarang. Harap gunakan tautan YouTube atau file video langsung (.mp4).');
+                    return;
+                }
+                $isYt = (bool) (preg_match('#^(https?:\/\/)?(www\.|m\.)?(youtube(?:-nocookie)?\.com\/(?:watch\?.*v=|embed\/|shorts\/|live\/)|youtu\.be\/)[a-zA-Z0-9_\-]+#i', $val) || preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?|shorts|live)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $val));
+                $isMp4 = (bool) preg_match('#^https?:\/\/[^\s]+\.mp4(\?[^\s]*)?$#i', $val);
+
+                if (!$isYt && !$isMp4) {
+                    $fail('URL Video pembelajaran HANYA boleh berupa tautan YouTube (youtube.com / youtu.be) atau file video langsung berformat MP4 (.mp4). Link lain seperti Google Drive dilarang.');
+                }
+            }
+        };
+
+        $excelValidator = function ($attribute, $value, $fail) use ($request) {
+            if ($request->tipe_materi === 'kuis' && $value) {
+                $ext = strtolower($value->getClientOriginalExtension());
+                if (!in_array($ext, ['xlsx', 'xls', 'csv'])) {
+                    $fail('File kuis wajib berformat spreadsheet Excel / CSV (.xlsx, .xls, atau .csv). Format file lainnya tidak diperbolehkan.');
+                }
+            }
+        };
+
         $request->validate([
-            'judul_materi' => 'required|string|max:200',
-            'tipe_materi' => 'required|in:video,dokumen,kuis',
-            'url_video' => 'nullable|required_if:tipe_materi,video|max:255',
-            'file_pdf' => 'nullable|file|mimes:pdf|max:10240',
+            'judul_materi' => [
+                'required',
+                'string',
+                'min:3',
+                'max:100',
+                'regex:/^[a-zA-Z0-9\s]+$/u',
+            ],
+            'tipe_materi'  => 'required|in:video,dokumen,kuis',
+            'url_video'    => ['nullable', 'required_if:tipe_materi,video', 'max:255', $videoValidator],
+            'file_pdf'     => 'nullable|file|mimes:pdf|max:10240',
+            'file_excel'   => ['nullable', 'file', 'max:5120', $excelValidator],
+        ], [
+            'judul_materi.required' => 'Nama materi wajib diisi.',
+            'judul_materi.min'      => 'Nama materi minimal 3 karakter.',
+            'judul_materi.max'      => 'Nama materi maksimal 100 karakter.',
+            'judul_materi.regex'    => 'Nama materi hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol atau karakter khusus).',
+            'url_video.required_if' => 'URL Video wajib diisi jika memilih tipe materi Video.',
+            'file_pdf.mimes'        => 'File materi harus berformat PDF (.pdf).',
         ]);
 
         $data = [

@@ -52,7 +52,7 @@
                 </div>
 
                 <!-- Form Tambah Bab -->
-                <form id="form-tambah-bab" action="{{ route('guru.materi.store.bab') }}" method="POST" class="space-y-4">
+                <form id="form-tambah-bab" action="{{ route('guru.materi.store.bab') }}" method="POST" onsubmit="return validateFormNoSymbols(this, 'tambah-nama-bab', 'Nama Bab')" class="space-y-4">
                     @csrf
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran <span class="text-rose-500">*</span></label>
@@ -65,8 +65,11 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bab <span class="text-rose-500">*</span></label>
-                        <input type="text" name="nama_bab" required placeholder="Contoh: Bab 1: Operasi Hitung Bilangan Cacah" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
-                        <p class="text-[10px] text-slate-400 mt-1">Nama Bab tidak boleh kembar dalam satu mata pelajaran.</p>
+                        <input type="text" name="nama_bab" id="tambah-nama-bab" required maxlength="100" placeholder="Contoh: Bab 1 Operasi Hitung Bilangan Cacah" oninput="sanitizeInputAlphanumeric(this, 'counter-tambah-bab')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <div class="flex items-center justify-between mt-1 text-[10px]">
+                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
+                            <span id="counter-tambah-bab" class="font-bold text-slate-600">0/100</span>
+                        </div>
                     </div>
                     <div class="flex justify-end pt-2">
                         <button type="submit" class="px-5 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-xl shadow-sm transition">
@@ -76,7 +79,7 @@
                 </form>
 
                 <!-- Form Tambah Sub-Bab -->
-                <form id="form-tambah-sub_bab" action="{{ route('guru.materi.store.sub-bab') }}" method="POST" class="space-y-4 hidden">
+                <form id="form-tambah-sub_bab" action="{{ route('guru.materi.store.sub-bab') }}" method="POST" onsubmit="return validateFormNoSymbols(this, 'tambah-nama-subbab', 'Nama Sub-Bab')" class="space-y-4 hidden">
                     @csrf
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Mata Pelajaran <span class="text-rose-500">*</span></label>
@@ -95,7 +98,11 @@
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sub-Bab <span class="text-rose-500">*</span></label>
-                        <input type="text" name="nama_sub_bab" required placeholder="Contoh: Sub-Bab A: Penjumlahan Ribuan" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <input type="text" name="nama_sub_bab" id="tambah-nama-subbab" required maxlength="100" placeholder="Contoh: Sub Bab A Penjumlahan Ribuan" oninput="sanitizeInputAlphanumeric(this, 'counter-tambah-subbab')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <div class="flex items-center justify-between mt-1 text-[10px]">
+                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
+                            <span id="counter-tambah-subbab" class="font-bold text-slate-600">0/100</span>
+                        </div>
                     </div>
                     <div class="flex justify-end pt-2">
                         <button type="submit" class="px-5 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-xl shadow-sm transition">
@@ -105,7 +112,7 @@
                 </form>
 
                 <!-- Form Tambah Materi (3 Tipe) -->
-                <form id="form-tambah-materi" action="{{ route('guru.materi.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4 hidden">
+                <form id="form-tambah-materi" action="{{ route('guru.materi.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateFormMateri(this, 'tambah-judul-materi')" class="space-y-4 hidden">
                     @csrf
                     <!-- Cascading Dropdown: Mapel -> Bab -> Sub-Bab -->
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -134,8 +141,12 @@
 
                     <!-- Judul Materi -->
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Judul Materi <span class="text-rose-500">*</span></label>
-                        <input type="text" name="judul_materi" required placeholder="Contoh: Video Penjelasan Nilai Tempat" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Judul / Nama Materi (Video / PDF / Kuis) <span class="text-rose-500">*</span></label>
+                        <input type="text" name="judul_materi" id="tambah-judul-materi" required maxlength="100" placeholder="Contoh: Video Penjelasan Nilai Tempat" oninput="sanitizeInputAlphanumeric(this, 'counter-tambah-materi')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <div class="flex items-center justify-between mt-1 text-[10px]">
+                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
+                            <span id="counter-tambah-materi" class="font-bold text-slate-600">0/100</span>
+                        </div>
                     </div>
 
                     <!-- Tipe Materi Selector -->
@@ -158,16 +169,19 @@
                     </div>
 
                     <!-- Tipe Form Input: Video -->
-                    <div id="tambah-input-video" class="space-y-1">
-                        <label class="block text-xs font-bold text-slate-700">Link URL Video (YouTube / MP4) <span class="text-rose-500">*</span></label>
-                        <input type="url" name="url_video" id="tambah-url-video" placeholder="https://www.youtube.com/watch?v=... atau https://example.com/video.mp4" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
-                        <p class="text-[10px] text-slate-400">Wajib URL YouTube valid atau link berkas video .mp4.</p>
+                    <div id="tambah-input-video" class="space-y-1.5">
+                        <label class="block text-xs font-bold text-slate-700">Link URL Video (Hanya YouTube / MP4) <span class="text-rose-500">*</span></label>
+                        <input type="url" name="url_video" id="tambah-url-video" onblur="validateVideoUrlInput(this)" placeholder="https://www.youtube.com/watch?v=... atau https://example.com/video.mp4" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] leading-relaxed flex items-start gap-2">
+                            <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0"></i>
+                            <span><strong>PENTING:</strong> Gunakan tautan YouTube resmi (youtube.com / youtu.be) atau file video langsung (.mp4). Jika video memiliki pembatasan hak cipta/musik dari pemiliknya, sistem telah otomatis menyediakan tombol <strong>Buka di YouTube</strong> agar siswa tetap bisa memutarnya langsung. Tautan Google Drive dilarang.</span>
+                        </div>
                     </div>
 
                     <!-- Tipe Form Input: Dokumen PDF -->
                     <div id="tambah-input-dokumen" class="space-y-1 hidden">
                         <label class="block text-xs font-bold text-slate-700">Berkas Dokumen PDF <span class="text-rose-500">*</span></label>
-                        <input type="file" name="file_pdf" id="tambah-file-pdf" accept="application/pdf" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <input type="file" name="file_pdf" id="tambah-file-pdf" accept="application/pdf,.pdf" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
                         <p class="text-[10px] text-slate-400">Format wajib .pdf, batas ukuran maksimal 10 MB.</p>
                     </div>
 
@@ -178,13 +192,13 @@
                                 <i class="fas fa-circle-info mr-1"></i> Bank Soal Kuis Otomatis
                             </span>
                             <a href="{{ route('guru.quiz.template.download') }}" class="text-[11px] font-bold text-[#13527D] hover:underline flex items-center gap-1">
-                                <i class="fas fa-download"></i> Unduh Template Excel
+                                <i class="fas fa-download"></i> Unduh Template Excel (.xlsx)
                             </a>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">Unggah Soal Excel / CSV (Opsional sekarang, bisa diisi nanti):</label>
-                            <input type="file" name="file_excel" accept=".xlsx,.xls,.csv" class="w-full px-3 py-2 bg-white border border-emerald-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
-                            <p class="text-[10px] text-slate-500 mt-1">Maksimal 50 soal per file. Format kolom: pertanyaan, opsi_a, opsi_b, opsi_c, opsi_d, kunci_jawaban.</p>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Unggah Soal File Excel / CSV (.xlsx, .xls, .csv) (Opsional):</label>
+                            <input type="file" name="file_excel" id="tambah-file-excel" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" onchange="validateExcelFileOnly(this)" class="w-full px-3 py-2 bg-white border border-emerald-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <p class="text-[10px] text-slate-500 mt-1">Menerima format spreadsheet Excel (.xlsx, .xls) atau CSV (.csv). File format lainnya tidak dapat diunggah.</p>
                         </div>
                     </div>
 
@@ -239,15 +253,19 @@
                 </div>
 
                 <!-- Form Edit Dinamis Menyesuaikan Tipe Terpilih -->
-                <form id="form-edit-materi" action="" method="POST" enctype="multipart/form-data" class="space-y-4 hidden">
+                <form id="form-edit-materi" action="" method="POST" enctype="multipart/form-data" onsubmit="return validateFormMateri(this, 'edit-judul-materi')" class="space-y-4 hidden">
                     @csrf
                     @method('PUT')
 
                     <input type="hidden" name="tipe_materi" id="edit-materi-tipe-hidden">
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Judul Materi <span class="text-rose-500">*</span></label>
-                        <input type="text" name="judul_materi" id="edit-judul-materi" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Judul / Nama Materi (Video / PDF / Kuis) <span class="text-rose-500">*</span></label>
+                        <input type="text" name="judul_materi" id="edit-judul-materi" required maxlength="100" oninput="sanitizeInputAlphanumeric(this, 'counter-edit-materi')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <div class="flex items-center justify-between mt-1 text-[10px]">
+                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
+                            <span id="counter-edit-materi" class="font-bold text-slate-600">0/100</span>
+                        </div>
                     </div>
 
                     <!-- Edit Video UI -->
@@ -256,8 +274,12 @@
                         <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 break-all flex items-center justify-between">
                             <span id="edit-current-video-url" class="truncate mr-2 font-mono text-[11px]">-</span>
                         </div>
-                        <label class="block text-xs font-bold text-slate-700 mt-2">Ganti URL Video Baru (Opsional)</label>
-                        <input type="url" name="url_video" id="edit-new-video-url" placeholder="Masukkan URL YouTube / MP4 baru..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <label class="block text-xs font-bold text-slate-700 mt-2">Ganti URL Video Baru (Hanya YouTube / MP4)</label>
+                        <input type="url" name="url_video" id="edit-new-video-url" onblur="validateVideoUrlInput(this)" placeholder="https://www.youtube.com/watch?v=... atau https://example.com/video.mp4" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] leading-relaxed flex items-start gap-2">
+                            <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0"></i>
+                            <span>Hanya menerima link YouTube resmi atau file video langsung .mp4. Jika video YouTube dibatasi penyematannya oleh pemilik, siswa tetap dapat menonton melalui tombol <strong>Buka di YouTube</strong>. Link Google Drive dilarang.</span>
+                        </div>
                     </div>
 
                     <!-- Edit Dokumen UI -->
@@ -270,7 +292,7 @@
                             </a>
                         </div>
                         <label class="block text-xs font-bold text-slate-700 mt-2">Unggah PDF Pengganti (Opsional, Max 10MB)</label>
-                        <input type="file" name="file_pdf" accept="application/pdf" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <input type="file" name="file_pdf" accept="application/pdf,.pdf" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
                     </div>
 
                     <!-- Edit Kuis UI -->
@@ -283,15 +305,15 @@
                                     <i class="fas fa-tasks mr-1"></i> Buka Bank Soal
                                 </a>
                                 <a href="{{ route('guru.quiz.template.download') }}" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-50">
-                                    <i class="fas fa-download mr-1"></i> Download Template Excel
+                                    <i class="fas fa-download mr-1"></i> Download Template Excel (.xlsx)
                                 </a>
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 mb-1">Timpa / Tambah Bank Soal dengan File Excel Baru:</label>
-                            <input type="file" name="file_excel" accept=".xlsx,.xls,.csv" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
-                            <p class="text-[10px] text-slate-400 mt-1">Mengunggah file excel baru akan menambahkan bank soal secara otomatis.</p>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Timpa / Tambah Bank Soal dengan File Excel / CSV Baru:</label>
+                            <input type="file" name="file_excel" id="edit-file-excel" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" onchange="validateExcelFileOnly(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <p class="text-[10px] text-slate-400 mt-1">Menerima format spreadsheet Excel (.xlsx, .xls) atau CSV (.csv). Format file lainnya ditolak.</p>
                         </div>
                     </div>
 
@@ -574,6 +596,111 @@
         } catch (e) {
             alert('Gagal memuat detail materi: ' + e.message);
         }
+    }
+
+    // Sanitization & Validation Helpers
+    function sanitizeInputAlphanumeric(el, counterId) {
+        if (!el) return;
+        const cleaned = el.value.replace(/[^a-zA-Z0-9\s]/g, '');
+        if (el.value !== cleaned) {
+            el.value = cleaned;
+        }
+        if (counterId) {
+            const counter = document.getElementById(counterId);
+            if (counter) {
+                counter.textContent = `${el.value.length}/100`;
+                if (el.value.length >= 100) {
+                    counter.className = 'font-bold text-rose-600';
+                } else {
+                    counter.className = 'font-bold text-slate-600';
+                }
+            }
+        }
+    }
+
+    function validateVideoUrlInput(input) {
+        if (!input || !input.value.trim()) return true;
+        const val = input.value.trim().toLowerCase();
+        if (val.includes('drive.google.com') || val.includes('docs.google.com') || val.includes('google.com/file') || val.includes('google.com/drive') || val.includes('dropbox.com') || val.includes('onedrive.live.com')) {
+            alert('Tautan Google Drive / Cloud dilarang!\n\nUntuk materi video pembelajaran, hanya boleh menggunakan tautan YouTube resmi (youtube.com / youtu.be) atau file video langsung (.mp4). Tautan Google Drive tidak dapat diputar oleh siswa.');
+            input.value = '';
+            input.focus();
+            return false;
+        }
+        const isYt = val.includes('youtube.com/watch') || val.includes('youtu.be/') || val.includes('youtube.com/embed') || val.includes('youtube.com/shorts') || val.includes('youtube.com/live') || val.includes('m.youtube.com');
+        const isMp4 = val.endsWith('.mp4') || val.includes('.mp4?');
+        if (!isYt && !isMp4) {
+            alert('URL Video tidak sah!\n\nHanya diperbolehkan tautan YouTube (youtube.com / youtu.be) atau file video langsung berformat .mp4.');
+            input.focus();
+            return false;
+        }
+        return true;
+    }
+
+    function validateExcelFileOnly(input) {
+        if (!input || !input.files || !input.files[0]) return true;
+        const file = input.files[0];
+        const name = file.name.toLowerCase();
+        if (!name.endsWith('.xlsx') && !name.endsWith('.xls') && !name.endsWith('.csv')) {
+            alert('Format file ditolak!\n\nBagian kuis HANYA menerima berkas spreadsheet Excel (.xlsx, .xls) atau CSV (.csv).\nFile "' + file.name + '" bukan berkas Excel/CSV yang diizinkan.');
+            input.value = '';
+            return false;
+        }
+        return true;
+    }
+
+    function validateFormNoSymbols(form, inputId, fieldName) {
+        const input = document.getElementById(inputId);
+        if (!input) return true;
+        sanitizeInputAlphanumeric(input);
+        const val = input.value.trim();
+        if (val.length < 3) {
+            alert(`${fieldName} minimal terdiri dari 3 karakter.`);
+            input.focus();
+            return false;
+        }
+        if (val.length > 100) {
+            alert(`${fieldName} maksimal 100 karakter.`);
+            input.focus();
+            return false;
+        }
+        if (/[^a-zA-Z0-9\s]/.test(val)) {
+            alert(`${fieldName} tidak boleh mengandung simbol atau karakter khusus.`);
+            input.focus();
+            return false;
+        }
+        return true;
+    }
+
+    function validateFormMateri(form, judulInputId) {
+        if (!validateFormNoSymbols(form, judulInputId, 'Judul / Nama Materi')) {
+            return false;
+        }
+        // If video is selected, validate video URL
+        const isEdit = (form.id === 'form-edit-materi');
+        let tipe = '';
+        if (isEdit) {
+            tipe = document.getElementById('edit-materi-tipe-hidden')?.value || '';
+        } else {
+            const checkedRadio = form.querySelector('input[name="tipe_materi"]:checked');
+            tipe = checkedRadio ? checkedRadio.value : '';
+        }
+
+        if (tipe === 'video') {
+            const vInput = isEdit ? document.getElementById('edit-new-video-url') : document.getElementById('tambah-url-video');
+            if (vInput && vInput.value.trim()) {
+                if (!validateVideoUrlInput(vInput)) return false;
+            }
+        }
+
+        if (tipe === 'kuis') {
+            const xInput = isEdit ? document.getElementById('edit-file-excel') : document.getElementById('tambah-file-excel');
+            if (xInput && xInput.files && xInput.files[0]) {
+                if (!validateExcelFileOnly(xInput)) return false;
+            }
+        }
+
+        return true;
     }
 
     // ESC key listener to close modal
