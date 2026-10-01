@@ -68,6 +68,27 @@ class AbsenScanController extends Controller
             ->first();
 
         if ($absen) {
+            // Jika sebelumnya Alpha otomatis, tingkatkan jadi Hadir (scan susulan)
+            if ($absen->status === 'Alpa') {
+                $absen->update([
+                    'id_guru' => $guruId,
+                    'id_barcode' => $barcode->id_barcode,
+                    'metode' => $metodeVal,
+                    'status' => 'Hadir',
+                    'keterangan' => $keterangan,
+                    'waktu_absen' => $waktu,
+                ]);
+
+                return response()->json([
+                    'status' => 'ok',
+                    'success' => true,
+                    'message' => "Hadir: {$siswa->nm_siswa} (Alpa otomatis diperbarui)",
+                    'siswa' => ['nama' => $siswa->nm_siswa, 'kelas' => $siswa->nama_kelas],
+                    'jam' => $waktu->format('H:i'),
+                    'statusAbsen' => 'Hadir',
+                ]);
+            }
+
             return response()->json([
                 'status'  => 'duplikat',
                 'success' => false,
@@ -179,6 +200,26 @@ class AbsenScanController extends Controller
             ->first();
 
         if ($existing) {
+            // Jika sebelumnya Alpha otomatis, izinkan koreksi jadi Izin/Sakit
+            if ($existing->status === 'Alpa') {
+                $existing->update([
+                    'id_guru' => $this->resolveGuruId($request),
+                    'metode' => 'manual_guru',
+                    'status' => $status,
+                    'keterangan' => $keterangan,
+                    'waktu_absen' => $waktu,
+                ]);
+
+                return response()->json([
+                    'status' => 'ok',
+                    'success' => true,
+                    'message' => "{$status} tercatat: {$siswa->nm_siswa} (Alpa otomatis diperbarui)",
+                    'siswa' => ['nama' => $siswa->nm_siswa, 'kelas' => $siswa->nama_kelas],
+                    'jam' => $waktu->format('H:i'),
+                    'statusAbsen' => $status,
+                ]);
+            }
+
             return response()->json([
                 'status'  => 'duplikat',
                 'success' => false,

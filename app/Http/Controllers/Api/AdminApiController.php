@@ -18,6 +18,9 @@ class AdminApiController extends Controller
         $idRooms = $request->query('id_rooms');
         $status = $request->query('status');
 
+        // Alpha otomatis untuk hari ini (lewat batas tutup) & hari lalu
+        \App\Http\Controllers\AbsensiController::ensureAlphaOtomatis($fecha);
+
         $query = Absen::query()
             ->with(['siswa.kelas', 'guru'])
             ->whereDate('tanggal', $fecha);
