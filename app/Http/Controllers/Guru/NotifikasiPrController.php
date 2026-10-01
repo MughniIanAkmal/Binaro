@@ -152,16 +152,28 @@ class NotifikasiPrController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_pr' => 'required|string|max:150',
+            'nama_pr' => [
+                'required',
+                'string',
+                'min:3',
+                'max:100',
+                'regex:/^[a-zA-Z0-9\s\-_.,()]+$/u',
+            ],
             'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
             'tgl_tenggat' => 'required|date',
-            'deskripsi' => 'nullable|string',
+            'deskripsi' => 'nullable|string|max:1000',
             'kirim_notifikasi' => 'nullable|boolean',
             'target_tipe' => 'nullable|in:semua,kelas,siswa',
             'target_kelas' => 'nullable|exists:kelas,id_rooms',
             'target_siswa' => 'nullable|array',
             'target_siswa.*' => 'exists:siswa,id_siswa',
             'pesan_kustom' => 'nullable|string|max:1000',
+        ], [
+            'nama_pr.required' => 'Nama tugas PR wajib diisi.',
+            'nama_pr.min'      => 'Nama tugas PR minimal 3 karakter.',
+            'nama_pr.max'      => 'Nama tugas PR maksimal 100 karakter.',
+            'nama_pr.regex'    => 'Nama tugas PR hanya boleh berisi huruf, angka, spasi, dan tanda baca standar (- . , _ ()).',
+            'deskripsi.max'    => 'Deskripsi petunjuk PR maksimal 1000 karakter.',
         ]);
 
         // Human Error Guardrail: Validasi Tenggat Waktu
@@ -315,12 +327,24 @@ class NotifikasiPrController extends Controller
         $pr = Pr::findOrFail($id);
 
         $request->validate([
-            'nama_pr' => 'required|string|max:150',
+            'nama_pr' => [
+                'required',
+                'string',
+                'min:3',
+                'max:100',
+                'regex:/^[a-zA-Z0-9\s\-_.,()]+$/u',
+            ],
             'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
             'tgl_tenggat' => 'required|date',
-            'deskripsi' => 'nullable|string',
+            'deskripsi' => 'nullable|string|max:1000',
             'kirim_notifikasi_update' => 'nullable|boolean',
             'pesan_update' => 'nullable|string|max:1000',
+        ], [
+            'nama_pr.required' => 'Nama tugas PR wajib diisi.',
+            'nama_pr.min'      => 'Nama tugas PR minimal 3 karakter.',
+            'nama_pr.max'      => 'Nama tugas PR maksimal 100 karakter.',
+            'nama_pr.regex'    => 'Nama tugas PR hanya boleh berisi huruf, angka, spasi, dan tanda baca standar (- . , _ ()).',
+            'deskripsi.max'    => 'Deskripsi petunjuk PR maksimal 1000 karakter.',
         ]);
 
         // Human Error Guardrail: Validasi Tenggat Waktu

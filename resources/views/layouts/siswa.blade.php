@@ -33,11 +33,11 @@
                 <i class="fas fa-home w-4"></i> Dashboard
             </a>
             <a href="{{ route('siswa.mapel.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('siswa.mapel.*') || request()->routeIs('siswa.materi.*') ? 'active-item' : 'text-white/80 hover:bg-white/10' }}">
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('siswa.mapel.*') || request()->routeIs('siswa.sub_bab.*') || request()->routeIs('siswa.materi.*') || request()->routeIs('siswa.quiz.*') ? 'active-item' : 'text-white/80 hover:bg-white/10' }}">
                 <i class="fas fa-book-open w-4"></i> Pembelajaran
             </a>
             <a href="{{ route('siswa.ujian.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('siswa.ujian.*') || request()->routeIs('siswa.quiz.*') ? 'active-item' : 'text-white/80 hover:bg-white/10' }}">
+               class="flex items-center gap-3 px-3 py-2.5 rounded-lg {{ request()->routeIs('siswa.ujian.*') ? 'active-item' : 'text-white/80 hover:bg-white/10' }}">
                 <i class="fas fa-clipboard-question w-4"></i> Ujian Online
             </a>
             <a href="{{ route('siswa.jadwal_mapel.index') }}"
@@ -49,11 +49,11 @@
                 $notifBelumBacaCount = 0;
                 $activeSiswaId = session('user_id');
                 if ($activeSiswaId && session('user_type') === 'siswa') {
-                    $notifBelumBacaCount = \App\Models\Notifikasi::where('id_siswa', $activeSiswaId)->where('status_baca', 0)->count();
+                    $notifBelumBacaCount = \App\Models\Notifikasi::where('id_siswa', $activeSiswaId)->whereNotNull('id_pr')->where('status_baca', 0)->count();
                 } else {
                     $demoSiswa = \App\Models\Siswa::first();
                     if ($demoSiswa) {
-                        $notifBelumBacaCount = \App\Models\Notifikasi::where('id_siswa', $demoSiswa->id_siswa)->where('status_baca', 0)->count();
+                        $notifBelumBacaCount = \App\Models\Notifikasi::where('id_siswa', $demoSiswa->id_siswa)->whereNotNull('id_pr')->where('status_baca', 0)->count();
                     }
                 }
             @endphp

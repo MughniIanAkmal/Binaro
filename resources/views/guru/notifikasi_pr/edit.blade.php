@@ -52,8 +52,13 @@
                     <label for="nama_pr" class="block text-xs font-bold text-slate-700 mb-1">
                         Judul / Nama Tugas PR <span class="text-rose-500">*</span>
                     </label>
-                    <input type="text" name="nama_pr" id="nama_pr" value="{{ old('nama_pr', $pr->nama_pr) }}" required
+                    <input type="text" name="nama_pr" id="nama_pr" value="{{ old('nama_pr', $pr->nama_pr) }}" required maxlength="100"
+                           oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\-_.,()]/g, ''); document.getElementById('counter-pr-nama-edit').textContent = this.value.length + '/100';"
                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <div class="flex items-center justify-between mt-1 text-[10px]">
+                        <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, spasi, dan tanda baca (- . , _ ()). Simbol dilarang.</span>
+                        <span id="counter-pr-nama-edit" class="font-bold text-slate-600">{{ strlen(old('nama_pr', $pr->nama_pr)) }}/100</span>
+                    </div>
                 </div>
 
                 <!-- Mata Pelajaran -->
@@ -145,7 +150,8 @@
                     <label for="deskripsi" class="block text-xs font-bold text-slate-700 mb-1">
                         Deskripsi & Petunjuk Pengerjaan
                     </label>
-                    <textarea name="deskripsi" id="deskripsi" rows="4"
+                    <textarea name="deskripsi" id="deskripsi" rows="4" maxlength="1000"
+                              placeholder="Tuliskan petunjuk pengerjaan tugas, nomor halaman buku paket, atau instruksi khusus untuk siswa (maksimal 1000 karakter)..."
                               class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">{{ old('deskripsi', $pr->deskripsi) }}</textarea>
                 </div>
             </div>

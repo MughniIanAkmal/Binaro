@@ -45,7 +45,8 @@ class SiswaNotifikasiPrController extends Controller
         $search = $request->query('search');
 
         $query = Notifikasi::with(['pr.mataPelajaran', 'guru'])
-            ->where('id_siswa', $siswa->id_siswa);
+            ->where('id_siswa', $siswa->id_siswa)
+            ->whereNotNull('id_pr');
 
         if ($filter === 'belum_dibaca') {
             $query->where('status_baca', 0);
@@ -64,10 +65,11 @@ class SiswaNotifikasiPrController extends Controller
         $notifikasis = $query->latest('id_notifikasi')->paginate(10)->withQueryString();
 
         // KPI Stats
-        $totalNotif     = Notifikasi::where('id_siswa', $siswa->id_siswa)->count();
-        $belumDibaca    = Notifikasi::where('id_siswa', $siswa->id_siswa)->where('status_baca', 0)->count();
-        $sudahDibaca    = Notifikasi::where('id_siswa', $siswa->id_siswa)->where('status_baca', 1)->count();
+        $totalNotif     = Notifikasi::where('id_siswa', $siswa->id_siswa)->whereNotNull('id_pr')->count();
+        $belumDibaca    = Notifikasi::where('id_siswa', $siswa->id_siswa)->whereNotNull('id_pr')->where('status_baca', 0)->count();
+        $sudahDibaca    = Notifikasi::where('id_siswa', $siswa->id_siswa)->whereNotNull('id_pr')->where('status_baca', 1)->count();
         $prAktif        = Notifikasi::where('id_siswa', $siswa->id_siswa)
+                            ->whereNotNull('id_pr')
                             ->whereHas('pr', fn($p) => $p->where('tgl_tenggat', '>=', Carbon::now()))
                             ->count();
 
@@ -90,6 +92,7 @@ class SiswaNotifikasiPrController extends Controller
 
         $notifikasi = Notifikasi::with(['pr.mataPelajaran', 'pr.guru', 'guru'])
             ->where('id_siswa', $siswa->id_siswa)
+            ->whereNotNull('id_pr')
             ->findOrFail($id);
 
         // Otomatis tandai baca saat halaman detail dibuka
@@ -100,6 +103,7 @@ class SiswaNotifikasiPrController extends Controller
         // Notifikasi lain untuk PR yang sama (dari guru yang sama)
         $notifikasiLain = Notifikasi::with('pr.mataPelajaran')
             ->where('id_siswa', $siswa->id_siswa)
+            ->whereNotNull('id_pr')
             ->where('id_pr', $notifikasi->id_pr)
             ->where('id_notifikasi', '!=', $notifikasi->id_notifikasi)
             ->latest('id_notifikasi')
@@ -120,7 +124,9 @@ class SiswaNotifikasiPrController extends Controller
         }
 
         try {
-            $notifikasi = Notifikasi::where('id_siswa', $siswa->id_siswa)->findOrFail($id);
+            $notifikasi = Notifikasi::where('id_siswa', $siswa->id_siswa)
+                ->whereNotNull('id_pr')
+                ->findOrFail($id);
 
             if ($notifikasi->status_baca) {
                 return back()->with('info', 'Notifikasi ini sudah ditandai sebagai dibaca sebelumnya.');
@@ -146,6 +152,7 @@ class SiswaNotifikasiPrController extends Controller
 
         try {
             $jumlah = Notifikasi::where('id_siswa', $siswa->id_siswa)
+                ->whereNotNull('id_pr')
                 ->where('status_baca', 0)
                 ->count();
 
@@ -154,6 +161,7 @@ class SiswaNotifikasiPrController extends Controller
             }
 
             Notifikasi::where('id_siswa', $siswa->id_siswa)
+                ->whereNotNull('id_pr')
                 ->where('status_baca', 0)
                 ->update(['status_baca' => 1]);
 

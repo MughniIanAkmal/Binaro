@@ -16,38 +16,7 @@
         <p class="text-xs text-slate-500">Isi rincian tugas PR di bawah dan kirimkan notifikasi pengingat ke siswa.</p>
     </div>
 
-    <!-- Error Validation Alert (Laravel Validation) -->
-    @if($errors->any())
-    <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl space-y-1">
-        <div class="font-bold flex items-center gap-2">
-            <i class="fas fa-exclamation-triangle text-rose-600"></i> Mohon periksa inputan berikut:
-        </div>
-        <ul class="list-disc list-inside space-y-0.5 pl-2 text-[11px]">
-            @foreach($errors->all() as $err)
-                <li>{{ $err }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
 
-    <!-- Try-Catch Error Alert (Duplikasi / Exception dari Controller) -->
-    @if(session('error'))
-    <div id="create-error-alert" class="p-4 bg-rose-50 border-l-4 border-rose-500 text-rose-800 text-xs rounded-xl flex items-start gap-3 shadow-sm animate-pulse-once">
-        <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center text-sm shrink-0">
-            <i class="fas fa-circle-xmark"></i>
-        </div>
-        <div class="flex-1">
-            <div class="font-extrabold text-rose-700 mb-0.5 flex items-center gap-1.5">
-                <i class="fas fa-triangle-exclamation text-[10px]"></i>
-                Gagal Memproses — Terjadi Kesalahan
-            </div>
-            <p class="text-[11px] leading-relaxed text-rose-700">{{ session('error') }}</p>
-        </div>
-        <button onclick="document.getElementById('create-error-alert').remove()" class="text-rose-400 hover:text-rose-700 text-sm shrink-0" title="Tutup">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    @endif
 
     <form action="{{ route('guru.notifikasi_pr.store') }}" method="POST" id="form-create-pr" onsubmit="return validateBeforeSubmit()" class="space-y-6">
         @csrf
@@ -70,10 +39,14 @@
                     <label for="nama_pr" class="block text-xs font-bold text-slate-700 mb-1">
                         Judul / Nama Tugas PR <span class="text-rose-500">*</span>
                     </label>
-                    <input type="text" name="nama_pr" id="nama_pr" value="{{ old('nama_pr') }}" required
-                           oninput="updateLivePreview()"
+                    <input type="text" name="nama_pr" id="nama_pr" value="{{ old('nama_pr') }}" required maxlength="100"
+                           oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\-_.,()]/g, ''); document.getElementById('counter-pr-nama').textContent = this.value.length + '/100'; updateLivePreview();"
                            placeholder="Contoh: Latihan Soal Cerita Operasi Hitung Campuran"
                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <div class="flex items-center justify-between mt-1 text-[10px]">
+                        <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, spasi, dan tanda baca (- . , _ ()). Simbol dilarang.</span>
+                        <span id="counter-pr-nama" class="font-bold text-slate-600">{{ strlen(old('nama_pr', '')) }}/100</span>
+                    </div>
                 </div>
 
                 <!-- Mata Pelajaran -->
@@ -164,8 +137,8 @@
                     <label for="deskripsi" class="block text-xs font-bold text-slate-700 mb-1">
                         Deskripsi & Petunjuk Pengerjaan
                     </label>
-                    <textarea name="deskripsi" id="deskripsi" rows="4"
-                              placeholder="Tuliskan petunjuk pengerjaan tugas, nomor halaman buku paket, atau instruksi khusus untuk siswa..."
+                    <textarea name="deskripsi" id="deskripsi" rows="4" maxlength="1000"
+                              placeholder="Tuliskan petunjuk pengerjaan tugas, nomor halaman buku paket, atau instruksi khusus untuk siswa (maksimal 1000 karakter)..."
                               class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">{{ old('deskripsi') }}</textarea>
                 </div>
             </div>

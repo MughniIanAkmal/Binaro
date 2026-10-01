@@ -25,18 +25,6 @@
         </div>
     </div>
 
-    <!-- Alert Notifications -->
-    @if(session('success'))
-    <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center justify-between shadow-sm">
-        <div class="flex items-center gap-2.5">
-            <i class="fas fa-check-circle text-emerald-600 text-sm"></i>
-            <span class="font-semibold">{{ session('success') }}</span>
-        </div>
-        <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800 text-xs">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    @endif
 
     <!-- Card 1: Banner Rincian Tugas PR -->
     <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">

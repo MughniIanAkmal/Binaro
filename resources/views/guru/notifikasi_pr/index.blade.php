@@ -27,34 +27,7 @@
         </div>
     </div>
 
-    <!-- Alert Notifications -->
-    @if(session('success'))
-    <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center justify-between shadow-sm animate-fade-in">
-        <div class="flex items-center gap-2.5">
-            <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <span class="font-semibold">{{ session('success') }}</span>
-        </div>
-        <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-800 text-xs">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    @endif
 
-    @if(session('error'))
-    <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center justify-between shadow-sm animate-fade-in">
-        <div class="flex items-center gap-2.5">
-            <div class="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center text-sm font-bold">
-                <i class="fas fa-exclamation-circle"></i>
-            </div>
-            <span class="font-semibold">{{ session('error') }}</span>
-        </div>
-        <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-800 text-xs">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    @endif
 
     <!-- 4 KPI Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
