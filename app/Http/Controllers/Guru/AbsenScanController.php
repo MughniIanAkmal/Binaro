@@ -24,6 +24,7 @@ class AbsenScanController extends Controller
             ->get();
 
         $totalSiswa = Siswa::count();
+        $tercatatCount = $hariIni->count();
         $hadirCount = $hariIni->where('status', 'Hadir')->count();
         $izinSakitCount = $hariIni->whereIn('status', ['Izin', 'Sakit'])->count();
 
@@ -33,7 +34,7 @@ class AbsenScanController extends Controller
             'kelas' => $s->nama_kelas,
         ])->values();
 
-        return view('guru.absen.scan', compact('hariIni', 'totalSiswa', 'hadirCount', 'izinSakitCount', 'daftarNama'));
+        return view('guru.absen.scan', compact('hariIni', 'totalSiswa', 'tercatatCount', 'hadirCount', 'izinSakitCount', 'daftarNama'));
     }
 
     /**
