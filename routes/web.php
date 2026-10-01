@@ -115,11 +115,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             Route::get('/export/{idQuiz}', [QuizController::class, 'exportRekap'])->name('export');
         });
 
-<<<<<<< Updated upstream
         // Kelola Notifikasi PR (CRUD + Kirim Notifikasi ke Siswa)
-=======
-        // Notifikasi & Pekerjaan Rumah (PR)
->>>>>>> Stashed changes
         Route::prefix('notifikasi-pr')->name('notifikasi_pr.')->group(function () {
             Route::get('/', [NotifikasiPrController::class, 'index'])->name('index');
             Route::get('/create', [NotifikasiPrController::class, 'create'])->name('create');

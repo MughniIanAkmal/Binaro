@@ -75,7 +75,6 @@
                 <span class="flex items-center gap-3">
                     <i class="fas fa-file-signature w-4 text-amber-300"></i> RPP & Modul Ajar
                 </span>
-                <span class="bg-amber-400 text-slate-900 text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm">Baru</span>
             </a>
         </nav>
 
