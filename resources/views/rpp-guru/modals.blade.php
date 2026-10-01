@@ -46,55 +46,84 @@
 
             <!-- Judul RPP -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Topik / Judul Modul Ajar <span class="text-rose-500">*</span></label>
-                <input type="text" name="judul_rpp" required placeholder="Contoh: Konsep Pecahan Senilai & Membandingkan Pecahan"
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Topik / Judul Modul Ajar <span class="text-rose-500">*</span></span>
+                    <span id="counter-tambah-judul" class="text-[10px] text-slate-400 font-normal">0/100</span>
+                </label>
+                <input type="text" name="judul_rpp" id="tambah-judul-rpp" required maxlength="100" placeholder="Contoh: Konsep Pecahan Senilai dan Membandingkan Pecahan"
+                       oninput="sanitizeAlphanumericOnly(this, 'counter-tambah-judul', 100)"
                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                <p class="text-[10px] text-slate-400 mt-1">Maks. 100 karakter. Hanya huruf, angka, dan spasi (tanpa simbol).</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <!-- Fase -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Fase Pembelajaran</label>
-                    <input type="text" name="fase" value="Fase B" placeholder="Fase B"
+                    <input type="text" name="fase" value="Fase B" placeholder="Fase B" maxlength="20"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
                 </div>
 
                 <!-- Modul Ke -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Modul / Bab</label>
-                    <input type="text" name="modul_ke" placeholder="Modul #28"
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Nomor Modul / Bab</span>
+                        <span id="counter-tambah-modul" class="text-[10px] text-slate-400 font-normal">0/20</span>
+                    </label>
+                    <input type="text" name="modul_ke" id="tambah-modul-ke" maxlength="20" placeholder="Contoh: Modul 28"
+                           oninput="sanitizeAlphanumericOnly(this, 'counter-tambah-modul', 20)"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-400 mt-0.5">Maks. 20 karakter, tanpa simbol.</p>
                 </div>
 
                 <!-- Alokasi Waktu -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Alokasi Waktu (JP)</label>
-                    <input type="text" name="alokasi_waktu" placeholder="2 JP (2 x 35 Menit)"
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Alokasi Waktu (JP)</span>
+                        <span class="text-[10px] text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">1JP = 45 Menit</span>
+                    </label>
+                    <input type="text" name="alokasi_waktu" id="tambah-alokasi-waktu" maxlength="4" placeholder="2 JP"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-500 mt-0.5"><span class="font-semibold text-amber-700">Note: 1JP = 45 Menit</span> (Maks. 4 huruf, contoh: 2 JP)</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Target Jadwal -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Target Roster Jadwal</label>
-                    <input type="text" name="target_jadwal" placeholder="Senin, 08.00 - 09.30 WIB - Jam ke-1 & 2"
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Target Roster Jadwal</span>
+                        <span id="counter-tambah-jadwal" class="text-[10px] text-slate-400 font-normal">0/50</span>
+                    </label>
+                    <input type="text" name="target_jadwal" id="tambah-target-jadwal" maxlength="50" placeholder="Senin, 08.00 - 09.30 WIB"
+                           oninput="updateLengthCounter(this, 'counter-tambah-jadwal', 50)"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 50 karakter.</p>
                 </div>
 
                 <!-- Ruang -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Ruang / Lokasi Belajar</label>
-                    <input type="text" name="ruang" placeholder="Ruang Kelas 4B (Gedung Melati)"
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Ruang / Lokasi Belajar</span>
+                        <span id="counter-tambah-ruang" class="text-[10px] text-slate-400 font-normal">0/50</span>
+                    </label>
+                    <input type="text" name="ruang" id="tambah-ruang" maxlength="50" placeholder="Ruang Kelas 4B"
+                           oninput="updateLengthCounter(this, 'counter-tambah-ruang', 50)"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 50 karakter.</p>
                 </div>
             </div>
 
             <!-- Capaian Pembelajaran (TP) -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Capaian Pembelajaran (TP) & Deskripsi Ringkas</label>
-                <textarea name="deskripsi" rows="3" placeholder="Tuliskan tujuan pembelajaran yang dicapai peserta didik dalam aktivitas materi ini..."
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Capaian Pembelajaran (TP) & Deskripsi Ringkas</span>
+                    <span id="counter-tambah-deskripsi" class="text-[10px] text-slate-400 font-normal">0/500</span>
+                </label>
+                <textarea name="deskripsi" id="tambah-deskripsi" rows="3" maxlength="500" placeholder="Tuliskan tujuan pembelajaran yang dicapai peserta didik dalam aktivitas materi ini (maksimal 500 karakter)..."
+                          oninput="updateLengthCounter(this, 'counter-tambah-deskripsi', 500)"
                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]"></textarea>
+                <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 500 karakter.</p>
             </div>
 
             <!-- Komponen Checklist Interaktif -->
@@ -122,9 +151,15 @@
 
             <!-- Tags Kustom -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Label / Tag Tambahan (Pisahkan dengan koma)</label>
-                <input type="text" name="custom_tags" placeholder="Tujuan Pembelajaran, Video Animasi Interaktif, 10 Soal Proyektor, LKPD Digital Siap Cetak"
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Label / Tag Tambahan (Tanpa Simbol)</span>
+                    <span class="text-[10px] text-rose-500 font-semibold">Simbol Dilarang</span>
+                </label>
+                <input type="text" name="custom_tags" id="tambah-custom-tags" maxlength="150"
+                       placeholder="Tujuan Pembelajaran, Video Animasi Interaktif, LKPD Cetak"
+                       oninput="sanitizeTagsInput(this)"
                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                <p class="text-[10px] text-slate-400 mt-1">Pisahkan antar label dengan koma. Hanya huruf dan angka, dilarang simbol.</p>
             </div>
 
             <!-- File Upload -->
@@ -132,6 +167,14 @@
                 <label class="block text-xs font-bold text-slate-700 mb-1">Unggah Berkas Modul RPP (PDF / DOCX)</label>
                 <input type="file" name="file_rpp" accept=".pdf,.docx,.doc"
                        class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-[#13527D] hover:file:bg-sky-100 cursor-pointer">
+            </div>
+
+            <!-- Info Status Supervisi -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5">
+                <i class="fas fa-circle-info text-amber-600 mt-0.5 text-xs"></i>
+                <div class="text-[11px] text-amber-900 leading-relaxed">
+                    <span class="font-bold">Alur Persetujuan Admin:</span> Setelah diajukan, RPP berstatus <strong>Menunggu Persetujuan Admin</strong> dan belum bisa langsung di-apply mengajar hingga di-accept/disetujui oleh Admin.
+                </div>
             </div>
 
             <!-- Modal Footer -->
@@ -142,8 +185,8 @@
                 <button type="submit" name="action" value="draft" class="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
                     Simpan Draf
                 </button>
-                <button type="submit" name="action" value="publish" class="px-5 py-2 text-xs font-bold text-white bg-[#13527D] hover:bg-[#0E3D5D] rounded-xl shadow-sm transition">
-                    Simpan & Ajukan
+                <button type="submit" name="action" value="publish" class="px-5 py-2 text-xs font-bold text-white bg-[#13527D] hover:bg-[#0E3D5D] rounded-xl shadow-sm transition flex items-center gap-1.5">
+                    <i class="fas fa-paper-plane text-[10px]"></i> Ajukan ke Admin
                 </button>
             </div>
         </form>
@@ -197,66 +240,92 @@
 
             <!-- Judul RPP -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Topik / Judul Modul Ajar <span class="text-rose-500">*</span></label>
-                <input type="text" name="judul_rpp" id="edit-judul-rpp" required
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Topik / Judul Modul Ajar <span class="text-rose-500">*</span></span>
+                    <span id="counter-edit-judul" class="text-[10px] text-slate-400 font-normal">0/100</span>
+                </label>
+                <input type="text" name="judul_rpp" id="edit-judul-rpp" required maxlength="100"
+                       oninput="sanitizeAlphanumericOnly(this, 'counter-edit-judul', 100)"
                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                <p class="text-[10px] text-slate-400 mt-1">Maks. 100 karakter. Hanya huruf, angka, dan spasi (tanpa simbol).</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <!-- Fase -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1">Fase Pembelajaran</label>
-                    <input type="text" name="fase" id="edit-fase" placeholder="Fase B"
+                    <input type="text" name="fase" id="edit-fase" placeholder="Fase B" maxlength="20"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
                 </div>
 
                 <!-- Modul Ke -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Nomor Modul / Bab</label>
-                    <input type="text" name="modul_ke" id="edit-modul-ke" placeholder="Modul #28"
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Nomor Modul / Bab</span>
+                        <span id="counter-edit-modul" class="text-[10px] text-slate-400 font-normal">0/20</span>
+                    </label>
+                    <input type="text" name="modul_ke" id="edit-modul-ke" maxlength="20" placeholder="Contoh: Modul 28"
+                           oninput="sanitizeAlphanumericOnly(this, 'counter-edit-modul', 20)"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-400 mt-0.5">Maks. 20 karakter, tanpa simbol.</p>
                 </div>
 
                 <!-- Alokasi Waktu -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Alokasi Waktu (JP)</label>
-                    <input type="text" name="alokasi_waktu" id="edit-alokasi-waktu" placeholder="2 JP (2 x 35 Menit)"
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Alokasi Waktu (JP)</span>
+                        <span class="text-[10px] text-amber-700 font-bold bg-amber-100 px-1.5 py-0.5 rounded border border-amber-200">1JP = 45 Menit</span>
+                    </label>
+                    <input type="text" name="alokasi_waktu" id="edit-alokasi-waktu" maxlength="4" placeholder="2 JP"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-500 mt-0.5"><span class="font-semibold text-amber-700">Note: 1JP = 45 Menit</span> (Maks. 4 huruf, contoh: 2 JP)</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Target Jadwal -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Target Roster Jadwal</label>
-                    <input type="text" name="target_jadwal" id="edit-target-jadwal" placeholder="Senin, 08.00 - 09.30 WIB"
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Target Roster Jadwal</span>
+                        <span id="counter-edit-jadwal" class="text-[10px] text-slate-400 font-normal">0/50</span>
+                    </label>
+                    <input type="text" name="target_jadwal" id="edit-target-jadwal" maxlength="50" placeholder="Senin, 08.00 - 09.30 WIB"
+                           oninput="updateLengthCounter(this, 'counter-edit-jadwal', 50)"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 50 karakter.</p>
                 </div>
 
                 <!-- Ruang -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Ruang / Lokasi Belajar</label>
-                    <input type="text" name="ruang" id="edit-ruang" placeholder="Ruang Kelas 4B"
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Ruang / Lokasi Belajar</span>
+                        <span id="counter-edit-ruang" class="text-[10px] text-slate-400 font-normal">0/50</span>
+                    </label>
+                    <input type="text" name="ruang" id="edit-ruang" maxlength="50" placeholder="Ruang Kelas 4B"
+                           oninput="updateLengthCounter(this, 'counter-edit-ruang', 50)"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 50 karakter.</p>
                 </div>
             </div>
 
-            <!-- Status Supervisi -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Status Modul</label>
-                <select name="status" id="edit-status" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
-                    <option value="draft">Draf (Belum Lengkap)</option>
-                    <option value="menunggu_review">Menunggu Review</option>
-                    <option value="terverifikasi">Terverifikasi / Siap Ajar</option>
-                    <option value="perlu_revisi">Perlu Revisi</option>
-                </select>
+            <!-- Info Status Supervisi -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5">
+                <i class="fas fa-circle-info text-amber-600 mt-0.5 text-xs"></i>
+                <div class="text-[11px] text-amber-900 leading-relaxed">
+                    <span class="font-bold">Alur Persetujuan Admin:</span> Setelah diajukan/diperbarui, RPP akan berstatus <strong>Menunggu Persetujuan Admin</strong> dan belum bisa langsung di-apply mengajar hingga di-accept/disetujui oleh Administrator.
+                </div>
             </div>
 
             <!-- Capaian Pembelajaran (TP) -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Capaian Pembelajaran (TP)</label>
-                <textarea name="deskripsi" id="edit-deskripsi" rows="3"
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Capaian Pembelajaran (TP)</span>
+                    <span id="counter-edit-deskripsi" class="text-[10px] text-slate-400 font-normal">0/500</span>
+                </label>
+                <textarea name="deskripsi" id="edit-deskripsi" rows="3" maxlength="500"
+                          oninput="updateLengthCounter(this, 'counter-edit-deskripsi', 500)"
                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]"></textarea>
+                <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 500 karakter.</p>
             </div>
 
             <!-- Komponen Checklist Interaktif -->
@@ -282,6 +351,19 @@
                 </div>
             </div>
 
+            <!-- Tags Kustom Edit -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Label / Tag Tambahan (Tanpa Simbol)</span>
+                    <span class="text-[10px] text-rose-500 font-semibold">Simbol Dilarang</span>
+                </label>
+                <input type="text" name="custom_tags" id="edit-custom-tags" maxlength="150"
+                       placeholder="Tujuan Belajar, Video Animasi, Soal Proyektor, LKPD Cetak"
+                       oninput="sanitizeTagsInput(this)"
+                       class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                <p class="text-[10px] text-slate-400 mt-1">Pisahkan antar label dengan koma. Hanya huruf dan angka, dilarang simbol.</p>
+            </div>
+
             <!-- File Upload -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Ganti Berkas Modul (Opsional)</label>
@@ -294,8 +376,11 @@
                 <button type="button" onclick="closeModalEditRpp()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
                     Batal
                 </button>
-                <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-[#13527D] hover:bg-[#0E3D5D] rounded-xl shadow-sm transition">
-                    Simpan Perubahan
+                <button type="submit" name="action" value="draft" class="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                    Simpan Draf
+                </button>
+                <button type="submit" name="action" value="publish" class="px-5 py-2 text-xs font-bold text-white bg-[#13527D] hover:bg-[#0E3D5D] rounded-xl shadow-sm transition flex items-center gap-1.5">
+                    <i class="fas fa-paper-plane text-[10px]"></i> Ajukan ke Admin
                 </button>
             </div>
         </form>
@@ -350,13 +435,20 @@
             </div>
 
             <!-- Status Supervisi -->
-            <div class="flex items-center justify-between p-3.5 rounded-xl bg-sky-50/70 border border-sky-100">
-                <div>
-                    <span class="text-[10px] font-bold text-sky-800 uppercase block">STATUS SUPERVISI</span>
-                    <span class="font-black text-sky-950 uppercase" id="detail-status">-</span>
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1">STATUS SUPERVISI ADMIN</span>
+                        <div id="detail-status-badge">
+                            <!-- Filled dynamically -->
+                        </div>
+                    </div>
+                    <div id="detail-download-btn-container">
+                        <!-- Dynamic Download Button -->
+                    </div>
                 </div>
-                <div id="detail-download-btn-container">
-                    <!-- Dynamic Download Button -->
+                <div id="detail-status-note">
+                    <!-- Status explanatory note / revision note -->
                 </div>
             </div>
         </div>
@@ -371,8 +463,56 @@
 
 <!-- ================= JAVASCRIPT MODALS & CONTROLS ================= -->
 <script>
+    function sanitizeAlphanumericOnly(el, counterId, maxLen) {
+        if (!el) return;
+        const cleaned = el.value.replace(/[^a-zA-Z0-9\s]/g, '');
+        if (el.value !== cleaned) {
+            el.value = cleaned;
+        }
+        if (counterId && maxLen) {
+            const counter = document.getElementById(counterId);
+            if (counter) {
+                counter.textContent = `${el.value.length}/${maxLen}`;
+                if (el.value.length >= maxLen) {
+                    counter.className = 'text-[10px] font-bold text-rose-600';
+                } else {
+                    counter.className = 'text-[10px] text-slate-400 font-normal';
+                }
+            }
+        }
+    }
+
+    function updateLengthCounter(el, counterId, maxLen) {
+        if (!el) return;
+        if (counterId && maxLen) {
+            const counter = document.getElementById(counterId);
+            if (counter) {
+                counter.textContent = `${el.value.length}/${maxLen}`;
+                if (el.value.length >= maxLen) {
+                    counter.className = 'text-[10px] font-bold text-rose-600';
+                } else {
+                    counter.className = 'text-[10px] text-slate-400 font-normal';
+                }
+            }
+        }
+    }
+
+    function sanitizeTagsInput(el) {
+        if (!el) return;
+        // Hanya huruf, angka, spasi, dan koma sebagai pemisah
+        const cleaned = el.value.replace(/[^a-zA-Z0-9\s,]/g, '');
+        if (el.value !== cleaned) {
+            el.value = cleaned;
+        }
+    }
+
     function openModalTambahRpp() {
         document.getElementById('modal-tambah-rpp').classList.remove('hidden');
+        sanitizeAlphanumericOnly(document.getElementById('tambah-judul-rpp'), 'counter-tambah-judul', 100);
+        sanitizeAlphanumericOnly(document.getElementById('tambah-modul-ke'), 'counter-tambah-modul', 20);
+        updateLengthCounter(document.getElementById('tambah-target-jadwal'), 'counter-tambah-jadwal', 50);
+        updateLengthCounter(document.getElementById('tambah-ruang'), 'counter-tambah-ruang', 50);
+        updateLengthCounter(document.getElementById('tambah-deskripsi'), 'counter-tambah-deskripsi', 500);
     }
     function closeModalTambahRpp() {
         document.getElementById('modal-tambah-rpp').classList.add('hidden');
@@ -389,7 +529,6 @@
         document.getElementById('edit-alokasi-waktu').value = rpp.alokasi_waktu || '';
         document.getElementById('edit-target-jadwal').value = rpp.target_jadwal || '';
         document.getElementById('edit-ruang').value = rpp.ruang || '';
-        document.getElementById('edit-status').value = rpp.status || 'draft';
         document.getElementById('edit-deskripsi').value = rpp.deskripsi || '';
 
         const check = rpp.komponen_checklist || {};
@@ -397,6 +536,15 @@
         document.getElementById('edit-check-video').checked = !!check.video;
         document.getElementById('edit-check-soal').checked = !!check.soal_proyektor;
         document.getElementById('edit-check-lkpd').checked = !!check.lkpd;
+
+        const tags = (check && check.tags) ? check.tags : [];
+        document.getElementById('edit-custom-tags').value = Array.isArray(tags) ? tags.join(', ') : (tags || '');
+
+        sanitizeAlphanumericOnly(document.getElementById('edit-judul-rpp'), 'counter-edit-judul', 100);
+        sanitizeAlphanumericOnly(document.getElementById('edit-modul-ke'), 'counter-edit-modul', 20);
+        updateLengthCounter(document.getElementById('edit-target-jadwal'), 'counter-edit-jadwal', 50);
+        updateLengthCounter(document.getElementById('edit-ruang'), 'counter-edit-ruang', 50);
+        updateLengthCounter(document.getElementById('edit-deskripsi'), 'counter-edit-deskripsi', 500);
 
         document.getElementById('modal-edit-rpp').classList.remove('hidden');
     }
@@ -417,7 +565,27 @@
             document.getElementById('detail-alokasi').innerText = data.alokasi_waktu || '2 JP (2 x 35 Menit)';
             document.getElementById('detail-jadwal').innerText = `${data.target_jadwal || '-'} (${data.ruang || 'Ruang Kelas'})`;
             document.getElementById('detail-tp').innerText = data.deskripsi || 'Capaian Pembelajaran belum diisi.';
-            document.getElementById('detail-status').innerText = data.status || 'DRAF';
+
+            const statusBadge = document.getElementById('detail-status-badge');
+            const statusNote = document.getElementById('detail-status-note');
+            
+            if (data.status === 'terverifikasi') {
+                statusBadge.innerHTML = `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1.5"><i class="fas fa-circle-check text-emerald-600"></i> Disetujui & Siap Ajar</span>`;
+                statusNote.innerHTML = `<p class="text-[11px] text-emerald-700 bg-emerald-50/80 p-2.5 rounded-lg border border-emerald-100 mt-2"><i class="fas fa-info-circle mr-1"></i> Modul ajar telah disetujui (di-accept) oleh Admin dan siap diaplikasikan untuk kegiatan belajar mengajar.</p>`;
+            } else if (data.status === 'menunggu_review') {
+                statusBadge.innerHTML = `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200 inline-flex items-center gap-1.5"><i class="fas fa-clock text-amber-600 animate-pulse"></i> Menunggu Persetujuan Admin</span>`;
+                statusNote.innerHTML = `<p class="text-[11px] text-amber-800 bg-amber-50 p-2.5 rounded-lg border border-amber-200 mt-2"><i class="fas fa-hourglass-half mr-1"></i> Modul ini telah terkirim, namun belum bisa langsung di-apply karena masih menunggu proses review & persetujuan dari Administrator sekolah.</p>`;
+            } else if (data.status === 'perlu_revisi') {
+                statusBadge.innerHTML = `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200 inline-flex items-center gap-1.5"><i class="fas fa-circle-exclamation text-rose-600"></i> Perlu Revisi</span>`;
+                let revHtml = `<div class="text-[11px] text-rose-900 bg-rose-50 p-2.5 rounded-lg border border-rose-200 mt-2 space-y-1">
+                    <p class="font-bold"><i class="fas fa-circle-exclamation mr-1"></i> Catatan Revisi dari Admin:</p>
+                    <p class="italic text-rose-800 font-normal">${data.catatan_revisi || 'Silakan tinjau kembali berkas dan kelengkapan modul ajar sesuai petunjuk supervisi.'}</p>
+                </div>`;
+                statusNote.innerHTML = revHtml;
+            } else {
+                statusBadge.innerHTML = `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-200 text-slate-700 border border-slate-300 inline-flex items-center gap-1.5"><i class="fas fa-file-dashed-line text-slate-500"></i> Draf (Belum Diajukan)</span>`;
+                statusNote.innerHTML = `<p class="text-[11px] text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200 mt-2"><i class="fas fa-pencil mr-1"></i> Modul ajar masih berstatus draf pribadi dan belum dikirimkan ke Admin.</p>`;
+            }
 
             const dlBtn = document.getElementById('detail-download-btn-container');
             dlBtn.innerHTML = `

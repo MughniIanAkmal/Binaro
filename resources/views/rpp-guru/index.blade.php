@@ -1,7 +1,7 @@
 @extends('layouts.guru')
 
 @section('content')
-<div class="space-y-6 pb-12">
+<div class="p-8 space-y-6 pb-12">
 
     <!-- Top Bar / Breadcrumb & Header Title -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -40,12 +40,10 @@
         <!-- 1. Total RPP Tersedia -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between transition hover:shadow-sm">
             <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">TOTAL RPP TERSEDIA</span>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">TOTAL MODUL RPP</span>
                 <div class="text-3xl font-black text-slate-900 mt-1 leading-none">{{ $kpiGuru['total'] }}</div>
                 <p class="text-[11px] text-slate-500 font-medium mt-1.5 flex items-center gap-1.5">
-                    <span>Modul Ajar</span>
-                    <span class="w-1 h-1 rounded-full bg-slate-300"></span>
-                    <span>Fase B Kelas 4 SD</span>
+                    <span>Modul Ajar Diajukan</span>
                 </p>
             </div>
             <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center text-xl shadow-xs">
@@ -53,44 +51,46 @@
             </div>
         </div>
 
-        <!-- 2. Siap Ajar Pekan Ini -->
+        <!-- 2. Siap Ajar (Disetujui Admin) -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between transition hover:shadow-sm">
             <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">SIAP AJAR PEKAN INI</span>
-                <div class="text-3xl font-black text-slate-900 mt-1 leading-none">{{ $kpiGuru['siap_ajar'] }}</div>
-                <p class="text-[11px] text-slate-500 font-medium mt-1.5 flex items-center gap-1.5">
-                    <span>Sesuai Roster Senin – Kamis</span>
+                <span class="text-[10px] font-black text-emerald-600 uppercase tracking-wider block">DISETUJUI & SIAP AJAR</span>
+                <div class="text-3xl font-black text-emerald-700 mt-1 leading-none">{{ $kpiGuru['siap_ajar'] }}</div>
+                <p class="text-[11px] text-emerald-600 font-medium mt-1.5 flex items-center gap-1.5">
+                    <i class="fas fa-check-double text-[10px]"></i>
+                    <span>Telah di-Accept Admin</span>
                 </p>
             </div>
             <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-xl shadow-xs">
-                <i class="fas fa-calendar-check"></i>
+                <i class="fas fa-circle-check"></i>
             </div>
         </div>
 
-        <!-- 3. Media Proyektor & Kuis -->
+        <!-- 3. Menunggu Persetujuan Admin -->
         <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between transition hover:shadow-sm">
             <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">MEDIA PROYEKTOR & KUIS</span>
-                <div class="text-3xl font-black text-slate-900 mt-1 leading-none">{{ $kpiGuru['media_proyektor'] }}</div>
-                <p class="text-[11px] text-slate-500 font-medium mt-1.5 flex items-center gap-1.5">
-                    <span>Video 3D & Lembar Interaktif</span>
-                </p>
-            </div>
-            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[#13527D] border border-blue-100 flex items-center justify-center text-xl shadow-xs">
-                <i class="fas fa-chalkboard-user"></i>
-            </div>
-        </div>
-
-        <!-- 4. Perlu Dilengkapi -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between transition hover:shadow-sm">
-            <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">PERLU DILENGKAPI</span>
-                <div class="text-3xl font-black text-slate-900 mt-1 leading-none">{{ $kpiGuru['perlu_dilengkapi'] }}</div>
+                <span class="text-[10px] font-black text-amber-600 uppercase tracking-wider block">MENUNGGU APPROVAL ADMIN</span>
+                <div class="text-3xl font-black text-amber-700 mt-1 leading-none">{{ $kpiGuru['menunggu_review'] }}</div>
                 <p class="text-[11px] text-amber-600 font-medium mt-1.5 flex items-center gap-1.5">
-                    <span>Draf: Bab 4 Pengukuran</span>
+                    <i class="fas fa-hourglass-half text-[10px]"></i>
+                    <span>Belum Aktif (Pending)</span>
                 </p>
             </div>
             <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center text-xl shadow-xs">
+                <i class="fas fa-clock"></i>
+            </div>
+        </div>
+
+        <!-- 4. Perlu Dilengkapi / Revisi -->
+        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between transition hover:shadow-sm">
+            <div>
+                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">PERLU REVISI / DRAF</span>
+                <div class="text-3xl font-black text-slate-900 mt-1 leading-none">{{ $kpiGuru['perlu_dilengkapi'] }}</div>
+                <p class="text-[11px] text-rose-600 font-medium mt-1.5 flex items-center gap-1.5">
+                    <span>Revisi: {{ $kpiGuru['perlu_revisi'] }} &bull; Draf: {{ $kpiGuru['draft'] }}</span>
+                </p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center text-xl shadow-xs">
                 <i class="fas fa-pen-to-square"></i>
             </div>
         </div>
@@ -104,18 +104,24 @@
                class="px-4 py-2 rounded-xl transition whitespace-nowrap {{ ($tab ?? 'semua') === 'semua' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80' }}">
                 Semua RPP ({{ $kpiGuru['total'] }})
             </a>
-            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'jadwal'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'jadwal' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80' }}">
-                <i class="fas fa-calendar-days text-[11px] {{ ($tab ?? '') === 'jadwal' ? 'text-white' : 'text-slate-400' }}"></i>
-                <span>Sesuai Jadwal Pelajaran (Pekan Ini)</span>
+            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'menunggu'])) }}"
+               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'menunggu' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-amber-700 hover:bg-amber-50 border border-amber-200' }}">
+                <i class="fas fa-clock text-[11px] {{ ($tab ?? '') === 'menunggu' ? 'text-white' : 'text-amber-500' }}"></i>
+                <span>Menunggu Persetujuan Admin ({{ $kpiGuru['menunggu_review'] }})</span>
+            </a>
+            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'disetujui'])) }}"
+               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'disetujui' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200' }}">
+                <i class="fas fa-check-circle text-[11px] {{ ($tab ?? '') === 'disetujui' ? 'text-white' : 'text-emerald-500' }}"></i>
+                <span>Disetujui Admin / Siap Ajar ({{ $kpiGuru['siap_ajar'] }})</span>
+            </a>
+            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'revisi'])) }}"
+               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'revisi' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-rose-700 hover:bg-rose-50 border border-rose-200' }}">
+                <i class="fas fa-triangle-exclamation text-[11px] {{ ($tab ?? '') === 'revisi' ? 'text-white' : 'text-rose-500' }}"></i>
+                <span>Perlu Revisi ({{ $kpiGuru['perlu_revisi'] }})</span>
             </a>
             <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'draft'])) }}"
                class="px-4 py-2 rounded-xl transition whitespace-nowrap {{ ($tab ?? '') === 'draft' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80' }}">
-                Draf Tersimpan ({{ $kpiGuru['perlu_dilengkapi'] }})
-            </a>
-            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'arsip'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap {{ ($tab ?? '') === 'arsip' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80' }}">
-                Arsip Semester Lalu
+                Draf ({{ $kpiGuru['draft'] }})
             </a>
         </div>
 
@@ -207,7 +213,12 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         @forelse($rppList as $rpp)
             @php
-                $isDraft = $rpp->status === 'draft';
+                $status = $rpp->status;
+                $isDraft = $status === 'draft';
+                $isPending = $status === 'menunggu_review';
+                $isApproved = $status === 'terverifikasi';
+                $isRevision = $status === 'perlu_revisi';
+
                 $isMatematika = str_contains(strtolower($rpp->mataPelajaran->nama_mapel ?? ''), 'matematika');
                 $isIpa = str_contains(strtolower($rpp->mataPelajaran->nama_mapel ?? ''), 'ipa') || str_contains(strtolower($rpp->mataPelajaran->nama_mapel ?? ''), 'alam');
                 $isBindo = str_contains(strtolower($rpp->mataPelajaran->nama_mapel ?? ''), 'indonesia');
@@ -217,25 +228,28 @@
                 $tags = $checklist['tags'] ?? [];
             @endphp
 
-            <div class="bg-white rounded-2xl border {{ $isDraft ? 'border-amber-200/80 shadow-xs' : 'border-slate-200/80 shadow-xs' }} p-6 flex flex-col justify-between hover:shadow-md transition space-y-4 relative">
+            <div class="bg-white rounded-2xl border {{ $isPending ? 'border-amber-300 shadow-sm' : ($isApproved ? 'border-emerald-200/80 shadow-xs' : ($isRevision ? 'border-rose-300 shadow-sm' : 'border-slate-200/80 shadow-xs')) }} p-6 flex flex-col justify-between hover:shadow-md transition space-y-4 relative">
 
                 <!-- 1. Card Top Row: Status Badges & Subject Header -->
                 <div class="space-y-2">
                     <div class="flex items-center justify-between gap-2 flex-wrap">
                         <!-- Left Status Badge -->
-                        @if($isDraft)
-                            <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                    <i class="fas fa-triangle-exclamation text-[9px]"></i> Draf Belum Lengkap
-                                </span>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                    <i class="fas fa-link-slash text-[9px]"></i> Belum Disinkron Roster
-                                </span>
-                            </div>
+                        @if($isPending)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                                <i class="fas fa-clock text-[10px] text-amber-600"></i> Menunggu Persetujuan Admin
+                            </span>
+                        @elseif($isApproved)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
+                                <i class="fas fa-circle-check text-[10px] text-emerald-600"></i> Disetujui Admin &bull; Siap Ajar
+                            </span>
+                        @elseif($isRevision)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-800 border border-rose-300">
+                                <i class="fas fa-triangle-exclamation text-[10px] text-rose-600"></i> Perlu Revisi Admin
+                            </span>
                         @else
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span>{{ $rpp->target_tanggal ?? 'Jadwal Berikut & Sesi 1' }}</span>
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-300">
+                                <i class="fas fa-pencil text-[10px] text-slate-500"></i> Draf Belum Dikirim
                             </span>
                         @endif
 
@@ -248,11 +262,7 @@
                     <!-- Sub-header: Fase & Modul / Target Date + 3-dots Menu -->
                     <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
                         <span class="font-medium">
-                            @if($isDraft)
-                                {{ $rpp->target_tanggal ?? 'Target: 27 Mei 2024' }}
-                            @else
-                                {{ $rpp->fase ?? 'Fase B' }} &bull; {{ $rpp->modul_ke ?? 'Modul #' . $rpp->id_rpp }}
-                            @endif
+                            {{ $rpp->fase ?? 'Fase B' }} &bull; {{ $rpp->modul_ke ?? 'Modul #' . $rpp->id_rpp }}
                         </span>
 
                         <!-- Action Dropdown Trigger -->
@@ -427,12 +437,29 @@
 
                     <!-- Right Primary Action Button -->
                     <div>
-                        @if($isDraft)
+                        @if($isApproved)
+                            <a href="{{ route('guru.mapel.browse') }}"
+                               class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition">
+                                <i class="fas fa-chalkboard-user"></i>
+                                <span>Mulai Mengajar</span>
+                            </a>
+                        @elseif($isPending)
+                            <div class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold select-none" title="RPP belum dapat diaplikasikan mengajar karena masih menunggu di-accept oleh Admin">
+                                <i class="fas fa-hourglass-half text-amber-600 text-[11px]"></i>
+                                <span>Menunggu di-Accept Admin</span>
+                            </div>
+                        @elseif($isRevision)
+                            <button type="button" onclick="openModalEditRpp({{ json_encode($rpp) }})"
+                                    class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                                <i class="fas fa-pen-to-square"></i>
+                                <span>Perbaiki & Kirim Ulang</span>
+                            </button>
+                        @else
                             <div class="flex items-center gap-2">
                                 <button type="button" onclick="openModalEditRpp({{ json_encode($rpp) }})"
                                         class="px-4 py-2 rounded-xl bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
-                                    <i class="fas fa-pen-ruler"></i>
-                                    <span>Lanjutkan Isi RPP</span>
+                                    <i class="fas fa-paper-plane text-[11px]"></i>
+                                    <span>Lanjutkan & Kirim ke Admin</span>
                                 </button>
                                 <form action="{{ route('guru.rpp.destroy', $rpp->id_rpp) }}" method="POST" onsubmit="return confirm('Hapus draf ini?')">
                                     @csrf
@@ -442,12 +469,6 @@
                                     </button>
                                 </form>
                             </div>
-                        @else
-                            <a href="{{ route('guru.mapel.browse') }}"
-                               class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition">
-                                <i class="fas fa-chalkboard-user"></i>
-                                <span>Mulai Mengajar</span>
-                            </a>
                         @endif
                     </div>
                 </div>
@@ -491,7 +512,7 @@
                     RPP terhubung otomatis dengan jam mengajar mingguan wali kelas 4B tanpa perlu input manual.
                 </p>
             </div>
-            <a href="{{ route('jadwal.index') }}" class="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-1.5 transition">
+            <a href="{{ route('guru.jadwal.index') }}" class="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-1.5 transition">
                 <span>Buka Jadwal Mengajar</span>
                 <i class="fas fa-arrow-right text-[10px]"></i>
             </a>
