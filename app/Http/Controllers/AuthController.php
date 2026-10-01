@@ -68,7 +68,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'username' => 'required|string|max:100',
-            'password' => 'required|string',
+            'password' => 'required|string|max:100',
         ]);
 
         $rawUsername = trim($request->input('username'));

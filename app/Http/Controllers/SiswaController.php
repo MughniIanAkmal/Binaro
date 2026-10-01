@@ -169,21 +169,30 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'nis' => 'required|string|max:20|unique:siswa,nisn',
+            'nama' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\s.,\'\-]+$/u'],
+            'nis' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/', 'unique:siswa,nisn'],
             'email' => 'required|email|max:100|unique:siswa,email',
-            'no_hp' => 'nullable|string|max:20',
+            'no_hp' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\+\-\s]*$/'],
             'jenis_kelamin' => 'nullable|in:L,P',
-            'alamat' => 'nullable|string',
-            'username' => 'required|string|max:50|unique:siswa,username',
-            'password' => 'required|string|min:6|confirmed',
+            'alamat' => 'nullable|string|max:500',
+            'username' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9._]+$/', 'unique:siswa,username'],
+            'password' => 'required|string|min:6|max:100|confirmed',
             'id_mapel' => 'nullable|exists:mata_pelajaran,id_mapel',
             'id_rooms' => 'nullable|exists:kelas,id_rooms',
+        ], [
+            'nama.required'   => 'Nama siswa wajib diisi.',
+            'nama.max'        => 'Nama siswa maksimal 100 karakter.',
+            'nama.regex'      => 'Nama siswa hanya boleh berisi huruf, spasi, dan tanda baca (. , \' -).',
+            'nis.regex'       => 'NISN hanya boleh berisi angka.',
+            'no_hp.regex'     => 'Nomor HP hanya boleh berisi angka, tanda plus (+), dan spasi.',
+            'username.regex'  => 'Username hanya boleh berisi huruf, angka, titik, dan underscore.',
+            'alamat.max'      => 'Alamat maksimal 500 karakter.',
+            'password.max'    => 'Password maksimal 100 karakter.',
         ]);
 
         $data = [
-            'nm_siswa' => $validated['nama'],
-            'nisn' => $validated['nis'],
+            'nm_siswa' => trim($validated['nama']),
+            'nisn' => trim($validated['nis']),
             'email' => $validated['email'],
             'no_hp' => $validated['no_hp'] ?? null,
             'jenis_kelamin' => $validated['jenis_kelamin'] ?? null,
@@ -215,21 +224,30 @@ class SiswaController extends Controller
     public function update(Request $request, Siswa $siswa)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'nis' => ['required', 'string', 'max:20', Rule::unique('siswa', 'nisn')->ignore($siswa->id_siswa, 'id_siswa')],
+            'nama' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\s.,\'\-]+$/u'],
+            'nis' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/', Rule::unique('siswa', 'nisn')->ignore($siswa->id_siswa, 'id_siswa')],
             'email' => ['required', 'email', 'max:100', Rule::unique('siswa', 'email')->ignore($siswa->id_siswa, 'id_siswa')],
-            'no_hp' => 'nullable|string|max:20',
+            'no_hp' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\+\-\s]*$/'],
             'jenis_kelamin' => 'nullable|in:L,P',
-            'alamat' => 'nullable|string',
-            'username' => ['required', 'string', 'max:50', Rule::unique('siswa', 'username')->ignore($siswa->id_siswa, 'id_siswa')],
-            'password' => 'nullable|string|min:6|confirmed',
+            'alamat' => 'nullable|string|max:500',
+            'username' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9._]+$/', Rule::unique('siswa', 'username')->ignore($siswa->id_siswa, 'id_siswa')],
+            'password' => 'nullable|string|min:6|max:100|confirmed',
             'id_mapel' => 'nullable|exists:mata_pelajaran,id_mapel',
             'id_rooms' => 'nullable|exists:kelas,id_rooms',
+        ], [
+            'nama.required'   => 'Nama siswa wajib diisi.',
+            'nama.max'        => 'Nama siswa maksimal 100 karakter.',
+            'nama.regex'      => 'Nama siswa hanya boleh berisi huruf, spasi, dan tanda baca (. , \' -).',
+            'nis.regex'       => 'NISN hanya boleh berisi angka.',
+            'no_hp.regex'     => 'Nomor HP hanya boleh berisi angka, tanda plus (+), dan spasi.',
+            'username.regex'  => 'Username hanya boleh berisi huruf, angka, titik, dan underscore.',
+            'alamat.max'      => 'Alamat maksimal 500 karakter.',
+            'password.max'    => 'Password maksimal 100 karakter.',
         ]);
 
         $data = [
-            'nm_siswa' => $validated['nama'],
-            'nisn' => $validated['nis'],
+            'nm_siswa' => trim($validated['nama']),
+            'nisn' => trim($validated['nis']),
             'email' => $validated['email'],
             'no_hp' => $validated['no_hp'] ?? null,
             'jenis_kelamin' => $validated['jenis_kelamin'] ?? null,
