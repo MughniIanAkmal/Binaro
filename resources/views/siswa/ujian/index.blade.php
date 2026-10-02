@@ -286,145 +286,140 @@
 </div>
 
 <!-- ================= MODAL POP-UP: PETUNJUK UJIAN ================= -->
-<div id="modal-petunjuk-ujian" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl w-full max-w-2xl p-6 sm:p-8 space-y-6 shadow-2xl border border-slate-200 transform transition-all relative">
-        <!-- Close Button -->
-        <button type="button" onclick="closePetunjukModal()" class="absolute top-5 right-5 w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition">
-            <i class="fas fa-times text-sm"></i>
-        </button>
-
-        <!-- Header Modal -->
-        <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-[#13527D] text-white flex items-center justify-center text-2xl shadow-md shrink-0">
-                <i class="fas fa-file-signature"></i>
+<div id="modal-petunjuk-ujian" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl w-full max-w-2xl my-auto shadow-2xl border border-slate-200 transform transition-all flex flex-col max-h-[90vh] overflow-hidden">
+        <!-- Header Modal (Sticky / Non-shrinking) -->
+        <div class="p-5 sm:p-6 pb-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
+            <div class="flex items-center gap-3.5">
+                <div class="w-12 h-12 rounded-2xl bg-[#13527D] text-white flex items-center justify-center text-xl shadow-md shrink-0">
+                    <i class="fas fa-file-signature"></i>
+                </div>
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-50 text-[#13527D] border border-sky-100">
+                        Konfirmasi Pelaksanaan Ujian
+                    </span>
+                    <h3 id="modal-ujian-judul" class="text-base sm:text-lg font-black text-slate-900 mt-0.5 leading-tight">
+                        Judul Ujian Online
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5 flex items-center gap-2">
+                        <span id="modal-ujian-mapel" class="font-bold text-slate-700">Matematika</span> &bull;
+                        <span id="modal-ujian-guru">Guru Pengampu</span>
+                    </p>
+                </div>
             </div>
-            <div>
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-50 text-[#13527D] border border-sky-100">
-                    Konfirmasi Pelaksanaan Ujian
-                </span>
-                <h3 id="modal-ujian-judul" class="text-lg font-black text-slate-900 mt-1 leading-tight">
-                    Judul Ujian Online
-                </h3>
-                <p class="text-xs text-slate-500 mt-0.5 flex items-center gap-2">
-                    <span id="modal-ujian-mapel" class="font-bold text-slate-700">Matematika</span> &bull;
-                    <span id="modal-ujian-guru">Guru Pengampu</span>
+            <!-- Close Button -->
+            <button type="button" onclick="closePetunjukModal()" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition shrink-0 ml-2">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Scrollable Modal Body -->
+        <div class="p-5 sm:p-6 overflow-y-auto flex-1 space-y-5">
+            <!-- 4 Grid Ringkasan Petunjuk (Waktu, Durasi, Kesusahan Soal, Jumlah Soal) -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <!-- 1. Waktu / Status -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
+                    <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mx-auto text-xs">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Waktu</span>
+                    <span class="text-xs font-black text-slate-800">Hari Ini</span>
+                </div>
+
+                <!-- 2. Durasi -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
+                    <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto text-xs">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Durasi</span>
+                    <span id="modal-ujian-durasi" class="text-xs font-black text-slate-800">60 Menit</span>
+                </div>
+
+                <!-- 3. Kesusahan Soal -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
+                    <div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mx-auto text-xs">
+                        <i class="fas fa-gauge-high"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Tingkat Soal</span>
+                    <span id="modal-ujian-level" class="text-xs font-black text-purple-700">Sedang</span>
+                </div>
+
+                <!-- 4. Jumlah Soal -->
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
+                    <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto text-xs">
+                        <i class="fas fa-list-ol"></i>
+                    </div>
+                    <span class="text-[10px] font-bold text-slate-400 block uppercase">Jumlah Soal</span>
+                    <span id="modal-ujian-jumlah" class="text-xs font-black text-slate-800">20 Soal</span>
+                </div>
+            </div>
+
+            <!-- PILIH TINGKAT KESULITAN SOAL YANG INGIN DIKERJAKAN -->
+            <div class="bg-gradient-to-r from-sky-50 to-indigo-50/70 border border-sky-200/80 rounded-2xl p-4 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <h4 class="text-xs font-black text-[#13527D] flex items-center gap-1.5">
+                        <i class="fas fa-sliders"></i> Pilih Kesusahan Soal yang Ingin Dikerjakan:
+                    </h4>
+                    <span class="text-[10px] font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-full border border-sky-200">
+                        Bebas Pilih
+                    </span>
+                </div>
+                <p class="text-[11px] text-slate-600">
+                    Pilih tingkat kesulitan butir soal ujian yang ingin Anda kerjakan:
                 </p>
-            </div>
-        </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                    <label class="p-3 rounded-xl border border-slate-200 bg-white cursor-pointer flex flex-col justify-between transition hover:border-emerald-400 kes-modal-card" id="card-kes-mudah">
+                        <div class="flex items-center justify-between">
+                            <input type="radio" name="modal_kesulitan" value="mudah" onchange="updateModalKesulitan(this.value)" class="text-emerald-600 focus:ring-0">
+                            <span class="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Mudah</span>
+                        </div>
+                        <span class="text-xs font-black text-slate-800 mt-2 block">🟢 Level Mudah</span>
+                        <span class="text-[10px] text-slate-500 font-semibold" id="label-count-mudah">0 Soal</span>
+                    </label>
 
-        <!-- 4 Grid Ringkasan Petunjuk (Waktu, Durasi, Kesusahan Soal, Jumlah Soal) Sesuai Permintaan User -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <!-- 1. Waktu / Status -->
-            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
-                <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mx-auto text-xs">
-                    <i class="fas fa-calendar-check"></i>
+                    <label class="p-3 rounded-xl border-2 border-[#13527D] bg-sky-50/50 cursor-pointer flex flex-col justify-between transition hover:border-amber-400 kes-modal-card" id="card-kes-sedang">
+                        <div class="flex items-center justify-between">
+                            <input type="radio" name="modal_kesulitan" value="sedang" checked onchange="updateModalKesulitan(this.value)" class="text-amber-600 focus:ring-0">
+                            <span class="text-[9px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">Sedang</span>
+                        </div>
+                        <span class="text-xs font-black text-slate-800 mt-2 block">🟡 Level Sedang</span>
+                        <span class="text-[10px] text-slate-500 font-semibold" id="label-count-sedang">0 Soal</span>
+                    </label>
+
+                    <label class="p-3 rounded-xl border border-slate-200 bg-white cursor-pointer flex flex-col justify-between transition hover:border-rose-400 kes-modal-card" id="card-kes-sulit">
+                        <div class="flex items-center justify-between">
+                            <input type="radio" name="modal_kesulitan" value="sulit" onchange="updateModalKesulitan(this.value)" class="text-rose-600 focus:ring-0">
+                            <span class="text-[9px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded">Sulit</span>
+                        </div>
+                        <span class="text-xs font-black text-slate-800 mt-2 block">🔴 Level Sulit</span>
+                        <span class="text-[10px] text-slate-500 font-semibold" id="label-count-sulit">0 Soal</span>
+                    </label>
                 </div>
-                <span class="text-[10px] font-bold text-slate-400 block uppercase">Waktu</span>
-                <span class="text-xs font-black text-slate-800">Hari Ini</span>
             </div>
 
-            <!-- 2. Durasi -->
-            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
-                <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto text-xs">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <span class="text-[10px] font-bold text-slate-400 block uppercase">Durasi</span>
-                <span id="modal-ujian-durasi" class="text-xs font-black text-slate-800">60 Menit</span>
-            </div>
-
-            <!-- 3. Kesusahan Soal -->
-            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
-                <div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mx-auto text-xs">
-                    <i class="fas fa-gauge-high"></i>
-                </div>
-                <span class="text-[10px] font-bold text-slate-400 block uppercase">Tingkat Soal</span>
-                <span id="modal-ujian-level" class="text-xs font-black text-purple-700">Sedang</span>
-            </div>
-
-            <!-- 4. Jumlah Soal -->
-            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-center space-y-1">
-                <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto text-xs">
-                    <i class="fas fa-list-ol"></i>
-                </div>
-                <span class="text-[10px] font-bold text-slate-400 block uppercase">Jumlah Soal</span>
-                <span id="modal-ujian-jumlah" class="text-xs font-black text-slate-800">20 Soal</span>
-            </div>
-        </div>
-
-        <!-- PILIH TINGKAT KESULITAN SOAL YANG INGIN DIKERJAKAN -->
-        <div class="bg-gradient-to-r from-sky-50 to-indigo-50/70 border border-sky-200/80 rounded-2xl p-4 space-y-2.5">
-            <div class="flex items-center justify-between">
+            <!-- Tata Tertib & Petunjuk Pengerjaan -->
+            <div class="bg-sky-50/70 border border-sky-100 rounded-2xl p-4 space-y-2">
                 <h4 class="text-xs font-black text-[#13527D] flex items-center gap-1.5">
-                    <i class="fas fa-sliders"></i> Pilih Kesusahan Soal yang Ingin Dikerjakan:
+                    <i class="fas fa-circle-info"></i> Petunjuk & Peraturan Ujian:
                 </h4>
-                <span class="text-[10px] font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-full border border-sky-200">
-                    Bebas Pilih
-                </span>
-            </div>
-            <p class="text-[11px] text-slate-600">
-                Pilih paket soal berdasarkan tingkat kesulitan yang disiapkan oleh guru, atau kerjakan seluruh soal campuran:
-            </p>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                <label class="p-2.5 rounded-xl border-2 border-[#13527D] bg-white cursor-pointer flex flex-col justify-between transition hover:border-[#13527D] kes-modal-card" id="card-kes-semua">
-                    <div class="flex items-center justify-between">
-                        <input type="radio" name="modal_kesulitan" value="semua" checked onchange="updateModalKesulitan(this.value)" class="text-[#13527D] focus:ring-0">
-                        <span class="text-[9px] font-extrabold text-[#13527D] bg-sky-50 px-1.5 py-0.5 rounded">Semua</span>
-                    </div>
-                    <span class="text-[11px] font-black text-slate-800 mt-1 block">⚡ Campuran</span>
-                    <span class="text-[10px] text-slate-500 font-semibold" id="label-count-semua">Semua Soal</span>
-                </label>
-
-                <label class="p-2.5 rounded-xl border border-slate-200 bg-white cursor-pointer flex flex-col justify-between transition hover:border-emerald-400 kes-modal-card" id="card-kes-mudah">
-                    <div class="flex items-center justify-between">
-                        <input type="radio" name="modal_kesulitan" value="mudah" onchange="updateModalKesulitan(this.value)" class="text-emerald-600 focus:ring-0">
-                        <span class="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Mudah</span>
-                    </div>
-                    <span class="text-[11px] font-black text-slate-800 mt-1 block">🟢 Level Mudah</span>
-                    <span class="text-[10px] text-slate-500 font-semibold" id="label-count-mudah">0 Soal</span>
-                </label>
-
-                <label class="p-2.5 rounded-xl border border-slate-200 bg-white cursor-pointer flex flex-col justify-between transition hover:border-amber-400 kes-modal-card" id="card-kes-sedang">
-                    <div class="flex items-center justify-between">
-                        <input type="radio" name="modal_kesulitan" value="sedang" onchange="updateModalKesulitan(this.value)" class="text-amber-600 focus:ring-0">
-                        <span class="text-[9px] font-extrabold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">Sedang</span>
-                    </div>
-                    <span class="text-[11px] font-black text-slate-800 mt-1 block">🟡 Level Sedang</span>
-                    <span class="text-[10px] text-slate-500 font-semibold" id="label-count-sedang">0 Soal</span>
-                </label>
-
-                <label class="p-2.5 rounded-xl border border-slate-200 bg-white cursor-pointer flex flex-col justify-between transition hover:border-rose-400 kes-modal-card" id="card-kes-sulit">
-                    <div class="flex items-center justify-between">
-                        <input type="radio" name="modal_kesulitan" value="sulit" onchange="updateModalKesulitan(this.value)" class="text-rose-600 focus:ring-0">
-                        <span class="text-[9px] font-extrabold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded">Sulit</span>
-                    </div>
-                    <span class="text-[11px] font-black text-slate-800 mt-1 block">🔴 Level Sulit</span>
-                    <span class="text-[10px] text-slate-500 font-semibold" id="label-count-sulit">0 Soal</span>
-                </label>
+                <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
+                    <li>Pastikan koneksi internet Anda stabil sebelum menekan tombol <strong>Mulai Kerjakan</strong>.</li>
+                    <li>Waktu pengerjaan akan otomatis berjalan mundur saat lembar ujian dibuka.</li>
+                    <li>Jawaban yang dipilih akan otomatis tersimpan oleh sistem secara real-time.</li>
+                    <li>Dilarang membuka tab browser lain atau bekerja sama dengan orang lain selama ujian berlangsung.</li>
+                    <li>Jika waktu habis, jawaban yang telah dipilih akan dikumpulkan otomatis.</li>
+                </ul>
             </div>
         </div>
 
-        <!-- Tata Tertib & Petunjuk Pengerjaan -->
-        <div class="bg-sky-50/70 border border-sky-100 rounded-2xl p-4 space-y-2">
-            <h4 class="text-xs font-black text-[#13527D] flex items-center gap-1.5">
-                <i class="fas fa-circle-info"></i> Petunjuk & Peraturan Ujian:
-            </h4>
-            <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
-                <li>Pastikan koneksi internet Anda stabil sebelum menekan tombol <strong>Mulai Kerjakan</strong>.</li>
-                <li>Waktu pengerjaan akan otomatis berjalan mundur saat lembar ujian dibuka.</li>
-                <li>Jawaban yang dipilih akan otomatis tersimpan oleh sistem secara real-time.</li>
-                <li>Dilarang membuka tab browser lain atau bekerja sama dengan orang lain selama ujian berlangsung.</li>
-                <li>Jika waktu habis, jawaban yang telah dipilih akan dikumpulkan otomatis.</li>
-            </ul>
-        </div>
-
-        <!-- Tombol Aksi -->
-        <div class="flex items-center justify-end gap-3 pt-2">
+        <!-- Tombol Aksi (Sticky Footer di Bagian Bawah Modal) -->
+        <div class="p-4 sm:px-6 sm:py-4 bg-slate-50/90 border-t border-slate-100 flex items-center justify-end gap-3 shrink-0 rounded-b-3xl">
             <button type="button" onclick="closePetunjukModal()"
-                    class="px-5 py-3 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition">
+                    class="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition">
                 Batal
             </button>
             <a id="modal-ujian-btn-mulai" href="#"
-               class="px-6 py-3 rounded-xl bg-[#13527D] hover:bg-[#0E3D5D] active:scale-[0.99] text-white text-xs font-black shadow-md flex items-center gap-2 transition">
+               class="px-6 py-2.5 rounded-xl bg-[#13527D] hover:bg-[#0E3D5D] active:scale-[0.99] text-white text-xs font-black shadow-md flex items-center gap-2 transition">
                 <span>Mulai Kerjakan Sekarang</span>
                 <i class="fas fa-arrow-right text-[11px]"></i>
             </a>
@@ -463,15 +458,21 @@
         document.getElementById('modal-ujian-jumlah').textContent = data.totalSoal + ' Soal';
         document.getElementById('modal-ujian-level').textContent = data.level;
 
-        document.getElementById('label-count-semua').textContent = data.totalSoal + ' Soal';
         document.getElementById('label-count-mudah').textContent = (data.mudahs || 0) + ' Soal';
         document.getElementById('label-count-sedang').textContent = (data.sedangs || 0) + ' Soal';
         document.getElementById('label-count-sulit').textContent = (data.sulits || 0) + ' Soal';
 
-        // Reset to 'semua'
-        const radioSemua = document.querySelector('input[name="modal_kesulitan"][value="semua"]');
-        if (radioSemua) radioSemua.checked = true;
-        updateModalKesulitan('semua');
+        // Tentukan default kesulitan yang aktif (prioritas: sedang -> mudah -> sulit)
+        let defaultKes = 'sedang';
+        if ((!data.sedangs || data.sedangs === 0) && data.mudahs > 0) {
+            defaultKes = 'mudah';
+        } else if ((!data.sedangs || data.sedangs === 0) && (!data.mudahs || data.mudahs === 0) && data.sulits > 0) {
+            defaultKes = 'sulit';
+        }
+
+        const radio = document.querySelector(`input[name="modal_kesulitan"][value="${defaultKes}"]`);
+        if (radio) radio.checked = true;
+        updateModalKesulitan(defaultKes);
 
         document.getElementById('modal-petunjuk-ujian').classList.remove('hidden');
     }
@@ -490,7 +491,7 @@
 
         const btn = document.getElementById('modal-ujian-btn-mulai');
         if (btn && activeModalPlayUrl) {
-            btn.href = activeModalPlayUrl + (val !== 'semua' ? '?kesulitan=' + val : '');
+            btn.href = activeModalPlayUrl + '?kesulitan=' + val;
         }
     }
 

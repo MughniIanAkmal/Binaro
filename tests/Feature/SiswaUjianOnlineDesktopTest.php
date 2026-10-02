@@ -276,13 +276,21 @@ class SiswaUjianOnlineDesktopTest extends TestCase
 
         $session = ['user_id' => $this->siswa->id_siswa, 'user_type' => 'siswa', 'user_name' => $this->siswa->nm_siswa];
 
-        // 1. Petunjuk page shows difficulty choices and counts
+        // 1. Petunjuk page shows difficulty choices and counts (only 3 options: mudah, sedang, sulit)
         $petunjukRes = $this->withSession($session)
             ->get(route('siswa.ujian.petunjuk', $quiz->id_quiz));
         $petunjukRes->assertOk();
         $petunjukRes->assertSee('Pilih Tingkat Kesusahan Soal');
-        $petunjukRes->assertSee('Mudah');
-        $petunjukRes->assertSee('Sulit');
+        $petunjukRes->assertSee('🟢 Level Mudah');
+        $petunjukRes->assertSee('🟡 Level Sedang');
+        $petunjukRes->assertSee('🔴 Level Sulit');
+        $petunjukRes->assertDontSee('Campuran');
+
+        // Also index modal has no Campuran
+        $indexRes = $this->withSession($session)
+            ->get(route('siswa.ujian.index'));
+        $indexRes->assertOk();
+        $indexRes->assertDontSee('⚡ Campuran');
 
         // 2. Play with ?kesulitan=mudah
         $playMudahRes = $this->withSession($session)

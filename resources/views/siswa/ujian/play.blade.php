@@ -21,23 +21,20 @@
                         CBT Online
                     </span>
                     @php
-                        $modeKesulitan = strtolower($pilihanKesulitan ?? 'semua');
+                        $modeKesulitan = strtolower($pilihanKesulitan ?? 'sedang');
+                        if ($modeKesulitan === 'susah') $modeKesulitan = 'sulit';
                     @endphp
                     @if($modeKesulitan === 'mudah')
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-900 shadow-xs">
                             🟢 Tingkat Mudah
                         </span>
-                    @elseif($modeKesulitan === 'sedang')
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-300 text-slate-900 shadow-xs">
-                            🟡 Tingkat Sedang
-                        </span>
-                    @elseif($modeKesulitan === 'sulit' || $modeKesulitan === 'susah')
+                    @elseif($modeKesulitan === 'sulit')
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-400 text-slate-900 shadow-xs">
                             🔴 Tingkat Sulit
                         </span>
                     @else
-                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-300 text-slate-900 shadow-xs">
-                            ⚡ Semua Tingkat
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-300 text-slate-900 shadow-xs">
+                            🟡 Tingkat Sedang
                         </span>
                     @endif
                     <span class="text-xs text-sky-200 font-medium">
@@ -83,6 +80,7 @@
             <form id="form-quiz" action="{{ route('siswa.ujian.submit', $quiz->id_quiz) }}" method="POST">
                 @csrf
                 <input type="hidden" name="mode_kesulitan" value="{{ $pilihanKesulitan ?? 'semua' }}">
+                <input type="hidden" name="waktu_menit" id="input-waktu-menit" value="">
 
                 @foreach($soals as $index => $soal)
                 <input type="hidden" name="soal_ids[]" value="{{ $soal->id_soal }}">
@@ -282,8 +280,8 @@
 </div>
 
 <!-- ================= MODAL KONFIRMASI PENGUMPULAN UJIAN ================= -->
-<div id="modal-confirm-submit" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-200 transform transition-all text-center">
+<div id="modal-confirm-submit" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-200 transform transition-all text-center max-h-[90vh] overflow-y-auto my-auto">
         <div class="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl mx-auto shadow-inner">
             <i class="fas fa-clipboard-check"></i>
         </div>
@@ -523,6 +521,10 @@
     }
 
     function executeFinalSubmit() {
+        const timeSpentMs = Math.max(0, (durasiMenit * 60 * 1000) - (endTime - new Date().getTime()));
+        const minutesSpent = Math.max(1, Math.round(timeSpentMs / 60000));
+        const inputWaktu = document.getElementById('input-waktu-menit');
+        if (inputWaktu) inputWaktu.value = minutesSpent;
         document.getElementById('form-quiz').submit();
     }
 

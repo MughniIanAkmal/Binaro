@@ -158,8 +158,11 @@ class SiswaLearningController extends Controller
             return redirect()->route($targetRoute, $idQuiz)->with('info', $infoMsg);
         }
 
-        $pilihanKesulitan = strtolower($request->query('kesulitan', 'semua'));
+        $pilihanKesulitan = strtolower($request->query('kesulitan', 'sedang'));
         if ($pilihanKesulitan === 'susah') $pilihanKesulitan = 'sulit';
+        if (!in_array($pilihanKesulitan, ['mudah', 'sedang', 'sulit'])) {
+            $pilihanKesulitan = 'sedang';
+        }
 
         // Ambil butir soal
         // Jika kuis sub-bab materi dan memiliki bank soal > 5, ambil 5 soal sesuai rule PRD kuis sub-bab.
@@ -168,23 +171,22 @@ class SiswaLearningController extends Controller
             $soals = SoalQuiz::where('id_quiz', $idQuiz)->inRandomOrder()->take(5)->get();
         } else {
             $soalQuery = SoalQuiz::where('id_quiz', $idQuiz);
-            if (in_array($pilihanKesulitan, ['mudah', 'sedang', 'sulit'])) {
-                if ($pilihanKesulitan === 'sulit') {
-                    $soalQuery->whereIn('tingkat_kesulitan', ['sulit', 'susah']);
-                } else {
-                    $soalQuery->where('tingkat_kesulitan', $pilihanKesulitan);
-                }
+            if ($pilihanKesulitan === 'sulit') {
+                $soalQuery->whereIn('tingkat_kesulitan', ['sulit', 'susah']);
+            } else {
+                $soalQuery->where('tingkat_kesulitan', $pilihanKesulitan);
             }
 
             $filteredSoals = $soalQuery->orderBy('id_soal', 'asc')->get();
 
             // Jika ada soal yang sesuai dengan tingkat kesulitan yang dipilih, sajikan soal tersebut.
-            // Jika kosong, fallback otomatis ke semua soal ujian agar siswa tidak terblokir.
+            // Jika kosong, fallback otomatis ke butir soal yang tersedia agar siswa tidak terblokir.
             if ($filteredSoals->isNotEmpty()) {
                 $soals = $filteredSoals;
             } else {
                 $soals = SoalQuiz::where('id_quiz', $idQuiz)->orderBy('id_soal', 'asc')->get();
-                $pilihanKesulitan = 'semua';
+                $firstSoal = $soals->first();
+                $pilihanKesulitan = $firstSoal ? ($firstSoal->tingkat_kesulitan ?? 'sedang') : 'sedang';
             }
         }
 
@@ -288,12 +290,19 @@ class SiswaLearningController extends Controller
         // Untuk kuis materi latihan sub-bab mandiri, nilai langsung ditampilkan agar siswa tahu pemahamannya.
         $statusKirim = $isKuis;
 
+        $waktuMenit = $request->input('waktu_menit');
+        if (!$waktuMenit) {
+            $waktuMenit = $quiz->durasi_menit ?? ($quiz->durasi ?? 60);
+        }
+        $waktuMenit = max(1, (int)$waktuMenit);
+
         HasilKuisSiswa::create([
             'id_quiz' => $idQuiz,
             'id_siswa' => $siswaId,
             'jumlah_benar' => $jumlahBenar,
             'jumlah_salah' => $jumlahSalah,
             'nilai_akhir' => $nilaiAkhir,
+            'waktu_menit' => $waktuMenit,
             'status_kirim' => $statusKirim,
             'waktu_kirim' => $statusKirim ? now() : null,
         ]);

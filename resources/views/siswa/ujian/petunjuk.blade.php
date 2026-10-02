@@ -124,25 +124,17 @@
                 Pilihan Fleksibel
             </span>
         </div>
+        @php
+            $defKes = ($countSedang > 0) ? 'sedang' : (($countMudah > 0) ? 'mudah' : 'sulit');
+        @endphp
         <p class="text-xs text-slate-600 leading-relaxed">
-            Guru telah menyiapkan soal dengan berbagai tingkat kesulitan. Anda dapat memilih untuk mengerjakan paket soal tertentu atau seluruh butir soal:
+            Guru telah menyiapkan butir soal dengan berbagai tingkat kesulitan. Pilih tingkat kesulitan yang ingin Anda kerjakan:
         </p>
 
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2">
-            <label class="p-4 rounded-2xl border-2 border-[#13527D] bg-white cursor-pointer flex flex-col justify-between transition hover:border-[#13527D] shadow-xs select-kes-card" id="petunjuk-card-semua">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <label class="p-4 rounded-2xl border {{ $defKes === 'mudah' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} cursor-pointer flex flex-col justify-between transition hover:border-emerald-400 shadow-xs select-kes-card" id="petunjuk-card-mudah">
                 <div class="flex items-center justify-between">
-                    <input type="radio" name="pilihan_kesulitan" value="semua" checked onchange="changePetunjukKesulitan(this.value)" class="text-[#13527D] focus:ring-0">
-                    <span class="text-[10px] font-extrabold text-[#13527D] bg-sky-50 px-2 py-0.5 rounded-md">Semua</span>
-                </div>
-                <div class="mt-2">
-                    <span class="text-xs font-black text-slate-900 block">⚡ Campuran</span>
-                    <span class="text-[11px] text-slate-500 font-semibold mt-0.5 block">{{ $totalSoal }} Butir Soal</span>
-                </div>
-            </label>
-
-            <label class="p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer flex flex-col justify-between transition hover:border-emerald-400 shadow-xs select-kes-card" id="petunjuk-card-mudah">
-                <div class="flex items-center justify-between">
-                    <input type="radio" name="pilihan_kesulitan" value="mudah" onchange="changePetunjukKesulitan(this.value)" class="text-emerald-600 focus:ring-0">
+                    <input type="radio" name="pilihan_kesulitan" value="mudah" {{ $defKes === 'mudah' ? 'checked' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-emerald-600 focus:ring-0">
                     <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">Mudah</span>
                 </div>
                 <div class="mt-2">
@@ -151,9 +143,9 @@
                 </div>
             </label>
 
-            <label class="p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer flex flex-col justify-between transition hover:border-amber-400 shadow-xs select-kes-card" id="petunjuk-card-sedang">
+            <label class="p-4 rounded-2xl border {{ $defKes === 'sedang' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} cursor-pointer flex flex-col justify-between transition hover:border-amber-400 shadow-xs select-kes-card" id="petunjuk-card-sedang">
                 <div class="flex items-center justify-between">
-                    <input type="radio" name="pilihan_kesulitan" value="sedang" onchange="changePetunjukKesulitan(this.value)" class="text-amber-600 focus:ring-0">
+                    <input type="radio" name="pilihan_kesulitan" value="sedang" {{ $defKes === 'sedang' ? 'checked' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-amber-600 focus:ring-0">
                     <span class="text-[10px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">Sedang</span>
                 </div>
                 <div class="mt-2">
@@ -162,9 +154,9 @@
                 </div>
             </label>
 
-            <label class="p-4 rounded-2xl border border-slate-200 bg-white cursor-pointer flex flex-col justify-between transition hover:border-rose-400 shadow-xs select-kes-card" id="petunjuk-card-sulit">
+            <label class="p-4 rounded-2xl border {{ $defKes === 'sulit' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} cursor-pointer flex flex-col justify-between transition hover:border-rose-400 shadow-xs select-kes-card" id="petunjuk-card-sulit">
                 <div class="flex items-center justify-between">
-                    <input type="radio" name="pilihan_kesulitan" value="sulit" onchange="changePetunjukKesulitan(this.value)" class="text-rose-600 focus:ring-0">
+                    <input type="radio" name="pilihan_kesulitan" value="sulit" {{ $defKes === 'sulit' ? 'checked' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-rose-600 focus:ring-0">
                     <span class="text-[10px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">Sulit</span>
                 </div>
                 <div class="mt-2">
@@ -228,7 +220,7 @@
                class="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition text-center">
                 Batal / Kembali
             </a>
-            <a id="btn-mulai-ujian" href="{{ route('siswa.ujian.play', $quiz->id_quiz) }}"
+            <a id="btn-mulai-ujian" href="{{ route('siswa.ujian.play', ['idQuiz' => $quiz->id_quiz, 'kesulitan' => $defKes]) }}"
                class="w-full sm:flex-1 py-3.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-sm pointer-events-none opacity-50 bg-slate-200 text-slate-400">
                 <span>Mulai Kerjakan Ujian Sekarang</span>
                 <i class="fas fa-arrow-right text-[11px]"></i>
@@ -239,7 +231,7 @@
 
 <script>
     let basePlayUrl = '{{ route('siswa.ujian.play', $quiz->id_quiz) }}';
-    let currentSelectedKesulitan = 'semua';
+    let currentSelectedKesulitan = '{{ $defKes }}';
 
     function changePetunjukKesulitan(val) {
         currentSelectedKesulitan = val;
@@ -256,7 +248,7 @@
 
         const btn = document.getElementById('btn-mulai-ujian');
         if (btn) {
-            btn.href = basePlayUrl + (val !== 'semua' ? '?kesulitan=' + val : '');
+            btn.href = basePlayUrl + '?kesulitan=' + val;
         }
     }
 
