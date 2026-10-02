@@ -31,10 +31,6 @@ class MapelController extends Controller
 
     public function store(Request $request)
     {
-        if (session('user_type') === 'admin') {
-            return redirect()->route('mapel.index')->with('error', 'Administrator hanya memiliki izin melihat dan menghapus mata pelajaran. Pengelolaan konten dilakukan oleh Guru.');
-        }
-
         $request->validate([
             'nama_mapel' => [
                 'required',
@@ -59,15 +55,16 @@ class MapelController extends Controller
             'deskripsi'  => $request->deskripsi,
         ]);
 
+        $redirectUrl = $request->header('referer');
+        if ($redirectUrl && (str_contains($redirectUrl, 'mapel-belajar') || str_contains($redirectUrl, 'guru/mapel'))) {
+            return redirect($redirectUrl)->with('success', 'Mata pelajaran berhasil ditambahkan.');
+        }
+
         return redirect()->route('mapel.index')->with('success', 'Mata pelajaran berhasil ditambahkan.');
     }
 
     public function update(Request $request, $id)
     {
-        if (session('user_type') === 'admin') {
-            return redirect()->route('mapel.index')->with('error', 'Administrator hanya memiliki izin melihat dan menghapus mata pelajaran. Pengelolaan konten dilakukan oleh Guru.');
-        }
-
         $mapel = MataPelajaran::findOrFail($id);
 
         $request->validate([

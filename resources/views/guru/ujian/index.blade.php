@@ -65,7 +65,7 @@
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
                         <i class="fas fa-magnifying-glass text-xs"></i>
                     </span>
-                    <input type="text" name="search" id="search-ujian" value="{{ $search }}" placeholder="Ketik kata kunci ujian..." maxlength="100" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '');" class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition">
+                    <input type="text" name="search" id="search-ujian" value="{{ $search }}" placeholder="Ketik kata kunci ujian..." maxlength="100" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition">
                 </div>
             </div>
 

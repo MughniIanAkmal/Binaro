@@ -16,6 +16,11 @@ class JadwalMataPelajaran extends Model
         return $this->belongsTo(MataPelajaran::class, 'id_mapel', 'id_mapel');
     }
 
+    public function mapel()
+    {
+        return $this->mataPelajaran();
+    }
+
     public function guru()
     {
         return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');

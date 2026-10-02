@@ -164,9 +164,13 @@
 
             <!-- File Upload -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Unggah Berkas Modul RPP (PDF / DOCX)</label>
-                <input type="file" name="file_rpp" accept=".pdf,.docx,.doc"
+                <label class="block text-xs font-bold text-slate-700 mb-1">
+                    Unggah Berkas Modul RPP <span class="text-slate-500 font-normal">(Hanya PDF / Word)</span>
+                </label>
+                <input type="file" name="file_rpp" id="tambah-file-rpp" accept=".pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
+                       onchange="validateRppFileInput(this)"
                        class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-[#13527D] hover:file:bg-sky-100 cursor-pointer">
+                <p class="text-[10px] text-slate-400 mt-1">Format berkas yang didukung hanya: <strong>.pdf</strong>, <strong>.docx</strong>, atau <strong>.doc</strong> (Maks. 10MB).</p>
             </div>
 
             <!-- Info Status Supervisi -->
@@ -366,9 +370,13 @@
 
             <!-- File Upload -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Ganti Berkas Modul (Opsional)</label>
-                <input type="file" name="file_rpp" accept=".pdf,.docx,.doc"
+                <label class="block text-xs font-bold text-slate-700 mb-1">
+                    Ganti Berkas Modul <span class="text-slate-500 font-normal">(Opsional - Hanya PDF / Word)</span>
+                </label>
+                <input type="file" name="file_rpp" id="edit-file-rpp" accept=".pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
+                       onchange="validateRppFileInput(this)"
                        class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-[#13527D] hover:file:bg-sky-100 cursor-pointer">
+                <p class="text-[10px] text-slate-400 mt-1">Format berkas yang didukung hanya: <strong>.pdf</strong>, <strong>.docx</strong>, atau <strong>.doc</strong> (Maks. 10MB).</p>
             </div>
 
             <!-- Modal Footer -->
@@ -603,6 +611,24 @@
     }
     function closeModalDetailRpp() {
         document.getElementById('modal-detail-rpp').classList.add('hidden');
+    }
+
+    function validateRppFileInput(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+        const fileName = file.name.toLowerCase();
+        const validExtensions = ['.pdf', '.docx', '.doc'];
+        const isValid = validExtensions.some(ext => fileName.endsWith(ext));
+        if (!isValid) {
+            alert('Tipe file tidak valid! Berkas RPP & Modul hanya boleh berformat PDF (.pdf) atau Word (.docx, .doc).');
+            input.value = '';
+            return false;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Ukuran berkas terlalu besar! Maksimal ukuran file adalah 10MB.');
+            input.value = '';
+            return false;
+        }
     }
 
     // Close modals on clicking backdrop

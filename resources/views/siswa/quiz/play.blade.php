@@ -131,7 +131,7 @@
                             @foreach(['A' => $soal->opsi_a, 'B' => $soal->opsi_b, 'C' => $soal->opsi_c, 'D' => $soal->opsi_d] as $optKey => $optVal)
                             <label id="label-opt-{{ $soal->id_soal }}-{{ $optKey }}"
                                    onclick="selectOption({{ $index }}, '{{ $soal->id_soal }}', '{{ $optKey }}')"
-                                   class="opt-label-{{ $soal->id_soal }} bg-white hover:bg-slate-50/80 rounded-2xl p-4 sm:p-4.5 border border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer transition select-none group">
+                                   class="opt-label-{{ $soal->id_soal }} bg-white hover:bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer transition select-none group">
                                 <div class="flex items-center gap-3.5 flex-1 pr-4">
                                     <div id="badge-opt-{{ $soal->id_soal }}-{{ $optKey }}"
                                          class="opt-badge-{{ $soal->id_soal }} w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center transition shrink-0 group-hover:bg-[#13527D]/10 group-hover:text-[#13527D]">
@@ -342,7 +342,7 @@
 
         // Reset styling for all choices in this question
         document.querySelectorAll('.opt-label-' + idSoal).forEach(el => {
-            el.className = 'opt-label-' + idSoal + ' bg-white hover:bg-slate-50/80 rounded-2xl p-4 sm:p-4.5 border border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer transition select-none group';
+            el.className = 'opt-label-' + idSoal + ' bg-white hover:bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer transition select-none group';
         });
         document.querySelectorAll('.opt-badge-' + idSoal).forEach(el => {
             el.className = 'opt-badge-' + idSoal + ' w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center transition shrink-0 group-hover:bg-[#13527D]/10 group-hover:text-[#13527D]';
@@ -359,7 +359,7 @@
         const check = document.getElementById('check-icon-' + idSoal + '-' + optKey);
 
         if (label) {
-            label.className = 'opt-label-' + idSoal + ' bg-sky-50/60 rounded-2xl p-4 sm:p-4.5 border-2 border-[#13527D] shadow-sm flex items-center justify-between cursor-pointer transition select-none';
+            label.className = 'opt-label-' + idSoal + ' bg-sky-50/60 rounded-2xl p-4 sm:p-5 border-2 border-[#13527D] shadow-sm flex items-center justify-between cursor-pointer transition select-none';
         }
         if (badge) {
             badge.className = 'opt-badge-' + idSoal + ' w-9 h-9 rounded-xl bg-[#13527D] text-white font-black text-xs flex items-center justify-center transition shrink-0 shadow-2xs';

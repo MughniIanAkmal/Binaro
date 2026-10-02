@@ -228,4 +228,49 @@ class RppValidationAndLimitsTest extends TestCase
         ]);
         $resValid->assertSessionHas('success');
     }
+
+    public function test_rpp_file_only_accepts_pdf_and_word_documents()
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        // 1. Rejected: PNG image
+        $pngFile = \Illuminate\Http\UploadedFile::fake()->create('skenario.png', 500, 'image/png');
+        $resPng = $this->withSession($this->session)->post(route('guru.rpp.store'), [
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_rpp' => 'Modul Ajar IPA',
+            'file_rpp' => $pngFile,
+            'action' => 'draft',
+        ]);
+        $resPng->assertSessionHasErrors(['file_rpp']);
+
+        // 2. Rejected: Executable or arbitrary file
+        $exeFile = \Illuminate\Http\UploadedFile::fake()->create('program.exe', 500);
+        $resExe = $this->withSession($this->session)->post(route('guru.rpp.store'), [
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_rpp' => 'Modul Ajar IPA',
+            'file_rpp' => $exeFile,
+            'action' => 'draft',
+        ]);
+        $resExe->assertSessionHasErrors(['file_rpp']);
+
+        // 3. Accepted: PDF
+        $pdfFile = \Illuminate\Http\UploadedFile::fake()->create('modul_ajar.pdf', 500, 'application/pdf');
+        $resPdf = $this->withSession($this->session)->post(route('guru.rpp.store'), [
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_rpp' => 'Modul Ajar IPA PDF',
+            'file_rpp' => $pdfFile,
+            'action' => 'draft',
+        ]);
+        $resPdf->assertSessionHas('success');
+
+        // 4. Accepted: Word DOCX
+        $docxFile = \Illuminate\Http\UploadedFile::fake()->create('modul_ajar.docx', 500, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        $resDocx = $this->withSession($this->session)->post(route('guru.rpp.store'), [
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_rpp' => 'Modul Ajar IPA Word',
+            'file_rpp' => $docxFile,
+            'action' => 'draft',
+        ]);
+        $resDocx->assertSessionHas('success');
+    }
 }

@@ -214,6 +214,8 @@ class RppController extends Controller
             'target_jadwal.max'  => 'Target Roster Jadwal maksimal 50 karakter.',
             'ruang.max'          => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
             'deskripsi.max'      => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
+            'file_rpp.mimes'     => 'Format berkas RPP & Modul hanya boleh berupa dokumen PDF (.pdf) atau Word (.docx, .doc).',
+            'file_rpp.max'       => 'Ukuran berkas RPP & Modul maksimal 10MB.',
         ]);
 
         if ($request->hasFile('file_rpp')) {
@@ -319,6 +321,8 @@ class RppController extends Controller
             'target_jadwal.max'  => 'Target Roster Jadwal maksimal 50 karakter.',
             'ruang.max'          => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
             'deskripsi.max'      => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
+            'file_rpp.mimes'     => 'Format berkas RPP & Modul hanya boleh berupa dokumen PDF (.pdf) atau Word (.docx, .doc).',
+            'file_rpp.max'       => 'Ukuran berkas RPP & Modul maksimal 10MB.',
         ]);
 
         if ($request->hasFile('file_rpp')) {

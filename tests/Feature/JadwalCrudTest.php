@@ -278,4 +278,43 @@ class JadwalCrudTest extends TestCase
             'jam' => '10.00-13.00',
         ]);
     }
+
+    public function test_admin_cannot_input_overlapping_schedule_for_different_guru_in_same_class()
+    {
+        $guruLain = Guru::create([
+            'nip' => '198701012010011999',
+            'nama_guru' => 'Guru Kedua',
+            'email' => 'guru.kedua@school.id',
+            'password' => 'password',
+        ]);
+
+        // Guru 1 teaches 06.00-09.00 in $this->kelas
+        Jadwal::create([
+            'hari' => 'Senin',
+            'jam' => '06.00-09.00',
+            'id_mapel' => $this->mapel->id_mapel,
+            'id_guru' => $this->guru->id_guru,
+            'id_rooms' => $this->kelas->id_rooms,
+        ]);
+
+        // Guru 2 tries to input 07.00-10.00 in the SAME CLASS -> should be rejected because class is in use
+        $response = $this->withSession(['user_type' => 'admin', 'user_id' => 1])
+            ->from(route('jadwal.create'))
+            ->post(route('jadwal.store'), [
+                'hari' => 'Senin',
+                'jam' => '07.00-10.00',
+                'id_mapel' => $this->mapel->id_mapel,
+                'id_guru' => $guruLain->id_guru,
+                'id_kelas' => $this->kelas->id_rooms,
+            ]);
+
+        $response->assertRedirect(route('jadwal.create'));
+        $response->assertSessionHasErrors('jam');
+        $response->assertSessionHas('error');
+
+        $this->assertDatabaseMissing('jadwal_mata_pelajaran', [
+            'id_guru' => $guruLain->id_guru,
+            'jam' => '07.00-10.00',
+        ]);
+    }
 }

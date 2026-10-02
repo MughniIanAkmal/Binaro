@@ -99,9 +99,12 @@
             width: 46%;
 
             background:
-                radial-gradient(circle at 85% 12%, rgba(255, 255, 255, 0.22) 0, transparent 42%),
-                radial-gradient(circle at 8% 95%, rgba(242, 160, 7, 0.35) 0, transparent 45%),
-                linear-gradient(160deg, #0E3D5D 0%, #13527D 55%, #1B6FA0 100%);
+                linear-gradient(rgba(14, 61, 93, 0.72), rgba(19, 82, 125, 0.88)),
+                url("{{ asset('images/sekolah.jpg') }}"),
+                #13527D;
+
+            background-size: cover;
+            background-position: center;
 
             color: white;
 

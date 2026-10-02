@@ -3,19 +3,12 @@
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                E-Learning &bull; SDN Kalitapen 01
-            </div>
-            <h1 class="text-xl font-bold text-slate-900">Mata Pelajaran & Materi Belajar</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Pilih mata pelajaran untuk menjelajahi hierarki Bab, Sub-Bab, dan Materi Pembelajaran.</p>
+    <div>
+        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+            E-Learning &bull; SDN Kalitapen 01
         </div>
-        <div class="flex items-center gap-2">
-            <button onclick="openModalAction('tambah', 'bab')" class="px-3.5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
-                <i class="fas fa-plus"></i> Tambah Bab Baru
-            </button>
-        </div>
+        <h1 class="text-xl font-bold text-slate-900">Mata Pelajaran & Materi Belajar</h1>
+        <p class="text-xs text-slate-500 mt-0.5">Pilih mata pelajaran untuk menjelajahi hierarki Bab, Sub-Bab, dan Materi Pembelajaran.</p>
     </div>
 
 
@@ -56,7 +49,7 @@
                 <i class="fas fa-book-open"></i>
             </div>
             <h3 class="text-sm font-bold text-slate-800">Belum Ada Mata Pelajaran</h3>
-            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Silakan tambahkan data mata pelajaran terlebih dahulu di menu Mapel & Kustomisasi.</p>
+            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Mata pelajaran dikelola secara terpusat oleh Admin Sekolah.</p>
         </div>
         @endforelse
     </div>

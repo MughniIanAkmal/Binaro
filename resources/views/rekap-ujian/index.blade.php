@@ -165,58 +165,67 @@
         $rataWaktu     = $waktuList->count() ? round($waktuList->avg('waktu_menit')) : ($selectedQuiz->durasi_menit ?? 60);
     @endphp
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5 print:hidden">
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5 print:hidden">
         {{-- Rata-rata Nilai --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4.5 flex flex-col gap-1.5 col-span-1">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">Rata-rata Nilai</span>
-                <div class="w-7 h-7 rounded-lg bg-sky-100 flex items-center justify-center">
-                    <i class="fas fa-chart-line text-sky-600 text-xs"></i>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col justify-between h-full col-span-1 hover:shadow-md transition">
+            <div>
+                <div class="flex items-start justify-between gap-1 mb-2">
+                    <span class="text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase tracking-wider leading-tight">Rata-rata Nilai</span>
+                    <div class="w-7 h-7 rounded-lg bg-sky-100 flex items-center justify-center shrink-0">
+                        <i class="fas fa-chart-line text-sky-600 text-xs"></i>
+                    </div>
                 </div>
+                <div class="text-2xl font-black text-[#13527D] tracking-tight leading-none">{{ $rataRata }}</div>
             </div>
-            <div class="text-2xl font-black text-[#13527D]">{{ $rataRata }}</div>
-            <div class="text-[10px] text-slate-400">Dari {{ $totalSiswa }} peserta</div>
+            <div class="text-[10px] text-slate-400 mt-2 font-medium">Dari {{ $totalSiswa }} peserta</div>
         </div>
 
         {{-- Durasi Waktu Pengerjaan --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4.5 flex flex-col gap-1.5 col-span-1">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">Durasi Pengerjaan</span>
-                <div class="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center">
-                    <i class="fas fa-stopwatch text-blue-600 text-xs"></i>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col justify-between h-full col-span-1 hover:shadow-md transition">
+            <div>
+                <div class="flex items-start justify-between gap-1 mb-2">
+                    <span class="text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase tracking-wider leading-tight">Durasi Pengerjaan</span>
+                    <div class="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center shrink-0">
+                        <i class="fas fa-stopwatch text-blue-600 text-xs"></i>
+                    </div>
                 </div>
+                <div class="text-2xl font-black text-blue-600 tracking-tight leading-none">{{ $rataWaktu }} <span class="text-xs font-bold text-slate-400">mnt</span></div>
             </div>
-            <div class="text-2xl font-black text-blue-600">{{ $rataWaktu }} <span class="text-xs font-bold text-slate-400">mnt</span></div>
-            <div class="text-[10px] text-slate-400">Alokasi: {{ $selectedQuiz->durasi_menit ?? 60 }} mnt</div>
+            <div class="text-[10px] text-slate-400 mt-2 font-medium">Alokasi: {{ $selectedQuiz->durasi_menit ?? ($selectedQuiz->durasi ?? 60) }} mnt</div>
         </div>
 
         {{-- Rata-rata Keaktifan --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4.5 flex flex-col gap-1.5 col-span-1">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">Rata Keaktifan</span>
-                <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center">
-                    <i class="fas fa-star text-amber-500 text-xs"></i>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col justify-between h-full col-span-1 hover:shadow-md transition">
+            <div>
+                <div class="flex items-start justify-between gap-1 mb-2">
+                    <span class="text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase tracking-wider leading-tight">Rata Keaktifan</span>
+                    <div class="w-7 h-7 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+                        <i class="fas fa-star text-amber-500 text-xs"></i>
+                    </div>
                 </div>
+                @if($rataKeaktifan)
+                <div class="text-2xl font-black text-amber-500 tracking-tight leading-none">{{ $rataKeaktifan }}</div>
+                @else
+                <div class="text-2xl font-black text-amber-500 tracking-tight leading-none">–</div>
+                @endif
             </div>
-            @if($rataKeaktifan)
-            <div class="text-2xl font-black text-amber-500">{{ $rataKeaktifan }}</div>
-            <div class="text-[10px] text-slate-400">Poin rata-rata</div>
-            @else
-            <div class="text-2xl font-black text-amber-500">–</div>
-            <div class="text-[10px] text-slate-400">Belum ada data</div>
-            @endif
+            <div class="text-[10px] text-slate-400 mt-2 font-medium">
+                {{ $rataKeaktifan ? 'Poin rata-rata' : 'Belum ada data' }}
+            </div>
         </div>
 
         {{-- Tingkat Kelulusan / Ketuntasan --}}
-        <div class="bg-white rounded-2xl border border-emerald-200 shadow-sm p-4.5 flex flex-col gap-1.5 col-span-1">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">{{ $isQuiz ? 'Ketuntasan' : 'Kelulusan' }}</span>
-                <div class="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center">
-                    <i class="fas fa-medal text-emerald-600 text-xs"></i>
+        <div class="bg-white rounded-2xl border border-emerald-200 shadow-sm p-4 flex flex-col justify-between h-full col-span-1 hover:shadow-md transition">
+            <div>
+                <div class="flex items-start justify-between gap-1 mb-2">
+                    <span class="text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase tracking-wider leading-tight">{{ $isQuiz ? 'Ketuntasan' : 'Kelulusan' }}</span>
+                    <div class="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center shrink-0">
+                        <i class="fas fa-medal text-emerald-600 text-xs"></i>
+                    </div>
                 </div>
+                <div class="text-2xl font-black text-emerald-600 tracking-tight leading-none">{{ $pctLulus }}%</div>
             </div>
-            <div class="text-2xl font-black text-emerald-600">{{ $pctLulus }}%</div>
-            <div class="text-[10px] text-slate-400">
+            <div class="text-[10px] text-slate-400 mt-2 font-medium">
                 @if($isQuiz)
                     {{ $lulus }} tuntas · {{ $remedial }} blm
                 @else
@@ -226,27 +235,31 @@
         </div>
 
         {{-- Nilai Tertinggi --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4.5 flex flex-col gap-1.5 col-span-1">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">Nilai Tertinggi</span>
-                <div class="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center">
-                    <i class="fas fa-trophy text-violet-500 text-xs"></i>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col justify-between h-full col-span-1 hover:shadow-md transition">
+            <div>
+                <div class="flex items-start justify-between gap-1 mb-2">
+                    <span class="text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase tracking-wider leading-tight">Nilai Tertinggi</span>
+                    <div class="w-7 h-7 rounded-lg bg-violet-100 flex items-center justify-center shrink-0">
+                        <i class="fas fa-trophy text-violet-500 text-xs"></i>
+                    </div>
                 </div>
+                <div class="text-2xl font-black text-violet-600 tracking-tight leading-none">{{ number_format($tertinggi, 0) }}</div>
             </div>
-            <div class="text-2xl font-black text-violet-600">{{ number_format($tertinggi, 0) }}</div>
-            <div class="text-[10px] text-slate-400">Skor maksimum</div>
+            <div class="text-[10px] text-slate-400 mt-2 font-medium">Skor maksimum</div>
         </div>
 
         {{-- Nilai Terendah --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4.5 flex flex-col gap-1.5 col-span-1">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wide">Nilai Terendah</span>
-                <div class="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center">
-                    <i class="fas fa-arrow-trend-down text-rose-500 text-xs"></i>
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col justify-between h-full col-span-1 hover:shadow-md transition">
+            <div>
+                <div class="flex items-start justify-between gap-1 mb-2">
+                    <span class="text-[10px] sm:text-[11px] text-slate-500 font-bold uppercase tracking-wider leading-tight">Nilai Terendah</span>
+                    <div class="w-7 h-7 rounded-lg bg-rose-100 flex items-center justify-center shrink-0">
+                        <i class="fas fa-arrow-trend-down text-rose-500 text-xs"></i>
+                    </div>
                 </div>
+                <div class="text-2xl font-black text-rose-500 tracking-tight leading-none">{{ number_format($terendah, 0) }}</div>
             </div>
-            <div class="text-2xl font-black text-rose-500">{{ number_format($terendah, 0) }}</div>
-            <div class="text-[10px] text-slate-400">Skor minimum</div>
+            <div class="text-[10px] text-slate-400 mt-2 font-medium">Skor minimum</div>
         </div>
     </div>
 

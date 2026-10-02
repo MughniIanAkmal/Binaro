@@ -22,6 +22,9 @@ class UjianController extends Controller
     {
         $guru = $this->authenticatedGuru();
         $search = $request->get('search');
+        if ($search) {
+            $search = preg_replace('/[^a-zA-Z0-9\s]/u', '', (string)$search);
+        }
         $level = $request->get('level');
         $mapelId = $request->get('mapel_id');
 

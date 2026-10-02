@@ -163,7 +163,7 @@ class GuruController extends Controller
 
         $jadwals = JadwalMataPelajaran::with(['mataPelajaran', 'kelas', 'guru'])
             ->when($guru, fn($q) => $q->where('id_guru', $guru->id_guru))
-            ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')")
+            ->orderByRaw("CASE hari WHEN 'Senin' THEN 1 WHEN 'Selasa' THEN 2 WHEN 'Rabu' THEN 3 WHEN 'Kamis' THEN 4 WHEN 'Jumat' THEN 5 WHEN 'Sabtu' THEN 6 ELSE 7 END")
             ->orderBy('jam')
             ->get();
 

@@ -91,9 +91,15 @@ class AuthController extends Controller
             if ($siswa && $this->verifyPassword($password, $siswa->password)) {
                 RateLimiter::clear($throttleKey);
                 Session::put([
-                    'user_id' => $siswa->id_siswa,
+                    'user_id'   => $siswa->id_siswa,
                     'user_type' => 'siswa',
                     'user_name' => $siswa->nm_siswa,
+                    'login'     => true,
+                    'role'      => 'siswa',
+                    'id_user'   => $siswa->id_siswa,
+                    'nama'      => $siswa->nm_siswa,
+                    'nis'       => $siswa->nisn,
+                    'id_rooms'  => $siswa->id_rooms ?? null,
                 ]);
                 return redirect('/siswa/dashboard')->with('success', 'Selamat datang, ' . $siswa->nm_siswa);
             }
@@ -105,9 +111,14 @@ class AuthController extends Controller
             if ($guru && $this->verifyPassword($password, $guru->password)) {
                 RateLimiter::clear($throttleKey);
                 Session::put([
-                    'user_id' => $guru->id_guru,
+                    'user_id'   => $guru->id_guru,
                     'user_type' => 'guru',
                     'user_name' => $guru->nama_guru,
+                    'login'     => true,
+                    'role'      => 'guru',
+                    'id_user'   => $guru->id_guru,
+                    'nama'      => $guru->nama_guru,
+                    'nip'       => $guru->nip,
                 ]);
                 return redirect('/guru/dashboard')->with('success', 'Selamat datang, ' . $guru->nama_guru);
             }
@@ -130,9 +141,13 @@ class AuthController extends Controller
         if ($admin && $this->verifyPassword($password, $admin->password)) {
             RateLimiter::clear($throttleKey);
             Session::put([
-                'user_id' => $admin->id_admin,
+                'user_id'   => $admin->id_admin,
                 'user_type' => 'admin',
                 'user_name' => $admin->nama_admin,
+                'login'     => true,
+                'role'      => 'admin',
+                'id_user'   => $admin->id_admin,
+                'nama'      => $admin->nama_admin,
             ]);
             return redirect('/admin/dashboard')->with('success', 'Selamat datang, ' . $admin->nama_admin);
         }
@@ -156,9 +171,14 @@ class AuthController extends Controller
         if ($guru && $this->verifyPassword($password, $guru->password)) {
             RateLimiter::clear($throttleKey);
             Session::put([
-                'user_id' => $guru->id_guru,
+                'user_id'   => $guru->id_guru,
                 'user_type' => 'guru',
                 'user_name' => $guru->nama_guru,
+                'login'     => true,
+                'role'      => 'guru',
+                'id_user'   => $guru->id_guru,
+                'nama'      => $guru->nama_guru,
+                'nip'       => $guru->nip,
             ]);
             return redirect('/guru/dashboard')->with('success', 'Selamat datang, ' . $guru->nama_guru);
         }
@@ -182,9 +202,15 @@ class AuthController extends Controller
         if ($siswa && $this->verifyPassword($password, $siswa->password)) {
             RateLimiter::clear($throttleKey);
             Session::put([
-                'user_id' => $siswa->id_siswa,
+                'user_id'   => $siswa->id_siswa,
                 'user_type' => 'siswa',
                 'user_name' => $siswa->nm_siswa,
+                'login'     => true,
+                'role'      => 'siswa',
+                'id_user'   => $siswa->id_siswa,
+                'nama'      => $siswa->nm_siswa,
+                'nis'       => $siswa->nisn,
+                'id_rooms'  => $siswa->id_rooms ?? null,
             ]);
             return redirect('/siswa/dashboard')->with('success', 'Selamat datang, ' . $siswa->nm_siswa);
         }

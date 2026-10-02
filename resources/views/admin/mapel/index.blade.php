@@ -13,15 +13,14 @@
             </div>
             <h2 class="text-2xl font-black text-slate-900 tracking-tight">Daftar Mata Pelajaran</h2>
             <p class="text-xs text-slate-500">
-                Hak akses Administrator difokuskan untuk <strong>monitoring (lihat)</strong> dan <strong>penghapusan (delete)</strong> mata pelajaran.
-                Penyusunan kurikulum, modul, bab, dan materi pembelajaran yang fleksibel dikelola langsung oleh <strong>Guru</strong>.
+                Kelola master data mata pelajaran SDN Kalitapen 01. Anda dapat menambahkan mata pelajaran baru, memonitor, dan menghapus mapel.
             </p>
         </div>
 
         <div class="flex items-center gap-2">
-            <span class="px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold rounded-xl flex items-center gap-1.5">
-                <i class="fas fa-lock text-amber-600 text-xs"></i> Mode: Lihat & Hapus (Read-Only & Delete)
-            </span>
+            <button type="button" onclick="openCreateModal()" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                <i class="fas fa-plus"></i> Tambah Mapel
+            </button>
         </div>
     </div>
 
@@ -168,4 +167,72 @@
         @endif
     </div>
 </div>
+
+<!-- Modal Tambah Mapel (Admin) -->
+<div id="createModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-sky-100 text-[#13527D] flex items-center justify-center text-base font-bold">
+                    <i class="fas fa-book-bookmark"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-slate-900">Tambah Mata Pelajaran</h3>
+                    <p class="text-[11px] text-slate-400">Tambahkan mata pelajaran baru ke sistem</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeCreateModal()" class="text-slate-400 hover:text-slate-600 transition">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <form action="{{ route('mapel.store') }}" method="POST" class="space-y-4 text-xs">
+            @csrf
+            <div>
+                <label class="block font-bold text-slate-700 mb-1">
+                    Nama Mata Pelajaran <span class="text-rose-500">*</span>
+                </label>
+                <input type="text" name="nama_mapel" required maxlength="100"
+                       placeholder="Contoh: Matematika, IPA, PJOK, Seni Budaya..."
+                       oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\&\-\(\)\/\.]/g, '');"
+                       class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition">
+                <span class="text-[10px] text-slate-400 mt-1 block">Maksimal 100 karakter.</span>
+            </div>
+            <div>
+                <label class="block font-bold text-slate-700 mb-1">
+                    Deskripsi Singkat
+                </label>
+                <textarea name="deskripsi" rows="3" maxlength="1000"
+                          placeholder="Tuliskan cakupan mata pelajaran atau keterangan tambahan..."
+                          class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition"></textarea>
+            </div>
+            <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                <button type="button" onclick="closeCreateModal()"
+                        class="px-4 py-2 border border-slate-200 rounded-xl font-semibold text-slate-600 hover:bg-slate-50 transition">
+                    Batal
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-[#13527D] text-white rounded-xl font-bold hover:bg-[#0E3D5D] transition shadow-sm flex items-center gap-1.5">
+                    <i class="fas fa-save"></i> Simpan Mapel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openCreateModal() {
+        const m = document.getElementById('createModal');
+        if (m) {
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+        }
+    }
+    function closeCreateModal() {
+        const m = document.getElementById('createModal');
+        if (m) {
+            m.classList.remove('flex');
+            m.classList.add('hidden');
+        }
+    }
+</script>
 @endsection

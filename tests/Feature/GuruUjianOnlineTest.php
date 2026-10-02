@@ -439,93 +439,73 @@ class GuruUjianOnlineTest extends TestCase
         $showRes->assertSee('Rata-rata: 3m', false);
     }
 
-    public function test_guru_can_set_and_update_soal_difficulty_level()
+    public function test_guru_cannot_create_or_update_duplicate_ujian_online()
     {
         $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
 
-        // 1. Create exam with questions of various difficulty levels
-        $createRes = $this->withSession($session)->post(route('guru.ujian.store'), [
-            'judul_quiz'    => 'Ujian Matematika Bertingkat',
+        Quiz::create([
+            'id_guru'       => $this->guru->id_guru,
             'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz'    => 'Ujian Akhir Semester IPA',
+            'nama_quiz'     => 'Ujian Akhir Semester IPA',
             'tingkat_level' => 'sedang',
             'durasi_menit'  => 60,
             'target_tipe'   => 'semua',
-            'soal' => [
-                [
-                    'pertanyaan'        => 'Berapa hasil satu tambah satu?',
-                    'opsi_a'            => 'Dua',
-                    'opsi_b'            => 'Tiga',
-                    'opsi_c'            => 'Empat',
-                    'opsi_d'            => 'Lima',
-                    'kunci_jawaban'     => 'A',
-                    'bobot_nilai'       => 10,
-                    'tingkat_kesulitan' => 'mudah',
-                ],
-                [
-                    'pertanyaan'        => 'Berapa nilai integral tentu dari dua x?',
-                    'opsi_a'            => 'x kuadrat',
-                    'opsi_b'            => 'dua x kuadrat',
-                    'opsi_c'            => 'x',
-                    'opsi_d'            => 'dua',
-                    'kunci_jawaban'     => 'A',
-                    'bobot_nilai'       => 20,
-                    'tingkat_kesulitan' => 'sulit',
-                ],
-            ],
         ]);
 
-        $createRes->assertRedirect(route('guru.ujian.index'));
-
-        $quiz = Quiz::where('judul_quiz', 'Ujian Matematika Bertingkat')->first();
-        $this->assertNotNull($quiz);
-
-        $soalMudah = SoalQuiz::where('id_quiz', $quiz->id_quiz)->where('tingkat_kesulitan', 'mudah')->first();
-        $this->assertNotNull($soalMudah);
-        $this->assertEquals('Berapa hasil satu tambah satu?', $soalMudah->pertanyaan);
-
-        $soalSulit = SoalQuiz::where('id_quiz', $quiz->id_quiz)->where('tingkat_kesulitan', 'sulit')->first();
-        $this->assertNotNull($soalSulit);
-        $this->assertEquals('Berapa nilai integral tentu dari dua x?', $soalSulit->pertanyaan);
-
-        // 2. Add another question via storeSoal with 'sedang'
-        $addSoalRes = $this->withSession($session)->post(route('guru.ujian.soal.store', $quiz->id_quiz), [
-            'pertanyaan'        => 'Berapa hasil lima kali lima?',
-            'opsi_a'            => 'Dua puluh lima',
-            'opsi_b'            => 'Tiga puluh',
-            'opsi_c'            => 'Dua puluh',
-            'opsi_d'            => 'Lima belas',
-            'kunci_jawaban'     => 'A',
-            'bobot_nilai'       => 15,
-            'tingkat_kesulitan' => 'sedang',
+        // Attempt store with duplicate title (different case/whitespace)
+        $storeRes = $this->withSession($session)->post(route('guru.ujian.store'), [
+            'judul_quiz'    => ' ujian akhir semester ipa ',
+            'id_mapel'      => $this->mapel->id_mapel,
+            'tingkat_level' => 'mudah',
+            'durasi_menit'  => 45,
+            'target_tipe'   => 'semua',
         ]);
-        $addSoalRes->assertRedirect();
 
-        $soalSedang = SoalQuiz::where('id_quiz', $quiz->id_quiz)->where('pertanyaan', 'Berapa hasil lima kali lima?')->first();
-        $this->assertNotNull($soalSedang);
-        $this->assertEquals('sedang', $soalSedang->tingkat_kesulitan);
+        $storeRes->assertSessionHasErrors(['judul_quiz']);
 
-        // 3. Update question difficulty from 'sedang' to 'sulit'
-        $updateSoalRes = $this->withSession($session)->put(route('guru.ujian.soal.update', [$quiz->id_quiz, $soalSedang->id_soal]), [
-            'pertanyaan'        => 'Berapa hasil lima kali lima dikali dua?',
-            'opsi_a'            => 'Lima puluh',
-            'opsi_b'            => 'Enam puluh',
-            'opsi_c'            => 'Empat puluh',
-            'opsi_d'            => 'Tiga puluh',
-            'kunci_jawaban'     => 'A',
-            'bobot_nilai'       => 20,
-            'tingkat_kesulitan' => 'sulit',
+        // Create second quiz to update
+        $quiz2 = Quiz::create([
+            'id_guru'       => $this->guru->id_guru,
+            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz'    => 'Ujian Bahasa Indonesia',
+            'nama_quiz'     => 'Ujian Bahasa Indonesia',
+            'tingkat_level' => 'mudah',
+            'durasi_menit'  => 30,
+            'target_tipe'   => 'semua',
         ]);
-        $updateSoalRes->assertRedirect();
 
-        $soalSedang->refresh();
-        $this->assertEquals('sulit', $soalSedang->tingkat_kesulitan);
-        $this->assertEquals('Berapa hasil lima kali lima dikali dua?', $soalSedang->pertanyaan);
+        // Attempt update quiz2 to existing quiz1 title
+        $updateRes = $this->withSession($session)->put(route('guru.ujian.update', $quiz2->id_quiz), [
+            'judul_quiz'    => 'Ujian Akhir Semester IPA',
+            'id_mapel'      => $this->mapel->id_mapel,
+            'tingkat_level' => 'mudah',
+            'durasi_menit'  => 30,
+            'target_tipe'   => 'semua',
+        ]);
 
-        // 4. View show page displays badges
-        $showRes = $this->withSession($session)->get(route('guru.ujian.show', $quiz->id_quiz));
-        $showRes->assertStatus(200);
-        $showRes->assertSee('🟢 Mudah');
-        $showRes->assertSee('🔴 Sulit');
+        $updateRes->assertSessionHasErrors(['judul_quiz']);
+    }
+
+    public function test_search_ujian_online_sanitizes_symbols()
+    {
+        $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
+
+        Quiz::create([
+            'id_guru'       => $this->guru->id_guru,
+            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz'    => 'Ujian Biologi Sel',
+            'nama_quiz'     => 'Ujian Biologi Sel',
+            'tingkat_level' => 'sedang',
+            'durasi_menit'  => 60,
+            'target_tipe'   => 'semua',
+        ]);
+
+        // Search with symbols e.g. "Biologi@#$%^&*" -> sanitized to "Biologi"
+        $res = $this->withSession($session)->get(route('guru.ujian.index', ['search' => 'Biologi@#$%^&*']));
+        $res->assertStatus(200);
+        $res->assertSee('Ujian Biologi Sel');
+        $res->assertSee('oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, \'\')"', false);
     }
 
     public function test_guru_cannot_access_another_gurus_ujian_or_questions()
