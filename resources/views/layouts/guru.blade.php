@@ -32,9 +32,15 @@
 
         <!-- Sidebar Navigation: Hanya Mata Pelajaran & Kelola Materi -->
         <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto">
+            <!-- 0. Menu Dashboard -->
+            <a href="{{ route('guru.dashboard') }}"
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.dashboard') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
+                <i class="fas fa-house w-4"></i> Dashboard
+            </a>
+
             <!-- 1. Menu Mata Pelajaran (Hierarki: Grid Mapel -> Bab -> Sub-Bab -> Materi) -->
             <a href="{{ route('guru.mapel.browse') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.mapel.*') || request()->routeIs('guru.bab.*') || request()->routeIs('guru.sub_bab.*') || request()->routeIs('guru.materi.*') || request()->routeIs('guru.dashboard') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
+               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.mapel.*') || request()->routeIs('guru.bab.*') || request()->routeIs('guru.sub_bab.*') || request()->routeIs('guru.materi.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
                 <i class="fas fa-book-bookmark w-4"></i> Mata Pelajaran
             </a>
 

@@ -79,7 +79,14 @@
                 @if(($quiz->target_tipe ?? 'semua') === 'semua')
                     <span class="text-blue-600"><i class="fas fa-users mr-1"></i> Semua Siswa</span>
                 @else
-                    <span class="text-purple-600"><i class="fas fa-user-tag mr-1"></i> {{ $quiz->targetSiswa->count() }} Siswa Pilihan</span>
+                    @php
+                        $kelasQuiz = $quiz->targetSiswa->map(fn($s) => $s->kelas->pararel ?? $s->kelas->nama_kelas ?? null)->filter()->unique()->values();
+                    @endphp
+                    @if($kelasQuiz->count() === 1)
+                        <span class="text-purple-600" title="{{ $quiz->targetSiswa->pluck('nm_siswa')->join(', ') }}"><i class="fas fa-users mr-1"></i> Siswa kelas {{ $kelasQuiz->first() }}</span>
+                    @else
+                        <span class="text-purple-600"><i class="fas fa-user-tag mr-1"></i> {{ $quiz->targetSiswa->count() }} Siswa Pilihan</span>
+                    @endif
                 @endif
             </div>
         </div>
@@ -233,7 +240,14 @@
                     </div>
                 @else
                     <div class="space-y-2">
-                        <p class="text-xs text-slate-600">Daftar {{ $quiz->targetSiswa->count() }} siswa yang ditugaskan mengerjakan ujian ini:</p>
+                        @php
+                            $kelasPeserta = $quiz->targetSiswa->map(fn($s) => $s->kelas->pararel ?? $s->kelas->nama_kelas ?? null)->filter()->unique()->values();
+                        @endphp
+                        @if($kelasPeserta->count() === 1)
+                            <p class="text-xs text-slate-600">Daftar <strong>siswa kelas {{ $kelasPeserta->first() }}</strong> ({{ $quiz->targetSiswa->count() }} siswa) yang ditugaskan mengerjakan ujian ini:</p>
+                        @else
+                            <p class="text-xs text-slate-600">Daftar {{ $quiz->targetSiswa->count() }} siswa yang ditugaskan mengerjakan ujian ini:</p>
+                        @endif
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                             @foreach($quiz->targetSiswa as $ts)
                             <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs flex items-center gap-2">

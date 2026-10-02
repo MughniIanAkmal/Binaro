@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Guru;
+use App\Models\JadwalMataPelajaran;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Quiz;
@@ -40,6 +41,12 @@ class GuruUjianOnlineTest extends TestCase
         $this->kelas = Kelas::firstOrCreate(
             ['pararel' => 'Kelas 4-A'],
             ['tingkat' => 4]
+        );
+
+        // Jadwal ampuan: guru mengampu mapel tersebut agar lolos validasi ampuan.
+        JadwalMataPelajaran::firstOrCreate(
+            ['id_guru' => $this->guru->id_guru, 'id_mapel' => $this->mapel->id_mapel, 'id_rooms' => $this->kelas->id_rooms],
+            ['hari' => 'Senin', 'jam' => '07:00-08:00']
         );
 
         $this->siswa1 = Siswa::create([

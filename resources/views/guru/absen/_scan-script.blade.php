@@ -88,7 +88,7 @@ async function kirim(kode, metode) {
 }
 
 let scanner = null;
-let kameraBelakang = true;
+let kameraBelakang = false;
 const KONFIG_SCAN = { fps: 10, qrbox: { width: 200, height: 200 }, aspectRatio: 1.0 };
 if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
     // Batasi ke QR Code saja agar deteksi lebih cepat dan tidak salah baca barcode lain.

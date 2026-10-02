@@ -132,39 +132,42 @@
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-            <label class="p-4 rounded-2xl border {{ $defKes === 'mudah' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} cursor-pointer flex flex-col justify-between transition hover:border-emerald-400 shadow-xs select-kes-card" id="petunjuk-card-mudah">
+            <label class="p-4 rounded-2xl border {{ $defKes === 'mudah' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} flex flex-col justify-between transition shadow-xs select-kes-card {{ ($countMudah ?? 0) === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-emerald-400' }}" id="petunjuk-card-mudah">
                 <div class="flex items-center justify-between">
-                    <input type="radio" name="pilihan_kesulitan" value="mudah" {{ $defKes === 'mudah' ? 'checked' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-emerald-600 focus:ring-0">
+                    <input type="radio" name="pilihan_kesulitan" value="mudah" {{ $defKes === 'mudah' ? 'checked' : '' }} {{ ($countMudah ?? 0) === 0 ? 'disabled' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-emerald-600 focus:ring-0 disabled:cursor-not-allowed">
                     <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">Mudah</span>
                 </div>
                 <div class="mt-2">
                     <span class="text-xs font-black text-slate-900 block">🟢 Level Mudah</span>
-                    <span class="text-[11px] text-slate-500 font-semibold mt-0.5 block">{{ $countMudah ?? 0 }} Butir Soal</span>
+                    <span class="text-[11px] font-semibold mt-0.5 block {{ ($countMudah ?? 0) === 0 ? 'text-rose-500' : 'text-slate-500' }}">{{ $countMudah ?? 0 }} Butir Soal{{ ($countMudah ?? 0) === 0 ? ' • Kosong' : '' }}</span>
                 </div>
             </label>
 
-            <label class="p-4 rounded-2xl border {{ $defKes === 'sedang' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} cursor-pointer flex flex-col justify-between transition hover:border-amber-400 shadow-xs select-kes-card" id="petunjuk-card-sedang">
+            <label class="p-4 rounded-2xl border {{ $defKes === 'sedang' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} flex flex-col justify-between transition shadow-xs select-kes-card {{ ($countSedang ?? 0) === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-amber-400' }}" id="petunjuk-card-sedang">
                 <div class="flex items-center justify-between">
-                    <input type="radio" name="pilihan_kesulitan" value="sedang" {{ $defKes === 'sedang' ? 'checked' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-amber-600 focus:ring-0">
+                    <input type="radio" name="pilihan_kesulitan" value="sedang" {{ $defKes === 'sedang' ? 'checked' : '' }} {{ ($countSedang ?? 0) === 0 ? 'disabled' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-amber-600 focus:ring-0 disabled:cursor-not-allowed">
                     <span class="text-[10px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">Sedang</span>
                 </div>
                 <div class="mt-2">
                     <span class="text-xs font-black text-slate-900 block">🟡 Level Sedang</span>
-                    <span class="text-[11px] text-slate-500 font-semibold mt-0.5 block">{{ $countSedang ?? 0 }} Butir Soal</span>
+                    <span class="text-[11px] font-semibold mt-0.5 block {{ ($countSedang ?? 0) === 0 ? 'text-rose-500' : 'text-slate-500' }}">{{ $countSedang ?? 0 }} Butir Soal{{ ($countSedang ?? 0) === 0 ? ' • Kosong' : '' }}</span>
                 </div>
             </label>
 
-            <label class="p-4 rounded-2xl border {{ $defKes === 'sulit' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} cursor-pointer flex flex-col justify-between transition hover:border-rose-400 shadow-xs select-kes-card" id="petunjuk-card-sulit">
+            <label class="p-4 rounded-2xl border {{ $defKes === 'sulit' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} flex flex-col justify-between transition shadow-xs select-kes-card {{ ($countSulit ?? 0) === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-rose-400' }}" id="petunjuk-card-sulit">
                 <div class="flex items-center justify-between">
-                    <input type="radio" name="pilihan_kesulitan" value="sulit" {{ $defKes === 'sulit' ? 'checked' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-rose-600 focus:ring-0">
+                    <input type="radio" name="pilihan_kesulitan" value="sulit" {{ $defKes === 'sulit' ? 'checked' : '' }} {{ ($countSulit ?? 0) === 0 ? 'disabled' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-rose-600 focus:ring-0 disabled:cursor-not-allowed">
                     <span class="text-[10px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">Sulit</span>
                 </div>
                 <div class="mt-2">
                     <span class="text-xs font-black text-slate-900 block">🔴 Level Sulit</span>
-                    <span class="text-[11px] text-slate-500 font-semibold mt-0.5 block">{{ $countSulit ?? 0 }} Butir Soal</span>
+                    <span class="text-[11px] font-semibold mt-0.5 block {{ ($countSulit ?? 0) === 0 ? 'text-rose-500' : 'text-slate-500' }}">{{ $countSulit ?? 0 }} Butir Soal{{ ($countSulit ?? 0) === 0 ? ' • Kosong' : '' }}</span>
                 </div>
             </label>
         </div>
+        <p id="peringatan-level-kosong" class="hidden text-xs font-bold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl px-3 py-2">
+            Level tersebut tidak memiliki soal. Silakan pilih level yang tersedia.
+        </p>
     </div>
 
     <!-- Petunjuk Pengerjaan Card -->
@@ -232,8 +235,25 @@
 <script>
     let basePlayUrl = '{{ route('siswa.ujian.play', $quiz->id_quiz) }}';
     let currentSelectedKesulitan = '{{ $defKes }}';
+    const JUMLAH_PER_LEVEL = {
+        mudah: {{ (int) ($countMudah ?? 0) }},
+        sedang: {{ (int) ($countSedang ?? 0) }},
+        sulit: {{ (int) ($countSulit ?? 0) }},
+    };
 
     function changePetunjukKesulitan(val) {
+        // Tolak level kosong (mis. guru hanya mengisi soal sedang).
+        if ((JUMLAH_PER_LEVEL[val] ?? 0) === 0) {
+            document.getElementById('peringatan-level-kosong')?.classList.remove('hidden');
+            const fallback = ['sedang', 'mudah', 'sulit'].find(lvl => (JUMLAH_PER_LEVEL[lvl] ?? 0) > 0);
+            if (fallback) {
+                const radio = document.querySelector(`input[name="pilihan_kesulitan"][value="${fallback}"]`);
+                if (radio) radio.checked = true;
+                currentSelectedKesulitan = fallback;
+            }
+            return;
+        }
+        document.getElementById('peringatan-level-kosong')?.classList.add('hidden');
         currentSelectedKesulitan = val;
         document.querySelectorAll('.select-kes-card').forEach(el => {
             el.classList.remove('border-2', 'border-[#13527D]', 'bg-sky-50/50');

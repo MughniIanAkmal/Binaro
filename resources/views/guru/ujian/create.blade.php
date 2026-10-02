@@ -70,6 +70,13 @@
                             </option>
                         @endforeach
                     </select>
+                    @if($mapels->isEmpty())
+                        <p class="mt-1.5 text-[11px] font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-2.5 py-1.5">
+                            <i class="fas fa-triangle-exclamation mr-1"></i> Belum ada mata pelajaran yang Anda ampu. Hubungi admin untuk penjadwalan.
+                        </p>
+                    @else
+                        <p class="mt-1 text-[10px] text-slate-400">Hanya menampilkan mata pelajaran yang Anda ampu.</p>
+                    @endif
                 </div>
 
                 <!-- Durasi Ujian -->

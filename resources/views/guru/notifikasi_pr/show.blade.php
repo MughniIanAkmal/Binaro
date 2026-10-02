@@ -16,9 +16,6 @@
             <h1 class="text-xl font-bold text-slate-900">Rincian PR & Riwayat Siswa Penerima</h1>
         </div>
         <div class="flex items-center gap-2">
-            <button type="button" onclick="openKirimModalShow()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl shadow transition flex items-center gap-1.5">
-                <i class="fas fa-paper-plane text-xs"></i> Kirim Notifikasi ke Siswa
-            </button>
             <a href="{{ route('guru.notifikasi_pr.edit', $pr->id_pr) }}" class="px-3.5 py-2 bg-sky-50 hover:bg-sky-100 text-[#13527D] font-bold text-xs rounded-xl transition flex items-center gap-1.5 border border-sky-100">
                 <i class="fas fa-pen-to-square text-xs"></i> Edit PR
             </a>
@@ -164,7 +161,7 @@
                                 <i class="fas fa-paper-plane"></i>
                             </div>
                             <p class="font-bold text-slate-700 text-xs">Belum ada notifikasi yang dikirimkan untuk PR ini.</p>
-                            <p class="text-slate-400 text-[11px] mt-0.5">Klik tombol "Kirim Notifikasi ke Siswa" di atas untuk mengirimkan pemberitahuan.</p>
+                            <p class="text-slate-400 text-[11px] mt-0.5">Notifikasi akan terkirim otomatis saat PR dibuat atau diperbarui melalui menu Edit.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -173,104 +170,4 @@
         </div>
     </div>
 </div>
-
-<!-- Modal Kirim Notifikasi untuk PR Ini -->
-<div id="modal-kirim-show" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 overflow-hidden transform transition-all animate-scale-up">
-        <div class="bg-gradient-to-r from-[#0E385D] to-[#165B96] px-6 py-4 text-white flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-black text-sm">
-                    <i class="fas fa-paper-plane"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-sm">Kirim Notifikasi PR: {{ $pr->nama_pr }}</h3>
-                    <p class="text-[11px] text-sky-200">Kirimkan notifikasi baru ke siswa untuk tugas ini</p>
-                </div>
-            </div>
-            <button onclick="closeKirimModalShow()" class="text-white/70 hover:text-white text-lg">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-
-        <form action="{{ route('guru.notifikasi_pr.kirim') }}" method="POST" class="p-6 space-y-4">
-            @csrf
-            <input type="hidden" name="id_pr" value="{{ $pr->id_pr }}">
-
-            <!-- Target Siswa -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Target Siswa Penerima <span class="text-rose-500">*</span></label>
-                <div class="grid grid-cols-3 gap-2 text-xs">
-                    <label class="border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="target_tipe" value="semua" checked onchange="toggleShowModalTarget(this.value)" class="text-[#13527D]">
-                        <span class="font-bold text-slate-800 text-[11px]">Semua Siswa</span>
-                    </label>
-                    <label class="border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="target_tipe" value="kelas" onchange="toggleShowModalTarget(this.value)" class="text-[#13527D]">
-                        <span class="font-bold text-slate-800 text-[11px]">Per Kelas</span>
-                    </label>
-                    <label class="border border-slate-200 rounded-xl p-2.5 flex items-center gap-2 cursor-pointer hover:bg-slate-50 transition">
-                        <input type="radio" name="target_tipe" value="siswa" onchange="toggleShowModalTarget(this.value)" class="text-[#13527D]">
-                        <span class="font-bold text-slate-800 text-[11px]">Pilih Siswa</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Target Kelas Selector -->
-            <div id="show_target_kelas_wrap" class="hidden">
-                <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Kelas</label>
-                <select name="target_kelas" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#13527D]">
-                    <option value="">-- Pilih Kelas --</option>
-                    @foreach($kelas as $k)
-                        <option value="{{ $k->id_rooms }}">{{ $k->pararel }} ({{ $k->siswas_count }} Siswa)</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <!-- Target Siswa Multi-Select -->
-            <div id="show_target_siswa_wrap" class="hidden">
-                <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Nama Siswa</label>
-                <div class="max-h-36 overflow-y-auto border border-slate-200 rounded-xl p-2 space-y-1 bg-slate-50">
-                    @foreach($siswas as $s)
-                    <label class="flex items-center gap-2 p-1.5 hover:bg-white rounded-lg text-xs cursor-pointer">
-                        <input type="checkbox" name="target_siswa[]" value="{{ $s->id_siswa }}" class="rounded text-[#13527D]">
-                        <span class="font-semibold text-slate-800">{{ $s->nm_siswa }}</span>
-                        <span class="text-[10px] text-slate-400">({{ $s->kelas->pararel ?? 'Siswa' }})</span>
-                    </label>
-                    @endforeach
-                </div>
-            </div>
-
-            <!-- Pesan Notifikasi -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">Isi Pesan Notifikasi <span class="text-rose-500">*</span></label>
-                <textarea name="pesan" rows="3" required
-                          class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">Tugas PR: '{{ $pr->nama_pr }}' ({{ $pr->mataPelajaran->nama_mapel ?? '' }}). Batas pengumpulan: {{ \Carbon\Carbon::parse($pr->tgl_tenggat)->translatedFormat('d M Y') }}, {{ \Carbon\Carbon::parse($pr->tgl_tenggat)->format('H:i') }} WIB. Silakan kerjakan dan kumpulkan tepat waktu.</textarea>
-            </div>
-
-            <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-                <button type="button" onclick="closeKirimModalShow()" class="px-4 py-2 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 transition">
-                    Batal
-                </button>
-                <button type="submit" class="px-5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow">
-                    <i class="fas fa-paper-plane text-xs"></i> Kirim Notifikasi Sekarang
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-function openKirimModalShow() {
-    document.getElementById('modal-kirim-show').classList.remove('hidden');
-}
-
-function closeKirimModalShow() {
-    document.getElementById('modal-kirim-show').classList.add('hidden');
-}
-
-function toggleShowModalTarget(tipe) {
-    document.getElementById('show_target_kelas_wrap').classList.toggle('hidden', tipe !== 'kelas');
-    document.getElementById('show_target_siswa_wrap').classList.toggle('hidden', tipe !== 'siswa');
-}
-</script>
 @endsection

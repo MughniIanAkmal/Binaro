@@ -179,15 +179,24 @@ class SiswaLearningController extends Controller
 
             $filteredSoals = $soalQuery->orderBy('id_soal', 'asc')->get();
 
-            // Jika ada soal yang sesuai dengan tingkat kesulitan yang dipilih, sajikan soal tersebut.
-            // Jika kosong, fallback otomatis ke butir soal yang tersedia agar siswa tidak terblokir.
-            if ($filteredSoals->isNotEmpty()) {
-                $soals = $filteredSoals;
-            } else {
-                $soals = SoalQuiz::where('id_quiz', $idQuiz)->orderBy('id_soal', 'asc')->get();
-                $firstSoal = $soals->first();
-                $pilihanKesulitan = $firstSoal ? ($firstSoal->tingkat_kesulitan ?? 'sedang') : 'sedang';
+            // Jika kosong, JANGAN fallback ke level lain untuk ujian resmi:
+            // guru hanya menyediakan soal pada level tertentu, siswa wajib
+            // mengerjakan level yang tersedia.
+            if ($filteredSoals->isEmpty()) {
+                $labelLevel = ['mudah' => 'mudah', 'sedang' => 'sedang', 'sulit' => 'sulit'][$pilihanKesulitan] ?? $pilihanKesulitan;
+                $totalTersedia = SoalQuiz::where('id_quiz', $idQuiz)->count();
+                if ($totalTersedia === 0) {
+                    $errorMsg = !empty($quiz->id_sub_bab)
+                        ? 'Guru belum menginput butir soal untuk kuis ini.'
+                        : 'Guru belum menginput butir soal untuk ujian ini. Silakan hubungi guru pengampu.';
+                } else {
+                    $errorMsg = "Level {$labelLevel} tidak tersedia untuk ujian ini (0 soal). Guru hanya menyediakan soal pada level lain. Silakan pilih level yang memiliki soal.";
+                }
+
+                return back()->with('error', $errorMsg);
             }
+
+            $soals = $filteredSoals;
         }
 
         if ($soals->isEmpty()) {
@@ -342,6 +351,12 @@ class SiswaLearningController extends Controller
                                ->where('id_siswa', $siswaId)
                                ->firstOrFail();
 
+        // Pesan nilai terbaru dari guru untuk ujian ini (jika ada).
+        $notifNilai = \App\Models\Notifikasi::where('id_siswa', $siswaId)
+                               ->where('pesan', 'like', '%' . $quiz->judul_quiz . '%')
+                               ->latest('id_notifikasi')
+                               ->first();
+
         $reviewDetails = session('quiz_review_' . $idQuiz, null);
         if (!$reviewDetails) {
             $quizSoals = SoalQuiz::where('id_quiz', $idQuiz)->orderBy('id_soal', 'asc')->get();
@@ -363,10 +378,10 @@ class SiswaLearningController extends Controller
 
         // Pisahkan tampilan: Kuis Materi vs Ujian Online Resmi CBT
         if (empty($quiz->id_sub_bab)) {
-            return view('siswa.ujian.result', compact('quiz', 'hasil', 'reviewDetails'));
+            return view('siswa.ujian.result', compact('quiz', 'hasil', 'reviewDetails', 'notifNilai'));
         }
 
-        return view('siswa.quiz.result', compact('quiz', 'hasil', 'reviewDetails'));
+        return view('siswa.quiz.result', compact('quiz', 'hasil', 'reviewDetails', 'notifNilai'));
     }
 
     // 6.1 View Ujian Online Result

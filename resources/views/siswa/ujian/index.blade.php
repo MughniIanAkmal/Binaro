@@ -448,6 +448,22 @@
     }
 
     let activeModalPlayUrl = '';
+    let activeModalCounts = { mudah: 0, sedang: 0, sulit: 0 };
+
+    function setModalCardState(level, count) {
+        const card = document.getElementById('card-kes-' + level);
+        const radio = document.querySelector(`input[name="modal_kesulitan"][value="${level}"]`);
+        if (!card || !radio) return;
+        if ((count || 0) === 0) {
+            radio.disabled = true;
+            card.classList.add('opacity-50');
+            card.title = 'Level ini tidak memiliki soal';
+        } else {
+            radio.disabled = false;
+            card.classList.remove('opacity-50');
+            card.title = '';
+        }
+    }
 
     function openPetunjukModal(data) {
         activeModalPlayUrl = data.playUrl;
@@ -458,26 +474,40 @@
         document.getElementById('modal-ujian-jumlah').textContent = data.totalSoal + ' Soal';
         document.getElementById('modal-ujian-level').textContent = data.level;
 
-        document.getElementById('label-count-mudah').textContent = (data.mudahs || 0) + ' Soal';
-        document.getElementById('label-count-sedang').textContent = (data.sedangs || 0) + ' Soal';
-        document.getElementById('label-count-sulit').textContent = (data.sulits || 0) + ' Soal';
+        document.getElementById('label-count-mudah').textContent = (data.mudahs || 0) + ' Soal' + ((data.mudahs || 0) === 0 ? ' • Kosong' : '');
+        document.getElementById('label-count-sedang').textContent = (data.sedangs || 0) + ' Soal' + ((data.sedangs || 0) === 0 ? ' • Kosong' : '');
+        document.getElementById('label-count-sulit').textContent = (data.sulits || 0) + ' Soal' + ((data.sulits || 0) === 0 ? ' • Kosong' : '');
 
-        // Tentukan default kesulitan yang aktif (prioritas: sedang -> mudah -> sulit)
+        activeModalCounts = { mudah: data.mudahs || 0, sedang: data.sedangs || 0, sulit: data.sulits || 0 };
+        setModalCardState('mudah', activeModalCounts.mudah);
+        setModalCardState('sedang', activeModalCounts.sedang);
+        setModalCardState('sulit', activeModalCounts.sulit);
+
+        // Tentukan default kesulitan yang aktif (hanya dari level yang ada soalnya)
         let defaultKes = 'sedang';
-        if ((!data.sedangs || data.sedangs === 0) && data.mudahs > 0) {
-            defaultKes = 'mudah';
-        } else if ((!data.sedangs || data.sedangs === 0) && (!data.mudahs || data.mudahs === 0) && data.sulits > 0) {
-            defaultKes = 'sulit';
+        if ((activeModalCounts.sedang || 0) === 0) {
+            if ((activeModalCounts.mudah || 0) > 0) defaultKes = 'mudah';
+            else if ((activeModalCounts.sulit || 0) > 0) defaultKes = 'sulit';
         }
 
         const radio = document.querySelector(`input[name="modal_kesulitan"][value="${defaultKes}"]`);
-        if (radio) radio.checked = true;
+        if (radio && !radio.disabled) radio.checked = true;
         updateModalKesulitan(defaultKes);
 
         document.getElementById('modal-petunjuk-ujian').classList.remove('hidden');
     }
 
     function updateModalKesulitan(val) {
+        // Tolak level kosong: kembalikan ke level yang tersedia.
+        if ((activeModalCounts[val] || 0) === 0) {
+            const fallback = ['sedang', 'mudah', 'sulit'].find(lvl => (activeModalCounts[lvl] || 0) > 0);
+            if (fallback && fallback !== val) {
+                const radio = document.querySelector(`input[name="modal_kesulitan"][value="${fallback}"]`);
+                if (radio) radio.checked = true;
+                updateModalKesulitan(fallback);
+            }
+            return;
+        }
         document.querySelectorAll('.kes-modal-card').forEach(el => {
             el.classList.remove('border-2', 'border-[#13527D]', 'border-emerald-500', 'border-amber-500', 'border-rose-500', 'bg-sky-50/50');
             el.classList.add('border-slate-200', 'bg-white');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
 use App\Models\Guru;
+use App\Models\JadwalMataPelajaran;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Quiz;
@@ -30,7 +31,7 @@ class UjianController extends Controller
 
     $query = Quiz::whereNull('id_sub_bab')
         ->where('id_guru', $guru->id_guru)
-            ->with(['mataPelajaran', 'guru', 'soal', 'targetSiswa', 'hasilSiswa'])
+            ->with(['mataPelajaran', 'guru', 'soal', 'targetSiswa.kelas', 'hasilSiswa'])
             ->withCount(['soal', 'hasilSiswa']);
 
         if ($search) {
@@ -50,7 +51,7 @@ class UjianController extends Controller
         }
 
         $ujians = $query->latest('id_quiz')->paginate(10)->withQueryString();
-        $mapels = MataPelajaran::orderBy('nama_mapel')->get();
+        $mapels = $this->mapelAmpuan();
 
         // Statistik singkat (khusus ujian online resmi)
         $totalUjian = Quiz::whereNull('id_sub_bab')
@@ -74,7 +75,7 @@ class UjianController extends Controller
      */
     public function create()
     {
-        $mapels = MataPelajaran::orderBy('nama_mapel')->get();
+        $mapels = $this->mapelAmpuan();
         $kelasList = Kelas::with(['siswas' => function ($q) {
             $q->orderBy('nm_siswa');
         }])->orderBy('pararel')->get();
@@ -126,6 +127,12 @@ class UjianController extends Controller
             'target_tipe.required'   => 'Pilih sasaran peserta ujian (Semua Siswa atau Siswa Tertentu).',
             'deskripsi.max'          => 'Deskripsi ujian maksimal 1000 karakter.',
         ]);
+
+        if (! $this->mapelAmpuanIds()->contains((int) $request->id_mapel)) {
+            return back()->withInput()->withErrors([
+                'id_mapel' => 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.'
+            ])->with('error', 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.');
+        }
 
         if ($request->target_tipe === 'pilihan' && empty($request->target_siswa)) {
             return back()->withInput()->withErrors([
@@ -252,7 +259,15 @@ class UjianController extends Controller
     public function edit($id)
     {
         $quiz = $this->ownedQuiz($id, ['targetSiswa']);
-        $mapels = MataPelajaran::orderBy('nama_mapel')->get();
+        $mapels = $this->mapelAmpuan();
+        // Pertahankan mapel ujian saat ini agar tetap bisa diedit
+        // walau sudah tidak lagi termasuk ampuan guru.
+        if ($quiz->id_mapel && ! $mapels->contains('id_mapel', $quiz->id_mapel)) {
+            $mapelSaatIni = MataPelajaran::find($quiz->id_mapel);
+            if ($mapelSaatIni) {
+                $mapels->push($mapelSaatIni);
+            }
+        }
         $kelasList = Kelas::with(['siswas' => function ($q) {
             $q->orderBy('nm_siswa');
         }])->orderBy('pararel')->get();
@@ -295,6 +310,13 @@ class UjianController extends Controller
             'durasi_menit.required'  => 'Durasi ujian wajib diisi.',
             'deskripsi.max'          => 'Deskripsi ujian maksimal 1000 karakter.',
         ]);
+
+        $mapelDiizinkan = $this->mapelAmpuanIds()->push((int) $quiz->id_mapel);
+        if (! $mapelDiizinkan->contains((int) $request->id_mapel)) {
+            return back()->withInput()->withErrors([
+                'id_mapel' => 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.'
+            ])->with('error', 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.');
+        }
 
         if ($request->target_tipe === 'pilihan' && empty($request->target_siswa)) {
             return back()->withInput()->withErrors([
@@ -557,6 +579,22 @@ class UjianController extends Controller
     private function authenticatedGuru(): Guru
     {
         return Guru::findOrFail(session('user_id'));
+    }
+
+    /**
+     * Mata pelajaran yang diampu guru (berdasarkan jadwal mengajar).
+     */
+    private function mapelAmpuan(): \Illuminate\Support\Collection
+    {
+        return MataPelajaran::whereIn('id_mapel', $this->mapelAmpuanIds())->orderBy('nama_mapel')->get();
+    }
+
+    private function mapelAmpuanIds(): \Illuminate\Support\Collection
+    {
+        return JadwalMataPelajaran::where('id_guru', $this->authenticatedGuru()->id_guru)
+            ->distinct()
+            ->pluck('id_mapel')
+            ->map(fn ($id) => (int) $id);
     }
 
     private function ownedQuiz($id, array $relations = []): Quiz
