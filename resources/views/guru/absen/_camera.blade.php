@@ -4,7 +4,7 @@
     </h2>
     <p class="text-[11px] text-slate-400 mb-4">Arahkan QR di kartu siswa ke dalam bingkai hijau.</p>
     <div class="w-full max-w-[320px] mx-auto mb-2 relative">
-        <div id="reader" class="w-full h-[200px] rounded-xl overflow-hidden bg-slate-900 relative"></div>
+        <div id="reader" class="w-full h-[260px] rounded-xl overflow-hidden bg-slate-900 relative"></div>
         <div class="scan-overlay" aria-hidden="true">
             <span class="corner tl"></span>
             <span class="corner tr"></span>

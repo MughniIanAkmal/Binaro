@@ -415,6 +415,26 @@
                  ERROR
             ================================================== -->
 
+            @if (session('error'))
+
+                <div class="error-message">
+
+                    {{ session('error') }}
+
+                </div>
+
+            @endif
+
+            @if (session('success'))
+
+                <div class="error-message" style="background:#e6f9ed;color:#1e7a3c;border-color:#b6e6c6;">
+
+                    {{ session('success') }}
+
+                </div>
+
+            @endif
+
             @if ($errors->any())
 
                 <div class="error-message">
@@ -431,7 +451,7 @@
                  FORM LOGIN
             ================================================== -->
 
-            <form action="{{ route('login.process') }}" method="POST">
+            <form action="{{ route('login.post') }}" method="POST">
 
                 @csrf
 
@@ -472,10 +492,10 @@
                      USERNAME / NAMA
                 ============================================== -->
 
-                <div class="form-group">
+                <div class="form-group" id="username-group" hidden>
 
-                    <input type="text" name="username" id="username" class="input-box" placeholder="Nama Siswa"
-                        value="{{ old('username') }}" required>
+                    <input type="text" name="username" id="username" class="input-box" placeholder="Nama / NIP Admin"
+                        value="{{ old('username') }}">
 
                 </div>
 
@@ -484,9 +504,9 @@
                      IDENTITAS
                 ============================================== -->
 
-                <div class="form-group">
+                <div class="form-group" id="identity-group">
 
-                    <input type="text" name="identity" id="identity" class="input-box" placeholder="NISN / NIS"
+                    <input type="text" name="identity" id="identity" class="input-box" placeholder="NISN"
                         value="{{ old('identity') }}" required>
 
                 </div>
@@ -542,6 +562,10 @@
             */
 
             document.getElementById('role').value = role;
+            document.getElementById('identity').required = role !== 'admin';
+            document.getElementById('identity-group').hidden = role === 'admin';
+            document.getElementById('username').required = role === 'admin';
+            document.getElementById('username-group').hidden = role !== 'admin';
 
 
             /*
@@ -610,11 +634,8 @@
 
             if (role === 'siswa') {
 
-                username.placeholder =
-                    'Nama Siswa';
-
                 identity.placeholder =
-                    'NISN / NIS';
+                    'NISN Siswa';
 
                 accessText.innerText =
                     'Akses Untuk Siswa';
@@ -630,11 +651,8 @@
 
             else if (role === 'guru') {
 
-                username.placeholder =
-                    'Nama Guru';
-
                 identity.placeholder =
-                    'NIP';
+                    'NIP Guru';
 
                 accessText.innerText =
                     'Akses Untuk Guru';
@@ -651,10 +669,7 @@
             else if (role === 'admin') {
 
                 username.placeholder =
-                    'Username Admin';
-
-                identity.placeholder =
-                    'ID Admin';
+                    'Nama atau NIP Admin';
 
                 accessText.innerText =
                     'Akses Untuk Admin';

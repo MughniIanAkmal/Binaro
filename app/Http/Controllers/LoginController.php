@@ -3,133 +3,54 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
     public function showLogin()
     {
+        if (session()->has('user_id')) {
+            return match (session('user_type')) {
+                'admin' => redirect()->route('admin.dashboard'),
+                'siswa' => redirect()->route('siswa.dashboard'),
+                'guru' => redirect()->route('guru.dashboard'),
+                default => redirect()->route('login'),
+            };
+        }
+
         return view('login');
     }
 
-    public function login(Request $request)
+    public function login(Request $request, AuthController $authController)
     {
-        $request->validate([
-            'role' => 'required|in:siswa,guru,admin',
-            'username' => 'required',
-            'identity' => 'required',
-            'password' => 'required',
+        $validated = $request->validate([
+            'role' => 'nullable|in:siswa,guru,admin',
+            'username' => 'nullable|string|max:100',
+            'identity' => 'nullable|string|max:100',
+            'password' => 'required|string|max:100',
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | LOGIN SISWA
-        |--------------------------------------------------------------------------
-        */
+        $role = $validated['role'] ?? null;
 
-        if ($request->role === 'siswa') {
+        // Ambil identifier dari salah satu field (toleran: username ATAU identity).
+        // ConvertEmptyStringsToNull mengubah "" menjadi null, jadi pakai null-coalescing + trim.
+        $identity = isset($validated['identity']) ? trim((string) $validated['identity']) : '';
+        $username = isset($validated['username']) ? trim((string) $validated['username']) : '';
+        $identifier = $identity !== '' ? $identity : $username;
 
-            $siswa = DB::table('siswa')
-                ->where('nm_siswa', $request->username)
-                ->where('nisn', $request->identity)
-                ->first();
+        if ($identifier === '') {
+            $field = in_array($role, ['siswa', 'guru'], true) || $role === null
+                ? ($role === 'admin' ? 'username' : 'identity')
+                : 'username';
 
-            if (!$siswa) {
-                return back()
-                    ->withErrors([
-                        'username' => 'Nama siswa atau NISN/NIS tidak sesuai.'
-                    ])
-                    ->withInput();
-            }
-
-            if (!Hash::check($request->password, $siswa->password)) {
-                return back()
-                    ->withErrors([
-                        'password' => 'Password salah.'
-                    ])
-                    ->withInput();
-            }
-
-            session([
-                'login' => true,
-                'role' => 'siswa',
-                'id_user' => $siswa->id_siswa,
-                'nama' => $siswa->nm_siswa,
-                'nis' => $siswa->nisn,
-                'id_mapel' => $siswa->id_mapel,
-                'id_rooms' => $siswa->id_rooms,
-            ]);
-
-            return redirect()->route('beranda');
+            return back()
+                ->withErrors([$field => $role === 'admin'
+                    ? 'Nama / NIP Admin wajib diisi.'
+                    : 'NISN / NIP wajib diisi.'])
+                ->withInput();
         }
 
+        $request->merge(['username' => $identifier]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | ROLE GURU
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->role === 'guru') {
-
-            $guru = DB::table('guru')
-                ->where('nama_guru', $request->username)
-                ->where('nip', $request->identity)
-                ->first();
-
-            if (!$guru) {
-                return back()
-                    ->withErrors([
-                        'username' => 'Nama guru atau NIP tidak sesuai.'
-                    ])
-                    ->withInput();
-            }
-
-            if (!Hash::check($request->password, $guru->password)) {
-                return back()
-                    ->withErrors([
-                        'password' => 'Password salah.'
-                    ])
-                    ->withInput();
-            }
-
-            session([
-                'login' => true,
-                'role' => 'guru',
-                'id_user' => $guru->id_guru,
-                'nama' => $guru->nama_guru,
-                'nip' => $guru->nip,
-            ]);
-
-            return redirect()->route('guru.dashboard');
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | ROLE ADMIN
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->role === 'admin') {
-
-            return back()->withErrors([
-                'role' => 'Login Admin belum dikonfigurasi.'
-            ]);
-        }
-
-
-        return back()->withErrors([
-            'role' => 'Role tidak valid.'
-        ]);
-    }
-
-
-    public function logout(Request $request)
-    {
-        $request->session()->flush();
-
-        return redirect()->route('login');
+        return $authController->login($request);
     }
 }

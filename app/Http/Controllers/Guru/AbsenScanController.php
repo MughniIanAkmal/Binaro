@@ -53,6 +53,12 @@ class AbsenScanController extends Controller
 
         $barcode = Barcode::with('siswa.kelas')->where('kode_barcode', $kode)->first();
 
+        // Toleran: hasil scan kadang membawa karakter tambahan (URL, newline, spasi).
+        // Coba ekstrak kandidat kode (QR-XXXXXXXX atau BIN-NISN-XXXXXX) dari payload.
+        if (! $barcode && preg_match('/\b((?:QR|BIN)-[A-Z0-9-]{4,40})\b/', $kode, $m)) {
+            $barcode = Barcode::with('siswa.kelas')->where('kode_barcode', $m[1])->first();
+        }
+
         if (! $barcode || ! $barcode->siswa) {
             return response()->json([
                 'status'  => 'tidak_dikenal',
@@ -105,7 +111,7 @@ class AbsenScanController extends Controller
                     'message' => "Hadir: {$siswa->nm_siswa} (Alpa otomatis diperbarui)",
                     'siswa' => ['nama' => $siswa->nm_siswa, 'kelas' => $siswa->nama_kelas],
                     'jam' => $waktu->format('H:i'),
-                    'statusAbsen' => 'Hadir',
+                    'statusAbsen' => $keterangan === 'Terlambat' ? 'Terlambat' : 'Hadir',
                 ]);
             }
 
@@ -133,7 +139,7 @@ class AbsenScanController extends Controller
             'message' => "Hadir: {$siswa->nm_siswa}",
             'siswa'   => ['nama' => $siswa->nm_siswa, 'kelas' => $siswa->nama_kelas],
             'jam'     => $waktu->format('H:i'),
-            'statusAbsen' => 'Hadir',
+            'statusAbsen' => $keterangan === 'Terlambat' ? 'Terlambat' : 'Hadir',
         ]);
     }
 
@@ -193,6 +199,9 @@ class AbsenScanController extends Controller
         }
 
         $today = today()->toDateString();
+        $status = $data['jenis']; // Sakit | Izin
+        $keterangan = $status === 'Sakit' ? 'Sakit' : trim($data['keterangan']);
+        $waktu = now();
 
         $existing = Absen::where('id_siswa', $siswa->id_siswa)
             ->whereDate('tanggal', $today)
@@ -225,11 +234,6 @@ class AbsenScanController extends Controller
                 'message' => "{$siswa->nm_siswa} sudah tercatat hari ini ({$existing->status}).",
             ], 200);
         }
-
-        $status = $data['jenis']; // Sakit | Izin
-        $keterangan = $status === 'Sakit' ? 'Sakit' : trim($data['keterangan']);
-
-        $waktu = now();
 
         Absen::create([
             'id_guru'     => $this->resolveGuruId($request),

@@ -6,8 +6,9 @@
             <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Siswa <span class="text-rose-500">*</span></label>
             <input type="text" name="nama" required maxlength="100" value="{{ old('nama', data_get($s, 'nama_siswa', data_get($s, 'nm_siswa', ''))) }}"
                    placeholder="Contoh: Aditya Pratama"
-                     oninput="this.value=this.value.replace(/[^\p{L}\s\.\,\'\-]/gu,'')"
+                     oninput="this.value=this.value.replace(/[^A-Za-z\s]/g,'')"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+            <p class="text-[10px] text-slate-400 mt-1">Hanya huruf dan spasi, tanpa angka atau simbol.</p>
             @error('nama') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
 
@@ -15,8 +16,9 @@
             <label class="block font-bold text-slate-700 mb-1">NISN / NIS <span class="text-rose-500">*</span></label>
             <input type="text" name="nis" required value="{{ old('nis', data_get($s, 'nisn', data_get($s, 'nis', '')) ) }}"
                    placeholder="Contoh: 0012345601"
-                   inputmode="numeric" pattern="[0-9]{0,20}" maxlength="20" oninput="this.value=this.value.replace(/\D/g,'').slice(0,20)"
+                   inputmode="numeric" pattern="[0-9]{0,15}" maxlength="15" oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+            <p class="text-[10px] text-slate-400 mt-1">Hanya angka, maksimal 15 digit.</p>
             @error('nis') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
     </div>
@@ -51,10 +53,11 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-            <label class="block font-bold text-slate-700 mb-1">Email Siswa / Wali</label>
-            <input type="email" name="email" value="{{ old('email', data_get($s, 'email', '')) }}"
+            <label class="block font-bold text-slate-700 mb-1">Email Siswa / Wali <span class="text-rose-500">*</span></label>
+            <input type="email" name="email" required value="{{ old('email', data_get($s, 'email', '')) }}"
                    placeholder="Contoh: siswa@sekolah.sch.id"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+            <p class="text-[10px] text-slate-400 mt-1">Wajib mengandung tanda @, contoh: nama@email.com.</p>
             @error('email') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
 
@@ -62,8 +65,9 @@
             <label class="block font-bold text-slate-700 mb-1">Nomor HP / WhatsApp Wali</label>
             <input type="text" name="no_hp" value="{{ old('no_hp', data_get($s, 'no_hp', '')) }}"
                    placeholder="Contoh: 081234567890"
-                   inputmode="numeric" pattern="[0-9]{0,20}" maxlength="20" oninput="this.value=this.value.replace(/[^0-9+]/g,'').slice(0,20)"
+                   inputmode="numeric" pattern="[0-9]{0,12}" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'').slice(0,12)"
                    class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+            <p class="text-[10px] text-slate-400 mt-1">Hanya angka, maksimal 12 digit.</p>
             @error('no_hp') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
     </div>

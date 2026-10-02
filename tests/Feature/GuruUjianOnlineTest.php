@@ -527,4 +527,78 @@ class GuruUjianOnlineTest extends TestCase
         $showRes->assertSee('🟢 Mudah');
         $showRes->assertSee('🔴 Sulit');
     }
+
+    public function test_guru_cannot_access_another_gurus_ujian_or_questions()
+    {
+        $guruLain = Guru::create([
+            'nip' => '198501012010011011',
+            'nama_guru' => 'Guru Pemilik',
+            'email' => 'guru.pemilik@school.id',
+            'password' => 'password',
+        ]);
+        $quiz = Quiz::create([
+            'id_guru' => $guruLain->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Milik Guru Lain',
+            'tingkat_level' => 'sedang',
+            'durasi_menit' => 45,
+            'target_tipe' => 'semua',
+        ]);
+        $soal = SoalQuiz::create([
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Soal milik guru lain',
+            'opsi_a' => 'A',
+            'opsi_b' => 'B',
+            'opsi_c' => 'C',
+            'opsi_d' => 'D',
+            'kunci_jawaban' => 'A',
+            'bobot_nilai' => 10,
+        ]);
+        $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
+
+        $this->withSession($session)
+            ->get(route('guru.ujian.index'))
+            ->assertOk()
+            ->assertDontSee('Ujian Milik Guru Lain');
+
+        $this->withSession($session)->get(route('guru.ujian.show', $quiz->id_quiz))->assertNotFound();
+        $this->withSession($session)->get(route('guru.ujian.edit', $quiz->id_quiz))->assertNotFound();
+        $this->withSession($session)->put(route('guru.ujian.update', $quiz->id_quiz), [
+            'judul_quiz' => 'Ujian Diambil Alih',
+            'id_mapel' => $this->mapel->id_mapel,
+            'tingkat_level' => 'susah',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
+        ])->assertNotFound();
+        $this->withSession($session)->post(route('guru.ujian.soal.store', $quiz->id_quiz), [
+            'pertanyaan' => 'Soal tanpa izin',
+            'opsi_a' => 'A',
+            'opsi_b' => 'B',
+            'opsi_c' => 'C',
+            'opsi_d' => 'D',
+            'kunci_jawaban' => 'A',
+            'bobot_nilai' => 10,
+        ])->assertNotFound();
+        $this->withSession($session)->put(route('guru.ujian.soal.update', [$quiz->id_quiz, $soal->id_soal]), [
+            'pertanyaan' => 'Soal diubah tanpa izin',
+            'opsi_a' => 'A',
+            'opsi_b' => 'B',
+            'opsi_c' => 'C',
+            'opsi_d' => 'D',
+            'kunci_jawaban' => 'A',
+            'bobot_nilai' => 10,
+        ])->assertNotFound();
+        $this->withSession($session)
+            ->delete(route('guru.ujian.soal.destroy', [$quiz->id_quiz, $soal->id_soal]))
+            ->assertNotFound();
+        $this->withSession($session)
+            ->delete(route('guru.ujian.destroy', $quiz->id_quiz))
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('quiz', [
+            'id_quiz' => $quiz->id_quiz,
+            'judul_quiz' => 'Ujian Milik Guru Lain',
+        ]);
+        $this->assertDatabaseHas('soal_quiz', ['id_soal' => $soal->id_soal]);
+    }
 }

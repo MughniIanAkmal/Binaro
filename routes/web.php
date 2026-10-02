@@ -8,6 +8,8 @@ use App\Http\Controllers\MateriController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\RppController;
 use App\Http\Controllers\GuruController;
+use App\Http\Controllers\GuruDashboardController;
+use App\Http\Controllers\LoginController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\SiswaLearningController;
 use App\Http\Controllers\JadwalController;
@@ -19,8 +21,8 @@ use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\EnsureGuruOrAdmin;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout.get');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -78,7 +80,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
 
     // 4. Guru Dashboard & Pembelajaran (Role: Guru)
     Route::middleware([EnsureRole::class . ':guru'])->prefix('guru')->name('guru.')->group(function () {
-        Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard', [GuruDashboardController::class, 'index'])->name('dashboard');
         Route::get('/jadwal-mengajar', [GuruController::class, 'jadwalMengajar'])->name('jadwal.index');
         Route::get('/jadwal', [GuruController::class, 'jadwalMengajar'])->name('jadwal');
         Route::get('/absensi/rekap', [AbsensiController::class, 'rekap'])->name('absensi.rekap');
@@ -189,6 +191,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     // 6. Siswa Dashboard & Learning Engine (Role: Siswa)
     Route::middleware([EnsureRole::class . ':siswa'])->prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
+        Route::get('/beranda', [SiswaController::class, 'dashboard'])->name('beranda');
         Route::get('/profil', [SiswaController::class, 'profile'])->name('profile');
         Route::put('/profil', [SiswaController::class, 'updateProfile'])->name('profile.update');
         Route::put('/password', [SiswaController::class, 'updatePassword'])->name('password.update');

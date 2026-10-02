@@ -46,6 +46,56 @@ class JadwalCrudTest extends TestCase
         $response->assertSee('Jadwal Mata Pelajaran');
     }
 
+    public function test_guru_schedule_only_shows_the_authenticated_gurus_jadwal()
+    {
+        $guruLain = Guru::create([
+            'nip' => '198501012010011010',
+            'nama_guru' => 'Guru Lain',
+            'email' => 'guru.lain@school.id',
+            'password' => 'password',
+        ]);
+
+        Jadwal::create([
+            'hari' => 'Senin',
+            'jam' => '07.30-08.00',
+            'id_mapel' => $this->mapel->id_mapel,
+            'id_guru' => $this->guru->id_guru,
+            'id_rooms' => $this->kelas->id_rooms,
+        ]);
+        Jadwal::create([
+            'hari' => 'Senin',
+            'jam' => '09.00-10.00',
+            'id_mapel' => $this->mapel->id_mapel,
+            'id_guru' => $guruLain->id_guru,
+            'id_rooms' => $this->kelas->id_rooms,
+        ]);
+
+        $response = $this->withSession(['user_type' => 'guru', 'user_id' => $this->guru->id_guru])
+            ->get(route('guru.jadwal.index'));
+
+        $response->assertOk();
+        $response->assertSee('07.30-08.00');
+        $response->assertDontSee('09.00-10.00');
+    }
+
+    public function test_guru_schedule_clears_invalid_teacher_session()
+    {
+        Jadwal::create([
+            'hari' => 'Senin',
+            'jam' => '07.30-08.00',
+            'id_mapel' => $this->mapel->id_mapel,
+            'id_guru' => $this->guru->id_guru,
+            'id_rooms' => $this->kelas->id_rooms,
+        ]);
+
+        $response = $this->withSession(['user_type' => 'guru', 'user_id' => 999999])
+            ->get(route('guru.jadwal.index'));
+
+        $response->assertRedirect(route('login'));
+        $response->assertSessionHas('error');
+        $response->assertSessionMissing('user_id');
+    }
+
     public function test_admin_can_view_jadwal_detail()
     {
         $jadwal = Jadwal::create([

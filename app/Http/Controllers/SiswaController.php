@@ -14,11 +14,28 @@ class SiswaController extends Controller
 {
     public function dashboard()
     {
-        $siswa = null;
-        if (session()->has('user_id') && session('user_type') === 'siswa') {
-            $siswa = Siswa::with(['kelas', 'mataPelajaran'])->find(session('user_id'));
+        $siswa = Siswa::with(['kelas', 'mataPelajaran'])->find(session('user_id'));
+        if (!$siswa) {
+            session()->flush();
+
+            return redirect()->route('login')->with('error', 'Sesi siswa tidak valid. Silakan login kembali.');
         }
-        return view('siswa.dashboard', compact('siswa'));
+
+        $nama = $siswa->nm_siswa;
+        $kelas = $siswa->kelas?->pararel ?? 'Siswa';
+        $sekolah = 'SDN Kalitapen 01';
+        $tugas = [];
+        $tugas_total = 0;
+        $mapel = $siswa->mataPelajaran ? [[
+            'nama' => $siswa->mataPelajaran->nama_mapel,
+            'warna' => 'blue',
+            'icon' => '▤',
+            'badge' => 'Aktif',
+            'materi' => 'Materi dan kuis pembelajaran',
+            'progress' => 0,
+        ]] : [];
+
+        return view('beranda.index', compact('nama', 'kelas', 'sekolah', 'tugas', 'tugas_total', 'mapel'));
     }
 
     public function profile()
@@ -169,10 +186,10 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\s.,\'\-]+$/u'],
-            'nis' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/', 'unique:siswa,nisn'],
-            'email' => 'required|email|max:100|unique:siswa,email',
-            'no_hp' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\+\-\s]*$/'],
+            'nama' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\s]+$/u'],
+            'nis' => ['required', 'string', 'max:15', 'regex:/^[0-9]+$/', 'unique:siswa,nisn'],
+            'email' => ['required', 'string', 'email:rfc', 'max:100', 'regex:/@/', 'unique:siswa,email'],
+            'no_hp' => ['nullable', 'string', 'max:12', 'regex:/^[0-9]*$/'],
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string|max:500',
             'username' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9._]+$/', 'unique:siswa,username'],
@@ -182,9 +199,16 @@ class SiswaController extends Controller
         ], [
             'nama.required'   => 'Nama siswa wajib diisi.',
             'nama.max'        => 'Nama siswa maksimal 100 karakter.',
-            'nama.regex'      => 'Nama siswa hanya boleh berisi huruf, spasi, dan tanda baca (. , \' -).',
-            'nis.regex'       => 'NISN hanya boleh berisi angka.',
-            'no_hp.regex'     => 'Nomor HP hanya boleh berisi angka, tanda plus (+), dan spasi.',
+            'nama.regex'      => 'Nama lengkap hanya boleh berisi huruf dan spasi, tanpa angka atau simbol.',
+            'nis.required'    => 'NISN wajib diisi.',
+            'nis.max'         => 'NISN maksimal 15 angka.',
+            'nis.regex'       => 'NISN hanya boleh berisi angka (0-9).',
+            'email.required'  => 'Email wajib diisi.',
+            'email.email'     => 'Email harus valid dan mengandung tanda @, contoh: nama@email.com.',
+            'email.regex'     => 'Email harus mengandung tanda @, contoh: nama@email.com.',
+            'email.unique'    => 'Email sudah dipakai siswa lain.',
+            'no_hp.max'       => 'No. HP maksimal 12 angka.',
+            'no_hp.regex'     => 'No. HP hanya boleh berisi angka (0-9).',
             'username.regex'  => 'Username hanya boleh berisi huruf, angka, titik, dan underscore.',
             'alamat.max'      => 'Alamat maksimal 500 karakter.',
             'password.max'    => 'Password maksimal 100 karakter.',
@@ -224,10 +248,10 @@ class SiswaController extends Controller
     public function update(Request $request, Siswa $siswa)
     {
         $validated = $request->validate([
-            'nama' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\s.,\'\-]+$/u'],
-            'nis' => ['required', 'string', 'max:20', 'regex:/^[0-9]+$/', Rule::unique('siswa', 'nisn')->ignore($siswa->id_siswa, 'id_siswa')],
-            'email' => ['required', 'email', 'max:100', Rule::unique('siswa', 'email')->ignore($siswa->id_siswa, 'id_siswa')],
-            'no_hp' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\+\-\s]*$/'],
+            'nama' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\s]+$/u'],
+            'nis' => ['required', 'string', 'max:15', 'regex:/^[0-9]+$/', Rule::unique('siswa', 'nisn')->ignore($siswa->id_siswa, 'id_siswa')],
+            'email' => ['required', 'string', 'email:rfc', 'max:100', 'regex:/@/', Rule::unique('siswa', 'email')->ignore($siswa->id_siswa, 'id_siswa')],
+            'no_hp' => ['nullable', 'string', 'max:12', 'regex:/^[0-9]*$/'],
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string|max:500',
             'username' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9._]+$/', Rule::unique('siswa', 'username')->ignore($siswa->id_siswa, 'id_siswa')],
@@ -237,9 +261,16 @@ class SiswaController extends Controller
         ], [
             'nama.required'   => 'Nama siswa wajib diisi.',
             'nama.max'        => 'Nama siswa maksimal 100 karakter.',
-            'nama.regex'      => 'Nama siswa hanya boleh berisi huruf, spasi, dan tanda baca (. , \' -).',
-            'nis.regex'       => 'NISN hanya boleh berisi angka.',
-            'no_hp.regex'     => 'Nomor HP hanya boleh berisi angka, tanda plus (+), dan spasi.',
+            'nama.regex'      => 'Nama lengkap hanya boleh berisi huruf dan spasi, tanpa angka atau simbol.',
+            'nis.required'    => 'NISN wajib diisi.',
+            'nis.max'         => 'NISN maksimal 15 angka.',
+            'nis.regex'       => 'NISN hanya boleh berisi angka (0-9).',
+            'email.required'  => 'Email wajib diisi.',
+            'email.email'     => 'Email harus valid dan mengandung tanda @, contoh: nama@email.com.',
+            'email.regex'     => 'Email harus mengandung tanda @, contoh: nama@email.com.',
+            'email.unique'    => 'Email sudah dipakai siswa lain.',
+            'no_hp.max'       => 'No. HP maksimal 12 angka.',
+            'no_hp.regex'     => 'No. HP hanya boleh berisi angka (0-9).',
             'username.regex'  => 'Username hanya boleh berisi huruf, angka, titik, dan underscore.',
             'alamat.max'      => 'Alamat maksimal 500 karakter.',
             'password.max'    => 'Password maksimal 100 karakter.',

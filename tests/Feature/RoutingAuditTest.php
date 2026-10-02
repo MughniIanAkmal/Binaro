@@ -7,6 +7,7 @@ use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Rpp;
 use App\Models\Siswa;
+use Database\Seeders\SiswaSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -55,6 +56,74 @@ class RoutingAuditTest extends TestCase
 
         $response = $this->get('/admin/absensi/rekap');
         $response->assertRedirect('/login');
+    }
+
+    public function test_commit_login_form_authenticates_students_and_guru_dashboards()
+    {
+        $this->get('/login')
+            ->assertOk()
+            ->assertSee('Binaro')
+            ->assertSee(route('login.post'), false);
+
+        $this->post('/login', [
+            'role' => 'siswa',
+            'username' => '',
+            'identity' => $this->siswa->nisn,
+            'password' => 'password123',
+        ])->assertRedirect('/siswa/dashboard');
+
+        $this->withSession([])->post('/login', [
+            'role' => 'guru',
+            'username' => '',
+            'identity' => $this->siswa->nisn,
+            'password' => 'password123',
+        ])->assertRedirect('/login')
+            ->assertSessionHas('error');
+
+        $this->withSession([])->post('/login', [
+            'role' => 'siswa',
+            'username' => '',
+            'identity' => $this->guru->nip,
+            'password' => 'password123',
+        ])->assertRedirect('/login')
+            ->assertSessionHas('error');
+
+        $this->withSession([])->get('/siswa/dashboard')
+            ->assertOk()
+            ->assertSee('Halo, Siswa Penguji!');
+
+        $this->post('/login', [
+            'role' => 'guru',
+            'username' => '',
+            'identity' => $this->guru->nip,
+            'password' => 'password123',
+        ])->assertRedirect('/guru/dashboard');
+
+        $this->withSession([
+            'user_id' => $this->guru->id_guru,
+            'user_type' => 'guru',
+            'user_name' => $this->guru->nama_guru,
+        ])->get('/guru/dashboard')
+            ->assertOk()
+            ->assertSee('Guru Penguji');
+    }
+
+    public function test_student_seeder_runs_repeatedly_with_current_schema()
+    {
+        $this->seed(SiswaSeeder::class);
+        $this->seed(SiswaSeeder::class);
+
+        $this->assertDatabaseHas('siswa', [
+            'nisn' => '0012345601',
+            'nm_siswa' => 'Aditya Pratama',
+        ]);
+        $this->assertSame(5, Siswa::whereIn('nisn', [
+            '0012345601',
+            '0012345602',
+            '0012345603',
+            '0012345604',
+            '0012345605',
+        ])->count());
     }
 
     public function test_siswa_role_route_protections()

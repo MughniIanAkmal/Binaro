@@ -15,6 +15,7 @@ function tampilkan(tipe, pesan) {
 
 const STATUS_STYLE = {
     Hadir: { box: 'bg-emerald-50 text-emerald-600', jam: 'text-emerald-600', label: 'hadir' },
+    Terlambat: { box: 'bg-amber-50 text-amber-600', jam: 'text-amber-600', label: 'terlambat' },
     Izin:  { box: 'bg-sky-50 text-sky-600', jam: 'text-sky-600', label: 'izin' },
     Sakit: { box: 'bg-amber-50 text-amber-600', jam: 'text-amber-600', label: 'sakit' },
 };
@@ -76,8 +77,8 @@ async function kirim(kode, metode) {
         tampilkan(sukses ? 'ok' : 'err', data.message || 'Terjadi kesalahan.');
         if (data.status === 'ok') {
             tambahLog(data);
-            if (scanner) scanner.pause();
-            setTimeout(function() { if (scanner) scanner.resume(); }, 3000);
+            if (scanner && typeof scanner.pause === 'function') { try { scanner.pause(); } catch (e) {} }
+            setTimeout(function() { if (scanner && typeof scanner.resume === 'function') { try { scanner.resume(); } catch (e) {} } }, 3000);
         }
     } catch (e) {
         tampilkan('err', 'Gagal terhubung ke server.');
@@ -88,11 +89,17 @@ async function kirim(kode, metode) {
 
 let scanner = null;
 let kameraBelakang = true;
-const KONFIG_SCAN = { fps: 10, qrbox: { width: 200, height: 200 }, aspectRatio: 1.6 };
+const KONFIG_SCAN = { fps: 10, qrbox: { width: 200, height: 200 }, aspectRatio: 1.0 };
+if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+    // Batasi ke QR Code saja agar deteksi lebih cepat dan tidak salah baca barcode lain.
+    KONFIG_SCAN.formatsToSupport = [Html5QrcodeSupportedFormats.QR_CODE];
+}
 
 function onScanBerhasil(kode) {
+    const bersih = (kode || '').toString().trim();
+    if (!bersih) return;
     tampilkan('ok', 'QR terbaca. Menyimpan absen...');
-    kirim(kode, 'scan');
+    kirim(bersih, 'scan');
 }
 
 function terapkanCermin() {
@@ -109,6 +116,10 @@ async function hentikanScanner() {
 async function mulaiScanner() {
     if (typeof Html5Qrcode === 'undefined') {
         tampilkan('err', 'Library scanner belum termuat. Periksa koneksi internet lalu muat ulang halaman.');
+        return;
+    }
+    if (typeof window.isSecureContext !== 'undefined' && !window.isSecureContext) {
+        tampilkan('err', 'Kamera diblokir browser karena akses via HTTP. Buka via HTTPS atau localhost, atau gunakan kode manual di bawah.');
         return;
     }
     try {

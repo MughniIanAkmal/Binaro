@@ -44,10 +44,10 @@ class GuruController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\s.,\'\-]+$/u'],
-            'nip' => ['nullable', 'string', 'max:30', 'regex:/^[0-9\- ]*$/', 'unique:guru,nip'],
-            'email' => 'required|email|max:100|unique:guru,email',
-            'no_hp' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\+\-\s]*$/'],
+            'nama' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\s]+$/u'],
+            'nip' => ['nullable', 'string', 'max:15', 'regex:/^[0-9]*$/', 'unique:guru,nip'],
+            'email' => ['required', 'string', 'email:rfc', 'max:100', 'regex:/@/', 'unique:guru,email'],
+            'no_hp' => ['nullable', 'string', 'max:12', 'regex:/^[0-9]*$/'],
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string|max:500',
             'username' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9._]+$/', 'unique:guru,username'],
@@ -55,9 +55,15 @@ class GuruController extends Controller
         ], [
             'nama.required'    => 'Nama guru wajib diisi.',
             'nama.max'         => 'Nama guru maksimal 100 karakter.',
-            'nama.regex'       => 'Nama guru hanya boleh berisi huruf, spasi, dan gelar (. , \' -). Simbol lain dilarang.',
-            'nip.regex'        => 'NIP hanya boleh berisi angka dan tanda hubung.',
-            'no_hp.regex'      => 'Nomor HP hanya boleh berisi angka, tanda plus (+), dan spasi.',
+            'nama.regex'       => 'Nama lengkap hanya boleh berisi huruf dan spasi, tanpa angka atau simbol.',
+            'nip.max'          => 'NIP maksimal 15 angka.',
+            'nip.regex'        => 'NIP hanya boleh berisi angka (0-9).',
+            'email.required'   => 'Email wajib diisi.',
+            'email.email'      => 'Email harus valid dan mengandung tanda @, contoh: nama@email.com.',
+            'email.regex'      => 'Email harus mengandung tanda @, contoh: nama@email.com.',
+            'email.unique'     => 'Email sudah dipakai guru lain.',
+            'no_hp.max'        => 'No. HP maksimal 12 angka.',
+            'no_hp.regex'      => 'No. HP hanya boleh berisi angka (0-9).',
             'username.regex'   => 'Username hanya boleh berisi huruf, angka, titik, dan underscore.',
             'alamat.max'       => 'Alamat maksimal 500 karakter.',
             'password.max'     => 'Password maksimal 100 karakter.',
@@ -87,10 +93,10 @@ class GuruController extends Controller
     public function update(Request $request, Guru $guru)
     {
         $validated = $request->validate([
-            'nama' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\s.,\'\-]+$/u'],
-            'nip' => ['nullable', 'string', 'max:30', 'regex:/^[0-9\- ]*$/', Rule::unique('guru', 'nip')->ignore($guru->id_guru, 'id_guru')],
-            'email' => ['required', 'email', 'max:100', Rule::unique('guru', 'email')->ignore($guru->id_guru, 'id_guru')],
-            'no_hp' => ['nullable', 'string', 'max:20', 'regex:/^[0-9\+\-\s]*$/'],
+            'nama' => ['required', 'string', 'max:100', 'regex:/^[\p{L}\s]+$/u'],
+            'nip' => ['nullable', 'string', 'max:15', 'regex:/^[0-9]*$/', Rule::unique('guru', 'nip')->ignore($guru->id_guru, 'id_guru')],
+            'email' => ['required', 'string', 'email:rfc', 'max:100', 'regex:/@/', Rule::unique('guru', 'email')->ignore($guru->id_guru, 'id_guru')],
+            'no_hp' => ['nullable', 'string', 'max:12', 'regex:/^[0-9]*$/'],
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string|max:500',
             'username' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9._]+$/', Rule::unique('guru', 'username')->ignore($guru->id_guru, 'id_guru')],
@@ -98,16 +104,22 @@ class GuruController extends Controller
         ], [
             'nama.required'    => 'Nama guru wajib diisi.',
             'nama.max'         => 'Nama guru maksimal 100 karakter.',
-            'nama.regex'       => 'Nama guru hanya boleh berisi huruf, spasi, dan gelar (. , \' -). Simbol lain dilarang.',
-            'nip.regex'        => 'NIP hanya boleh berisi angka dan tanda hubung.',
-            'no_hp.regex'      => 'Nomor HP hanya boleh berisi angka, tanda plus (+), dan spasi.',
+            'nama.regex'       => 'Nama lengkap hanya boleh berisi huruf dan spasi, tanpa angka atau simbol.',
+            'nip.max'          => 'NIP maksimal 15 angka.',
+            'nip.regex'        => 'NIP hanya boleh berisi angka (0-9).',
+            'email.required'   => 'Email wajib diisi.',
+            'email.email'      => 'Email harus valid dan mengandung tanda @, contoh: nama@email.com.',
+            'email.regex'      => 'Email harus mengandung tanda @, contoh: nama@email.com.',
+            'email.unique'     => 'Email sudah dipakai guru lain.',
+            'no_hp.max'        => 'No. HP maksimal 12 angka.',
+            'no_hp.regex'      => 'No. HP hanya boleh berisi angka (0-9).',
             'username.regex'   => 'Username hanya boleh berisi huruf, angka, titik, dan underscore.',
             'alamat.max'       => 'Alamat maksimal 500 karakter.',
             'password.max'     => 'Password maksimal 100 karakter.',
         ]);
 
         $data = [
-            'nama_guru' => $validated['nama'],
+            'nama_guru' => trim($validated['nama']),
             'nip' => $validated['nip'] ?? null,
             'email' => $validated['email'],
             'no_hp' => $validated['no_hp'] ?? null,
@@ -143,16 +155,15 @@ class GuruController extends Controller
             $guru = Guru::find(session('user_id'));
         }
 
+        if (!$guru) {
+            session()->flush();
+
+            return redirect()->route('login')->with('error', 'Sesi guru tidak valid. Silakan login kembali.');
+        }
+
         $jadwals = JadwalMataPelajaran::with(['mataPelajaran', 'kelas', 'guru'])
             ->when($guru, fn($q) => $q->where('id_guru', $guru->id_guru))
-            ->orderByRaw("CASE hari 
-                WHEN 'Senin' THEN 1 
-                WHEN 'Selasa' THEN 2 
-                WHEN 'Rabu' THEN 3 
-                WHEN 'Kamis' THEN 4 
-                WHEN 'Jumat' THEN 5 
-                WHEN 'Sabtu' THEN 6 
-                ELSE 7 END")
+            ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')")
             ->orderBy('jam')
             ->get();
 

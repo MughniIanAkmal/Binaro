@@ -132,6 +132,7 @@
                     @php
                         $status = $s->status ?? $s->status_kehadiran ?? 'Alpa';
                         $isHighAlpa = in_array($s->id_siswa, $alpaAlertSiswaIds ?? []);
+                        $isTerlambat = $status === 'Hadir' && isset($s->keterangan) && str_contains((string) $s->keterangan, 'Terlambat');
                     @endphp
                     <tr class="hover:bg-slate-50/80 transition {{ $isHighAlpa ? 'bg-rose-50/40' : '' }}">
                         <td class="p-3.5 pl-6 text-slate-400 font-semibold">{{ $siswaList->firstItem() + $i }}</td>
@@ -148,7 +149,9 @@
                         <td class="p-3.5 font-mono text-slate-600">{{ $s->nisn }}</td>
                         <td class="p-3.5 font-medium text-slate-700">{{ $s->nama_kelas ?? $s->kelas->pararel ?? '-' }}</td>
                         <td class="p-3.5">
-                            @if($status == 'Hadir')
+                            @if($isTerlambat)
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-clock text-[9px]"></i> Terlambat</span>
+                            @elseif($status == 'Hadir')
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800"><i class="fas fa-check text-[9px]"></i> Hadir</span>
                             @elseif($status == 'Sakit')
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-plus-circle text-[9px]"></i> Sakit</span>
@@ -187,7 +190,7 @@
                                         'nama' => $s->nm_siswa,
                                         'nisn' => $s->nisn,
                                         'kelas' => $s->nama_kelas ?? '-',
-                                        'status' => $status,
+                                        'status' => $isTerlambat ? 'Terlambat' : $status,
                                         'jam' => $s->waktu_absen ? \Carbon\Carbon::parse($s->waktu_absen)->format('H:i:s') . ' WIB' : '-',
                                         'guru' => $s->nama_guru_pencatat ?? 'Sistem / Guru Piket',
                                         'metode' => $s->metode ?? '-'

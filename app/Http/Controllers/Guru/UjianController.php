@@ -20,11 +20,13 @@ class UjianController extends Controller
      */
     public function index(Request $request)
     {
+        $guru = $this->authenticatedGuru();
         $search = $request->get('search');
         $level = $request->get('level');
         $mapelId = $request->get('mapel_id');
 
-        $query = Quiz::whereNull('id_sub_bab')
+    $query = Quiz::whereNull('id_sub_bab')
+        ->where('id_guru', $guru->id_guru)
             ->with(['mataPelajaran', 'guru', 'soal', 'targetSiswa', 'hasilSiswa'])
             ->withCount(['soal', 'hasilSiswa']);
 
@@ -48,13 +50,17 @@ class UjianController extends Controller
         $mapels = MataPelajaran::orderBy('nama_mapel')->get();
 
         // Statistik singkat (khusus ujian online resmi)
-        $totalUjian = Quiz::whereNull('id_sub_bab')->count();
-        $totalSoal = SoalQuiz::whereHas('quiz', function($q) {
-            $q->whereNull('id_sub_bab');
+        $totalUjian = Quiz::whereNull('id_sub_bab')
+            ->where('id_guru', $guru->id_guru)
+            ->count();
+        $totalSoal = SoalQuiz::whereHas('quiz', function ($q) use ($guru) {
+            $q->whereNull('id_sub_bab')
+            ->where('id_guru', $guru->id_guru);
         })->count();
         $totalHasil = DB::table('hasil_kuis_siswa')
             ->join('quiz', 'hasil_kuis_siswa.id_quiz', '=', 'quiz.id_quiz')
             ->whereNull('quiz.id_sub_bab')
+            ->where('quiz.id_guru', $guru->id_guru)
             ->count();
 
         return view('guru.ujian.index', compact('ujians', 'mapels', 'search', 'level', 'mapelId', 'totalUjian', 'totalSoal', 'totalHasil'));
@@ -80,6 +86,7 @@ class UjianController extends Controller
      */
     public function store(Request $request)
     {
+        $guru = $this->authenticatedGuru();
         $request->validate([
             'judul_quiz'    => [
                 'required',
@@ -123,17 +130,40 @@ class UjianController extends Controller
             ])->with('error', 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.');
         }
 
-        $guruId = session('user_id');
-        $guru = $guruId ? Guru::find($guruId) : Guru::first();
-        if (!$guru) {
-            $guru = Guru::first();
+        $judulQuiz = trim($request->judul_quiz);
+    $deskripsi = trim((string) $request->deskripsi);
+
+        $duplicateQuiz = Quiz::whereNull('id_sub_bab')
+            ->where(function ($q) use ($judulQuiz, $deskripsi) {
+                $q->whereRaw('LOWER(TRIM(judul_quiz)) = ?', [mb_strtolower($judulQuiz)])
+                  ->orWhereRaw('LOWER(TRIM(nama_quiz)) = ?', [mb_strtolower($judulQuiz)]);
+
+                if (!empty($deskripsi)) {
+                    $q->orWhereRaw('LOWER(TRIM(deskripsi)) = ?', [mb_strtolower($deskripsi)]);
+                }
+            })
+            ->first();
+
+        if ($duplicateQuiz) {
+            $isDeskripsiSama = !empty($deskripsi) && mb_strtolower(trim($duplicateQuiz->deskripsi)) === mb_strtolower($deskripsi);
+
+            $errorMsg = 'Ujian online dengan judul yang serupa sudah ada (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan judul ujian lain.';
+            if ($isDeskripsiSama && mb_strtolower(trim($duplicateQuiz->judul_quiz)) !== mb_strtolower($judulQuiz) && mb_strtolower(trim($duplicateQuiz->nama_quiz)) !== mb_strtolower($judulQuiz)) {
+                $errorMsg = 'Ujian online dengan deskripsi yang serupa sudah ada pada ujian (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan deskripsi yang berbeda.';
+            } elseif ($isDeskripsiSama) {
+                $errorMsg = 'Ujian online dengan judul dan deskripsi yang serupa sudah ada (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan yang lain.';
+            }
+
+            return back()->withInput()->withErrors([
+                'judul_quiz' => $errorMsg,
+                'deskripsi' => $errorMsg
+            ]);
         }
-        $guruId = $guru?->id_guru;
 
         DB::beginTransaction();
         try {
             $quiz = Quiz::create([
-                'id_guru'       => $guruId,
+                'id_guru'       => $guru->id_guru,
                 'id_mapel'      => $request->id_mapel,
                 'judul_quiz'    => trim($request->judul_quiz),
                 'nama_quiz'     => trim($request->judul_quiz),
@@ -197,13 +227,13 @@ class UjianController extends Controller
      */
     public function show($id)
     {
-        $quiz = Quiz::with([
+        $quiz = $this->ownedQuiz($id, [
             'mataPelajaran',
             'guru',
             'soal',
             'targetSiswa.kelas',
             'hasilSiswa.siswa.kelas'
-        ])->findOrFail($id);
+        ]);
 
         $totalBobot = $quiz->soal->sum('bobot_nilai');
         $kelasList = Kelas::with(['siswas' => function ($q) {
@@ -218,7 +248,7 @@ class UjianController extends Controller
      */
     public function edit($id)
     {
-        $quiz = Quiz::with('targetSiswa')->findOrFail($id);
+        $quiz = $this->ownedQuiz($id, ['targetSiswa']);
         $mapels = MataPelajaran::orderBy('nama_mapel')->get();
         $kelasList = Kelas::with(['siswas' => function ($q) {
             $q->orderBy('nm_siswa');
@@ -235,7 +265,7 @@ class UjianController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $quiz = Quiz::findOrFail($id);
+        $quiz = $this->ownedQuiz($id);
 
         $request->validate([
             'judul_quiz'    => [
@@ -302,7 +332,7 @@ class UjianController extends Controller
      */
     public function destroy($id)
     {
-        $quiz = Quiz::with('soal')->findOrFail($id);
+        $quiz = $this->ownedQuiz($id, ['soal']);
 
         try {
             // Hapus file gambar soal di storage jika ada
@@ -326,7 +356,7 @@ class UjianController extends Controller
      */
     public function storeSoal(Request $request, $idQuiz)
     {
-        $quiz = Quiz::findOrFail($idQuiz);
+        $quiz = $this->ownedQuiz($idQuiz);
 
         $request->validate([
             'pertanyaan'    => 'required|string|max:2000',
@@ -386,6 +416,7 @@ class UjianController extends Controller
      */
     public function updateSoal(Request $request, $idQuiz, $idSoal)
     {
+        $this->ownedQuiz($idQuiz);
         $soal = SoalQuiz::where('id_quiz', $idQuiz)->findOrFail($idSoal);
 
         $request->validate([
@@ -457,6 +488,7 @@ class UjianController extends Controller
      */
     public function destroySoal($idQuiz, $idSoal)
     {
+        $this->ownedQuiz($idQuiz);
         $soal = SoalQuiz::where('id_quiz', $idQuiz)->findOrFail($idSoal);
 
         if ($soal->gambar && Storage::disk('public')->exists($soal->gambar)) {
@@ -467,5 +499,17 @@ class UjianController extends Controller
 
         return redirect()->route('guru.ujian.show', $idQuiz)
             ->with('success', 'Soal ujian berhasil dihapus.');
+    }
+
+    private function authenticatedGuru(): Guru
+    {
+        return Guru::findOrFail(session('user_id'));
+    }
+
+    private function ownedQuiz($id, array $relations = []): Quiz
+    {
+        return Quiz::where('id_guru', $this->authenticatedGuru()->id_guru)
+            ->with($relations)
+            ->findOrFail($id);
     }
 }

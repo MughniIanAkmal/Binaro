@@ -140,8 +140,13 @@
                             @endif
                         </td>
                         <td class="p-3.5">
-                            @php $status = $s->id_absen ? $s->status_kehadiran : 'Alpa'; @endphp
-                            @if($status == 'Hadir')
+                            @php
+                                $status = $s->id_absen ? $s->status_kehadiran : 'Alpa';
+                                $isTerlambat = $status === 'Hadir' && str_contains((string) ($s->keterangan ?? ''), 'Terlambat');
+                            @endphp
+                            @if($isTerlambat)
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-clock text-[9px]"></i> Terlambat</span>
+                            @elseif($status == 'Hadir')
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800"><i class="fas fa-check text-[9px]"></i> Hadir</span>
                             @elseif($status == 'Sakit')
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-plus-circle text-[9px]"></i> Sakit</span>

@@ -318,7 +318,7 @@ class AbsensiController extends Controller
             ->select([
                 'siswa.id_siswa', 'siswa.nm_siswa', 'siswa.nisn', 'siswa.id_rooms',
                 'kelas.pararel as nama_kelas', 'absen.id_absen', 'absen.metode',
-                'absen.status', 'absen.waktu_absen', 'pencatat.nama_guru as nama_guru_pencatat',
+                'absen.status', 'absen.keterangan', 'absen.waktu_absen', 'pencatat.nama_guru as nama_guru_pencatat',
             ]);
 
         if ($selectedKelas) $query->where('siswa.id_rooms', $selectedKelas);

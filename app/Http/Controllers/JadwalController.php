@@ -96,6 +96,85 @@ class JadwalController extends Controller
         return null;
     }
 
+    // Ubah "07.00-09.00" (atau "07:00-09:00") menjadi [menitMulai, menitSelesai].
+    // Mengembalikan null jika format tidak bisa diurai.
+    private function parseRentangJam($jam): ?array
+    {
+        $jamClean = preg_replace('/\s+/', '', str_replace(':', '.', (string) $jam));
+        $parts = explode('-', $jamClean);
+        if (count($parts) !== 2) {
+            return null;
+        }
+
+        $mulaiParts = explode('.', trim($parts[0]));
+        $selesaiParts = explode('.', trim($parts[1]));
+        if (count($mulaiParts) !== 2 || count($selesaiParts) !== 2) {
+            return null;
+        }
+
+        if (!ctype_digit($mulaiParts[0]) || !ctype_digit($mulaiParts[1])
+            || !ctype_digit($selesaiParts[0]) || !ctype_digit($selesaiParts[1])) {
+            return null;
+        }
+
+        $mulai = ((int) $mulaiParts[0]) * 60 + (int) $mulaiParts[1];
+        $selesai = ((int) $selesaiParts[0]) * 60 + (int) $selesaiParts[1];
+
+        if ($selesai <= $mulai) {
+            return null;
+        }
+
+        return [$mulai, $selesai];
+    }
+
+    // Cari jadwal yang bentrok: guru yang sama, hari yang sama, dan rentang
+    // waktunya beririsan (bukan hanya sama persis). Batas yang bersentuhan
+    // (mis. 07.00-08.00 lalu 08.00-09.00) TIDAK dianggap bentrok.
+    // Mengembalikan model jadwal yang bentrok (dengan relasi guru & kelas)
+    // atau null jika tidak ada bentrok. $excludeId dipakai saat edit.
+    private function cekBentrokGuru($hari, $jam, $idGuru, $excludeId = null)
+    {
+        $rentangBaru = $this->parseRentangJam($jam);
+        if ($rentangBaru === null) {
+            return null;
+        }
+        [$mulaiBaru, $selesaiBaru] = $rentangBaru;
+
+        $query = Jadwal::with(['guru', 'kelas'])
+            ->where('hari', $hari)
+            ->where('id_guru', $idGuru);
+
+        if ($excludeId !== null) {
+            $query->where('id_jadwal', '!=', $excludeId);
+        }
+
+        foreach ($query->get() as $jadwal) {
+            $rentangLama = $this->parseRentangJam($jadwal->jam);
+            if ($rentangLama === null) {
+                continue;
+            }
+            [$mulaiLama, $selesaiLama] = $rentangLama;
+
+            if ($mulaiBaru < $selesaiLama && $mulaiLama < $selesaiBaru) {
+                return $jadwal;
+            }
+        }
+
+        return null;
+    }
+
+    // Susun pesan bentrok yang informatif untuk ditampilkan ke pengguna.
+    private function pesanBentrok($bentrok, $jamBaru): string
+    {
+        $namaGuru = $bentrok->guru->nama_guru ?? 'Guru tersebut';
+        $kelas = $bentrok->kelas->pararel ?? '-';
+        $jamBaruTampil = str_replace(':', '.', (string) $jamBaru);
+        $jamLamaTampil = str_replace(':', '.', (string) $bentrok->jam);
+
+        return "Guru {$namaGuru} sudah mengajar pada hari {$bentrok->hari} jam {$jamLamaTampil} (kelas {$kelas}). "
+            . "Jadwal jam {$jamBaruTampil} bentrok karena guru sedang mengajar di jam tersebut.";
+    }
+
     // Menyimpan jadwal baru
     public function store(Request $request)
     {
@@ -132,6 +211,15 @@ class JadwalController extends Controller
 
         if ($exists) {
             return back()->withInput()->with('error', 'Jadwal sudah ada (duplikat hari, jam, guru, dan kelas).');
+        }
+
+        // Cek bentrok: guru yang sama tidak boleh mengajar di waktu yang
+        // beririsan pada hari yang sama, walau kelasnya berbeda.
+        $bentrok = $this->cekBentrokGuru($request->hari, $request->jam, $request->id_guru);
+        if ($bentrok) {
+            $pesan = $this->pesanBentrok($bentrok, $request->jam);
+
+            return back()->withInput()->withErrors(['jam' => $pesan])->with('error', $pesan);
         }
 
         Jadwal::create([
@@ -200,6 +288,15 @@ class JadwalController extends Controller
 
         if ($exists) {
             return back()->withInput()->with('error', 'Jadwal sudah ada (duplikat hari, jam, guru, dan kelas).');
+        }
+
+        // Cek bentrok (exclude record ini): guru yang sama tidak boleh
+        // mengajar di waktu yang beririsan pada hari yang sama.
+        $bentrok = $this->cekBentrokGuru($request->hari, $request->jam, $request->id_guru, $id);
+        if ($bentrok) {
+            $pesan = $this->pesanBentrok($bentrok, $request->jam);
+
+            return back()->withInput()->withErrors(['jam' => $pesan])->with('error', $pesan);
         }
 
         $jadwal->update([

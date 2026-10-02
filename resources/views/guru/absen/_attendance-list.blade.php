@@ -7,17 +7,19 @@
         @forelse ($hariIni as $a)
         @php
             $st = $a->status ?? 'Hadir';
-            $box = $st === 'Izin' ? 'bg-sky-50 text-sky-600' : ($st === 'Sakit' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600');
-            $jamCls = $st === 'Izin' ? 'text-sky-600' : ($st === 'Sakit' ? 'text-amber-600' : 'text-emerald-600');
+            $isTerlambat = $st === 'Hadir' && str_contains((string) ($a->keterangan ?? ''), 'Terlambat');
+            $tampil = $isTerlambat ? 'Terlambat' : $st;
+            $box = $tampil === 'Terlambat' ? 'bg-amber-50 text-amber-600' : ($st === 'Izin' ? 'bg-sky-50 text-sky-600' : ($st === 'Sakit' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'));
+            $jamCls = $tampil === 'Terlambat' ? 'text-amber-600' : ($st === 'Izin' ? 'text-sky-600' : ($st === 'Sakit' ? 'text-amber-600' : 'text-emerald-600'));
         @endphp
         <li class="flex justify-between items-center gap-3 py-2.5">
             <div class="flex items-center gap-3">
                 <span class="w-9 h-9 shrink-0 {{ $box }} rounded-xl flex items-center justify-center text-sm">
-                    <i class="fas fa-user-check"></i>
+                    <i class="fas {{ $tampil === 'Terlambat' ? 'fa-clock' : 'fa-user-check' }}"></i>
                 </span>
                 <div>
                     <div class="font-bold text-xs text-slate-900">{{ $a->siswa->nama_siswa }}</div>
-                    <div class="text-[11px] text-slate-400">Kelas {{ $a->siswa->nama_kelas }} &bull; {{ strtolower($st) }}</div>
+                    <div class="text-[11px] text-slate-400">Kelas {{ $a->siswa->nama_kelas }} &bull; {{ strtolower($tampil) }}</div>
                 </div>
             </div>
             <div class="text-xs font-bold {{ $jamCls }} tabular-nums">{{ $a->waktu_absen?->format('H:i') }}</div>

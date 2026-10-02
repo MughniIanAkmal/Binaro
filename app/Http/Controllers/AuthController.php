@@ -69,8 +69,10 @@ class AuthController extends Controller
         $request->validate([
             'username' => 'required|string|max:100',
             'password' => 'required|string|max:100',
+            'role' => 'nullable|in:siswa,guru,admin',
         ]);
 
+        $selectedRole = $request->input('role');
         $rawUsername = trim($request->input('username'));
         $password = trim($request->input('password'));
         $lowerUsername = strtolower($rawUsername);
@@ -84,7 +86,7 @@ class AuthController extends Controller
         }
 
         // 1. Siswa Check (10 Digit NISN)
-        if ($len === 10 && ctype_digit($rawUsername)) {
+        if (($selectedRole === null || $selectedRole === 'siswa') && $len === 10 && ctype_digit($rawUsername)) {
             $siswa = Siswa::where('nisn', $rawUsername)->first();
             if ($siswa && $this->verifyPassword($password, $siswa->password)) {
                 RateLimiter::clear($throttleKey);
@@ -98,7 +100,7 @@ class AuthController extends Controller
         }
 
         // 2. Guru Check (18 Digit NIP)
-        if ($len === 18 && ctype_digit($rawUsername)) {
+        if (($selectedRole === null || $selectedRole === 'guru') && $len === 18 && ctype_digit($rawUsername)) {
             $guru = Guru::where('nip', $rawUsername)->first();
             if ($guru && $this->verifyPassword($password, $guru->password)) {
                 RateLimiter::clear($throttleKey);
@@ -112,14 +114,17 @@ class AuthController extends Controller
         }
 
         // 3. Admin Check (NIP, nama_admin, or username / alias)
-        $admin = Admin::where('nip', $rawUsername)
-                      ->orWhere('nama_admin', $rawUsername)
-                      ->orWhereRaw('LOWER(nip) = ?', [$lowerUsername])
-                      ->orWhereRaw('LOWER(nama_admin) = ?', [$lowerUsername])
-                      ->first();
+        $admin = null;
+        if ($selectedRole === null || $selectedRole === 'admin') {
+            $admin = Admin::where('nip', $rawUsername)
+                          ->orWhere('nama_admin', $rawUsername)
+                          ->orWhereRaw('LOWER(nip) = ?', [$lowerUsername])
+                          ->orWhereRaw('LOWER(nama_admin) = ?', [$lowerUsername])
+                          ->first();
 
-        if (!$admin && in_array($lowerUsername, ['admin', 'administrator', 'admin utama'])) {
-            $admin = Admin::first();
+            if (!$admin && in_array($lowerUsername, ['admin', 'administrator', 'admin utama'])) {
+                $admin = Admin::first();
+            }
         }
 
         if ($admin && $this->verifyPassword($password, $admin->password)) {
@@ -133,16 +138,19 @@ class AuthController extends Controller
         }
 
         // 4. Guru Flexible Check (nip, username, email, nama_guru, or shortcut)
-        $guru = Guru::where('nip', $rawUsername)
-                    ->orWhere('username', $rawUsername)
-                    ->orWhere('email', $rawUsername)
-                    ->orWhereRaw('LOWER(nip) = ?', [$lowerUsername])
-                    ->orWhereRaw('LOWER(username) = ?', [$lowerUsername])
-                    ->orWhereRaw('LOWER(email) = ?', [$lowerUsername])
-                    ->first();
+        $guru = null;
+        if ($selectedRole === null || $selectedRole === 'guru') {
+            $guru = Guru::where('nip', $rawUsername)
+                        ->orWhere('username', $rawUsername)
+                        ->orWhere('email', $rawUsername)
+                        ->orWhereRaw('LOWER(nip) = ?', [$lowerUsername])
+                        ->orWhereRaw('LOWER(username) = ?', [$lowerUsername])
+                        ->orWhereRaw('LOWER(email) = ?', [$lowerUsername])
+                        ->first();
 
-        if (!$guru && in_array($lowerUsername, ['guru', 'guru demo', 'pengajar'])) {
-            $guru = Guru::first();
+            if (!$guru && in_array($lowerUsername, ['guru', 'guru demo', 'pengajar'])) {
+                $guru = Guru::first();
+            }
         }
 
         if ($guru && $this->verifyPassword($password, $guru->password)) {
@@ -156,16 +164,19 @@ class AuthController extends Controller
         }
 
         // 5. Siswa Flexible Check (nisn, username, email, nm_siswa, or shortcut)
-        $siswa = Siswa::where('nisn', $rawUsername)
-                      ->orWhere('username', $rawUsername)
-                      ->orWhere('email', $rawUsername)
-                      ->orWhereRaw('LOWER(nisn) = ?', [$lowerUsername])
-                      ->orWhereRaw('LOWER(username) = ?', [$lowerUsername])
-                      ->orWhereRaw('LOWER(email) = ?', [$lowerUsername])
-                      ->first();
+        $siswa = null;
+        if ($selectedRole === null || $selectedRole === 'siswa') {
+            $siswa = Siswa::where('nisn', $rawUsername)
+                          ->orWhere('username', $rawUsername)
+                          ->orWhere('email', $rawUsername)
+                          ->orWhereRaw('LOWER(nisn) = ?', [$lowerUsername])
+                          ->orWhereRaw('LOWER(username) = ?', [$lowerUsername])
+                          ->orWhereRaw('LOWER(email) = ?', [$lowerUsername])
+                          ->first();
 
-        if (!$siswa && in_array($lowerUsername, ['siswa', 'siswa demo', 'murid'])) {
-            $siswa = Siswa::first();
+            if (!$siswa && in_array($lowerUsername, ['siswa', 'siswa demo', 'murid'])) {
+                $siswa = Siswa::first();
+            }
         }
 
         if ($siswa && $this->verifyPassword($password, $siswa->password)) {
