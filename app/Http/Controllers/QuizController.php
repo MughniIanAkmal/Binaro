@@ -146,24 +146,26 @@ class QuizController extends Controller
         ]);
     }
 
-    // Rekap Nilai Kuis Guru
+    // Rekap Nilai Kuis & Ujian Guru
     public function rekap(Request $request)
     {
-        $quizzes = Quiz::with('subBab.bab.mataPelajaran')->get();
+        $quizzes = Quiz::with(['subBab.bab.mataPelajaran', 'mataPelajaran'])->orderBy('id_quiz', 'desc')->get();
         $selectedQuizId = $request->query('quiz_id', $quizzes->first()?->id_quiz);
 
         $hasils = collect();
         $selectedQuiz = null;
         if ($selectedQuizId) {
-            $selectedQuiz = Quiz::with('subBab.bab.mataPelajaran')->find($selectedQuizId);
+            $selectedQuiz = Quiz::with(['subBab.bab.mataPelajaran', 'mataPelajaran'])->find($selectedQuizId);
             $hasils = HasilKuisSiswa::with('siswa')
                                     ->where('id_quiz', $selectedQuizId)
                                     ->latest()
                                     ->get();
         }
 
-        // Use rich rekap-ujian view when accessed via /rekap-ujian URL
-        $view = request()->routeIs('rekap_ujian.index') ? 'rekap-ujian.index' : 'guru.quiz.rekap';
+        // Use rich rekap-ujian view when accessed via /rekap-ujian or /rekap-nilai URL
+        $view = (request()->routeIs('rekap_ujian.*') || request()->routeIs('rekap_nilai.*') || request()->is('rekap-nilai*') || request()->is('rekap-ujian*')) 
+            ? 'rekap-ujian.index' 
+            : 'guru.quiz.rekap';
 
         return view($view, compact('quizzes', 'selectedQuizId', 'selectedQuiz', 'hasils'));
     }
@@ -254,6 +256,11 @@ class QuizController extends Controller
 
         $hasil = HasilKuisSiswa::with(['siswa', 'quiz'])->findOrFail($request->id_hasil);
 
+        // Kuis materi tidak menggunakan fitur kirim nilai
+        if (!empty($hasil->quiz?->id_sub_bab)) {
+            return back()->with('error', 'Kuis materi pembelajaran tidak memerlukan rilis nilai. Fitur kirim nilai hanya tersedia untuk Ujian Online resmi.');
+        }
+
         $guruId = session('user_id');
         if (session('user_type') !== 'guru' || !$guruId) {
             $guruId = \App\Models\Guru::value('id_guru');
@@ -295,6 +302,12 @@ class QuizController extends Controller
     public function kirimNilaiSemua(Request $request, $idQuiz)
     {
         $quiz = Quiz::findOrFail($idQuiz);
+
+        // Kuis materi tidak menggunakan fitur kirim nilai
+        if (!empty($quiz->id_sub_bab)) {
+            return back()->with('error', 'Kuis materi pembelajaran tidak memerlukan rilis nilai. Fitur kirim nilai hanya tersedia untuk Ujian Online resmi.');
+        }
+
         $hasils = HasilKuisSiswa::where('id_quiz', $idQuiz)->get();
 
         $guruId = session('user_id');
@@ -333,6 +346,12 @@ class QuizController extends Controller
     public function jadwalkanRemedial(Request $request, $idQuiz)
     {
         $quiz = Quiz::findOrFail($idQuiz);
+
+        // Kuis materi tidak memiliki opsi remidi
+        if (!empty($quiz->id_sub_bab)) {
+            return back()->with('error', 'Kuis materi pembelajaran tidak menyediakan opsi remedial. Sesi remedial hanya berlaku untuk Ujian Online resmi.');
+        }
+
         $remedials = HasilKuisSiswa::where('id_quiz', $idQuiz)
                                     ->where('nilai_akhir', '<', 70)
                                     ->get();

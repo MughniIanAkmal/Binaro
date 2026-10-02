@@ -42,7 +42,7 @@
                     <div id="modal-detail-salah" class="text-xl font-black text-rose-500">–</div>
                 </div>
                 <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-100">
-                    <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-wide mb-1">Waktu Pengerjaan</div>
+                    <div class="text-[10px] text-slate-500 uppercase font-semibold tracking-wide mb-1">Durasi Waktu Pengerjaan</div>
                     <div id="modal-detail-waktu" class="text-sm font-bold text-slate-700">–</div>
                 </div>
                 <div class="bg-amber-50 rounded-xl p-3.5 border border-amber-100">
@@ -163,7 +163,7 @@
 
         const badge = document.getElementById('modal-detail-status');
         badge.textContent = data.status;
-        badge.className = data.status === 'LULUS KKM'
+        badge.className = (data.status === 'LULUS KKM' || data.status === 'TUNTAS KKM')
             ? 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700 border border-emerald-200'
             : 'px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-600 border border-rose-200';
 

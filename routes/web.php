@@ -165,10 +165,15 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     });
 
     Route::middleware([EnsureRole::class . ':admin,guru'])->get('/rpp-guru', [RppController::class, 'guruIndex'])->name('rpp_guru.index');
+    Route::middleware([EnsureRole::class . ':admin,guru'])->get('/rekap-nilai', [QuizController::class, 'rekap'])->name('rekap_nilai.index');
     Route::middleware([EnsureRole::class . ':admin,guru'])->get('/rekap-ujian', [QuizController::class, 'rekap'])->name('rekap_ujian.index');
+    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-nilai/feedback', [QuizController::class, 'simpanFeedback'])->name('rekap_nilai.feedback');
     Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/feedback', [QuizController::class, 'simpanFeedback'])->name('rekap_ujian.feedback');
+    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-nilai/kirim', [QuizController::class, 'kirimNilai'])->name('rekap_nilai.kirim');
     Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/kirim', [QuizController::class, 'kirimNilai'])->name('rekap_ujian.kirim');
+    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-nilai/kirim-semua/{idQuiz}', [QuizController::class, 'kirimNilaiSemua'])->name('rekap_nilai.kirim_semua');
     Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/kirim-semua/{idQuiz}', [QuizController::class, 'kirimNilaiSemua'])->name('rekap_ujian.kirim_semua');
+    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-nilai/jadwalkan-remedial/{idQuiz}', [QuizController::class, 'jadwalkanRemedial'])->name('rekap_nilai.jadwalkan_remedial');
     Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/jadwalkan-remedial/{idQuiz}', [QuizController::class, 'jadwalkanRemedial'])->name('rekap_ujian.jadwalkan_remedial');
 
     // 5. Akun Guru CRUD (Role: Admin)

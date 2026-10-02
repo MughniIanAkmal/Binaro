@@ -95,11 +95,11 @@
                 </span>
             </a>
 
-            <!-- 6. Menu Rekap Ujian -->
-            <a href="{{ route('rekap_ujian.index') }}"
-               class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('rekap_ujian.*') || request()->is('rekap-ujian*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
+            <!-- 6. Menu Rekap Nilai -->
+            <a href="{{ route('rekap_nilai.index') }}"
+               class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('rekap_nilai.*') || request()->is('rekap-nilai*') || request()->routeIs('rekap_ujian.*') || request()->is('rekap-ujian*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
                 <span class="flex items-center gap-3">
-                    <i class="fas fa-chart-bar w-4 text-sky-300"></i> Rekap Ujian
+                    <i class="fas fa-chart-bar w-4 text-sky-300"></i> Rekap Nilai
                 </span>
             </a>
         </nav>
