@@ -268,7 +268,24 @@
                     </div>
                 </div>
 
-                <div class="shrink-0">
+                <div class="shrink-0 flex items-center gap-2">
+                    @php
+                        $kesulitan = strtolower($item['tingkat_kesulitan'] ?? 'sedang');
+                    @endphp
+                    @if($kesulitan === 'mudah')
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        🟢 Mudah
+                    </span>
+                    @elseif($kesulitan === 'sulit' || $kesulitan === 'susah')
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-50 text-rose-700 border border-rose-200">
+                        🔴 Sulit
+                    </span>
+                    @else
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200">
+                        🟡 Sedang
+                    </span>
+                    @endif
+
                     @if($isCorrect === true)
                     <span class="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
                         <i class="fas fa-check text-[10px]"></i> Benar

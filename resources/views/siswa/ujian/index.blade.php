@@ -122,7 +122,7 @@
                 </div>
 
                 <!-- Action Button: Open Petunjuk Modal -->
-                <div class="pt-5 border-t border-slate-100 mt-4">
+                    <div class="pt-5 border-t border-slate-100 mt-4">
                     <button type="button"
                             onclick="openPetunjukModal({
                                 id: {{ $quiz->id_quiz }},
@@ -132,6 +132,9 @@
                                 durasi: {{ $durasi }},
                                 totalSoal: {{ $totalSoal }},
                                 level: '{{ ucfirst($level) }}',
+                                mudahs: {{ $quiz->mudah_count ?? 0 }},
+                                sedangs: {{ $quiz->sedang_count ?? 0 }},
+                                sulits: {{ $quiz->sulit_count ?? 0 }},
                                 playUrl: '{{ route('siswa.ujian.play', $quiz->id_quiz) }}'
                             })"
                             class="w-full py-3 bg-[#13527D] hover:bg-[#0E3D5D] active:scale-[0.99] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
@@ -348,6 +351,58 @@
             </div>
         </div>
 
+        <!-- PILIH TINGKAT KESULITAN SOAL YANG INGIN DIKERJAKAN -->
+        <div class="bg-gradient-to-r from-sky-50 to-indigo-50/70 border border-sky-200/80 rounded-2xl p-4 space-y-2.5">
+            <div class="flex items-center justify-between">
+                <h4 class="text-xs font-black text-[#13527D] flex items-center gap-1.5">
+                    <i class="fas fa-sliders"></i> Pilih Kesusahan Soal yang Ingin Dikerjakan:
+                </h4>
+                <span class="text-[10px] font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-full border border-sky-200">
+                    Bebas Pilih
+                </span>
+            </div>
+            <p class="text-[11px] text-slate-600">
+                Pilih paket soal berdasarkan tingkat kesulitan yang disiapkan oleh guru, atau kerjakan seluruh soal campuran:
+            </p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                <label class="p-2.5 rounded-xl border-2 border-[#13527D] bg-white cursor-pointer flex flex-col justify-between transition hover:border-[#13527D] kes-modal-card" id="card-kes-semua">
+                    <div class="flex items-center justify-between">
+                        <input type="radio" name="modal_kesulitan" value="semua" checked onchange="updateModalKesulitan(this.value)" class="text-[#13527D] focus:ring-0">
+                        <span class="text-[9px] font-extrabold text-[#13527D] bg-sky-50 px-1.5 py-0.5 rounded">Semua</span>
+                    </div>
+                    <span class="text-[11px] font-black text-slate-800 mt-1 block">⚡ Campuran</span>
+                    <span class="text-[10px] text-slate-500 font-semibold" id="label-count-semua">Semua Soal</span>
+                </label>
+
+                <label class="p-2.5 rounded-xl border border-slate-200 bg-white cursor-pointer flex flex-col justify-between transition hover:border-emerald-400 kes-modal-card" id="card-kes-mudah">
+                    <div class="flex items-center justify-between">
+                        <input type="radio" name="modal_kesulitan" value="mudah" onchange="updateModalKesulitan(this.value)" class="text-emerald-600 focus:ring-0">
+                        <span class="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">Mudah</span>
+                    </div>
+                    <span class="text-[11px] font-black text-slate-800 mt-1 block">🟢 Level Mudah</span>
+                    <span class="text-[10px] text-slate-500 font-semibold" id="label-count-mudah">0 Soal</span>
+                </label>
+
+                <label class="p-2.5 rounded-xl border border-slate-200 bg-white cursor-pointer flex flex-col justify-between transition hover:border-amber-400 kes-modal-card" id="card-kes-sedang">
+                    <div class="flex items-center justify-between">
+                        <input type="radio" name="modal_kesulitan" value="sedang" onchange="updateModalKesulitan(this.value)" class="text-amber-600 focus:ring-0">
+                        <span class="text-[9px] font-extrabold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded">Sedang</span>
+                    </div>
+                    <span class="text-[11px] font-black text-slate-800 mt-1 block">🟡 Level Sedang</span>
+                    <span class="text-[10px] text-slate-500 font-semibold" id="label-count-sedang">0 Soal</span>
+                </label>
+
+                <label class="p-2.5 rounded-xl border border-slate-200 bg-white cursor-pointer flex flex-col justify-between transition hover:border-rose-400 kes-modal-card" id="card-kes-sulit">
+                    <div class="flex items-center justify-between">
+                        <input type="radio" name="modal_kesulitan" value="sulit" onchange="updateModalKesulitan(this.value)" class="text-rose-600 focus:ring-0">
+                        <span class="text-[9px] font-extrabold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded">Sulit</span>
+                    </div>
+                    <span class="text-[11px] font-black text-slate-800 mt-1 block">🔴 Level Sulit</span>
+                    <span class="text-[10px] text-slate-500 font-semibold" id="label-count-sulit">0 Soal</span>
+                </label>
+            </div>
+        </div>
+
         <!-- Tata Tertib & Petunjuk Pengerjaan -->
         <div class="bg-sky-50/70 border border-sky-100 rounded-2xl p-4 space-y-2">
             <h4 class="text-xs font-black text-[#13527D] flex items-center gap-1.5">
@@ -397,16 +452,46 @@
         }
     }
 
+    let activeModalPlayUrl = '';
+
     function openPetunjukModal(data) {
+        activeModalPlayUrl = data.playUrl;
         document.getElementById('modal-ujian-judul').textContent = data.judul;
         document.getElementById('modal-ujian-mapel').textContent = data.mapel;
         document.getElementById('modal-ujian-guru').textContent = 'Guru: ' + data.guru;
         document.getElementById('modal-ujian-durasi').textContent = data.durasi + ' Menit';
         document.getElementById('modal-ujian-jumlah').textContent = data.totalSoal + ' Soal';
         document.getElementById('modal-ujian-level').textContent = data.level;
-        document.getElementById('modal-ujian-btn-mulai').href = data.playUrl;
+
+        document.getElementById('label-count-semua').textContent = data.totalSoal + ' Soal';
+        document.getElementById('label-count-mudah').textContent = (data.mudahs || 0) + ' Soal';
+        document.getElementById('label-count-sedang').textContent = (data.sedangs || 0) + ' Soal';
+        document.getElementById('label-count-sulit').textContent = (data.sulits || 0) + ' Soal';
+
+        // Reset to 'semua'
+        const radioSemua = document.querySelector('input[name="modal_kesulitan"][value="semua"]');
+        if (radioSemua) radioSemua.checked = true;
+        updateModalKesulitan('semua');
 
         document.getElementById('modal-petunjuk-ujian').classList.remove('hidden');
+    }
+
+    function updateModalKesulitan(val) {
+        document.querySelectorAll('.kes-modal-card').forEach(el => {
+            el.classList.remove('border-2', 'border-[#13527D]', 'border-emerald-500', 'border-amber-500', 'border-rose-500', 'bg-sky-50/50');
+            el.classList.add('border-slate-200', 'bg-white');
+        });
+
+        const activeCard = document.getElementById('card-kes-' + val);
+        if (activeCard) {
+            activeCard.classList.remove('border-slate-200', 'bg-white');
+            activeCard.classList.add('border-2', 'border-[#13527D]', 'bg-sky-50/50');
+        }
+
+        const btn = document.getElementById('modal-ujian-btn-mulai');
+        if (btn && activeModalPlayUrl) {
+            btn.href = activeModalPlayUrl + (val !== 'semua' ? '?kesulitan=' + val : '');
+        }
     }
 
     function closePetunjukModal() {

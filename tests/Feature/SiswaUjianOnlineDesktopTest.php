@@ -241,4 +241,93 @@ class SiswaUjianOnlineDesktopTest extends TestCase
         $publishedRes->assertSee('Rantai makanan dimulai dari?');
         $publishedRes->assertSee('Pengurai dalam ekosistem contohnya adalah?');
     }
+
+    public function test_siswa_can_choose_difficulty_level_and_get_filtered_questions()
+    {
+        $quiz = Quiz::create([
+            'id_guru'       => $this->guru->id_guru,
+            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz'    => 'Ujian Sains Bertingkat',
+            'durasi_menit'  => 60,
+            'target_tipe'   => 'semua',
+        ]);
+
+        $soalMudah = SoalQuiz::create([
+            'id_quiz'          => $quiz->id_quiz,
+            'pertanyaan'       => 'Soal Mudah: Apa warna daun pada umumnya?',
+            'opsi_a'           => 'Hijau',
+            'opsi_b'           => 'Biru',
+            'opsi_c'           => 'Merah',
+            'opsi_d'           => 'Hitam',
+            'kunci_jawaban'    => 'A',
+            'tingkat_kesulitan'=> 'mudah',
+        ]);
+
+        $soalSulit = SoalQuiz::create([
+            'id_quiz'          => $quiz->id_quiz,
+            'pertanyaan'       => 'Soal Sulit: Proses fotolisis air terjadi pada tahap?',
+            'opsi_a'           => 'Reaksi Terang',
+            'opsi_b'           => 'Reaksi Gelap',
+            'opsi_c'           => 'Siklus Calvin',
+            'opsi_d'           => 'Glikolisis',
+            'kunci_jawaban'    => 'A',
+            'tingkat_kesulitan'=> 'sulit',
+        ]);
+
+        $session = ['user_id' => $this->siswa->id_siswa, 'user_type' => 'siswa', 'user_name' => $this->siswa->nm_siswa];
+
+        // 1. Petunjuk page shows difficulty choices and counts
+        $petunjukRes = $this->withSession($session)
+            ->get(route('siswa.ujian.petunjuk', $quiz->id_quiz));
+        $petunjukRes->assertOk();
+        $petunjukRes->assertSee('Pilih Tingkat Kesusahan Soal');
+        $petunjukRes->assertSee('Mudah');
+        $petunjukRes->assertSee('Sulit');
+
+        // 2. Play with ?kesulitan=mudah
+        $playMudahRes = $this->withSession($session)
+            ->get(route('siswa.quiz.play', ['idQuiz' => $quiz->id_quiz, 'kesulitan' => 'mudah']));
+        $playMudahRes->assertOk();
+        $playMudahRes->assertSee('Soal Mudah: Apa warna daun pada umumnya?');
+        $playMudahRes->assertDontSee('Soal Sulit: Proses fotolisis air terjadi pada tahap?');
+        $playMudahRes->assertSee('🟢 Tingkat Mudah');
+
+        // 3. Play with ?kesulitan=sulit
+        $playSulitRes = $this->withSession($session)
+            ->get(route('siswa.quiz.play', ['idQuiz' => $quiz->id_quiz, 'kesulitan' => 'sulit']));
+        $playSulitRes->assertOk();
+        $playSulitRes->assertSee('Soal Sulit: Proses fotolisis air terjadi pada tahap?');
+        $playSulitRes->assertDontSee('Soal Mudah: Apa warna daun pada umumnya?');
+        $playSulitRes->assertSee('🔴 Tingkat Sulit');
+
+        // 4. Submit only the easy question (1 question attempted -> 1 correct = 100%)
+        $submitRes = $this->withSession($session)
+            ->post(route('siswa.quiz.submit', $quiz->id_quiz), [
+                'soal_ids' => [$soalMudah->id_soal],
+                'jawaban'  => [
+                    $soalMudah->id_soal => 'A',
+                ],
+            ]);
+
+        $submitRes->assertRedirect(route('siswa.quiz.result', $quiz->id_quiz));
+
+        $hasil = HasilKuisSiswa::where('id_quiz', $quiz->id_quiz)
+            ->where('id_siswa', $this->siswa->id_siswa)
+            ->first();
+
+        $this->assertNotNull($hasil);
+        $this->assertEquals(1, $hasil->jumlah_benar);
+        $this->assertEquals(0, $hasil->jumlah_salah);
+        $this->assertEquals(100.00, (float)$hasil->nilai_akhir);
+
+        // Teacher publishes score
+        $hasil->update(['status_kirim' => true]);
+
+        // Student result shows difficulty badge
+        $resultRes = $this->withSession($session)
+            ->get(route('siswa.quiz.result', $quiz->id_quiz));
+        $resultRes->assertOk();
+        $resultRes->assertSee('🟢 Mudah');
+    }
 }
+

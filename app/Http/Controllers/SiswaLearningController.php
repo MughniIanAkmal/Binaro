@@ -85,6 +85,12 @@ class SiswaLearningController extends Controller
             return true;
         })->values();
 
+        $accessibleQuizzes->each(function($q) {
+            $q->mudah_count = $q->soal->where('tingkat_kesulitan', 'mudah')->count();
+            $q->sedang_count = $q->soal->filter(fn($s) => ($s->tingkat_kesulitan === 'sedang' || empty($s->tingkat_kesulitan)))->count();
+            $q->sulit_count = $q->soal->filter(fn($s) => in_array($s->tingkat_kesulitan, ['sulit', 'susah']))->count();
+        });
+
         $ujianTersedia = $accessibleQuizzes->filter(function($q) {
             return $q->hasilSiswa->isEmpty();
         })->values();
@@ -128,12 +134,15 @@ class SiswaLearningController extends Controller
         }
 
         $totalSoal = $quiz->soal()->count();
+        $countMudah = $quiz->soal->where('tingkat_kesulitan', 'mudah')->count();
+        $countSedang = $quiz->soal->filter(fn($s) => ($s->tingkat_kesulitan === 'sedang' || empty($s->tingkat_kesulitan)))->count();
+        $countSulit = $quiz->soal->filter(fn($s) => in_array($s->tingkat_kesulitan, ['sulit', 'susah']))->count();
 
-        return view('siswa.ujian.petunjuk', compact('quiz', 'siswa', 'totalSoal'));
+        return view('siswa.ujian.petunjuk', compact('quiz', 'siswa', 'totalSoal', 'countMudah', 'countSedang', 'countSulit'));
     }
 
     // 4. Play Quiz / Ujian (Menampilkan Soal)
-    public function playQuiz($idQuiz)
+    public function playQuiz(Request $request, $idQuiz)
     {
         $quiz = Quiz::with(['mataPelajaran', 'guru', 'subBab.bab.mataPelajaran', 'materi'])->findOrFail($idQuiz);
         $siswaId = session('user_id');
@@ -149,13 +158,34 @@ class SiswaLearningController extends Controller
             return redirect()->route($targetRoute, $idQuiz)->with('info', $infoMsg);
         }
 
+        $pilihanKesulitan = strtolower($request->query('kesulitan', 'semua'));
+        if ($pilihanKesulitan === 'susah') $pilihanKesulitan = 'sulit';
+
         // Ambil butir soal
         // Jika kuis sub-bab materi dan memiliki bank soal > 5, ambil 5 soal sesuai rule PRD kuis sub-bab.
-        // Jika ujian resmi, ambil seluruh soal yang dibuat guru.
+        // Jika ujian resmi CBT:
         if ($quiz->id_sub_bab && SoalQuiz::where('id_quiz', $idQuiz)->count() > 5) {
             $soals = SoalQuiz::where('id_quiz', $idQuiz)->inRandomOrder()->take(5)->get();
         } else {
-            $soals = SoalQuiz::where('id_quiz', $idQuiz)->orderBy('id_soal', 'asc')->get();
+            $soalQuery = SoalQuiz::where('id_quiz', $idQuiz);
+            if (in_array($pilihanKesulitan, ['mudah', 'sedang', 'sulit'])) {
+                if ($pilihanKesulitan === 'sulit') {
+                    $soalQuery->whereIn('tingkat_kesulitan', ['sulit', 'susah']);
+                } else {
+                    $soalQuery->where('tingkat_kesulitan', $pilihanKesulitan);
+                }
+            }
+
+            $filteredSoals = $soalQuery->orderBy('id_soal', 'asc')->get();
+
+            // Jika ada soal yang sesuai dengan tingkat kesulitan yang dipilih, sajikan soal tersebut.
+            // Jika kosong, fallback otomatis ke semua soal ujian agar siswa tidak terblokir.
+            if ($filteredSoals->isNotEmpty()) {
+                $soals = $filteredSoals;
+            } else {
+                $soals = SoalQuiz::where('id_quiz', $idQuiz)->orderBy('id_soal', 'asc')->get();
+                $pilihanKesulitan = 'semua';
+            }
         }
 
         if ($soals->isEmpty()) {
@@ -167,20 +197,20 @@ class SiswaLearningController extends Controller
 
         // Pisahkan tampilan: Kuis Materi vs Ujian Online Resmi CBT
         if (empty($quiz->id_sub_bab)) {
-            return view('siswa.ujian.play', compact('quiz', 'soals'));
+            return view('siswa.ujian.play', compact('quiz', 'soals', 'pilihanKesulitan'));
         }
 
-        return view('siswa.quiz.play', compact('quiz', 'soals'));
+        return view('siswa.quiz.play', compact('quiz', 'soals', 'pilihanKesulitan'));
     }
 
     // 4.1 Play Ujian Online CBT Resmi
-    public function playUjian($idQuiz)
+    public function playUjian(Request $request, $idQuiz)
     {
         $quiz = Quiz::with(['mataPelajaran', 'guru', 'subBab.bab.mataPelajaran'])->findOrFail($idQuiz);
         if (!empty($quiz->id_sub_bab)) {
             return redirect()->route('siswa.quiz.play', $idQuiz);
         }
-        return $this->playQuiz($idQuiz);
+        return $this->playQuiz($request, $idQuiz);
     }
 
     // 5. Submit Quiz & Auto-grading
@@ -208,9 +238,14 @@ class SiswaLearningController extends Controller
         }
 
         $answers = $request->input('jawaban', []); // array [id_soal => 'A']
+        $soalIds = $request->input('soal_ids', []);
 
-        if ($quiz->id_sub_bab && count($answers) <= 5 && SoalQuiz::where('id_quiz', $idQuiz)->count() > 5) {
+        if (!empty($soalIds) && is_array($soalIds)) {
+            $allQuizSoals = SoalQuiz::where('id_quiz', $idQuiz)->whereIn('id_soal', $soalIds)->orderBy('id_soal', 'asc')->get();
+        } elseif ($quiz->id_sub_bab && count($answers) <= 5 && SoalQuiz::where('id_quiz', $idQuiz)->count() > 5) {
             $allQuizSoals = SoalQuiz::whereIn('id_soal', array_keys($answers))->get();
+        } elseif (!empty($answers)) {
+            $allQuizSoals = SoalQuiz::where('id_quiz', $idQuiz)->whereIn('id_soal', array_keys($answers))->orderBy('id_soal', 'asc')->get();
         } else {
             $allQuizSoals = SoalQuiz::where('id_quiz', $idQuiz)->orderBy('id_soal', 'asc')->get();
         }
@@ -236,6 +271,7 @@ class SiswaLearningController extends Controller
                 'id_soal' => $soal->id_soal,
                 'pertanyaan' => $soal->pertanyaan,
                 'gambar' => $soal->gambar,
+                'tingkat_kesulitan' => $soal->tingkat_kesulitan ?? 'sedang',
                 'opsi_a' => $soal->opsi_a,
                 'opsi_b' => $soal->opsi_b,
                 'opsi_c' => $soal->opsi_c,

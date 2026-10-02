@@ -20,6 +20,26 @@
                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-400 text-slate-900 shadow-xs">
                         CBT Online
                     </span>
+                    @php
+                        $modeKesulitan = strtolower($pilihanKesulitan ?? 'semua');
+                    @endphp
+                    @if($modeKesulitan === 'mudah')
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-900 shadow-xs">
+                            🟢 Tingkat Mudah
+                        </span>
+                    @elseif($modeKesulitan === 'sedang')
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-300 text-slate-900 shadow-xs">
+                            🟡 Tingkat Sedang
+                        </span>
+                    @elseif($modeKesulitan === 'sulit' || $modeKesulitan === 'susah')
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-400 text-slate-900 shadow-xs">
+                            🔴 Tingkat Sulit
+                        </span>
+                    @else
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-300 text-slate-900 shadow-xs">
+                            ⚡ Semua Tingkat
+                        </span>
+                    @endif
                     <span class="text-xs text-sky-200 font-medium">
                         {{ $mapelName }} &bull; Guru: {{ $guruName }}
                     </span>
@@ -62,8 +82,10 @@
         <div class="lg:col-span-8 xl:col-span-9 space-y-5">
             <form id="form-quiz" action="{{ route('siswa.ujian.submit', $quiz->id_quiz) }}" method="POST">
                 @csrf
+                <input type="hidden" name="mode_kesulitan" value="{{ $pilihanKesulitan ?? 'semua' }}">
 
                 @foreach($soals as $index => $soal)
+                <input type="hidden" name="soal_ids[]" value="{{ $soal->id_soal }}">
                 <div id="soal-card-{{ $index }}" class="soal-slide space-y-5 {{ $index === 0 ? '' : 'hidden' }}">
                     <!-- Card Soal Konten -->
                     <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-5">
@@ -74,9 +96,27 @@
                                     {{ $index + 1 }}
                                 </span>
                                 <div>
-                                    <h3 class="text-sm font-black text-slate-900">
-                                        Soal Nomor {{ $index + 1 }} <span class="text-xs font-medium text-slate-400">dari {{ count($soals) }}</span>
-                                    </h3>
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="text-sm font-black text-slate-900">
+                                            Soal Nomor {{ $index + 1 }} <span class="text-xs font-medium text-slate-400">dari {{ count($soals) }}</span>
+                                        </h3>
+                                        @php
+                                            $sLevel = strtolower($soal->tingkat_kesulitan ?? 'sedang');
+                                        @endphp
+                                        @if($sLevel === 'mudah')
+                                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                🟢 Mudah
+                                            </span>
+                                        @elseif($sLevel === 'sulit' || $sLevel === 'susah')
+                                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                                🔴 Sulit
+                                            </span>
+                                        @else
+                                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                                🟡 Sedang
+                                            </span>
+                                        @endif
+                                    </div>
                                     <span class="text-[11px] text-slate-500 font-medium">
                                         Bobot: <strong class="text-slate-700">{{ $soal->bobot_nilai ?? 10 }} Poin</strong>
                                     </span>
