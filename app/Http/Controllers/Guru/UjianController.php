@@ -299,6 +299,37 @@ class UjianController extends Controller
             ])->with('error', 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.');
         }
 
+        $judulQuiz = trim($request->judul_quiz);
+        $deskripsi = trim((string) $request->deskripsi);
+
+        $duplicateQuiz = Quiz::whereNull('id_sub_bab')
+            ->where('id_quiz', '!=', $quiz->id_quiz)
+            ->where(function ($q) use ($judulQuiz, $deskripsi) {
+                $q->whereRaw('LOWER(TRIM(judul_quiz)) = ?', [mb_strtolower($judulQuiz)])
+                  ->orWhereRaw('LOWER(TRIM(nama_quiz)) = ?', [mb_strtolower($judulQuiz)]);
+
+                if (!empty($deskripsi)) {
+                    $q->orWhereRaw('LOWER(TRIM(deskripsi)) = ?', [mb_strtolower($deskripsi)]);
+                }
+            })
+            ->first();
+
+        if ($duplicateQuiz) {
+            $isDeskripsiSama = !empty($deskripsi) && mb_strtolower(trim($duplicateQuiz->deskripsi)) === mb_strtolower($deskripsi);
+
+            $errorMsg = 'Ujian online dengan judul yang serupa sudah ada (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan judul ujian lain.';
+            if ($isDeskripsiSama && mb_strtolower(trim($duplicateQuiz->judul_quiz)) !== mb_strtolower($judulQuiz) && mb_strtolower(trim($duplicateQuiz->nama_quiz)) !== mb_strtolower($judulQuiz)) {
+                $errorMsg = 'Ujian online dengan deskripsi yang serupa sudah ada pada ujian (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan deskripsi yang berbeda.';
+            } elseif ($isDeskripsiSama) {
+                $errorMsg = 'Ujian online dengan judul dan deskripsi yang serupa sudah ada (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan yang lain.';
+            }
+
+            return back()->withInput()->withErrors([
+                'judul_quiz' => $errorMsg,
+                'deskripsi'  => $errorMsg,
+            ]);
+        }
+
         DB::beginTransaction();
         try {
             $quiz->update([
