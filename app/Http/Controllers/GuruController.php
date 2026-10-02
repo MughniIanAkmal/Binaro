@@ -161,11 +161,16 @@ class GuruController extends Controller
             return redirect()->route('login')->with('error', 'Sesi guru tidak valid. Silakan login kembali.');
         }
 
+        // Urutan hari Senin->Sabtu diurut di PHP agar tidak bergantung
+        // pada fungsi FIELD() yang hanya ada di MySQL (gagal di sqlite).
+        $urutanHari = ['Senin' => 0, 'Selasa' => 1, 'Rabu' => 2, 'Kamis' => 3, 'Jumat' => 4, 'Sabtu' => 5, 'Minggu' => 6];
+
         $jadwals = JadwalMataPelajaran::with(['mataPelajaran', 'kelas', 'guru'])
             ->when($guru, fn($q) => $q->where('id_guru', $guru->id_guru))
-            ->orderByRaw("CASE hari WHEN 'Senin' THEN 1 WHEN 'Selasa' THEN 2 WHEN 'Rabu' THEN 3 WHEN 'Kamis' THEN 4 WHEN 'Jumat' THEN 5 WHEN 'Sabtu' THEN 6 ELSE 7 END")
             ->orderBy('jam')
-            ->get();
+            ->get()
+            ->sortBy(fn($j) => [($urutanHari[$j->hari] ?? 99), $j->jam])
+            ->values();
 
         $jadwalPerHari = [
             'Senin'  => $jadwals->where('hari', 'Senin')->values(),

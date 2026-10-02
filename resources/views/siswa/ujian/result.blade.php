@@ -10,12 +10,12 @@
         $isPublished = (bool)($hasil->status_kirim ?? false);
     @endphp
 
-    <!-- Top Header Bar with Back Button -->
+    <!-- Top Header Bar -->
     <div class="bg-[#13527D] rounded-3xl p-5 sm:p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div class="flex items-center gap-4">
-            <a href="{{ route('siswa.ujian.index') }}" class="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition shrink-0" title="Kembali">
-                <i class="fas fa-arrow-left text-sm"></i>
-            </a>
+            <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
+                <i class="fas fa-file-signature text-sm"></i>
+            </div>
             <div>
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 text-sky-200">
                     Hasil Ujian CBT
@@ -27,14 +27,6 @@
                     {{ $mapelName }} &bull; Guru: {{ $guruName }}
                 </p>
             </div>
-        </div>
-
-        <div class="flex items-center gap-3">
-            <a href="{{ route('siswa.ujian.index') }}"
-               class="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition flex items-center gap-2">
-                <i class="fas fa-arrow-left text-xs"></i>
-                <span>Daftar Ujian</span>
-            </a>
         </div>
     </div>
 
@@ -204,13 +196,24 @@
                     <div class="w-8 h-8 rounded-xl bg-[#13527D] text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
                         <i class="fas fa-comment-dots"></i>
                     </div>
-                    <div class="text-xs text-slate-700 leading-relaxed">
-                        @if($hasil->catatan_guru)
+                    <div class="text-xs text-slate-700 leading-relaxed flex-1">
+                        @if($hasil->catatan_guru && $isLulus)
                             <strong class="text-[#13527D]">Catatan Guru:</strong> &ldquo;{{ $hasil->catatan_guru }}&rdquo;
                         @elseif($isLulus)
                             Hasil ujian telah memenuhi kriteria ketuntasan minimal (KKM). Terus pertahankan prestasi belajar Anda!
                         @else
-                            Hasil ujian belum mencapai target KKM. Silakan hubungi guru pengampu mata pelajaran untuk jadwal remedial atau pengayaan materi.
+                            <div>Hasil ujian belum mencapai target KKM. Tunggu jadwal remedial dari guru.</div>
+                            @if($hasil->catatan_guru)
+                                <div class="mt-2.5 rounded-xl bg-amber-50 border border-amber-200 p-3">
+                                    <div class="text-[10px] font-black uppercase tracking-wider text-amber-700">Pesan dari Guru</div>
+                                    <div class="mt-1 text-slate-700">&ldquo;{{ $hasil->catatan_guru }}&rdquo;</div>
+                                </div>
+                            @elseif(!empty($notifNilai->pesan ?? null))
+                                <div class="mt-2.5 rounded-xl bg-amber-50 border border-amber-200 p-3">
+                                    <div class="text-[10px] font-black uppercase tracking-wider text-amber-700">Pesan dari Guru</div>
+                                    <div class="mt-1 text-slate-700">{{ $notifNilai->pesan }}</div>
+                                </div>
+                            @endif
                         @endif
                     </div>
                 </div>

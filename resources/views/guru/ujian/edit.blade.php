@@ -73,6 +73,7 @@
                             </option>
                         @endforeach
                     </select>
+                    <p class="mt-1 text-[10px] text-slate-400">Hanya menampilkan mata pelajaran yang Anda ampu.</p>
                 </div>
 
                 <!-- Durasi Ujian -->

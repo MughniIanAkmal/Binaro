@@ -60,6 +60,65 @@ class NotifikasiPrController extends Controller
 
         $notifikasis = $notifikasiQuery->latest('id_notifikasi')->paginate(12, ['*'], 'notif_page')->withQueryString();
 
+        // 2b. Kelompokkan riwayat per batch pengiriman (id_pr + isi pesan sama).
+        // Tujuannya: kalau kirim ke 1 kelas, tampil ringkas "Siswa kelas 1A" + tombol popup daftar siswa.
+        $grupQuery = Notifikasi::with(['guru', 'siswa.kelas', 'pr.mataPelajaran']);
+
+        if ($search) {
+            $grupQuery->where(function ($q) use ($search) {
+                $q->where('pesan', 'like', "%{$search}%")
+                  ->orWhereHas('siswa', fn($s) => $s->where('nm_siswa', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%"))
+                  ->orWhereHas('pr', fn($p) => $p->where('nama_pr', 'like', "%{$search}%"));
+            });
+        }
+
+        $semuaNotifikasi = $grupQuery->latest('id_notifikasi')->take(500)->get();
+
+        $grupNotifikasi = $semuaNotifikasi->groupBy(function ($n) {
+            return ($n->id_pr ?? 0) . '||' . trim($n->pesan ?? '');
+        })->map(function ($items) {
+            $pertama = $items->first();
+            $daftarKelas = $items->map(fn($i) => $i->siswa->kelas->pararel ?? null)->filter()->unique()->values();
+            $total = $items->count();
+            $dibaca = $items->where('status_baca', 1)->count();
+            $waktuKirim = $items->min('created_at');
+
+            if ($total === 1) {
+                $label = $pertama->siswa->nm_siswa ?? 'Siswa';
+                $subLabel = 'NISN: ' . ($pertama->siswa->nisn ?? '-') . ' • ' . ($pertama->siswa->kelas->pararel ?? 'Kelas');
+            } elseif ($daftarKelas->count() === 1) {
+                $label = 'Siswa kelas ' . $daftarKelas->first();
+                $subLabel = $total . ' siswa penerima • ' . $dibaca . ' sudah dibaca';
+            } else {
+                $label = $total . ' siswa (' . $daftarKelas->count() . ' kelas)';
+                $subLabel = $daftarKelas->take(3)->join(', ') . ($daftarKelas->count() > 3 ? ', ...' : '') . ' • ' . $dibaca . ' sudah dibaca';
+            }
+
+            return [
+                'key' => ($pertama->id_pr ?? 0) . '||' . md5(trim($pertama->pesan ?? '')),
+                'id_pr' => $pertama->id_pr,
+                'pr' => $pertama->pr,
+                'pesan' => $pertama->pesan,
+                'waktu_kirim' => $waktuKirim,
+                'waktu_label' => $waktuKirim ? $waktuKirim->translatedFormat('d M Y') . ', ' . $waktuKirim->format('H:i') . ' WIB' : '-',
+                'nama_pr' => $pertama->pr->nama_pr ?? 'Tugas PR',
+                'total' => $total,
+                'dibaca' => $dibaca,
+                'label' => $label,
+                'sub_label' => $subLabel,
+                'satu_kelas' => $daftarKelas->count() === 1 ? $daftarKelas->first() : null,
+                'daftar_kelas' => $daftarKelas,
+                'items' => $items->map(fn($i) => [
+                    'id_notifikasi' => $i->id_notifikasi,
+                    'nama' => $i->siswa->nm_siswa ?? 'Siswa',
+                    'nisn' => $i->siswa->nisn ?? '-',
+                    'kelas' => $i->siswa->kelas->pararel ?? '-',
+                    'status_baca' => (bool) $i->status_baca,
+                    'waktu' => $i->created_at ? $i->created_at->translatedFormat('d M Y, H:i') . ' WIB' : '-',
+                ])->sortBy('nama')->values(),
+            ];
+        })->sortByDesc(fn($g) => $g['waktu_kirim'])->values();
+
         // 3. KPI Statistics
         $totalPr = Pr::count();
         $prAktif = Pr::where('tgl_tenggat', '>=', Carbon::now())->count();
@@ -91,7 +150,8 @@ class NotifikasiPrController extends Controller
             'allPrs',
             'search',
             'mapelFilter',
-            'activeTab'
+            'activeTab',
+            'grupNotifikasi'
         ));
     }
 

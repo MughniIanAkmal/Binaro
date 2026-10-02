@@ -172,9 +172,18 @@
                                     <i class="fas fa-users text-[9px]"></i> Semua Siswa
                                 </span>
                             @else
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200" title="{{ $ujian->targetSiswa->pluck('nm_siswa')->join(', ') }}">
-                                    <i class="fas fa-user-tag text-[9px]"></i> {{ $ujian->targetSiswa->count() }} Siswa Pilihan
-                                </span>
+                                @php
+                                    $kelasTarget = $ujian->targetSiswa->map(fn($s) => $s->kelas->pararel ?? $s->kelas->nama_kelas ?? null)->filter()->unique()->values();
+                                @endphp
+                                @if($kelasTarget->count() === 1)
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200" title="{{ $ujian->targetSiswa->pluck('nm_siswa')->join(', ') }}">
+                                        <i class="fas fa-users text-[9px]"></i> Siswa kelas {{ $kelasTarget->first() }}
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200" title="{{ $ujian->targetSiswa->pluck('nm_siswa')->join(', ') }}">
+                                        <i class="fas fa-user-tag text-[9px]"></i> {{ $ujian->targetSiswa->count() }} Siswa Pilihan
+                                    </span>
+                                @endif
                             @endif
                         </td>
                         <td class="py-3.5 px-4 text-center">
