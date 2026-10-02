@@ -47,7 +47,9 @@
                         {{ $index + 1 }}
                     </span>
                     <div>
-                        <h3 class="text-sm font-bold text-slate-900">{{ $subBab->nama_sub_bab }}</h3>
+                        <a href="{{ route('guru.materi.sub_bab', $subBab->id_sub_bab) }}" class="block group/link">
+                            <h3 class="text-sm font-bold text-slate-900 group-hover/link:text-[#13527D] group-hover/link:underline transition">{{ $subBab->nama_sub_bab }}</h3>
+                        </a>
                         <div class="flex items-center gap-3 mt-1.5 text-xs text-slate-500">
                             <span class="flex items-center gap-1 font-semibold text-slate-700">
                                 <i class="fas fa-layer-group text-slate-400"></i> {{ $subBab->materi->count() }} Materi:

@@ -10,6 +10,8 @@ use App\Models\Quiz;
 use App\Models\SoalQuiz;
 use App\Models\SubBab;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class SiswaLearningController extends Controller
 {
@@ -54,6 +56,25 @@ class SiswaLearningController extends Controller
         }
 
         return view('siswa.materi.view', compact('materi', 'hasilKuis'));
+    }
+
+    // 3.1 Unduh Berkas PDF Materi Pembelajaran
+    public function downloadPdf($idMateri)
+    {
+        $materi = Materi::findOrFail($idMateri);
+
+        if (empty($materi->file_pdf) || !Storage::disk('public')->exists($materi->file_pdf)) {
+            return back()->with('error', 'Berkas PDF materi tidak ditemukan atau belum diunggah.');
+        }
+
+        $cleanTitle = Str::slug($materi->judul_materi) ?: 'materi-' . $materi->id_materi;
+        $fileName = $cleanTitle . '.pdf';
+
+        return Storage::disk('public')->download(
+            $materi->file_pdf,
+            $fileName,
+            ['Content-Type' => 'application/pdf']
+        );
     }
 
     // 3.5 Daftar Ujian Siswa (Online Exams)

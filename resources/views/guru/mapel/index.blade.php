@@ -26,9 +26,11 @@
                     </span>
                 </div>
 
-                <h3 class="text-base font-bold text-slate-900 group-hover:text-[#13527D] transition">
-                    {{ $mapel->nama_mapel }}
-                </h3>
+                <a href="{{ route('guru.bab.index', $mapel->id_mapel) }}" class="block group/link">
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-[#13527D] group-hover/link:underline transition">
+                        {{ $mapel->nama_mapel }}
+                    </h3>
+                </a>
                 <p class="text-xs text-slate-500 mt-1 line-clamp-2">
                     {{ $mapel->deskripsi ?? 'Kurikulum pembelajaran terintegrasi SDN Kalitapen 01.' }}
                 </p>

@@ -7,6 +7,13 @@
         <i class="fas fa-arrow-left text-[10px]"></i> Kembali ke Daftar Konten Materi
     </a>
 
+    @if(session('error'))
+    <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-semibold flex items-center gap-2">
+        <i class="fas fa-circle-exclamation text-rose-500 text-sm"></i>
+        <span>{{ session('error') }}</span>
+    </div>
+    @endif
+
     <!-- Card Container -->
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-5">
         <div class="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -129,7 +136,7 @@
                         <div class="h-4 w-px bg-slate-200 mx-1"></div>
 
                         <!-- Download Option -->
-                        <a href="{{ asset('storage/' . $materi->file_pdf) }}" target="_blank" download
+                        <a href="{{ route('siswa.materi.download', $materi->id_materi) }}"
                            class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs">
                             <i class="fas fa-download"></i>
                             <span>Unduh PDF</span>

@@ -106,6 +106,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
 
         Route::prefix('materi')->name('materi.')->group(function () {
             Route::get('/', [MateriController::class, 'index'])->name('index');
+            Route::get('/{id}/download', [MateriController::class, 'downloadPdf'])->name('download');
             Route::post('/bab', [MateriController::class, 'storeBab'])->name('store.bab');
             Route::post('/sub-bab', [MateriController::class, 'storeSubBab'])->name('store.sub-bab');
             Route::post('/store', [MateriController::class, 'storeMateri'])->name('store');
@@ -210,6 +211,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::get('/mapel/{idMapel}', [SiswaLearningController::class, 'materiIndex'])->name('materi.index');
         Route::get('/sub-bab/{idSubBab}/materi', [SiswaLearningController::class, 'subBabMateri'])->name('sub_bab.materi');
         Route::get('/materi/{idMateri}', [SiswaLearningController::class, 'viewMateri'])->name('materi.view');
+        Route::get('/materi/{idMateri}/download', [SiswaLearningController::class, 'downloadPdf'])->name('materi.download');
 
         // Ujian Online Resmi CBT Siswa (Sahabat Belajar)
         Route::get('/ujian', [SiswaLearningController::class, 'daftarUjian'])->name('ujian.index');

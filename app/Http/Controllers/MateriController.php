@@ -10,6 +10,7 @@ use App\Models\SoalQuiz;
 use App\Models\SubBab;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class MateriController extends Controller
 {
@@ -374,5 +375,23 @@ class MateriController extends Controller
     {
         SubBab::findOrFail($id)->delete();
         return back()->with('success', 'Sub-Bab berhasil dihapus.');
+    }
+
+    public function downloadPdf($id)
+    {
+        $materi = Materi::findOrFail($id);
+
+        if (empty($materi->file_pdf) || !Storage::disk('public')->exists($materi->file_pdf)) {
+            return back()->with('error', 'Berkas PDF materi tidak ditemukan atau belum diunggah.');
+        }
+
+        $cleanTitle = Str::slug($materi->judul_materi) ?: 'materi-' . $materi->id_materi;
+        $fileName = $cleanTitle . '.pdf';
+
+        return Storage::disk('public')->download(
+            $materi->file_pdf,
+            $fileName,
+            ['Content-Type' => 'application/pdf']
+        );
     }
 }

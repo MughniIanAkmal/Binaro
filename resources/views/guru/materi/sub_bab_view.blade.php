@@ -188,7 +188,7 @@
 
                                 <div class="h-4 w-px bg-slate-200 mx-1"></div>
 
-                                <a href="{{ asset('storage/' . $materi->file_pdf) }}" target="_blank" download
+                                <a href="{{ route('guru.materi.download', $materi->id_materi) }}"
                                    class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-xs transition">
                                     <i class="fas fa-download"></i>
                                     <span>Unduh PDF</span>

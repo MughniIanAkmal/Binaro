@@ -14,6 +14,7 @@ use App\Models\SoalQuiz;
 use App\Models\SubBab;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class BinaroLearningPrdTest extends TestCase
@@ -435,5 +436,34 @@ class BinaroLearningPrdTest extends TestCase
             'judul_rpp' => $rppJudulValid,
             'deskripsi' => $rppDeskripsi,
         ]);
+    }
+
+    public function test_siswa_can_download_materi_pdf_successfully()
+    {
+        Storage::fake('public');
+
+        $mapel = MataPelajaran::create(['nama_mapel' => 'IPA Download Test']);
+        $bab = Bab::create(['id_mapel' => $mapel->id_mapel, 'nama_bab' => 'Bab PDF']);
+        $subBab = SubBab::create(['id_bab' => $bab->id_bab, 'nama_sub_bab' => 'Sub Bab PDF']);
+
+        $pdfPath = 'materi_pdf/test_sample.pdf';
+        Storage::disk('public')->put($pdfPath, '%PDF-1.4 dummy content');
+
+        $materi = Materi::create([
+            'id_sub_bab'   => $subBab->id_sub_bab,
+            'id_bab'       => $bab->id_bab,
+            'judul_materi' => 'Materi Fotosintesis Tumbuhan',
+            'tipe_materi'  => 'dokumen',
+            'file_pdf'     => $pdfPath,
+        ]);
+
+        $siswa = Siswa::create(['nm_siswa' => 'Budi Download', 'nisn' => '1122334455', 'password' => '123']);
+        $session = ['user_id' => $siswa->id_siswa, 'user_type' => 'siswa', 'user' => $siswa];
+
+        $response = $this->withSession($session)->get('/siswa/materi/' . $materi->id_materi . '/download');
+
+        $response->assertOk();
+        $this->assertTrue(str_contains($response->headers->get('content-disposition'), 'attachment'));
+        $this->assertTrue(str_contains($response->headers->get('content-disposition'), 'materi-fotosintesis-tumbuhan.pdf'));
     }
 }

@@ -28,16 +28,16 @@
 
 <!-- 3 KPI Cards -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-    <div class="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-sm flex justify-between items-center">
+    <a href="{{ route('guru.mapel.browse') }}" class="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-sm flex justify-between items-center hover:border-[#13527D] hover:shadow-md transition group">
         <div>
-            <div class="text-3xl font-black text-slate-900">4</div>
+            <div class="text-3xl font-black text-slate-900 group-hover:text-[#13527D] transition">4</div>
             <div class="text-xs font-bold text-slate-600 mt-1">Mata Pelajaran</div>
             <div class="text-[11px] text-slate-400">Kelas 4B &bull; Semester Ganjil</div>
         </div>
-        <div class="w-12 h-12 rounded-xl bg-sky-50 text-[#165B96] flex items-center justify-center text-xl font-bold">
+        <div class="w-12 h-12 rounded-xl bg-sky-50 text-[#165B96] group-hover:bg-[#13527D] group-hover:text-white transition flex items-center justify-center text-xl font-bold">
             <i class="fas fa-book-open"></i>
         </div>
-    </div>
+    </a>
 
     <div class="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-sm flex justify-between items-center">
         <div>

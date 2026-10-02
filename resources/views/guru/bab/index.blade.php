@@ -43,7 +43,9 @@
                         {{ $index + 1 }}
                     </span>
                     <div>
-                        <h3 class="text-sm font-bold text-slate-900">{{ $bab->nama_bab }}</h3>
+                        <a href="{{ route('guru.sub_bab.index', $bab->id_bab) }}" class="block group/link">
+                            <h3 class="text-sm font-bold text-slate-900 group-hover/link:text-[#13527D] group-hover/link:underline transition">{{ $bab->nama_bab }}</h3>
+                        </a>
                         <div class="flex items-center gap-3 mt-1 text-xs text-slate-500">
                             <span><i class="fas fa-folder text-slate-400 mr-1"></i> {{ $bab->subBab->count() }} Sub-Bab</span>
                             <span>&bull;</span>
