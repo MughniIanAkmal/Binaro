@@ -130,7 +130,24 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2 shrink-0">
+                    <div class="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                        @php
+                            $soalLevel = strtolower($soal->tingkat_kesulitan ?? 'sedang');
+                        @endphp
+                        @if($soalLevel === 'mudah')
+                            <span class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
+                                🟢 Mudah
+                            </span>
+                        @elseif($soalLevel === 'sulit' || $soalLevel === 'susah')
+                            <span class="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-bold">
+                                🔴 Sulit
+                            </span>
+                        @else
+                            <span class="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold">
+                                🟡 Sedang
+                            </span>
+                        @endif
+
                         <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-[#13527D] border border-blue-200 text-[11px] font-bold">
                             Bobot: {{ $soal->bobot_nilai ?? 10 }} Poin
                         </span>
@@ -312,12 +329,22 @@
         <form action="{{ route('guru.ujian.soal.store', $quiz->id_quiz) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
             @csrf
 
-            <!-- Bobot Nilai & Info -->
-            <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
-                <span class="text-xs font-bold text-slate-700">Tentukan Bobot Nilai Soal Ini:</span>
-                <div class="flex items-center gap-1.5">
-                    <input type="number" name="bobot_nilai" value="10" min="1" max="100" required class="w-20 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
-                    <span class="text-xs text-slate-500 font-semibold">Poin</span>
+            <!-- Bobot Nilai & Tingkat Kesulitan -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700">Bobot Nilai:</span>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" name="bobot_nilai" value="10" min="1" max="100" required class="w-16 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
+                        <span class="text-xs text-slate-500 font-semibold">Poin</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between sm:justify-end gap-2">
+                    <span class="text-xs font-bold text-slate-700">Tingkat Kesulitan:</span>
+                    <select name="tingkat_kesulitan" class="px-2.5 py-1 text-xs font-bold bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D]">
+                        <option value="mudah">🟢 Mudah</option>
+                        <option value="sedang" selected>🟡 Sedang</option>
+                        <option value="sulit">🔴 Sulit</option>
+                    </select>
                 </div>
             </div>
 
@@ -383,12 +410,22 @@
             @csrf
             @method('PUT')
 
-            <!-- Bobot Nilai -->
-            <div class="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200">
-                <span class="text-xs font-bold text-slate-700">Bobot Nilai Soal Ini:</span>
-                <div class="flex items-center gap-1.5">
-                    <input type="number" id="edit-bobot-nilai" name="bobot_nilai" min="1" max="100" required class="w-20 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
-                    <span class="text-xs text-slate-500 font-semibold">Poin</span>
+            <!-- Bobot Nilai & Tingkat Kesulitan -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700">Bobot Nilai:</span>
+                    <div class="flex items-center gap-1.5">
+                        <input type="number" id="edit-bobot-nilai" name="bobot_nilai" min="1" max="100" required class="w-16 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
+                        <span class="text-xs text-slate-500 font-semibold">Poin</span>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between sm:justify-end gap-2">
+                    <span class="text-xs font-bold text-slate-700">Tingkat Kesulitan:</span>
+                    <select id="edit-tingkat-kesulitan" name="tingkat_kesulitan" class="px-2.5 py-1 text-xs font-bold bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D]">
+                        <option value="mudah">🟢 Mudah</option>
+                        <option value="sedang">🟡 Sedang</option>
+                        <option value="sulit">🔴 Sulit</option>
+                    </select>
                 </div>
             </div>
 
@@ -482,6 +519,8 @@ function editSoal(soal) {
     form.action = `{{ url('guru/ujian/' . $quiz->id_quiz . '/soal') }}/${soal.id_soal}`;
 
     document.getElementById('edit-bobot-nilai').value = soal.bobot_nilai || 10;
+    const kes = (soal.tingkat_kesulitan || 'sedang').toLowerCase();
+    document.getElementById('edit-tingkat-kesulitan').value = (kes === 'susah' ? 'sulit' : kes);
     document.getElementById('edit-pertanyaan').value = soal.pertanyaan || '';
     document.getElementById('edit-opsi-a').value = soal.opsi_a || '';
     document.getElementById('edit-opsi-b').value = soal.opsi_b || '';

@@ -103,6 +103,7 @@ class UjianController extends Controller
             'soal.*.opsi_d' => 'nullable|string|max:255',
             'soal.*.kunci_jawaban' => 'nullable|in:A,B,C,D',
             'soal.*.bobot_nilai' => 'nullable|numeric|min:1|max:100',
+            'soal.*.tingkat_kesulitan' => 'nullable|in:mudah,sedang,susah,sulit',
             'soal.*.gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
         ], [
             'judul_quiz.required'    => 'Judul ujian wajib diisi.',
@@ -160,16 +161,23 @@ class UjianController extends Controller
                         $gambarPath = $gambarFile->store('soal_ujian', 'public');
                     }
 
+                    $kesulitanItem = strtolower($item['tingkat_kesulitan'] ?? '');
+                    if (!in_array($kesulitanItem, ['mudah', 'sedang', 'susah', 'sulit'])) {
+                        $kesulitanItem = $request->tingkat_level ?? 'sedang';
+                    }
+                    if ($kesulitanItem === 'susah') $kesulitanItem = 'sulit';
+
                     SoalQuiz::create([
-                        'id_quiz'       => $quiz->id_quiz,
-                        'pertanyaan'    => trim($item['pertanyaan']),
-                        'gambar'        => $gambarPath,
-                        'opsi_a'        => trim($item['opsi_a']),
-                        'opsi_b'        => trim($item['opsi_b']),
-                        'opsi_c'        => trim($item['opsi_c']),
-                        'opsi_d'        => trim($item['opsi_d']),
-                        'kunci_jawaban' => strtoupper($item['kunci_jawaban'] ?? 'A'),
-                        'bobot_nilai'   => isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int)$item['bobot_nilai'] : 10,
+                        'id_quiz'           => $quiz->id_quiz,
+                        'pertanyaan'        => trim($item['pertanyaan']),
+                        'gambar'            => $gambarPath,
+                        'opsi_a'            => trim($item['opsi_a']),
+                        'opsi_b'            => trim($item['opsi_b']),
+                        'opsi_c'            => trim($item['opsi_c']),
+                        'opsi_d'            => trim($item['opsi_d']),
+                        'kunci_jawaban'     => strtoupper($item['kunci_jawaban'] ?? 'A'),
+                        'bobot_nilai'       => isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int)$item['bobot_nilai'] : 10,
+                        'tingkat_kesulitan' => $kesulitanItem,
                     ]);
                 }
             }
@@ -329,6 +337,7 @@ class UjianController extends Controller
             'opsi_d'        => 'required|string|max:255',
             'kunci_jawaban' => 'required|in:A,B,C,D',
             'bobot_nilai'   => 'required|numeric|min:1|max:100',
+            'tingkat_kesulitan' => 'nullable|in:mudah,sedang,susah,sulit',
         ], [
             'pertanyaan.required'    => 'Teks pertanyaan soal wajib diisi.',
             'pertanyaan.max'         => 'Teks pertanyaan soal maksimal 2000 karakter.',
@@ -351,16 +360,21 @@ class UjianController extends Controller
             $gambarPath = $request->file('gambar')->store('soal_ujian', 'public');
         }
 
+        $kesulitanSoal = strtolower($request->input('tingkat_kesulitan', $quiz->tingkat_level ?? 'sedang'));
+        if ($kesulitanSoal === 'susah') $kesulitanSoal = 'sulit';
+        if (!in_array($kesulitanSoal, ['mudah', 'sedang', 'sulit'])) $kesulitanSoal = 'sedang';
+
         SoalQuiz::create([
-            'id_quiz'       => $quiz->id_quiz,
-            'pertanyaan'    => trim($request->pertanyaan),
-            'gambar'        => $gambarPath,
-            'opsi_a'        => trim($request->opsi_a),
-            'opsi_b'        => trim($request->opsi_b),
-            'opsi_c'        => trim($request->opsi_c),
-            'opsi_d'        => trim($request->opsi_d),
-            'kunci_jawaban' => strtoupper($request->kunci_jawaban),
-            'bobot_nilai'   => $request->bobot_nilai,
+            'id_quiz'           => $quiz->id_quiz,
+            'pertanyaan'        => trim($request->pertanyaan),
+            'gambar'            => $gambarPath,
+            'opsi_a'            => trim($request->opsi_a),
+            'opsi_b'            => trim($request->opsi_b),
+            'opsi_c'            => trim($request->opsi_c),
+            'opsi_d'            => trim($request->opsi_d),
+            'kunci_jawaban'     => strtoupper($request->kunci_jawaban),
+            'bobot_nilai'       => $request->bobot_nilai,
+            'tingkat_kesulitan' => $kesulitanSoal,
         ]);
 
         return redirect()->route('guru.ujian.show', $quiz->id_quiz)
@@ -383,6 +397,7 @@ class UjianController extends Controller
             'opsi_d'        => 'required|string|max:255',
             'kunci_jawaban' => 'required|in:A,B,C,D',
             'bobot_nilai'   => 'required|numeric|min:1|max:100',
+            'tingkat_kesulitan' => 'nullable|in:mudah,sedang,susah,sulit',
         ], [
             'pertanyaan.required'    => 'Teks pertanyaan soal wajib diisi.',
             'pertanyaan.max'         => 'Teks pertanyaan soal maksimal 2000 karakter.',
@@ -400,14 +415,19 @@ class UjianController extends Controller
             'bobot_nilai.required'   => 'Bobot nilai soal wajib ditentukan.',
         ]);
 
+        $kesulitanSoal = strtolower($request->input('tingkat_kesulitan', $soal->tingkat_kesulitan ?? 'sedang'));
+        if ($kesulitanSoal === 'susah') $kesulitanSoal = 'sulit';
+        if (!in_array($kesulitanSoal, ['mudah', 'sedang', 'sulit'])) $kesulitanSoal = 'sedang';
+
         $data = [
-            'pertanyaan'    => trim($request->pertanyaan),
-            'opsi_a'        => trim($request->opsi_a),
-            'opsi_b'        => trim($request->opsi_b),
-            'opsi_c'        => trim($request->opsi_c),
-            'opsi_d'        => trim($request->opsi_d),
-            'kunci_jawaban' => strtoupper($request->kunci_jawaban),
-            'bobot_nilai'   => $request->bobot_nilai,
+            'pertanyaan'        => trim($request->pertanyaan),
+            'opsi_a'            => trim($request->opsi_a),
+            'opsi_b'            => trim($request->opsi_b),
+            'opsi_c'            => trim($request->opsi_c),
+            'opsi_d'            => trim($request->opsi_d),
+            'kunci_jawaban'     => strtoupper($request->kunci_jawaban),
+            'bobot_nilai'       => $request->bobot_nilai,
+            'tingkat_kesulitan' => $kesulitanSoal,
         ];
 
         // Jika minta hapus gambar lama

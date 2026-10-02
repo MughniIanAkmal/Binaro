@@ -438,4 +438,93 @@ class GuruUjianOnlineTest extends TestCase
         // 60 minutes / 20 questions = 3 minutes per question
         $showRes->assertSee('Rata-rata: 3m', false);
     }
+
+    public function test_guru_can_set_and_update_soal_difficulty_level()
+    {
+        $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
+
+        // 1. Create exam with questions of various difficulty levels
+        $createRes = $this->withSession($session)->post(route('guru.ujian.store'), [
+            'judul_quiz'    => 'Ujian Matematika Bertingkat',
+            'id_mapel'      => $this->mapel->id_mapel,
+            'tingkat_level' => 'sedang',
+            'durasi_menit'  => 60,
+            'target_tipe'   => 'semua',
+            'soal' => [
+                [
+                    'pertanyaan'        => 'Berapa hasil satu tambah satu?',
+                    'opsi_a'            => 'Dua',
+                    'opsi_b'            => 'Tiga',
+                    'opsi_c'            => 'Empat',
+                    'opsi_d'            => 'Lima',
+                    'kunci_jawaban'     => 'A',
+                    'bobot_nilai'       => 10,
+                    'tingkat_kesulitan' => 'mudah',
+                ],
+                [
+                    'pertanyaan'        => 'Berapa nilai integral tentu dari dua x?',
+                    'opsi_a'            => 'x kuadrat',
+                    'opsi_b'            => 'dua x kuadrat',
+                    'opsi_c'            => 'x',
+                    'opsi_d'            => 'dua',
+                    'kunci_jawaban'     => 'A',
+                    'bobot_nilai'       => 20,
+                    'tingkat_kesulitan' => 'sulit',
+                ],
+            ],
+        ]);
+
+        $createRes->assertRedirect(route('guru.ujian.index'));
+
+        $quiz = Quiz::where('judul_quiz', 'Ujian Matematika Bertingkat')->first();
+        $this->assertNotNull($quiz);
+
+        $soalMudah = SoalQuiz::where('id_quiz', $quiz->id_quiz)->where('tingkat_kesulitan', 'mudah')->first();
+        $this->assertNotNull($soalMudah);
+        $this->assertEquals('Berapa hasil satu tambah satu?', $soalMudah->pertanyaan);
+
+        $soalSulit = SoalQuiz::where('id_quiz', $quiz->id_quiz)->where('tingkat_kesulitan', 'sulit')->first();
+        $this->assertNotNull($soalSulit);
+        $this->assertEquals('Berapa nilai integral tentu dari dua x?', $soalSulit->pertanyaan);
+
+        // 2. Add another question via storeSoal with 'sedang'
+        $addSoalRes = $this->withSession($session)->post(route('guru.ujian.soal.store', $quiz->id_quiz), [
+            'pertanyaan'        => 'Berapa hasil lima kali lima?',
+            'opsi_a'            => 'Dua puluh lima',
+            'opsi_b'            => 'Tiga puluh',
+            'opsi_c'            => 'Dua puluh',
+            'opsi_d'            => 'Lima belas',
+            'kunci_jawaban'     => 'A',
+            'bobot_nilai'       => 15,
+            'tingkat_kesulitan' => 'sedang',
+        ]);
+        $addSoalRes->assertRedirect();
+
+        $soalSedang = SoalQuiz::where('id_quiz', $quiz->id_quiz)->where('pertanyaan', 'Berapa hasil lima kali lima?')->first();
+        $this->assertNotNull($soalSedang);
+        $this->assertEquals('sedang', $soalSedang->tingkat_kesulitan);
+
+        // 3. Update question difficulty from 'sedang' to 'sulit'
+        $updateSoalRes = $this->withSession($session)->put(route('guru.ujian.soal.update', [$quiz->id_quiz, $soalSedang->id_soal]), [
+            'pertanyaan'        => 'Berapa hasil lima kali lima dikali dua?',
+            'opsi_a'            => 'Lima puluh',
+            'opsi_b'            => 'Enam puluh',
+            'opsi_c'            => 'Empat puluh',
+            'opsi_d'            => 'Tiga puluh',
+            'kunci_jawaban'     => 'A',
+            'bobot_nilai'       => 20,
+            'tingkat_kesulitan' => 'sulit',
+        ]);
+        $updateSoalRes->assertRedirect();
+
+        $soalSedang->refresh();
+        $this->assertEquals('sulit', $soalSedang->tingkat_kesulitan);
+        $this->assertEquals('Berapa hasil lima kali lima dikali dua?', $soalSedang->pertanyaan);
+
+        // 4. View show page displays badges
+        $showRes = $this->withSession($session)->get(route('guru.ujian.show', $quiz->id_quiz));
+        $showRes->assertStatus(200);
+        $showRes->assertSee('🟢 Mudah');
+        $showRes->assertSee('🔴 Sulit');
+    }
 }

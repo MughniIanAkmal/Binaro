@@ -324,11 +324,19 @@ function addQuestionCard(defaultData = null) {
                 <span class="w-6 h-6 rounded-lg bg-[#13527D] text-white flex items-center justify-center font-bold text-xs soal-number">${questionCount}</span>
                 <span class="text-xs font-bold text-slate-800">Pertanyaan Soal</span>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
                 <div class="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
-                    <label class="text-[11px] font-bold text-slate-600">Bobot Nilai:</label>
-                    <input type="number" name="soal[${idx}][bobot_nilai]" value="${defaultData ? defaultData.bobot : 10}" min="1" max="100" class="w-16 px-1.5 py-0.5 text-xs font-bold text-center border border-slate-200 rounded focus:outline-none focus:border-[#13527D]">
+                    <label class="text-[11px] font-bold text-slate-600">Bobot:</label>
+                    <input type="number" name="soal[${idx}][bobot_nilai]" value="${defaultData ? defaultData.bobot : 10}" min="1" max="100" class="w-14 px-1.5 py-0.5 text-xs font-bold text-center border border-slate-200 rounded focus:outline-none focus:border-[#13527D]">
                     <span class="text-[10px] text-slate-400 font-semibold">Poin</span>
+                </div>
+                <div class="flex items-center gap-1 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
+                    <label class="text-[11px] font-bold text-slate-600">Tingkat:</label>
+                    <select name="soal[${idx}][tingkat_kesulitan]" class="text-xs font-bold bg-transparent border-0 focus:ring-0 text-slate-700 cursor-pointer">
+                        <option value="mudah" ${defaultData && defaultData.kesulitan === 'mudah' ? 'selected' : ''}>🟢 Mudah</option>
+                        <option value="sedang" ${(!defaultData || !defaultData.kesulitan || defaultData.kesulitan === 'sedang') ? 'selected' : ''}>🟡 Sedang</option>
+                        <option value="sulit" ${defaultData && (defaultData.kesulitan === 'sulit' || defaultData.kesulitan === 'susah') ? 'selected' : ''}>🔴 Sulit</option>
+                    </select>
                 </div>
                 <button type="button" onclick="removeQuestionCard(${idx})" class="text-slate-400 hover:text-rose-600 text-xs transition p-1" title="Hapus Soal Ini">
                     <i class="fas fa-trash-can"></i>
