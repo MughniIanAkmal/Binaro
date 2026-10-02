@@ -7,6 +7,10 @@ use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Pr;
+use App\Models\Bab;
+use App\Models\HasilKuisSiswa;
+use App\Models\Materi;
+use App\Models\SubBab;
 use App\Models\Quiz;
 use App\Models\Siswa;
 use App\Models\SoalQuiz;
@@ -200,5 +204,184 @@ class InputValidationAndHumanErrorTest extends TestCase
             ]);
 
         $responseKunci->assertSessionHasErrors('kunci_jawaban');
+    }
+
+    public function test_kelola_materi_guru_blocks_duplicate_and_symbols_in_bab_subbab_materi()
+    {
+        // 1. Simbol pada nama Bab ditolak
+        $resSymbolBab = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
+            ->post(route('guru.materi.store.bab'), [
+                'id_mapel' => $this->mapel->id_mapel,
+                'nama_bab' => 'Bab 1: Bilangan & Aljabar!',
+            ]);
+        $resSymbolBab->assertSessionHasErrors('nama_bab');
+
+        // 2. Simpan Bab sah
+        $resValidBab = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
+            ->post(route('guru.materi.store.bab'), [
+                'id_mapel' => $this->mapel->id_mapel,
+                'nama_bab' => 'Bab 1 Bilangan Bulat',
+            ]);
+        $resValidBab->assertSessionHas('success');
+
+        // 3. Duplikasi Bab (case-insensitive) ditolak
+        $resDupBab = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
+            ->post(route('guru.materi.store.bab'), [
+                'id_mapel' => $this->mapel->id_mapel,
+                'nama_bab' => 'bab 1 bilangan bulat',
+            ]);
+        $resDupBab->assertSessionHas('error');
+
+        $bab = Bab::where('id_mapel', $this->mapel->id_mapel)->first();
+
+        // 4. Simbol pada nama Sub-Bab ditolak
+        $resSymbolSubBab = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
+            ->post(route('guru.materi.store.sub-bab'), [
+                'id_bab' => $bab->id_bab,
+                'nama_sub_bab' => 'Sub-Bab @Operasi Hitung',
+            ]);
+        $resSymbolSubBab->assertSessionHasErrors('nama_sub_bab');
+
+        // 5. Simpan Sub-Bab sah
+        $resValidSubBab = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
+            ->post(route('guru.materi.store.sub-bab'), [
+                'id_bab' => $bab->id_bab,
+                'nama_sub_bab' => 'Sub Bab Penjumlahan',
+            ]);
+        $resValidSubBab->assertSessionHas('success');
+
+        // 6. Duplikasi Sub-Bab ditolak
+        $resDupSubBab = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
+            ->post(route('guru.materi.store.sub-bab'), [
+                'id_bab' => $bab->id_bab,
+                'nama_sub_bab' => 'sub bab penjumlahan',
+            ]);
+        $resDupSubBab->assertSessionHas('error');
+
+        $subBab = SubBab::where('id_bab', $bab->id_bab)->first();
+
+        // 7. Simbol pada Judul Materi ditolak
+        $resSymbolMateri = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
+            ->post(route('guru.materi.store'), [
+                'id_sub_bab' => $subBab->id_sub_bab,
+                'judul_materi' => 'Materi #1 <script>',
+                'tipe_materi' => 'video',
+                'url_video' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            ]);
+        $resSymbolMateri->assertSessionHasErrors('judul_materi');
+
+        // 8. Simpan Materi sah
+        $resValidMateri = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
+            ->post(route('guru.materi.store'), [
+                'id_sub_bab' => $subBab->id_sub_bab,
+                'judul_materi' => 'Konsep Dasar Penjumlahan',
+                'tipe_materi' => 'video',
+                'url_video' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            ]);
+        $resValidMateri->assertSessionHas('success');
+
+        // 9. Duplikasi Materi pada Sub-Bab yang sama ditolak
+        $resDupMateri = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
+            ->post(route('guru.materi.store'), [
+                'id_sub_bab' => $subBab->id_sub_bab,
+                'judul_materi' => 'konsep dasar penjumlahan',
+                'tipe_materi' => 'video',
+                'url_video' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            ]);
+        $resDupMateri->assertSessionHas('error');
+    }
+
+    public function test_ujian_online_soal_anti_duplication_in_same_quiz()
+    {
+        $quiz = Quiz::create([
+            'id_mapel' => $this->mapel->id_mapel,
+            'id_guru' => $this->guru->id_guru,
+            'judul_quiz' => 'Ujian Akhir Semester',
+            'durasi_menit' => 60,
+            'tingkat_level' => 'sedang',
+            'target_tipe' => 'semua',
+        ]);
+
+        // Simpan soal pertama
+        $res1 = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
+            ->post(route('guru.ujian.soal.store', $quiz->id_quiz), [
+                'pertanyaan' => 'Berapa hasil dari 5 x 5?',
+                'opsi_a' => '20',
+                'opsi_b' => '25',
+                'opsi_c' => '30',
+                'opsi_d' => '35',
+                'kunci_jawaban' => 'B',
+                'bobot_nilai' => 10,
+            ]);
+        $res1->assertSessionHas('success');
+
+        // Simpan soal yang sama persis (duplikat) harus ditolak
+        $resDup = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
+            ->post(route('guru.ujian.soal.store', $quiz->id_quiz), [
+                'pertanyaan' => 'berapa hasil dari 5 x 5? ',
+                'opsi_a' => '20',
+                'opsi_b' => '25',
+                'opsi_c' => '30',
+                'opsi_d' => '35',
+                'kunci_jawaban' => 'B',
+                'bobot_nilai' => 10,
+            ]);
+        $resDup->assertSessionHas('error');
+    }
+
+    public function test_siswa_ujian_online_anti_duplicate_submission_and_empty_quiz_handling()
+    {
+        $quiz = Quiz::create([
+            'id_mapel' => $this->mapel->id_mapel,
+            'id_guru' => $this->guru->id_guru,
+            'judul_quiz' => 'Ujian Harian Matematika',
+            'durasi_menit' => 60,
+            'tingkat_level' => 'sedang',
+            'target_tipe' => 'semua',
+        ]);
+
+        // 1. Ujian tanpa soal dicegah
+        $resEmpty = $this->withSession(['user_id' => $this->siswa->id_siswa, 'user_type' => 'siswa'])
+            ->post(route('siswa.ujian.submit', $quiz->id_quiz), [
+                'jawaban' => [],
+            ]);
+        $resEmpty->assertSessionHas('error');
+
+        // Tambah 1 butir soal
+        $soal = SoalQuiz::create([
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Berapa 2 + 2?',
+            'opsi_a' => '3',
+            'opsi_b' => '4',
+            'opsi_c' => '5',
+            'opsi_d' => '6',
+            'kunci_jawaban' => 'B',
+            'bobot_nilai' => 100,
+        ]);
+
+        // 2. Submit sah pertama
+        $resSubmit1 = $this->withSession(['user_id' => $this->siswa->id_siswa, 'user_type' => 'siswa'])
+            ->post(route('siswa.ujian.submit', $quiz->id_quiz), [
+                'jawaban' => [
+                    $soal->id_soal => 'B',
+                ],
+            ]);
+        $resSubmit1->assertRedirect(route('siswa.ujian.result', $quiz->id_quiz));
+        $this->assertDatabaseHas('hasil_kuis_siswa', [
+            'id_quiz' => $quiz->id_quiz,
+            'id_siswa' => $this->siswa->id_siswa,
+            'jumlah_benar' => 1,
+            'nilai_akhir' => 100.00,
+        ]);
+
+        // 3. Double submission dicegah secara elegan dan tidak membuat record baru
+        $resSubmit2 = $this->withSession(['user_id' => $this->siswa->id_siswa, 'user_type' => 'siswa'])
+            ->post(route('siswa.ujian.submit', $quiz->id_quiz), [
+                'jawaban' => [
+                    $soal->id_soal => 'A',
+                ],
+            ]);
+        $resSubmit2->assertRedirect(route('siswa.ujian.result', $quiz->id_quiz));
+        $this->assertEquals(1, HasilKuisSiswa::where('id_quiz', $quiz->id_quiz)->where('id_siswa', $this->siswa->id_siswa)->count());
     }
 }

@@ -99,13 +99,13 @@ class MateriController extends Controller
             'nama_bab.regex'    => 'Nama Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol atau karakter khusus).',
         ]);
 
-        // Guardrail: Anti-duplikasi nama bab di mapel sama
+        // Guardrail: Anti-duplikasi nama bab di mapel sama (case-insensitive & trimmed)
         $exists = Bab::where('id_mapel', $request->id_mapel)
-                     ->where('nama_bab', trim($request->nama_bab))
+                     ->whereRaw('LOWER(TRIM(nama_bab)) = ?', [mb_strtolower(trim($request->nama_bab))])
                      ->exists();
 
         if ($exists) {
-            return back()->with('error', 'Nama Bab sudah ada di Mata Pelajaran ini.');
+            return back()->withInput()->with('error', 'Nama Bab sudah ada di Mata Pelajaran ini. Silakan gunakan nama bab lain.');
         }
 
         Bab::create([
@@ -134,13 +134,13 @@ class MateriController extends Controller
             'nama_sub_bab.regex'    => 'Nama Sub-Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol atau karakter khusus).',
         ]);
 
-        // Guardrail: Anti-duplikasi nama sub-bab di bab sama
+        // Guardrail: Anti-duplikasi nama sub-bab di bab sama (case-insensitive & trimmed)
         $exists = SubBab::where('id_bab', $request->id_bab)
-                        ->where('nama_sub_bab', trim($request->nama_sub_bab))
+                        ->whereRaw('LOWER(TRIM(nama_sub_bab)) = ?', [mb_strtolower(trim($request->nama_sub_bab))])
                         ->exists();
 
         if ($exists) {
-            return back()->with('error', 'Nama Sub-Bab sudah ada di Bab ini.');
+            return back()->withInput()->with('error', 'Nama Sub-Bab sudah ada di Bab ini. Silakan gunakan nama sub-bab lain.');
         }
 
         SubBab::create([
@@ -203,6 +203,15 @@ class MateriController extends Controller
         ]);
 
         $subBab = SubBab::findOrFail($request->id_sub_bab);
+
+        // Guardrail: Anti-duplikasi judul materi di sub-bab yang sama
+        $duplicateMateri = Materi::where('id_sub_bab', $request->id_sub_bab)
+            ->whereRaw('LOWER(TRIM(judul_materi)) = ?', [mb_strtolower(trim($request->judul_materi))])
+            ->exists();
+        if ($duplicateMateri) {
+            return back()->withInput()->with('error', 'Materi dengan judul yang sama sudah ada di Sub-Bab ini. Silakan gunakan judul materi lain.');
+        }
+
         $filePdfPath = null;
         $idQuiz = null;
 
@@ -309,6 +318,15 @@ class MateriController extends Controller
             'url_video.required_if' => 'URL Video wajib diisi jika memilih tipe materi Video.',
             'file_pdf.mimes'        => 'File materi harus berformat PDF (.pdf).',
         ]);
+
+        // Guardrail: Anti-duplikasi judul materi di sub-bab yang sama
+        $duplicateMateri = Materi::where('id_sub_bab', $materi->id_sub_bab)
+            ->where('id_materi', '!=', $id)
+            ->whereRaw('LOWER(TRIM(judul_materi)) = ?', [mb_strtolower(trim($request->judul_materi))])
+            ->exists();
+        if ($duplicateMateri) {
+            return back()->withInput()->with('error', 'Materi dengan judul yang sama sudah ada di Sub-Bab ini.');
+        }
 
         $data = [
             'judul_materi' => trim($request->judul_materi),

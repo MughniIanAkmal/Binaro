@@ -419,6 +419,15 @@ class UjianController extends Controller
             'bobot_nilai.required'   => 'Bobot nilai soal wajib ditentukan.',
         ]);
 
+        // Anti-duplikasi pertanyaan pada ujian yang sama
+        $pertanyaanTrim = trim($request->pertanyaan);
+        $duplicateSoal = SoalQuiz::where('id_quiz', $quiz->id_quiz)
+            ->whereRaw('LOWER(TRIM(pertanyaan)) = ?', [mb_strtolower($pertanyaanTrim)])
+            ->exists();
+        if ($duplicateSoal) {
+            return back()->withInput()->with('error', 'Pertanyaan soal yang serupa sudah ada di ujian ini. Silakan buat pertanyaan yang berbeda.');
+        }
+
         $gambarPath = null;
         if ($request->hasFile('gambar')) {
             $gambarPath = $request->file('gambar')->store('soal_ujian', 'public');
@@ -479,6 +488,16 @@ class UjianController extends Controller
             'kunci_jawaban.required' => 'Kunci jawaban wajib dipilih.',
             'bobot_nilai.required'   => 'Bobot nilai soal wajib ditentukan.',
         ]);
+
+        // Anti-duplikasi pertanyaan pada ujian yang sama
+        $pertanyaanTrim = trim($request->pertanyaan);
+        $duplicateSoal = SoalQuiz::where('id_quiz', $idQuiz)
+            ->where('id_soal', '!=', $idSoal)
+            ->whereRaw('LOWER(TRIM(pertanyaan)) = ?', [mb_strtolower($pertanyaanTrim)])
+            ->exists();
+        if ($duplicateSoal) {
+            return back()->withInput()->with('error', 'Pertanyaan soal yang serupa sudah ada di ujian ini.');
+        }
 
         $kesulitanSoal = strtolower($request->input('tingkat_kesulitan', $soal->tingkat_kesulitan ?? 'sedang'));
         if ($kesulitanSoal === 'susah') $kesulitanSoal = 'sulit';

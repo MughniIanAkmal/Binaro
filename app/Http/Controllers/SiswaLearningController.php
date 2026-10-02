@@ -236,7 +236,7 @@ class SiswaLearningController extends Controller
                                   ->where('id_siswa', $siswaId)
                                   ->first();
         if ($existing) {
-            return redirect()->route($targetResultRoute, $idQuiz);
+            return redirect()->route($targetResultRoute, $idQuiz)->with('info', 'Lembar jawaban Anda telah tersimpan sebelumnya.');
         }
 
         $answers = $request->input('jawaban', []); // array [id_soal => 'A']
@@ -252,15 +252,20 @@ class SiswaLearningController extends Controller
             $allQuizSoals = SoalQuiz::where('id_quiz', $idQuiz)->orderBy('id_soal', 'asc')->get();
         }
 
-        $totalSoal = max($allQuizSoals->count(), 1);
+        $totalSoal = $allQuizSoals->count();
+        if ($totalSoal === 0) {
+            return back()->with('error', 'Kuis atau ujian ini belum memiliki butir soal yang dapat dikerjakan.');
+        }
 
         $jumlahBenar = 0;
         $jumlahSalah = 0;
         $reviewDetails = [];
 
         foreach ($allQuizSoals as $soal) {
-            $userAns = strtoupper($answers[$soal->id_soal] ?? '');
-            $kunci = strtoupper($soal->kunci_jawaban);
+            $rawAns = strtoupper(trim((string)($answers[$soal->id_soal] ?? '')));
+            // Guard: Hanya izinkan opsi A, B, C, D murni (bersihkan simbol / karakter liar)
+            $userAns = in_array($rawAns, ['A', 'B', 'C', 'D']) ? $rawAns : '';
+            $kunci = strtoupper(trim((string)$soal->kunci_jawaban));
             $isCorrect = (!empty($userAns) && $userAns === $kunci);
 
             if ($isCorrect) {
@@ -296,16 +301,21 @@ class SiswaLearningController extends Controller
         }
         $waktuMenit = max(1, (int)$waktuMenit);
 
-        HasilKuisSiswa::create([
-            'id_quiz' => $idQuiz,
-            'id_siswa' => $siswaId,
-            'jumlah_benar' => $jumlahBenar,
-            'jumlah_salah' => $jumlahSalah,
-            'nilai_akhir' => $nilaiAkhir,
-            'waktu_menit' => $waktuMenit,
-            'status_kirim' => $statusKirim,
-            'waktu_kirim' => $statusKirim ? now() : null,
-        ]);
+        try {
+            HasilKuisSiswa::create([
+                'id_quiz' => $idQuiz,
+                'id_siswa' => $siswaId,
+                'jumlah_benar' => $jumlahBenar,
+                'jumlah_salah' => $jumlahSalah,
+                'nilai_akhir' => $nilaiAkhir,
+                'waktu_menit' => $waktuMenit,
+                'status_kirim' => $statusKirim,
+                'waktu_kirim' => $statusKirim ? now() : null,
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Jika terjadi double submission simultan di tingkat database
+            return redirect()->route($targetResultRoute, $idQuiz)->with('info', 'Lembar jawaban Anda telah tersimpan sebelumnya.');
+        }
 
         session()->flash('quiz_review_' . $idQuiz, $reviewDetails);
 

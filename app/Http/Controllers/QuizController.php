@@ -35,6 +35,14 @@ class QuizController extends Controller
             'opsi_d.max'          => 'Pilihan D maksimal 255 karakter.',
         ]);
 
+        $pertanyaanTrim = trim($request->pertanyaan);
+        $duplicateSoal = SoalQuiz::where('id_quiz', $idQuiz)
+            ->whereRaw('LOWER(TRIM(pertanyaan)) = ?', [mb_strtolower($pertanyaanTrim)])
+            ->exists();
+        if ($duplicateSoal) {
+            return back()->withInput()->with('error', 'Pertanyaan soal yang serupa sudah ada di kuis ini. Silakan buat pertanyaan yang berbeda.');
+        }
+
         SoalQuiz::create([
             'id_quiz' => $idQuiz,
             'pertanyaan' => trim($request->pertanyaan),
@@ -112,6 +120,14 @@ class QuizController extends Controller
 
             if (!in_array($kunciUpper, ['A', 'B', 'C', 'D'])) {
                 $errors[] = "Baris #{$rowCount}: Kunci jawaban ('{$kunci}') tidak valid. Wajib diisi huruf A, B, C, atau D.";
+                continue;
+            }
+
+            $isDuplicate = SoalQuiz::where('id_quiz', $idQuiz)
+                ->whereRaw('LOWER(TRIM(pertanyaan)) = ?', [mb_strtolower($pertanyaan)])
+                ->exists();
+            if ($isDuplicate) {
+                $errors[] = "Baris #{$rowCount}: Pertanyaan sudah ada di kuis ini (dilewati).";
                 continue;
             }
 
