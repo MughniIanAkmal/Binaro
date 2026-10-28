@@ -30,9 +30,11 @@
             <a href="{{ route('guru.bab.index', $bab->mataPelajaran->id_mapel) }}" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
                 <i class="fas fa-arrow-left"></i> Kembali ke Bab
             </a>
-            <button onclick="openModalAction('tambah', 'sub_bab', { idMapel: {{ $bab->mataPelajaran->id_mapel }}, idBab: {{ $bab->id_bab }} })" class="px-3.5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
+            {{-- Tombol Tambah Sub-Bab --}}
+            <button onclick="openModalAction('tambah', 'sub_bab', { idMapel: {{ $bab->mataPelajaran->id_mapel }}, idBab: {{ $bab->id_bab }}, namaMapel: '{{ addslashes($bab->mataPelajaran->nama_mapel) }}', namaBab: '{{ addslashes($bab->nama_bab) }}', locked: true })" 
+                    class="px-3.5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
                 <i class="fas fa-plus"></i> Tambah Sub-Bab
-            </button>
+            </button>   
         </div>
     </div>
 
@@ -70,9 +72,10 @@
                 </div>
 
                 <div class="flex items-center gap-2 self-end sm:self-center">
-                    <button onclick="openModalAction('tambah', 'materi', { idMapel: {{ $bab->mataPelajaran->id_mapel }}, idBab: {{ $bab->id_bab }}, idSubBab: {{ $subBab->id_sub_bab }} })" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
+                    <button onclick="openModalAction('tambah', 'materi', { idMapel: {{ $bab->mataPelajaran->id_mapel }}, idBab: {{ $bab->id_bab }}, idSubBab: {{ $subBab->id_sub_bab }}, namaMapel: '{{ addslashes($bab->mataPelajaran->nama_mapel) }}', namaBab: '{{ addslashes($bab->nama_bab) }}', namaSubBab: '{{ addslashes($subBab->nama_sub_bab) }}', locked: true })" 
+                            class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
                         <i class="fas fa-plus"></i> Tambah Materi
-                    </button>
+                    </button>   
 
                     <a href="{{ route('guru.materi.sub_bab', $subBab->id_sub_bab) }}" class="px-3.5 py-1.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">
                         <i class="fas fa-eye"></i> Buka Materi ({{ $subBab->materi->count() }})

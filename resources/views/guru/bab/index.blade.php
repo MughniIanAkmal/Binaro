@@ -26,9 +26,10 @@
             <a href="{{ route('guru.mapel.browse') }}" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
                 <i class="fas fa-arrow-left"></i> Kembali
             </a>
-            <button onclick="openModalAction('tambah', 'bab', { idMapel: {{ $mapel->id_mapel }} })" class="px-3.5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
+            <button onclick="openModalAction('tambah', 'bab', { idMapel: {{ $mapel->id_mapel }}, namaMapel: '{{ addslashes($mapel->nama_mapel) }}', locked: true })" 
+                class="px-3.5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
                 <i class="fas fa-plus"></i> Tambah Bab di Mapel Ini
-            </button>
+            </button>   
         </div>
     </div>
 

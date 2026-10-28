@@ -36,9 +36,10 @@
             <a href="{{ route('guru.sub_bab.index', $subBab->bab->id_bab) }}" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
                 <i class="fas fa-arrow-left"></i> Kembali ke Sub-Bab
             </a>
-            <button onclick="openModalAction('tambah', 'materi', { idMapel: {{ $subBab->bab->mataPelajaran->id_mapel }}, idBab: {{ $subBab->bab->id_bab }}, idSubBab: {{ $subBab->id_sub_bab }} })" class="px-3.5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
+            <button onclick="openModalAction('tambah', 'materi', { idMapel: {{ $subBab->bab->mataPelajaran->id_mapel }}, idBab: {{ $subBab->bab->id_bab }}, idSubBab: {{ $subBab->id_sub_bab }}, namaMapel: '{{ addslashes($subBab->bab->mataPelajaran->nama_mapel) }}', namaBab: '{{ addslashes($subBab->bab->nama_bab) }}', namaSubBab: '{{ addslashes($subBab->nama_sub_bab) }}', locked: true })" 
+                    class="px-3.5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
                 <i class="fas fa-plus"></i> Tambah Konten Materi
-            </button>
+            </button>   
         </div>
     </div>
 

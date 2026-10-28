@@ -13,7 +13,7 @@
             </div>
             <div class="flex items-center gap-3">
                 <!-- Mode Switcher -->
-                <div class="bg-[#0E3D5D] p-1 rounded-xl flex items-center text-xs">
+                <div id="modal-mode-switcher" class="bg-[#0E3D5D] p-1 rounded-xl flex items-center text-xs">
                     <button type="button" id="tab-btn-tambah" onclick="switchActionTab('tambah')" class="px-3 py-1.5 rounded-lg font-bold bg-white text-[#13527D] shadow-sm transition">
                         <i class="fas fa-plus mr-1"></i> Tambah
                     </button>
@@ -33,7 +33,7 @@
             <!-- ================= TAB 1: TAMBAH ================= -->
             <div id="tab-content-tambah" class="space-y-5">
                 <!-- Target Selector: Bab, Sub-Bab, Materi -->
-                <div>
+                <div id="wrapper-target-selector">
                     <label class="block text-xs font-bold text-slate-700 mb-2">Pilih Target yang Ingin Ditambahkan:</label>
                     <div class="grid grid-cols-3 gap-2">
                         <button type="button" onclick="setTambahTarget('bab')" id="target-btn-bab" class="py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-[#13527D] transition text-center flex flex-col items-center gap-1">
@@ -54,7 +54,9 @@
                 <!-- Form Tambah Bab -->
                 <form id="form-tambah-bab" action="{{ route('guru.materi.store.bab') }}" method="POST" onsubmit="return validateFormNoSymbols(this, 'tambah-nama-bab', 'Nama Bab')" class="space-y-4">
                     @csrf
-                    <div>
+
+                    <!-- Dropdown Bebas Mapel -->
+                    <div id="wrapper-tambah-bab-mapel-select">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran <span class="text-rose-500">*</span></label>
                         <select name="id_mapel" id="tambah-bab-mapel" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
                             <option value="">-- Pilih Mata Pelajaran --</option>
@@ -63,6 +65,24 @@
                             @endforeach
                         </select>
                     </div>
+
+                    <!-- Badge Info Terkunci Mapel -->
+                    <div id="wrapper-tambah-bab-mapel-locked" class="hidden p-3.5 bg-sky-50/70 border border-sky-200 rounded-xl flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center text-sm font-bold shrink-0">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Mata Pelajaran</span>
+                                <span id="label-tambah-bab-mapel" class="font-bold text-slate-800 text-xs">-</span>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-800 font-bold text-[10px] rounded-lg border border-amber-200 shrink-0">
+                            <i class="fas fa-lock text-[9px]"></i> Terkunci Otomatis
+                        </span>
+                        <input type="hidden" name="id_mapel" id="tambah-bab-mapel-hidden" disabled>
+                    </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bab <span class="text-rose-500">*</span></label>
                         <input type="text" name="nama_bab" id="tambah-nama-bab" required maxlength="100" placeholder="Contoh: Bab 1 Operasi Hitung Bilangan Cacah" oninput="sanitizeInputAlphanumeric(this, 'counter-tambah-bab')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
@@ -81,21 +101,47 @@
                 <!-- Form Tambah Sub-Bab -->
                 <form id="form-tambah-sub_bab" action="{{ route('guru.materi.store.sub-bab') }}" method="POST" onsubmit="return validateFormNoSymbols(this, 'tambah-nama-subbab', 'Nama Sub-Bab')" class="space-y-4 hidden">
                     @csrf
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Mata Pelajaran <span class="text-rose-500">*</span></label>
-                        <select id="tambah-subbab-mapel" onchange="loadBabsForSelect(this.value, 'tambah-subbab-bab')" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
-                            <option value="">-- Pilih Mata Pelajaran --</option>
-                            @foreach(\App\Models\MataPelajaran::all() as $m)
-                                <option value="{{ $m->id_mapel }}">{{ $m->nama_mapel }}</option>
-                            @endforeach
-                        </select>
+
+                    <!-- Dropdown Bebas Mapel & Bab -->
+                    <div id="wrapper-tambah-subbab-selects" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Mata Pelajaran <span class="text-rose-500">*</span></label>
+                            <select id="tambah-subbab-mapel" onchange="loadBabsForSelect(this.value, 'tambah-subbab-bab')" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                                <option value="">-- Pilih Mata Pelajaran --</option>
+                                @foreach(\App\Models\MataPelajaran::all() as $m)
+                                    <option value="{{ $m->id_mapel }}">{{ $m->nama_mapel }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Bab Induk <span class="text-rose-500">*</span></label>
+                            <select name="id_bab" id="tambah-subbab-bab" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                                <option value="">-- Pilih Mapel Terlebih Dahulu --</option>
+                            </select>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Bab Induk <span class="text-rose-500">*</span></label>
-                        <select name="id_bab" id="tambah-subbab-bab" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
-                            <option value="">-- Pilih Mapel Terlebih Dahulu --</option>
-                        </select>
+
+                    <!-- Badge Info Terkunci Hierarki Sub-Bab -->
+                    <div id="wrapper-tambah-subbab-locked" class="hidden p-3.5 bg-sky-50/70 border border-sky-200 rounded-xl flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center text-sm font-bold shrink-0">
+                                <i class="fas fa-folder-tree"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Hierarki Induk</span>
+                                <div class="flex items-center gap-1.5 font-bold text-slate-800 text-xs">
+                                    <span id="label-tambah-subbab-mapel">-</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
+                                    <span id="label-tambah-subbab-bab" class="text-[#13527D]">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-800 font-bold text-[10px] rounded-lg border border-amber-200 shrink-0">
+                            <i class="fas fa-lock text-[9px]"></i> Terkunci Otomatis
+                        </span>
+                        <input type="hidden" name="id_bab" id="tambah-subbab-bab-hidden" disabled>
                     </div>
+
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sub-Bab <span class="text-rose-500">*</span></label>
                         <input type="text" name="nama_sub_bab" id="tambah-nama-subbab" required maxlength="100" placeholder="Contoh: Sub Bab A Penjumlahan Ribuan" oninput="sanitizeInputAlphanumeric(this, 'counter-tambah-subbab')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
@@ -114,8 +160,9 @@
                 <!-- Form Tambah Materi (3 Tipe) -->
                 <form id="form-tambah-materi" action="{{ route('guru.materi.store') }}" method="POST" enctype="multipart/form-data" onsubmit="return validateFormMateri(this, 'tambah-judul-materi')" class="space-y-4 hidden">
                     @csrf
+
                     <!-- Cascading Dropdown: Mapel -> Bab -> Sub-Bab -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div id="wrapper-tambah-materi-selects" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-700 mb-1">1. Mapel <span class="text-rose-500">*</span></label>
                             <select id="tambah-materi-mapel" onchange="loadBabsForSelect(this.value, 'tambah-materi-bab', 'tambah-materi-subbab')" required class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
@@ -137,6 +184,29 @@
                                 <option value="">-- Pilih Bab Dulu --</option>
                             </select>
                         </div>
+                    </div>
+
+                    <!-- Badge Info Terkunci Hierarki Materi -->
+                    <div id="wrapper-tambah-materi-locked" class="hidden p-3.5 bg-sky-50/70 border border-sky-200 rounded-xl flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center text-sm font-bold shrink-0">
+                                <i class="fas fa-layer-group"></i>
+                            </div>
+                            <div>
+                                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Hierarki Induk</span>
+                                <div class="flex items-center gap-1.5 font-bold text-slate-800 text-xs flex-wrap">
+                                    <span id="label-tambah-materi-mapel">-</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
+                                    <span id="label-tambah-materi-bab">-</span>
+                                    <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
+                                    <span id="label-tambah-materi-subbab" class="text-[#13527D]">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-800 font-bold text-[10px] rounded-lg border border-amber-200 shrink-0">
+                            <i class="fas fa-lock text-[9px]"></i> Terkunci Otomatis
+                        </span>
+                        <input type="hidden" name="id_sub_bab" id="tambah-materi-subbab-hidden" disabled>
                     </div>
 
                     <!-- Judul Materi -->
@@ -351,47 +421,210 @@
     let currentActionTab = 'tambah';
     let currentTambahTarget = 'bab';
 
+    function resetContextualLocks() {
+        // Mode Switcher & Target Selector
+        const modeSwitcher = document.getElementById('modal-mode-switcher');
+        const targetSelector = document.getElementById('wrapper-target-selector');
+        if (modeSwitcher) modeSwitcher.classList.remove('hidden');
+        if (targetSelector) targetSelector.classList.remove('hidden');
+
+        // Reset Bab
+        const wrapBabSelect = document.getElementById('wrapper-tambah-bab-mapel-select');
+        const wrapBabLocked = document.getElementById('wrapper-tambah-bab-mapel-locked');
+        const selBabMapel = document.getElementById('tambah-bab-mapel');
+        const hiddenBabMapel = document.getElementById('tambah-bab-mapel-hidden');
+        if (wrapBabSelect) wrapBabSelect.classList.remove('hidden');
+        if (wrapBabLocked) wrapBabLocked.classList.add('hidden');
+        if (selBabMapel) {
+            selBabMapel.disabled = false;
+            selBabMapel.required = true;
+        }
+        if (hiddenBabMapel) {
+            hiddenBabMapel.disabled = true;
+            hiddenBabMapel.value = '';
+        }
+
+        // Reset Sub-Bab
+        const wrapSubbabSelects = document.getElementById('wrapper-tambah-subbab-selects');
+        const wrapSubbabLocked = document.getElementById('wrapper-tambah-subbab-locked');
+        const selSubbabMapel = document.getElementById('tambah-subbab-mapel');
+        const selSubbabBab = document.getElementById('tambah-subbab-bab');
+        const hiddenSubbabBab = document.getElementById('tambah-subbab-bab-hidden');
+        if (wrapSubbabSelects) wrapSubbabSelects.classList.remove('hidden');
+        if (wrapSubbabLocked) wrapSubbabLocked.classList.add('hidden');
+        if (selSubbabMapel) {
+            selSubbabMapel.disabled = false;
+            selSubbabMapel.required = true;
+        }
+        if (selSubbabBab) {
+            selSubbabBab.disabled = false;
+            selSubbabBab.required = true;
+        }
+        if (hiddenSubbabBab) {
+            hiddenSubbabBab.disabled = true;
+            hiddenSubbabBab.value = '';
+        }
+
+        // Reset Materi
+        const wrapMateriSelects = document.getElementById('wrapper-tambah-materi-selects');
+        const wrapMateriLocked = document.getElementById('wrapper-tambah-materi-locked');
+        const selMateriMapel = document.getElementById('tambah-materi-mapel');
+        const selMateriBab = document.getElementById('tambah-materi-bab');
+        const selMateriSubbab = document.getElementById('tambah-materi-subbab');
+        const hiddenMateriSubbab = document.getElementById('tambah-materi-subbab-hidden');
+        if (wrapMateriSelects) wrapMateriSelects.classList.remove('hidden');
+        if (wrapMateriLocked) wrapMateriLocked.classList.add('hidden');
+        if (selMateriMapel) {
+            selMateriMapel.disabled = false;
+            selMateriMapel.required = true;
+        }
+        if (selMateriBab) {
+            selMateriBab.disabled = false;
+            selMateriBab.required = false;
+        }
+        if (selMateriSubbab) {
+            selMateriSubbab.disabled = false;
+            selMateriSubbab.required = true;
+        }
+        if (hiddenMateriSubbab) {
+            hiddenMateriSubbab.disabled = true;
+            hiddenMateriSubbab.value = '';
+        }
+    }
+
     function openModalAction(mode = 'tambah', target = 'materi', prefill = {}) {
         const modal = document.getElementById('modal-learning-action');
         if (!modal) return;
         modal.classList.remove('hidden');
 
+        // Kembalikan ke keadaan default non-terkunci terlebih dahulu
+        resetContextualLocks();
+
         switchActionTab(mode);
         if (mode === 'tambah') {
             setTambahTarget(target);
-            if (prefill.idMapel) {
+
+            if (prefill.locked) {
+                // Sembunyikan Target Selector & Mode Switcher agar guru fokus
+                const modeSwitcher = document.getElementById('modal-mode-switcher');
+                const targetSelector = document.getElementById('wrapper-target-selector');
+                if (modeSwitcher) modeSwitcher.classList.add('hidden');
+                if (targetSelector) targetSelector.classList.add('hidden');
+
                 if (target === 'bab') {
+                    const wrapSelect = document.getElementById('wrapper-tambah-bab-mapel-select');
+                    const wrapLocked = document.getElementById('wrapper-tambah-bab-mapel-locked');
                     const sel = document.getElementById('tambah-bab-mapel');
-                    if (sel) sel.value = prefill.idMapel;
-                } else if (target === 'sub_bab') {
-                    const sel = document.getElementById('tambah-subbab-mapel');
+                    const hiddenInput = document.getElementById('tambah-bab-mapel-hidden');
+                    const label = document.getElementById('label-tambah-bab-mapel');
+
+                    if (wrapSelect) wrapSelect.classList.add('hidden');
+                    if (wrapLocked) wrapLocked.classList.remove('hidden');
                     if (sel) {
-                        sel.value = prefill.idMapel;
-                        loadBabsForSelect(prefill.idMapel, 'tambah-subbab-bab').then(() => {
-                            if (prefill.idBab) {
-                                const bSel = document.getElementById('tambah-subbab-bab');
-                                if (bSel) bSel.value = prefill.idBab;
-                            }
-                        });
+                        sel.required = false;
+                        sel.disabled = true;
                     }
+                    if (hiddenInput) {
+                        hiddenInput.disabled = false;
+                        hiddenInput.value = prefill.idMapel;
+                    }
+                    if (label) label.textContent = prefill.namaMapel || 'Mata Pelajaran Terpilih';
+
+                } else if (target === 'sub_bab') {
+                    const wrapSelect = document.getElementById('wrapper-tambah-subbab-selects');
+                    const wrapLocked = document.getElementById('wrapper-tambah-subbab-locked');
+                    const selBab = document.getElementById('tambah-subbab-bab');
+                    const selMapel = document.getElementById('tambah-subbab-mapel');
+                    const hiddenInput = document.getElementById('tambah-subbab-bab-hidden');
+                    const lblMapel = document.getElementById('label-tambah-subbab-mapel');
+                    const lblBab = document.getElementById('label-tambah-subbab-bab');
+
+                    if (wrapSelect) wrapSelect.classList.add('hidden');
+                    if (wrapLocked) wrapLocked.classList.remove('hidden');
+                    if (selMapel) {
+                        selMapel.required = false;
+                        selMapel.disabled = true;
+                    }
+                    if (selBab) {
+                        selBab.required = false;
+                        selBab.disabled = true;
+                    }
+                    if (hiddenInput) {
+                        hiddenInput.disabled = false;
+                        hiddenInput.value = prefill.idBab;
+                    }
+                    if (lblMapel) lblMapel.textContent = prefill.namaMapel || 'Mapel';
+                    if (lblBab) lblBab.textContent = prefill.namaBab || 'Bab Induk';
+
                 } else if (target === 'materi') {
-                    const mSel = document.getElementById('tambah-materi-mapel');
-                    if (mSel) {
-                        mSel.value = prefill.idMapel;
-                        loadBabsForSelect(prefill.idMapel, 'tambah-materi-bab').then(() => {
-                            if (prefill.idBab) {
-                                const bSel = document.getElementById('tambah-materi-bab');
-                                if (bSel) {
-                                    bSel.value = prefill.idBab;
-                                    loadSubBabsForSelect(prefill.idBab, 'tambah-materi-subbab').then(() => {
-                                        if (prefill.idSubBab) {
-                                            const sSel = document.getElementById('tambah-materi-subbab');
-                                            if (sSel) sSel.value = prefill.idSubBab;
-                                        }
-                                    });
+                    const wrapSelect = document.getElementById('wrapper-tambah-materi-selects');
+                    const wrapLocked = document.getElementById('wrapper-tambah-materi-locked');
+                    const selMapel = document.getElementById('tambah-materi-mapel');
+                    const selBab = document.getElementById('tambah-materi-bab');
+                    const selSubBab = document.getElementById('tambah-materi-subbab');
+                    const hiddenInput = document.getElementById('tambah-materi-subbab-hidden');
+                    const lblMapel = document.getElementById('label-tambah-materi-mapel');
+                    const lblBab = document.getElementById('label-tambah-materi-bab');
+                    const lblSubBab = document.getElementById('label-tambah-materi-subbab');
+
+                    if (wrapSelect) wrapSelect.classList.add('hidden');
+                    if (wrapLocked) wrapLocked.classList.remove('hidden');
+                    if (selMapel) {
+                        selMapel.required = false;
+                        selMapel.disabled = true;
+                    }
+                    if (selBab) {
+                        selBab.required = false;
+                        selBab.disabled = true;
+                    }
+                    if (selSubBab) {
+                        selSubBab.required = false;
+                        selSubBab.disabled = true;
+                    }
+                    if (hiddenInput) {
+                        hiddenInput.disabled = false;
+                        hiddenInput.value = prefill.idSubBab;
+                    }
+                    if (lblMapel) lblMapel.textContent = prefill.namaMapel || 'Mapel';
+                    if (lblBab) lblBab.textContent = prefill.namaBab || 'Bab Induk';
+                    if (lblSubBab) lblSubBab.textContent = prefill.namaSubBab || 'Sub-Bab';
+                }
+            } else {
+                // Mode Bebas (Cascading Dropdown Normal dari Sidebar / Dashboard)
+                if (prefill.idMapel) {
+                    if (target === 'bab') {
+                        const sel = document.getElementById('tambah-bab-mapel');
+                        if (sel) sel.value = prefill.idMapel;
+                    } else if (target === 'sub_bab') {
+                        const sel = document.getElementById('tambah-subbab-mapel');
+                        if (sel) {
+                            sel.value = prefill.idMapel;
+                            loadBabsForSelect(prefill.idMapel, 'tambah-subbab-bab').then(() => {
+                                if (prefill.idBab) {
+                                    const bSel = document.getElementById('tambah-subbab-bab');
+                                    if (bSel) bSel.value = prefill.idBab;
                                 }
-                            }
-                        });
+                            });
+                        }
+                    } else if (target === 'materi') {
+                        const mSel = document.getElementById('tambah-materi-mapel');
+                        if (mSel) {
+                            mSel.value = prefill.idMapel;
+                            loadBabsForSelect(prefill.idMapel, 'tambah-materi-bab').then(() => {
+                                if (prefill.idBab) {
+                                    const bSel = document.getElementById('tambah-materi-bab');
+                                    if (bSel) {
+                                        bSel.value = prefill.idBab;
+                                        loadSubBabsForSelect(prefill.idBab, 'tambah-materi-subbab').then(() => {
+                                            if (prefill.idSubBab) {
+                                                const sSel = document.getElementById('tambah-materi-subbab');
+                                                if (sSel) sSel.value = prefill.idSubBab;
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -405,6 +638,7 @@
     function closeModalAction() {
         const modal = document.getElementById('modal-learning-action');
         if (modal) modal.classList.add('hidden');
+        resetContextualLocks();
     }
 
     // Tab Switcher (Tambah vs Edit)
