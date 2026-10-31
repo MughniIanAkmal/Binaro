@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\Controller;
 use App\Models\Absen;
 use App\Models\Barcode;
@@ -19,7 +20,7 @@ class AdminApiController extends Controller
         $status = $request->query('status');
 
         // Alpha otomatis untuk hari ini (lewat batas tutup) & hari lalu
-        \App\Http\Controllers\AbsensiController::ensureAlphaOtomatis($fecha);
+        AbsensiController::ensureAlphaOtomatis($fecha);
 
         $query = Absen::query()
             ->with(['siswa.kelas', 'guru'])
@@ -92,7 +93,7 @@ class AdminApiController extends Controller
             ], 429);
         }
 
-        $newKode = 'BC-' . strtoupper(Str::random(8));
+        $newKode = 'BC-'.strtoupper(Str::random(8));
 
         if (! $barcode) {
             $barcode = Barcode::create([

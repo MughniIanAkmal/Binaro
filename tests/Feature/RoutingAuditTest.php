@@ -16,8 +16,11 @@ class RoutingAuditTest extends TestCase
     use RefreshDatabase;
 
     protected $guru;
+
     protected $siswa;
+
     protected $kelas;
+
     protected $mapel;
 
     protected function setUp(): void

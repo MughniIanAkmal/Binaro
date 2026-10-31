@@ -7,22 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 class Quiz extends Model
 {
     protected $table = 'quiz';
+
     protected $primaryKey = 'id_quiz';
+
     protected $guarded = ['id_quiz'];
 
     protected static function booted()
     {
         static::saving(function ($quiz) {
-            if (!$quiz->id_mapel && $quiz->id_sub_bab) {
+            if (! $quiz->id_mapel && $quiz->id_sub_bab) {
                 $subBab = SubBab::with('bab')->find($quiz->id_sub_bab);
                 if ($subBab && $subBab->bab) {
                     $quiz->id_mapel = $subBab->bab->id_mapel;
                 }
             }
-            if (!$quiz->nama_quiz && !empty($quiz->judul_quiz)) {
+            if (! $quiz->nama_quiz && ! empty($quiz->judul_quiz)) {
                 $quiz->nama_quiz = $quiz->judul_quiz;
             }
-            if (!$quiz->judul_quiz && !empty($quiz->nama_quiz)) {
+            if (! $quiz->judul_quiz && ! empty($quiz->nama_quiz)) {
                 $quiz->judul_quiz = $quiz->nama_quiz;
             }
         });

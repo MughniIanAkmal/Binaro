@@ -13,7 +13,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('absens') && !Schema::hasTable('absen')) {
+        if (! Schema::hasTable('absens') && ! Schema::hasTable('absen')) {
             Schema::create('absens', function (Blueprint $table) {
                 $table->id('id_absen');
 

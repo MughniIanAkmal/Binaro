@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Bab extends Model
 {
     protected $table = 'bab';
+
     protected $primaryKey = 'id_bab';
+
     protected $guarded = ['id_bab'];
+
     public $timestamps = false;
 
     public function mataPelajaran()

@@ -16,13 +16,13 @@ return new class extends Migration
             Schema::table('rpp', function (Blueprint $table) {
                 $table->index('id_guru');
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
         }
         try {
             Schema::table('rpp', function (Blueprint $table) {
                 $table->dropUnique('uq_guru_mapel');
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
         }
 
         Schema::table('rpp', function (Blueprint $table) {
@@ -74,14 +74,13 @@ return new class extends Migration
             Schema::table('rpp', function (Blueprint $table) {
                 $table->unique(['id_guru', 'id_mapel'], 'uq_guru_mapel');
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
         }
         try {
             Schema::table('rpp', function (Blueprint $table) {
                 $table->dropIndex('rpp_id_guru_index');
             });
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
         }
     }
 };
-

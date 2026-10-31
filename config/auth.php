@@ -1,5 +1,10 @@
 <?php
 
+use App\Models\Admin;
+use App\Models\Guru;
+use App\Models\Siswa;
+use App\Models\User;
+
 return [
 
     /*
@@ -78,19 +83,19 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => env('AUTH_MODEL', User::class),
         ],
         'admin' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Admin::class,
+            'model' => Admin::class,
         ],
         'guru' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Guru::class,
+            'model' => Guru::class,
         ],
         'siswa' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Siswa::class,
+            'model' => Siswa::class,
         ],
     ],
 

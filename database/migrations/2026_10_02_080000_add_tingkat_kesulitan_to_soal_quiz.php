@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('soal_quiz', function (Blueprint $table) {
-            if (!Schema::hasColumn('soal_quiz', 'tingkat_kesulitan')) {
+            if (! Schema::hasColumn('soal_quiz', 'tingkat_kesulitan')) {
                 $table->string('tingkat_kesulitan', 20)->default('sedang')->after('bobot_nilai');
             }
         });

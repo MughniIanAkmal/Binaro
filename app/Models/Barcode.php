@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Barcode extends Model
 {
     protected $table = 'barcode';
+
     protected $primaryKey = 'id_barcode';
+
     public $timestamps = true;
 
     protected $fillable = ['id_siswa', 'kode_barcode', 'qr_image_path', 'is_active'];
@@ -20,7 +23,7 @@ class Barcode extends Model
     public static function buatKodeUnik(): string
     {
         do {
-            $kode = 'QR-' . strtoupper(\Illuminate\Support\Str::random(8));
+            $kode = 'QR-'.strtoupper(Str::random(8));
         } while (static::where('kode_barcode', $kode)->exists());
 
         return $kode;

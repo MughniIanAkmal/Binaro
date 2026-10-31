@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AbsensiSetting;
 use App\Models\Guru;
 use App\Models\JadwalMataPelajaran as Jadwal;
 use App\Models\Kelas;
@@ -14,7 +15,9 @@ class JadwalCrudTest extends TestCase
     use RefreshDatabase;
 
     protected $guru;
+
     protected $kelas;
+
     protected $mapel;
 
     protected function setUp(): void
@@ -258,15 +261,15 @@ class JadwalCrudTest extends TestCase
     public function test_admin_cannot_input_jam_exceeding_school_closing_time()
     {
         // School closing time is default 12:00 in absensi_settings
-        \App\Models\AbsensiSetting::set('batas_tutup', '12:00');
+        AbsensiSetting::set('batas_tutup', '12:00');
 
         $response = $this->withSession(['user_type' => 'admin', 'user_id' => 1])
             ->from(route('jadwal.create'))
             ->post(route('jadwal.store'), [
-                'hari'     => 'Senin',
-                'jam'      => '10.00-13.00', // Exceeds 12.00
+                'hari' => 'Senin',
+                'jam' => '10.00-13.00', // Exceeds 12.00
                 'id_mapel' => $this->mapel->id_mapel,
-                'id_guru'  => $this->guru->id_guru,
+                'id_guru' => $this->guru->id_guru,
                 'id_kelas' => $this->kelas->id_rooms,
             ]);
 

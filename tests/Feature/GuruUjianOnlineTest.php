@@ -19,9 +19,13 @@ class GuruUjianOnlineTest extends TestCase
     use RefreshDatabase;
 
     protected $guru;
+
     protected $mapel;
+
     protected $kelas;
+
     protected $siswa1;
+
     protected $siswa2;
 
     protected function setUp(): void
@@ -100,25 +104,25 @@ class GuruUjianOnlineTest extends TestCase
         $image = UploadedFile::fake()->create('diagram_lingkaran.png', 10, 'image/png');
 
         $payload = [
-            'judul_quiz'    => 'Ujian Tengah Semester Ganjil',
-            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Tengah Semester Ganjil',
+            'id_mapel' => $this->mapel->id_mapel,
             'tingkat_level' => 'susah',
-            'durasi_menit'  => 90,
-            'target_tipe'   => 'pilihan',
-            'target_siswa'  => [$this->siswa1->id_siswa],
-            'deskripsi'     => 'Kerjakan dengan teliti dan jujur.',
-            'soal'          => [
+            'durasi_menit' => 90,
+            'target_tipe' => 'pilihan',
+            'target_siswa' => [$this->siswa1->id_siswa],
+            'deskripsi' => 'Kerjakan dengan teliti dan jujur.',
+            'soal' => [
                 [
-                    'pertanyaan'    => 'Berapakah luas lingkaran jika jari-jarinya 7 cm?',
-                    'gambar'        => $image,
-                    'opsi_a'        => '154 cm2',
-                    'opsi_b'        => '144 cm2',
-                    'opsi_c'        => '120 cm2',
-                    'opsi_d'        => '110 cm2',
+                    'pertanyaan' => 'Berapakah luas lingkaran jika jari-jarinya 7 cm?',
+                    'gambar' => $image,
+                    'opsi_a' => '154 cm2',
+                    'opsi_b' => '144 cm2',
+                    'opsi_c' => '120 cm2',
+                    'opsi_d' => '110 cm2',
                     'kunci_jawaban' => 'A',
-                    'bobot_nilai'   => 25,
-                ]
-            ]
+                    'bobot_nilai' => 25,
+                ],
+            ],
         ];
 
         $response = $this->withSession(['user_type' => 'guru', 'user_id' => $this->guru->id_guru])
@@ -148,12 +152,12 @@ class GuruUjianOnlineTest extends TestCase
         Storage::fake('public');
 
         $quiz = Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Kuis Cepat IPA',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Kuis Cepat IPA',
             'tingkat_level' => 'mudah',
-            'durasi_menit'  => 30,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 30,
+            'target_tipe' => 'semua',
         ]);
 
         $response = $this->withSession(['user_type' => 'guru', 'user_id' => $this->guru->id_guru])
@@ -167,58 +171,58 @@ class GuruUjianOnlineTest extends TestCase
         $soalImage = UploadedFile::fake()->create('fotosintesis.jpg', 10, 'image/jpeg');
         $soalResponse = $this->withSession(['user_type' => 'guru', 'user_id' => $this->guru->id_guru])
             ->post(route('guru.ujian.soal.store', $quiz->id_quiz), [
-                'pertanyaan'    => 'Apa zat hijau daun pada tumbuhan?',
-                'gambar'        => $soalImage,
-                'opsi_a'        => 'Klorofil',
-                'opsi_b'        => 'Stomata',
-                'opsi_c'        => 'Xilem',
-                'opsi_d'        => 'Floem',
+                'pertanyaan' => 'Apa zat hijau daun pada tumbuhan?',
+                'gambar' => $soalImage,
+                'opsi_a' => 'Klorofil',
+                'opsi_b' => 'Stomata',
+                'opsi_c' => 'Xilem',
+                'opsi_d' => 'Floem',
                 'kunci_jawaban' => 'A',
-                'bobot_nilai'   => 15,
+                'bobot_nilai' => 15,
             ]);
 
         $soalResponse->assertRedirect(route('guru.ujian.show', $quiz->id_quiz));
 
         $this->assertDatabaseHas('soal_quiz', [
-            'id_quiz'       => $quiz->id_quiz,
-            'pertanyaan'    => 'Apa zat hijau daun pada tumbuhan?',
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Apa zat hijau daun pada tumbuhan?',
             'kunci_jawaban' => 'A',
-            'bobot_nilai'   => 15,
+            'bobot_nilai' => 15,
         ]);
     }
 
     public function test_guru_can_update_soal_and_quiz()
     {
         $quiz = Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Kuis Sebelum Diedit',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Kuis Sebelum Diedit',
             'tingkat_level' => 'sedang',
-            'durasi_menit'  => 45,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 45,
+            'target_tipe' => 'semua',
         ]);
 
         $soal = SoalQuiz::create([
-            'id_quiz'       => $quiz->id_quiz,
-            'pertanyaan'    => 'Pertanyaan awal',
-            'opsi_a'        => 'A',
-            'opsi_b'        => 'B',
-            'opsi_c'        => 'C',
-            'opsi_d'        => 'D',
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Pertanyaan awal',
+            'opsi_a' => 'A',
+            'opsi_b' => 'B',
+            'opsi_c' => 'C',
+            'opsi_d' => 'D',
             'kunci_jawaban' => 'B',
-            'bobot_nilai'   => 10,
+            'bobot_nilai' => 10,
         ]);
 
         // Update soal
         $response = $this->withSession(['user_type' => 'guru', 'user_id' => $this->guru->id_guru])
             ->put(route('guru.ujian.soal.update', [$quiz->id_quiz, $soal->id_soal]), [
-                'pertanyaan'    => 'Pertanyaan sudah direvisi',
-                'opsi_a'        => 'A revisi',
-                'opsi_b'        => 'B revisi',
-                'opsi_c'        => 'C revisi',
-                'opsi_d'        => 'D revisi',
+                'pertanyaan' => 'Pertanyaan sudah direvisi',
+                'opsi_a' => 'A revisi',
+                'opsi_b' => 'B revisi',
+                'opsi_c' => 'C revisi',
+                'opsi_d' => 'D revisi',
                 'kunci_jawaban' => 'C',
-                'bobot_nilai'   => 20,
+                'bobot_nilai' => 20,
             ]);
 
         $response->assertRedirect(route('guru.ujian.show', $quiz->id_quiz));
@@ -231,11 +235,11 @@ class GuruUjianOnlineTest extends TestCase
         // Update quiz
         $quizUpdateResponse = $this->withSession(['user_type' => 'guru', 'user_id' => $this->guru->id_guru])
             ->put(route('guru.ujian.update', $quiz->id_quiz), [
-                'judul_quiz'    => 'Kuis Sesudah Diedit',
-                'id_mapel'      => $this->mapel->id_mapel,
+                'judul_quiz' => 'Kuis Sesudah Diedit',
+                'id_mapel' => $this->mapel->id_mapel,
                 'tingkat_level' => 'susah',
-                'durasi_menit'  => 60,
-                'target_tipe'   => 'semua',
+                'durasi_menit' => 60,
+                'target_tipe' => 'semua',
             ]);
 
         $quizUpdateResponse->assertRedirect(route('guru.ujian.show', $quiz->id_quiz));
@@ -247,23 +251,23 @@ class GuruUjianOnlineTest extends TestCase
     public function test_guru_can_delete_soal_and_quiz()
     {
         $quiz = Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Kuis Akan Dihapus',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Kuis Akan Dihapus',
             'tingkat_level' => 'sedang',
-            'durasi_menit'  => 40,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 40,
+            'target_tipe' => 'semua',
         ]);
 
         $soal = SoalQuiz::create([
-            'id_quiz'       => $quiz->id_quiz,
-            'pertanyaan'    => 'Soal akan dihapus',
-            'opsi_a'        => 'A',
-            'opsi_b'        => 'B',
-            'opsi_c'        => 'C',
-            'opsi_d'        => 'D',
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Soal akan dihapus',
+            'opsi_a' => 'A',
+            'opsi_b' => 'B',
+            'opsi_c' => 'C',
+            'opsi_d' => 'D',
             'kunci_jawaban' => 'A',
-            'bobot_nilai'   => 10,
+            'bobot_nilai' => 10,
         ]);
 
         // Hapus soal
@@ -284,12 +288,12 @@ class GuruUjianOnlineTest extends TestCase
     public function test_guru_can_create_and_update_soal_with_math_and_special_symbols()
     {
         $quiz = Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Ujian Matematika & Simbol: 100% Valid!',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Matematika & Simbol: 100% Valid!',
             'tingkat_level' => 'sedang',
-            'durasi_menit'  => 60,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
         ]);
 
         $pertanyaanWithSymbols = 'Jika (2x + 5) * 3 = 45, berapakah nilai x? Dan apakah x > 5 atau x <= 10?';
@@ -301,25 +305,25 @@ class GuruUjianOnlineTest extends TestCase
         // Add soal via POST route guru.ujian.soal.store
         $response = $this->withSession(['user_type' => 'guru', 'user_id' => $this->guru->id_guru])
             ->post(route('guru.ujian.soal.store', $quiz->id_quiz), [
-                'pertanyaan'    => $pertanyaanWithSymbols,
-                'opsi_a'        => $opsiA,
-                'opsi_b'        => $opsiB,
-                'opsi_c'        => $opsiC,
-                'opsi_d'        => $opsiD,
+                'pertanyaan' => $pertanyaanWithSymbols,
+                'opsi_a' => $opsiA,
+                'opsi_b' => $opsiB,
+                'opsi_c' => $opsiC,
+                'opsi_d' => $opsiD,
                 'kunci_jawaban' => 'A',
-                'bobot_nilai'   => 15,
+                'bobot_nilai' => 15,
             ]);
 
         $response->assertRedirect(route('guru.ujian.show', $quiz->id_quiz));
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('soal_quiz', [
-            'id_quiz'    => $quiz->id_quiz,
+            'id_quiz' => $quiz->id_quiz,
             'pertanyaan' => $pertanyaanWithSymbols,
-            'opsi_a'     => $opsiA,
-            'opsi_b'     => $opsiB,
-            'opsi_c'     => $opsiC,
-            'opsi_d'     => $opsiD,
+            'opsi_a' => $opsiA,
+            'opsi_b' => $opsiB,
+            'opsi_c' => $opsiC,
+            'opsi_d' => $opsiD,
         ]);
 
         $soal = SoalQuiz::where('id_quiz', $quiz->id_quiz)->first();
@@ -328,13 +332,13 @@ class GuruUjianOnlineTest extends TestCase
         $updatedPertanyaan = 'Berapakah hasil dari 25% * 400 + (10 - 2) / 2 = ...?';
         $updateResponse = $this->withSession(['user_type' => 'guru', 'user_id' => $this->guru->id_guru])
             ->put(route('guru.ujian.soal.update', [$quiz->id_quiz, $soal->id_soal]), [
-                'pertanyaan'    => $updatedPertanyaan,
-                'opsi_a'        => '104 (x = 104)',
-                'opsi_b'        => '96 (x < 100)',
-                'opsi_c'        => '100 (x = 100)',
-                'opsi_d'        => '110 (x > 105)',
+                'pertanyaan' => $updatedPertanyaan,
+                'opsi_a' => '104 (x = 104)',
+                'opsi_b' => '96 (x < 100)',
+                'opsi_c' => '100 (x = 100)',
+                'opsi_d' => '110 (x > 105)',
                 'kunci_jawaban' => 'A',
-                'bobot_nilai'   => 20,
+                'bobot_nilai' => 20,
             ]);
 
         $updateResponse->assertRedirect(route('guru.ujian.show', $quiz->id_quiz));
@@ -349,31 +353,31 @@ class GuruUjianOnlineTest extends TestCase
 
         // 1. Judul mengandung angka -> ditolak
         $resNumber = $this->withSession($session)->post(route('guru.ujian.store'), [
-            'judul_quiz'    => 'Ujian Tengah Semester 1',
-            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Tengah Semester 1',
+            'id_mapel' => $this->mapel->id_mapel,
             'tingkat_level' => 'mudah',
-            'durasi_menit'  => 60,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
         ]);
         $resNumber->assertSessionHasErrors(['judul_quiz']);
 
         // 2. Judul mengandung angka lain -> ditolak
         $resNumber2 = $this->withSession($session)->post(route('guru.ujian.store'), [
-            'judul_quiz'    => 'Ulangan Harian Matematika Kelas 4',
-            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ulangan Harian Matematika Kelas 4',
+            'id_mapel' => $this->mapel->id_mapel,
             'tingkat_level' => 'mudah',
-            'durasi_menit'  => 60,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
         ]);
         $resNumber2->assertSessionHasErrors(['judul_quiz']);
 
         // 3. Judul tanpa angka (hanya huruf dan spasi) -> sukses
         $resValid = $this->withSession($session)->post(route('guru.ujian.store'), [
-            'judul_quiz'    => 'Ulangan Harian Matematika Tingkat Empat',
-            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ulangan Harian Matematika Tingkat Empat',
+            'id_mapel' => $this->mapel->id_mapel,
             'tingkat_level' => 'mudah',
-            'durasi_menit'  => 60,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
         ]);
         $resValid->assertRedirect();
         $this->assertDatabaseHas('quiz', [
@@ -384,21 +388,21 @@ class GuruUjianOnlineTest extends TestCase
 
         // 4. Update dengan angka -> ditolak
         $resUpdateNumber = $this->withSession($session)->put(route('guru.ujian.update', $quiz->id_quiz), [
-            'judul_quiz'    => 'Ulangan Harian Matematika Revisi 2',
-            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ulangan Harian Matematika Revisi 2',
+            'id_mapel' => $this->mapel->id_mapel,
             'tingkat_level' => 'mudah',
-            'durasi_menit'  => 60,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
         ]);
         $resUpdateNumber->assertSessionHasErrors(['judul_quiz']);
 
         // 5. Update tanpa angka -> sukses
         $resUpdateValid = $this->withSession($session)->put(route('guru.ujian.update', $quiz->id_quiz), [
-            'judul_quiz'    => 'Ulangan Harian Matematika Revisi Dua',
-            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ulangan Harian Matematika Revisi Dua',
+            'id_mapel' => $this->mapel->id_mapel,
             'tingkat_level' => 'mudah',
-            'durasi_menit'  => 60,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
         ]);
         $resUpdateValid->assertRedirect();
         $quiz->refresh();
@@ -418,18 +422,18 @@ class GuruUjianOnlineTest extends TestCase
 
         // 2. Show page renders time per question
         $quiz = Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Ujian Penilaian Harian Sains',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Penilaian Harian Sains',
             'tingkat_level' => 'mudah',
-            'durasi_menit'  => 60,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
         ]);
 
         for ($i = 1; $i <= 20; $i++) {
             SoalQuiz::create([
                 'id_quiz' => $quiz->id_quiz,
-                'pertanyaan' => 'Pertanyaan nomor ' . $i,
+                'pertanyaan' => 'Pertanyaan nomor '.$i,
                 'opsi_a' => 'A',
                 'opsi_b' => 'B',
                 'opsi_c' => 'C',
@@ -451,44 +455,44 @@ class GuruUjianOnlineTest extends TestCase
         $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
 
         Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Ujian Akhir Semester IPA',
-            'nama_quiz'     => 'Ujian Akhir Semester IPA',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Akhir Semester IPA',
+            'nama_quiz' => 'Ujian Akhir Semester IPA',
             'tingkat_level' => 'sedang',
-            'durasi_menit'  => 60,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
         ]);
 
         // Attempt store with duplicate title (different case/whitespace)
         $storeRes = $this->withSession($session)->post(route('guru.ujian.store'), [
-            'judul_quiz'    => ' ujian akhir semester ipa ',
-            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz' => ' ujian akhir semester ipa ',
+            'id_mapel' => $this->mapel->id_mapel,
             'tingkat_level' => 'mudah',
-            'durasi_menit'  => 45,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 45,
+            'target_tipe' => 'semua',
         ]);
 
         $storeRes->assertSessionHasErrors(['judul_quiz']);
 
         // Create second quiz to update
         $quiz2 = Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Ujian Bahasa Indonesia',
-            'nama_quiz'     => 'Ujian Bahasa Indonesia',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Bahasa Indonesia',
+            'nama_quiz' => 'Ujian Bahasa Indonesia',
             'tingkat_level' => 'mudah',
-            'durasi_menit'  => 30,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 30,
+            'target_tipe' => 'semua',
         ]);
 
         // Attempt update quiz2 to existing quiz1 title
         $updateRes = $this->withSession($session)->put(route('guru.ujian.update', $quiz2->id_quiz), [
-            'judul_quiz'    => 'Ujian Akhir Semester IPA',
-            'id_mapel'      => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Akhir Semester IPA',
+            'id_mapel' => $this->mapel->id_mapel,
             'tingkat_level' => 'mudah',
-            'durasi_menit'  => 30,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 30,
+            'target_tipe' => 'semua',
         ]);
 
         $updateRes->assertSessionHasErrors(['judul_quiz']);
@@ -499,13 +503,13 @@ class GuruUjianOnlineTest extends TestCase
         $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
 
         Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Ujian Biologi Sel',
-            'nama_quiz'     => 'Ujian Biologi Sel',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Biologi Sel',
+            'nama_quiz' => 'Ujian Biologi Sel',
             'tingkat_level' => 'sedang',
-            'durasi_menit'  => 60,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
         ]);
 
         // Search with symbols e.g. "Biologi@#$%^&*" -> sanitized to "Biologi"

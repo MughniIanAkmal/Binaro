@@ -20,19 +20,6 @@
         </a>
     </div>
 
-    @if ($errors->any())
-    <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
-        <div class="font-bold mb-1 flex items-center gap-2">
-            <i class="fas fa-exclamation-circle text-rose-600 text-sm"></i> Periksa kembali isian formulir:
-        </div>
-        <ul class="list-disc list-inside space-y-0.5 text-rose-700">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-    @endif
-
     <form action="{{ route('guru.ujian.update', $quiz->id_quiz) }}" method="POST" class="space-y-6">
         @csrf
         @method('PUT')

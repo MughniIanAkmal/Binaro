@@ -3,17 +3,17 @@
 namespace Tests\Feature;
 
 use App\Models\Admin;
+use App\Models\Bab;
 use App\Models\Guru;
+use App\Models\HasilKuisSiswa;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
-use App\Models\Pr;
-use App\Models\Bab;
-use App\Models\HasilKuisSiswa;
 use App\Models\Materi;
-use App\Models\SubBab;
 use App\Models\Quiz;
 use App\Models\Siswa;
 use App\Models\SoalQuiz;
+use App\Models\SubBab;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -22,9 +22,13 @@ class InputValidationAndHumanErrorTest extends TestCase
     use RefreshDatabase;
 
     protected $guru;
+
     protected $admin;
+
     protected $kelas;
+
     protected $mapel;
+
     protected $siswa;
 
     protected function setUp(): void
@@ -94,7 +98,7 @@ class InputValidationAndHumanErrorTest extends TestCase
         $responseLong->assertSessionHasErrors('nama_pr');
 
         // Valid name with allowed punctuation (hyphen, dot, comma, parentheses) should succeed
-        $nextMonday = now()->next(\Carbon\Carbon::MONDAY)->setTime(10, 0);
+        $nextMonday = now()->next(Carbon::MONDAY)->setTime(10, 0);
         $responseValid = $this->withSession(['user_id' => $this->guru->id_guru, 'user_type' => 'guru'])
             ->post(route('guru.notifikasi_pr.store'), [
                 'nama_pr' => 'Tugas Bab 1 - Latihan A (Hal. 10, No. 1-5)',

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Guru;
 use App\Models\HasilKuisSiswa;
+use App\Models\Notifikasi;
 use App\Models\Quiz;
 use App\Models\SoalQuiz;
+use App\Services\ExcelService;
 use Illuminate\Http\Request;
 
 class QuizController extends Controller
@@ -13,6 +16,7 @@ class QuizController extends Controller
     public function bankSoal($idQuiz)
     {
         $quiz = Quiz::with(['subBab.bab.mataPelajaran', 'soal'])->findOrFail($idQuiz);
+
         return view('guru.quiz.bank', compact('quiz'));
     }
 
@@ -20,19 +24,19 @@ class QuizController extends Controller
     public function storeSoal(Request $request, $idQuiz)
     {
         $request->validate([
-            'pertanyaan'    => 'required|string|max:1000',
-            'opsi_a'        => 'required|string|max:255',
-            'opsi_b'        => 'required|string|max:255',
-            'opsi_c'        => 'required|string|max:255',
-            'opsi_d'        => 'required|string|max:255',
+            'pertanyaan' => 'required|string|max:1000',
+            'opsi_a' => 'required|string|max:255',
+            'opsi_b' => 'required|string|max:255',
+            'opsi_c' => 'required|string|max:255',
+            'opsi_d' => 'required|string|max:255',
             'kunci_jawaban' => 'required|in:A,B,C,D',
         ], [
             'pertanyaan.required' => 'Pertanyaan soal wajib diisi.',
-            'pertanyaan.max'      => 'Pertanyaan soal maksimal 1000 karakter.',
-            'opsi_a.max'          => 'Pilihan A maksimal 255 karakter.',
-            'opsi_b.max'          => 'Pilihan B maksimal 255 karakter.',
-            'opsi_c.max'          => 'Pilihan C maksimal 255 karakter.',
-            'opsi_d.max'          => 'Pilihan D maksimal 255 karakter.',
+            'pertanyaan.max' => 'Pertanyaan soal maksimal 1000 karakter.',
+            'opsi_a.max' => 'Pilihan A maksimal 255 karakter.',
+            'opsi_b.max' => 'Pilihan B maksimal 255 karakter.',
+            'opsi_c.max' => 'Pilihan C maksimal 255 karakter.',
+            'opsi_d.max' => 'Pilihan D maksimal 255 karakter.',
         ]);
 
         $pertanyaanTrim = trim($request->pertanyaan);
@@ -60,6 +64,7 @@ class QuizController extends Controller
     public function destroySoal($idSoal)
     {
         SoalQuiz::findOrFail($idSoal)->delete();
+
         return back()->with('success', 'Soal berhasil dihapus.');
     }
 
@@ -68,7 +73,7 @@ class QuizController extends Controller
         $excelExtensionValidator = function ($attribute, $value, $fail) {
             if ($value) {
                 $ext = strtolower($value->getClientOriginalExtension());
-                if (!in_array($ext, ['xlsx', 'xls', 'csv'])) {
+                if (! in_array($ext, ['xlsx', 'xls', 'csv'])) {
                     $fail('File kuis wajib berformat spreadsheet Excel / CSV (.xlsx, .xls, atau .csv). Format selain Excel/CSV tidak diperbolehkan.');
                 }
             }
@@ -78,15 +83,15 @@ class QuizController extends Controller
             'file_excel' => ['required', 'file', 'max:5120', $excelExtensionValidator],
         ], [
             'file_excel.required' => 'Silakan pilih file Excel / CSV (.xlsx, .xls, .csv) untuk diunggah.',
-            'file_excel.file'     => 'File kuis yang diunggah tidak valid.',
-            'file_excel.max'      => 'Ukuran file Excel / CSV maksimal 5 MB.',
+            'file_excel.file' => 'File kuis yang diunggah tidak valid.',
+            'file_excel.max' => 'Ukuran file Excel / CSV maksimal 5 MB.',
         ]);
 
         $file = $request->file('file_excel');
         $filePath = $file->getRealPath();
         $ext = strtolower($file->getClientOriginalExtension());
 
-        $rows = \App\Services\ExcelService::parseFile($filePath, $ext);
+        $rows = ExcelService::parseFile($filePath, $ext);
 
         if (empty($rows)) {
             return back()->with('error', 'Gagal membaca isi data file Excel / CSV. Pastikan format tabel sesuai template.');
@@ -101,12 +106,13 @@ class QuizController extends Controller
         foreach ($rows as $data) {
             $rowCount++;
             if ($rowCount > 50) {
-                $errors[] = "Batas maksimal 50 soal terlampaui.";
+                $errors[] = 'Batas maksimal 50 soal terlampaui.';
                 break;
             }
 
             if (count($data) < 6) {
                 $errors[] = "Baris #{$rowCount}: Kolom kurang dari 6 (Pertanyaan, Opsi A-D, Kunci).";
+
                 continue;
             }
 
@@ -115,11 +121,13 @@ class QuizController extends Controller
 
             if (empty($pertanyaan) || empty($a) || empty($b) || empty($c) || empty($d)) {
                 $errors[] = "Baris #{$rowCount}: Pertanyaan atau pilihan jawaban tidak boleh kosong.";
+
                 continue;
             }
 
-            if (!in_array($kunciUpper, ['A', 'B', 'C', 'D'])) {
+            if (! in_array($kunciUpper, ['A', 'B', 'C', 'D'])) {
                 $errors[] = "Baris #{$rowCount}: Kunci jawaban ('{$kunci}') tidak valid. Wajib diisi huruf A, B, C, atau D.";
+
                 continue;
             }
 
@@ -128,6 +136,7 @@ class QuizController extends Controller
                 ->exists();
             if ($isDuplicate) {
                 $errors[] = "Baris #{$rowCount}: Pertanyaan sudah ada di kuis ini (dilewati).";
+
                 continue;
             }
 
@@ -143,8 +152,8 @@ class QuizController extends Controller
             $inserted++;
         }
 
-        if (!empty($errors)) {
-            return back()->with('error', "Import selesai dengan catatan: " . implode(' ', array_slice($errors, 0, 3)));
+        if (! empty($errors)) {
+            return back()->with('error', 'Import selesai dengan catatan: '.implode(' ', array_slice($errors, 0, 3)));
         }
 
         return back()->with('success', "Berhasil mengimpor {$inserted} soal dari file Excel.");
@@ -153,12 +162,12 @@ class QuizController extends Controller
     // Download template Excel (.xlsx)
     public function downloadTemplate()
     {
-        $content = \App\Services\ExcelService::generateQuizTemplate();
+        $content = ExcelService::generateQuizTemplate();
 
         return response($content, 200, [
-            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             'Content-Disposition' => 'attachment; filename="template_soal_kuis.xlsx"',
-            'Cache-Control'       => 'max-age=0',
+            'Cache-Control' => 'max-age=0',
         ]);
     }
 
@@ -173,14 +182,14 @@ class QuizController extends Controller
         if ($selectedQuizId) {
             $selectedQuiz = Quiz::with(['subBab.bab.mataPelajaran', 'mataPelajaran'])->find($selectedQuizId);
             $hasils = HasilKuisSiswa::with('siswa')
-                                    ->where('id_quiz', $selectedQuizId)
-                                    ->latest()
-                                    ->get();
+                ->where('id_quiz', $selectedQuizId)
+                ->latest()
+                ->get();
         }
 
         // Use rich rekap-ujian view when accessed via /rekap-ujian or /rekap-nilai URL
-        $view = (request()->routeIs('rekap_ujian.*') || request()->routeIs('rekap_nilai.*') || request()->is('rekap-nilai*') || request()->is('rekap-ujian*')) 
-            ? 'rekap-ujian.index' 
+        $view = (request()->routeIs('rekap_ujian.*') || request()->routeIs('rekap_nilai.*') || request()->is('rekap-nilai*') || request()->is('rekap-ujian*'))
+            ? 'rekap_ujian.index'
             : 'guru.quiz.rekap';
 
         return view($view, compact('quizzes', 'selectedQuizId', 'selectedQuiz', 'hasils'));
@@ -192,18 +201,18 @@ class QuizController extends Controller
         $quiz = Quiz::with('subBab.bab.mataPelajaran')->findOrFail($idQuiz);
         $hasils = HasilKuisSiswa::with('siswa')->where('id_quiz', $idQuiz)->get();
 
-        $filename = "rekap_nilai_kuis_" . preg_replace('/[^a-zA-Z0-9]/', '_', strtolower($quiz->judul_quiz)) . ".csv";
+        $filename = 'rekap_nilai_kuis_'.preg_replace('/[^a-zA-Z0-9]/', '_', strtolower($quiz->judul_quiz)).'.csv';
         $headers = [
-            "Content-Type" => "text/csv; charset=UTF-8",
-            "Content-Disposition" => "attachment; filename=\"$filename\"",
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
         ];
 
         $callback = function () use ($quiz, $hasils) {
             $file = fopen('php://output', 'w');
             // Title block
-            fputcsv($file, ["REKAP NILAI KUIS: " . strtoupper($quiz->judul_quiz)]);
-            fputcsv($file, ["Mata Pelajaran", $quiz->subBab?->bab?->mataPelajaran?->nama_mapel ?? '-']);
-            fputcsv($file, ["Bab / Sub-Bab", ($quiz->subBab?->bab?->nama_bab ?? '-') . " / " . ($quiz->subBab?->nama_sub_bab ?? '-')]);
+            fputcsv($file, ['REKAP NILAI KUIS: '.strtoupper($quiz->judul_quiz)]);
+            fputcsv($file, ['Mata Pelajaran', $quiz->subBab?->bab?->mataPelajaran?->nama_mapel ?? '-']);
+            fputcsv($file, ['Bab / Sub-Bab', ($quiz->subBab?->bab?->nama_bab ?? '-').' / '.($quiz->subBab?->nama_sub_bab ?? '-')]);
             fputcsv($file, []);
             // Headers
             fputcsv($file, ['No', 'NISN', 'Nama Siswa', 'Benar', 'Salah', 'Nilai Akhir', 'Waktu (Menit)', 'Keaktifan', 'Catatan Guru', 'Waktu Submit']);
@@ -217,7 +226,7 @@ class QuizController extends Controller
                     $row->jumlah_salah,
                     $row->nilai_akhir,
                     $row->waktu_menit ?? '-',
-                    $row->nilai_keaktifan ? $row->nilai_keaktifan . ' Poin' : '-',
+                    $row->nilai_keaktifan ? $row->nilai_keaktifan.' Poin' : '-',
                     $row->catatan_guru ?? '-',
                     $row->created_at?->format('Y-m-d H:i:s') ?? '-',
                 ]);
@@ -273,24 +282,24 @@ class QuizController extends Controller
         $hasil = HasilKuisSiswa::with(['siswa', 'quiz'])->findOrFail($request->id_hasil);
 
         // Kuis materi tidak menggunakan fitur kirim nilai
-        if (!empty($hasil->quiz?->id_sub_bab)) {
+        if (! empty($hasil->quiz?->id_sub_bab)) {
             return back()->with('error', 'Kuis materi pembelajaran tidak memerlukan rilis nilai. Fitur kirim nilai hanya tersedia untuk Ujian Online resmi.');
         }
 
         $guruId = session('user_id');
-        if (session('user_type') !== 'guru' || !$guruId) {
-            $guruId = \App\Models\Guru::value('id_guru');
+        if (session('user_type') !== 'guru' || ! $guruId) {
+            $guruId = Guru::value('id_guru');
         }
 
-        $pesan = "Hasil Ujian [{$hasil->quiz?->judul_quiz}]: Nilai Anda adalah " . number_format($hasil->nilai_akhir, 0) . ". ";
+        $pesan = "Hasil Ujian [{$hasil->quiz?->judul_quiz}]: Nilai Anda adalah ".number_format($hasil->nilai_akhir, 0).'. ';
         if ($hasil->catatan_guru) {
             $pesan .= "Catatan Guru: {$hasil->catatan_guru}. ";
         }
         if ($request->filled('pesan_tambahan')) {
-            $pesan .= "Pesan: " . $request->pesan_tambahan;
+            $pesan .= 'Pesan: '.$request->pesan_tambahan;
         }
 
-        \App\Models\Notifikasi::create([
+        Notifikasi::create([
             'id_guru' => $guruId,
             'id_siswa' => $hasil->id_siswa,
             'id_pr' => null,
@@ -320,25 +329,25 @@ class QuizController extends Controller
         $quiz = Quiz::findOrFail($idQuiz);
 
         // Kuis materi tidak menggunakan fitur kirim nilai
-        if (!empty($quiz->id_sub_bab)) {
+        if (! empty($quiz->id_sub_bab)) {
             return back()->with('error', 'Kuis materi pembelajaran tidak memerlukan rilis nilai. Fitur kirim nilai hanya tersedia untuk Ujian Online resmi.');
         }
 
         $hasils = HasilKuisSiswa::where('id_quiz', $idQuiz)->get();
 
         $guruId = session('user_id');
-        if (session('user_type') !== 'guru' || !$guruId) {
-            $guruId = \App\Models\Guru::value('id_guru');
+        if (session('user_type') !== 'guru' || ! $guruId) {
+            $guruId = Guru::value('id_guru');
         }
 
         $terkirim = 0;
         foreach ($hasils as $h) {
-            $pesan = "Hasil Ujian [{$quiz->judul_quiz}]: Nilai akhir Anda adalah " . number_format($h->nilai_akhir, 0) . ". ";
+            $pesan = "Hasil Ujian [{$quiz->judul_quiz}]: Nilai akhir Anda adalah ".number_format($h->nilai_akhir, 0).'. ';
             if ($h->catatan_guru) {
                 $pesan .= "Catatan: {$h->catatan_guru}";
             }
 
-            \App\Models\Notifikasi::create([
+            Notifikasi::create([
                 'id_guru' => $guruId,
                 'id_siswa' => $h->id_siswa,
                 'id_pr' => null,
@@ -364,25 +373,25 @@ class QuizController extends Controller
         $quiz = Quiz::findOrFail($idQuiz);
 
         // Kuis materi tidak memiliki opsi remidi
-        if (!empty($quiz->id_sub_bab)) {
+        if (! empty($quiz->id_sub_bab)) {
             return back()->with('error', 'Kuis materi pembelajaran tidak menyediakan opsi remedial. Sesi remedial hanya berlaku untuk Ujian Online resmi.');
         }
 
         $remedials = HasilKuisSiswa::where('id_quiz', $idQuiz)
-                                    ->where('nilai_akhir', '<', 70)
-                                    ->get();
+            ->where('nilai_akhir', '<', 70)
+            ->get();
 
         if ($remedials->isEmpty()) {
             return back()->with('info', 'Tidak ada siswa yang memerlukan remedial untuk ujian ini.');
         }
 
         $guruId = session('user_id');
-        if (session('user_type') !== 'guru' || !$guruId) {
-            $guruId = \App\Models\Guru::value('id_guru');
+        if (session('user_type') !== 'guru' || ! $guruId) {
+            $guruId = Guru::value('id_guru');
         }
 
         foreach ($remedials as $h) {
-            \App\Models\Notifikasi::create([
+            Notifikasi::create([
                 'id_guru' => $guruId,
                 'id_siswa' => $h->id_siswa,
                 'id_pr' => null,

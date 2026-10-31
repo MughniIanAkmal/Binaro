@@ -7,7 +7,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class Siswa extends Authenticatable
 {
     protected $table = 'siswa';
+
     protected $primaryKey = 'id_siswa';
+
     public $timestamps = true;
 
     protected $fillable = [
@@ -46,11 +48,6 @@ class Siswa extends Authenticatable
     public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'id_rooms', 'id_rooms');
-    }
-
-    public function hasilNilai()
-    {
-        return $this->hasMany(HasilNilai::class, 'id_siswa', 'id_siswa');
     }
 
     public function notifikasis()

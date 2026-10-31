@@ -42,7 +42,7 @@
     <a href="{{ route('guru.mapel.browse') }}" class="bg-white p-5 rounded-xl border border-[#E2E8F0] shadow-sm flex justify-between items-center hover:border-[#10B981] hover:shadow-md transition">
         <div>
             <div class="text-3xl font-black text-slate-900">{{ $totalMateri ?? 38 }}</div>
-            <div class="text-xs font-bold text-slate-600 mt-1">Total Modul</div>
+            <div class="text-xs font-bold text-slate-600 mt-1">Total Modul/Mata Pelajaran</div>
             <div class="text-[11px] text-emerald-600 font-semibold">{{ $totalMateri ?? 32 }} Terverifikasi</div>
         </div>
         <div class="w-12 h-12 rounded-xl bg-emerald-50 text-[#10B981] flex items-center justify-center text-xl font-bold">

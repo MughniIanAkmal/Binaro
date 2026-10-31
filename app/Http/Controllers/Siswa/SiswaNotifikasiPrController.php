@@ -37,7 +37,7 @@ class SiswaNotifikasiPrController extends Controller
     public function index(Request $request)
     {
         $siswa = $this->getSiswa();
-        if (!$siswa) {
+        if (! $siswa) {
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
@@ -57,21 +57,21 @@ class SiswaNotifikasiPrController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('pesan', 'like', "%{$search}%")
-                  ->orWhereHas('pr', fn($p) => $p->where('nama_pr', 'like', "%{$search}%"))
-                  ->orWhereHas('pr.mataPelajaran', fn($m) => $m->where('nama_mapel', 'like', "%{$search}%"));
+                    ->orWhereHas('pr', fn ($p) => $p->where('nama_pr', 'like', "%{$search}%"))
+                    ->orWhereHas('pr.mataPelajaran', fn ($m) => $m->where('nama_mapel', 'like', "%{$search}%"));
             });
         }
 
         $notifikasis = $query->latest('id_notifikasi')->paginate(10)->withQueryString();
 
         // KPI Stats
-        $totalNotif     = Notifikasi::where('id_siswa', $siswa->id_siswa)->whereNotNull('id_pr')->count();
-        $belumDibaca    = Notifikasi::where('id_siswa', $siswa->id_siswa)->whereNotNull('id_pr')->where('status_baca', 0)->count();
-        $sudahDibaca    = Notifikasi::where('id_siswa', $siswa->id_siswa)->whereNotNull('id_pr')->where('status_baca', 1)->count();
-        $prAktif        = Notifikasi::where('id_siswa', $siswa->id_siswa)
-                            ->whereNotNull('id_pr')
-                            ->whereHas('pr', fn($p) => $p->where('tgl_tenggat', '>=', Carbon::now()))
-                            ->count();
+        $totalNotif = Notifikasi::where('id_siswa', $siswa->id_siswa)->whereNotNull('id_pr')->count();
+        $belumDibaca = Notifikasi::where('id_siswa', $siswa->id_siswa)->whereNotNull('id_pr')->where('status_baca', 0)->count();
+        $sudahDibaca = Notifikasi::where('id_siswa', $siswa->id_siswa)->whereNotNull('id_pr')->where('status_baca', 1)->count();
+        $prAktif = Notifikasi::where('id_siswa', $siswa->id_siswa)
+            ->whereNotNull('id_pr')
+            ->whereHas('pr', fn ($p) => $p->where('tgl_tenggat', '>=', Carbon::now()))
+            ->count();
 
         return view('siswa.notifikasi_pr.index', compact(
             'siswa', 'notifikasis', 'totalNotif',
@@ -86,7 +86,7 @@ class SiswaNotifikasiPrController extends Controller
     public function show($id)
     {
         $siswa = $this->getSiswa();
-        if (!$siswa) {
+        if (! $siswa) {
             return redirect()->route('login')->with('error', 'Silakan login terlebih dahulu.');
         }
 
@@ -96,7 +96,7 @@ class SiswaNotifikasiPrController extends Controller
             ->findOrFail($id);
 
         // Otomatis tandai baca saat halaman detail dibuka
-        if (!$notifikasi->status_baca) {
+        if (! $notifikasi->status_baca) {
             $notifikasi->update(['status_baca' => 1]);
         }
 
@@ -119,7 +119,7 @@ class SiswaNotifikasiPrController extends Controller
     public function tandaiBaca($id)
     {
         $siswa = $this->getSiswa();
-        if (!$siswa) {
+        if (! $siswa) {
             return redirect()->route('login');
         }
 
@@ -133,6 +133,7 @@ class SiswaNotifikasiPrController extends Controller
             }
 
             $notifikasi->update(['status_baca' => 1]);
+
             return back()->with('success', 'Notifikasi berhasil ditandai sebagai sudah dibaca.');
 
         } catch (\Exception $e) {
@@ -146,7 +147,7 @@ class SiswaNotifikasiPrController extends Controller
     public function tandaiBacaSemua()
     {
         $siswa = $this->getSiswa();
-        if (!$siswa) {
+        if (! $siswa) {
             return redirect()->route('login');
         }
 

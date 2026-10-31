@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Absen;
+use App\Models\AbsensiSetting;
 use App\Models\Barcode;
+use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\Siswa;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -41,7 +42,7 @@ class AbsensiController extends Controller
         }
 
         if ($tanggal === $today) {
-            $batasTutup = \App\Models\AbsensiSetting::get('batas_tutup', '12:00');
+            $batasTutup = AbsensiSetting::get('batas_tutup', '12:00');
             if (now()->format('H:i') <= $batasTutup) {
                 return 0;
             }
@@ -49,7 +50,7 @@ class AbsensiController extends Controller
 
         $existingIds = Absen::where('tanggal', $tanggal)->pluck('id_siswa')->toArray();
 
-        $missingIds = Siswa::when(!empty($existingIds), fn($q) => $q->whereNotIn('id_siswa', $existingIds))
+        $missingIds = Siswa::when(! empty($existingIds), fn ($q) => $q->whereNotIn('id_siswa', $existingIds))
             ->pluck('id_siswa')
             ->toArray();
 
@@ -61,10 +62,10 @@ class AbsensiController extends Controller
         if (session()->has('user_id') && session('user_type') === 'guru') {
             $guruId = session('user_id');
         }
-        if (!$guruId || !\App\Models\Guru::where('id_guru', $guruId)->exists()) {
-            $guruId = \App\Models\Guru::query()->value('id_guru');
+        if (! $guruId || ! Guru::where('id_guru', $guruId)->exists()) {
+            $guruId = Guru::query()->value('id_guru');
         }
-        if (!$guruId) {
+        if (! $guruId) {
             return 0;
         }
 
@@ -113,7 +114,7 @@ class AbsensiController extends Controller
         $query = Siswa::query()
             ->leftJoin('absen', function ($join) use ($selectedDate) {
                 $join->on('siswa.id_siswa', '=', 'absen.id_siswa')
-                     ->where('absen.tanggal', '=', $selectedDate);
+                    ->where('absen.tanggal', '=', $selectedDate);
             })
             ->leftJoin('kelas', 'siswa.id_rooms', '=', 'kelas.id_rooms')
             ->select([
@@ -126,7 +127,7 @@ class AbsensiController extends Controller
                 DB::raw("COALESCE(absen.status, 'Alpa') as status_kehadiran"),
                 'absen.waktu_absen',
                 'absen.keterangan',
-                'absen.berkas_surat'
+                'absen.berkas_surat',
             ]);
 
         if ($selectedKelas) {
@@ -144,14 +145,14 @@ class AbsensiController extends Controller
         $siswaList = $query->orderBy('siswa.nm_siswa')->paginate(10)->withQueryString();
 
         // Hitung KPI
-        $totalSiswa = Siswa::when($selectedKelas, fn($q) => $q->where('id_rooms', $selectedKelas))->count();
+        $totalSiswa = Siswa::when($selectedKelas, fn ($q) => $q->where('id_rooms', $selectedKelas))->count();
         $absenHadir = Absen::where('tanggal', $selectedDate)
             ->where('status', 'Hadir')
-            ->when($selectedKelas, fn($q) => $q->whereHas('siswa', fn($s) => $s->where('id_rooms', $selectedKelas)))
+            ->when($selectedKelas, fn ($q) => $q->whereHas('siswa', fn ($s) => $s->where('id_rooms', $selectedKelas)))
             ->count();
         $absenIzinSakit = Absen::where('tanggal', $selectedDate)
             ->whereIn('status', ['Izin', 'Sakit'])
-            ->when($selectedKelas, fn($q) => $q->whereHas('siswa', fn($s) => $s->where('id_rooms', $selectedKelas)))
+            ->when($selectedKelas, fn ($q) => $q->whereHas('siswa', fn ($s) => $s->where('id_rooms', $selectedKelas)))
             ->count();
         $absenAlpa = max(0, $totalSiswa - ($absenHadir + $absenIzinSakit));
         $persentase = $totalSiswa > 0 ? round(($absenHadir / $totalSiswa) * 100, 1) : 0;
@@ -177,7 +178,7 @@ class AbsensiController extends Controller
         ]);
 
         $barcode = Barcode::where('kode_barcode', $request->kode_barcode)->first();
-        if (!$barcode) {
+        if (! $barcode) {
             return back()->with('error', 'Barcode QR Siswa tidak terdaftar.');
         }
 
@@ -185,9 +186,9 @@ class AbsensiController extends Controller
         $now = now();
         $timeStr = $now->format('H:i');
 
-        $batasAwal = \App\Models\AbsensiSetting::get('batas_awal', '07:00');
-        $batasTepat = \App\Models\AbsensiSetting::get('batas_tepat', '08:00');
-        $batasTutup = \App\Models\AbsensiSetting::get('batas_tutup', '12:00');
+        $batasAwal = AbsensiSetting::get('batas_awal', '07:00');
+        $batasTepat = AbsensiSetting::get('batas_tepat', '08:00');
+        $batasTutup = AbsensiSetting::get('batas_tutup', '12:00');
 
         if ($timeStr > $batasTutup) {
             // Melewati batas waktu admin: tetap tercatat sebagai Terlambat.
@@ -242,7 +243,7 @@ class AbsensiController extends Controller
 
     public function updateManual(Request $request)
     {
-        if (!$request->filled('keterangan') && $request->filled('namaKeterangan')) {
+        if (! $request->filled('keterangan') && $request->filled('namaKeterangan')) {
             $request->merge(['keterangan' => $request->input('namaKeterangan')]);
         }
 
@@ -280,7 +281,7 @@ class AbsensiController extends Controller
 
     public function rekap(Request $request)
     {
-        $guru = \App\Models\Guru::find(session('user_id'));
+        $guru = Guru::find(session('user_id'));
         $selectedDate = $request->input('tanggal', now()->toDateString());
         $selectedKelas = $request->input('id_rooms');
         $selectedStatus = $request->input('status');
@@ -288,10 +289,10 @@ class AbsensiController extends Controller
         // Alpha otomatis untuk hari ini (lewat batas tutup) & hari lalu
         static::ensureAlphaOtomatis($selectedDate);
 
-        $totalSiswa = Siswa::when($selectedKelas, fn($q) => $q->where('id_rooms', $selectedKelas))->count();
+        $totalSiswa = Siswa::when($selectedKelas, fn ($q) => $q->where('id_rooms', $selectedKelas))->count();
 
         $absensToday = Absen::whereDate('tanggal', $selectedDate)
-            ->when($selectedKelas, fn($q) => $q->whereHas('siswa', fn($s) => $s->where('id_rooms', $selectedKelas)))
+            ->when($selectedKelas, fn ($q) => $q->whereHas('siswa', fn ($s) => $s->where('id_rooms', $selectedKelas)))
             ->get();
 
         $hadir = $absensToday->where('status', 'Hadir')->count();
@@ -321,8 +322,12 @@ class AbsensiController extends Controller
                 'absen.status', 'absen.keterangan', 'absen.waktu_absen', 'pencatat.nama_guru as nama_guru_pencatat',
             ]);
 
-        if ($selectedKelas) $query->where('siswa.id_rooms', $selectedKelas);
-        if ($selectedStatus) $query->where('absen.status', $selectedStatus);
+        if ($selectedKelas) {
+            $query->where('siswa.id_rooms', $selectedKelas);
+        }
+        if ($selectedStatus) {
+            $query->where('absen.status', $selectedStatus);
+        }
 
         $siswaList = $query->orderBy('siswa.nm_siswa')->paginate(20)->withQueryString();
 
@@ -340,7 +345,7 @@ class AbsensiController extends Controller
     {
         $absen = Absen::findOrFail($id);
         if ($absen->berkas_surat) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($absen->berkas_surat);
+            Storage::disk('public')->delete($absen->berkas_surat);
         }
         $absen->delete();
 
@@ -349,9 +354,9 @@ class AbsensiController extends Controller
 
     public function settingsView()
     {
-        $batasAwal = \App\Models\AbsensiSetting::get('batas_awal', '07:00');
-        $batasTepat = \App\Models\AbsensiSetting::get('batas_tepat', '08:00');
-        $batasTutup = \App\Models\AbsensiSetting::get('batas_tutup', '12:00');
+        $batasAwal = AbsensiSetting::get('batas_awal', '07:00');
+        $batasTepat = AbsensiSetting::get('batas_tepat', '08:00');
+        $batasTutup = AbsensiSetting::get('batas_tutup', '12:00');
 
         return view('admin.absensi.settings', compact('batasAwal', 'batasTepat', 'batasTutup'));
     }
@@ -380,9 +385,9 @@ class AbsensiController extends Controller
             return back()->withInput()->withErrors(['batas_tutup' => 'Jam tutup sekolah harus lebih lambat dari batas jam tepat waktu.'])->with('error', 'Jam tutup sekolah harus lebih lambat dari batas jam tepat waktu.');
         }
 
-        \App\Models\AbsensiSetting::set('batas_awal', $request->batas_awal);
-        \App\Models\AbsensiSetting::set('batas_tepat', $request->batas_tepat);
-        \App\Models\AbsensiSetting::set('batas_tutup', $request->batas_tutup);
+        AbsensiSetting::set('batas_awal', $request->batas_awal);
+        AbsensiSetting::set('batas_tepat', $request->batas_tepat);
+        AbsensiSetting::set('batas_tutup', $request->batas_tutup);
 
         return redirect()->route('admin.absensi.settings')->with('success', 'Pengaturan jam absensi & jam operasional sekolah berhasil disimpan.');
     }

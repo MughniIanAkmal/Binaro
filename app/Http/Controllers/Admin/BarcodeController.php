@@ -15,8 +15,8 @@ class BarcodeController extends Controller
         $siswas = Siswa::with('barcode', 'kelas')
             ->when($request->q, function ($query, $q) {
                 $query->where(function ($w) use ($q) {
-                                        $w->where('nm_siswa', 'like', "%{$q}%")
-                      ->orWhere('nisn', 'like', "%{$q}%");
+                    $w->where('nm_siswa', 'like', "%{$q}%")
+                        ->orWhere('nisn', 'like', "%{$q}%");
                 });
             })
             ->when($request->kelas, fn ($query, $kelas) => $query->whereHas('kelas', function ($q) use ($kelas) {
@@ -27,10 +27,10 @@ class BarcodeController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        return view('admin.qr-siswa.index', [
-            'siswas'      => $siswas,
-            'total'       => Siswa::count(),
-            'sudah'       => Barcode::count(),
+        return view('admin.qr_siswa.index', [
+            'siswas' => $siswas,
+            'total' => Siswa::count(),
+            'sudah' => Barcode::count(),
             'daftarKelas' => Kelas::query()
                 ->select('pararel')
                 ->distinct()
@@ -83,7 +83,7 @@ class BarcodeController extends Controller
         $siswa->load('barcode');
         abort_unless($siswa->barcode, 404, 'Siswa ini belum punya QR code.');
 
-        return view('admin.qr-siswa.cetak', ['siswas' => collect([$siswa])]);
+        return view('admin.qr_siswa.cetak', ['siswas' => collect([$siswa])]);
     }
 
     /** Kartu banyak siswa sekaligus (opsional per kelas: ?kelas=3A). */
@@ -98,6 +98,6 @@ class BarcodeController extends Controller
             ->orderBy('nm_siswa')
             ->get();
 
-        return view('admin.qr-siswa.cetak', compact('siswas'));
+        return view('admin.qr_siswa.cetak', compact('siswas'));
     }
 }

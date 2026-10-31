@@ -10,6 +10,7 @@ use App\Models\Notifikasi;
 use App\Models\Pr;
 use App\Models\Siswa;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 
 class NotifikasiPrController extends Controller
@@ -21,7 +22,7 @@ class NotifikasiPrController extends Controller
     {
         $guruId = session('user_id');
         $guru = $guruId ? Guru::find($guruId) : Guru::first();
-        if (!$guru) {
+        if (! $guru) {
             $guru = Guru::first();
         }
 
@@ -36,8 +37,8 @@ class NotifikasiPrController extends Controller
         if ($search) {
             $prQuery->where(function ($q) use ($search) {
                 $q->where('nama_pr', 'like', "%{$search}%")
-                  ->orWhere('deskripsi', 'like', "%{$search}%")
-                  ->orWhereHas('mataPelajaran', fn($m) => $m->where('nama_mapel', 'like', "%{$search}%"));
+                    ->orWhere('deskripsi', 'like', "%{$search}%")
+                    ->orWhereHas('mataPelajaran', fn ($m) => $m->where('nama_mapel', 'like', "%{$search}%"));
             });
         }
 
@@ -53,8 +54,8 @@ class NotifikasiPrController extends Controller
         if ($search) {
             $notifikasiQuery->where(function ($q) use ($search) {
                 $q->where('pesan', 'like', "%{$search}%")
-                  ->orWhereHas('siswa', fn($s) => $s->where('nm_siswa', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%"))
-                  ->orWhereHas('pr', fn($p) => $p->where('nama_pr', 'like', "%{$search}%"));
+                    ->orWhereHas('siswa', fn ($s) => $s->where('nm_siswa', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%"))
+                    ->orWhereHas('pr', fn ($p) => $p->where('nama_pr', 'like', "%{$search}%"));
             });
         }
 
@@ -67,40 +68,40 @@ class NotifikasiPrController extends Controller
         if ($search) {
             $grupQuery->where(function ($q) use ($search) {
                 $q->where('pesan', 'like', "%{$search}%")
-                  ->orWhereHas('siswa', fn($s) => $s->where('nm_siswa', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%"))
-                  ->orWhereHas('pr', fn($p) => $p->where('nama_pr', 'like', "%{$search}%"));
+                    ->orWhereHas('siswa', fn ($s) => $s->where('nm_siswa', 'like', "%{$search}%")->orWhere('nisn', 'like', "%{$search}%"))
+                    ->orWhereHas('pr', fn ($p) => $p->where('nama_pr', 'like', "%{$search}%"));
             });
         }
 
         $semuaNotifikasi = $grupQuery->latest('id_notifikasi')->take(500)->get();
 
         $grupNotifikasi = $semuaNotifikasi->groupBy(function ($n) {
-            return ($n->id_pr ?? 0) . '||' . trim($n->pesan ?? '');
+            return ($n->id_pr ?? 0).'||'.trim($n->pesan ?? '');
         })->map(function ($items) {
             $pertama = $items->first();
-            $daftarKelas = $items->map(fn($i) => $i->siswa->kelas->pararel ?? null)->filter()->unique()->values();
+            $daftarKelas = $items->map(fn ($i) => $i->siswa->kelas->pararel ?? null)->filter()->unique()->values();
             $total = $items->count();
             $dibaca = $items->where('status_baca', 1)->count();
             $waktuKirim = $items->min('created_at');
 
             if ($total === 1) {
                 $label = $pertama->siswa->nm_siswa ?? 'Siswa';
-                $subLabel = 'NISN: ' . ($pertama->siswa->nisn ?? '-') . ' • ' . ($pertama->siswa->kelas->pararel ?? 'Kelas');
+                $subLabel = 'NISN: '.($pertama->siswa->nisn ?? '-').' • '.($pertama->siswa->kelas->pararel ?? 'Kelas');
             } elseif ($daftarKelas->count() === 1) {
-                $label = 'Siswa kelas ' . $daftarKelas->first();
-                $subLabel = $total . ' siswa penerima • ' . $dibaca . ' sudah dibaca';
+                $label = 'Siswa kelas '.$daftarKelas->first();
+                $subLabel = $total.' siswa penerima • '.$dibaca.' sudah dibaca';
             } else {
-                $label = $total . ' siswa (' . $daftarKelas->count() . ' kelas)';
-                $subLabel = $daftarKelas->take(3)->join(', ') . ($daftarKelas->count() > 3 ? ', ...' : '') . ' • ' . $dibaca . ' sudah dibaca';
+                $label = $total.' siswa ('.$daftarKelas->count().' kelas)';
+                $subLabel = $daftarKelas->take(3)->join(', ').($daftarKelas->count() > 3 ? ', ...' : '').' • '.$dibaca.' sudah dibaca';
             }
 
             return [
-                'key' => ($pertama->id_pr ?? 0) . '||' . md5(trim($pertama->pesan ?? '')),
+                'key' => ($pertama->id_pr ?? 0).'||'.md5(trim($pertama->pesan ?? '')),
                 'id_pr' => $pertama->id_pr,
                 'pr' => $pertama->pr,
                 'pesan' => $pertama->pesan,
                 'waktu_kirim' => $waktuKirim,
-                'waktu_label' => $waktuKirim ? $waktuKirim->translatedFormat('d M Y') . ', ' . $waktuKirim->format('H:i') . ' WIB' : '-',
+                'waktu_label' => $waktuKirim ? $waktuKirim->translatedFormat('d M Y').', '.$waktuKirim->format('H:i').' WIB' : '-',
                 'nama_pr' => $pertama->pr->nama_pr ?? 'Tugas PR',
                 'total' => $total,
                 'dibaca' => $dibaca,
@@ -108,16 +109,16 @@ class NotifikasiPrController extends Controller
                 'sub_label' => $subLabel,
                 'satu_kelas' => $daftarKelas->count() === 1 ? $daftarKelas->first() : null,
                 'daftar_kelas' => $daftarKelas,
-                'items' => $items->map(fn($i) => [
+                'items' => $items->map(fn ($i) => [
                     'id_notifikasi' => $i->id_notifikasi,
                     'nama' => $i->siswa->nm_siswa ?? 'Siswa',
                     'nisn' => $i->siswa->nisn ?? '-',
                     'kelas' => $i->siswa->kelas->pararel ?? '-',
                     'status_baca' => (bool) $i->status_baca,
-                    'waktu' => $i->created_at ? $i->created_at->translatedFormat('d M Y, H:i') . ' WIB' : '-',
+                    'waktu' => $i->created_at ? $i->created_at->translatedFormat('d M Y, H:i').' WIB' : '-',
                 ])->sortBy('nama')->values(),
             ];
-        })->sortByDesc(fn($g) => $g['waktu_kirim'])->values();
+        })->sortByDesc(fn ($g) => $g['waktu_kirim'])->values();
 
         // 3. KPI Statistics
         $totalPr = Pr::count();
@@ -189,18 +190,18 @@ class NotifikasiPrController extends Controller
 
         // 1. Lewat hari dan jam realtime
         if ($dt->lessThanOrEqualTo($now)) {
-            return "Batas waktu pengumpulan PR (" . $dt->format('d/m/Y H:i') . " WIB) tidak diperbolehkan karena sudah lewat dari waktu realtime sekarang. Silakan tentukan waktu tenggat di masa depan.";
+            return 'Batas waktu pengumpulan PR ('.$dt->format('d/m/Y H:i').' WIB) tidak diperbolehkan karena sudah lewat dari waktu realtime sekarang. Silakan tentukan waktu tenggat di masa depan.';
         }
 
         // 2. Hari Minggu libur (Sunday = 0)
         if ($dt->dayOfWeek === Carbon::SUNDAY) {
-            return "Batas pengumpulan PR tidak boleh jatuh pada hari Minggu (" . $dt->translatedFormat('d F Y') . ") karena hari libur sekolah. Silakan pilih hari operasional sekolah (Senin s/d Sabtu).";
+            return 'Batas pengumpulan PR tidak boleh jatuh pada hari Minggu ('.$dt->translatedFormat('d F Y').') karena hari libur sekolah. Silakan pilih hari operasional sekolah (Senin s/d Sabtu).';
         }
 
         // 3. Jam operasional sekolah 07:00 - 14:00 WIB
-        $timeNumber = (int)$dt->format('Hi');
+        $timeNumber = (int) $dt->format('Hi');
         if ($timeNumber < 700 || $timeNumber > 1400) {
-            return "Jam batas pengumpulan PR (" . $dt->format('H:i') . " WIB) berada di luar jam operasional sekolah. Jam operasional sekolah SDN Kalitapen 01 adalah pukul 07:00 sampai 14:00 WIB.";
+            return 'Jam batas pengumpulan PR ('.$dt->format('H:i').' WIB) berada di luar jam operasional sekolah. Jam operasional sekolah SDN Kalitapen 01 adalah pukul 07:00 sampai 14:00 WIB.';
         }
 
         return null;
@@ -230,10 +231,10 @@ class NotifikasiPrController extends Controller
             'pesan_kustom' => 'nullable|string|max:1000',
         ], [
             'nama_pr.required' => 'Nama tugas PR wajib diisi.',
-            'nama_pr.min'      => 'Nama tugas PR minimal 3 karakter.',
-            'nama_pr.max'      => 'Nama tugas PR maksimal 100 karakter.',
-            'nama_pr.regex'    => 'Nama tugas PR hanya boleh berisi huruf, angka, spasi, dan tanda baca standar (- . , _ ()).',
-            'deskripsi.max'    => 'Deskripsi petunjuk PR maksimal 1000 karakter.',
+            'nama_pr.min' => 'Nama tugas PR minimal 3 karakter.',
+            'nama_pr.max' => 'Nama tugas PR maksimal 100 karakter.',
+            'nama_pr.regex' => 'Nama tugas PR hanya boleh berisi huruf, angka, spasi, dan tanda baca standar (- . , _ ()).',
+            'deskripsi.max' => 'Deskripsi petunjuk PR maksimal 1000 karakter.',
         ]);
 
         // Human Error Guardrail: Validasi Tenggat Waktu
@@ -249,12 +250,12 @@ class NotifikasiPrController extends Controller
             ->exists();
 
         if ($isPrDuplicate) {
-            return back()->withInput()->with('error', "Tugas PR dengan nama '" . trim($request->nama_pr) . "' pada mata pelajaran ini sudah ada dan tenggatnya masih aktif. Gunakan nama PR yang berbeda untuk menghindari duplikasi tugas.");
+            return back()->withInput()->with('error', "Tugas PR dengan nama '".trim($request->nama_pr)."' pada mata pelajaran ini sudah ada dan tenggatnya masih aktif. Gunakan nama PR yang berbeda untuk menghindari duplikasi tugas.");
         }
 
         try {
             $guruId = session('user_id');
-            if (!$guruId) {
+            if (! $guruId) {
                 $firstGuru = Guru::first();
                 $guruId = $firstGuru ? $firstGuru->id_guru : 1;
             }
@@ -276,18 +277,18 @@ class NotifikasiPrController extends Controller
 
                 if ($request->target_tipe === 'kelas' && $request->filled('target_kelas')) {
                     $siswaIds = Siswa::where('id_rooms', $request->target_kelas)->pluck('id_siswa')->toArray();
-                } elseif ($request->target_tipe === 'siswa' && !empty($request->target_siswa)) {
+                } elseif ($request->target_tipe === 'siswa' && ! empty($request->target_siswa)) {
                     $siswaIds = $request->target_siswa;
                 } else {
                     // Default: Semua siswa
                     $siswaIds = Siswa::pluck('id_siswa')->toArray();
                 }
 
-                if (!empty($siswaIds)) {
+                if (! empty($siswaIds)) {
                     $mapel = MataPelajaran::find($request->id_mapel);
                     $mapelNama = $mapel ? $mapel->nama_mapel : 'Mata Pelajaran';
                     $tenggatCarbon = Carbon::parse($pr->tgl_tenggat);
-                    $tenggatFormat = $tenggatCarbon->translatedFormat('d M Y') . ', ' . $tenggatCarbon->format('H:i') . ' WIB';
+                    $tenggatFormat = $tenggatCarbon->translatedFormat('d M Y').', '.$tenggatCarbon->format('H:i').' WIB';
 
                     $pesanDefault = "Tugas PR Baru: '{$pr->nama_pr}' ({$mapelNama}). Batas pengumpulan: {$tenggatFormat}. Silakan periksa instruksi tugas dan kumpulkan tepat waktu.";
                     $pesanFinal = $request->filled('pesan_kustom') ? trim($request->pesan_kustom) : $pesanDefault;
@@ -302,8 +303,9 @@ class NotifikasiPrController extends Controller
                     if ($notifSudahAda) {
                         // Hapus PR yang baru saja dibuat karena notifikasi tidak bisa dikirim
                         $pr->delete();
+
                         return back()->withInput()
-                            ->with('error', "Gagal menyimpan: Notifikasi dengan isi pesan yang sama persis sudah pernah dikirimkan kepada siswa yang dituju sebelumnya. Ubah isi pesan notifikasi agar berbeda dari yang sudah ada, atau matikan opsi kirim notifikasi.");
+                            ->with('error', 'Gagal menyimpan: Notifikasi dengan isi pesan yang sama persis sudah pernah dikirimkan kepada siswa yang dituju sebelumnya. Ubah isi pesan notifikasi agar berbeda dari yang sudah ada, atau matikan opsi kirim notifikasi.');
                     }
 
                     foreach ($siswaIds as $idSiswa) {
@@ -314,6 +316,7 @@ class NotifikasiPrController extends Controller
 
                         if ($alreadySent) {
                             $countDuplicates++;
+
                             continue;
                         }
 
@@ -339,16 +342,17 @@ class NotifikasiPrController extends Controller
 
             return redirect()->route('guru.notifikasi_pr.index')->with('success', $pesanSukses);
 
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             // Tangani error constraint database (misalnya duplikasi unique key)
             $errorCode = $e->errorInfo[1] ?? 0;
             if ($errorCode == 1062) {
                 return back()->withInput()->with('error', 'Gagal menyimpan: Data tugas PR atau notifikasi serupa sudah ada di dalam sistem (duplikasi terdeteksi oleh database). Periksa kembali nama PR dan penerima notifikasi.');
             }
-            return back()->withInput()->with('error', 'Gagal menyimpan tugas PR karena terjadi kesalahan pada database: ' . $e->getMessage());
+
+            return back()->withInput()->with('error', 'Gagal menyimpan tugas PR karena terjadi kesalahan pada database: '.$e->getMessage());
         } catch (\Exception $e) {
             // Tangani error umum lainnya
-            return back()->withInput()->with('error', 'Terjadi kesalahan tidak terduga saat menyimpan tugas PR. Silakan coba kembali. Detail: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Terjadi kesalahan tidak terduga saat menyimpan tugas PR. Silakan coba kembali. Detail: '.$e->getMessage());
         }
     }
 
@@ -401,10 +405,10 @@ class NotifikasiPrController extends Controller
             'pesan_update' => 'nullable|string|max:1000',
         ], [
             'nama_pr.required' => 'Nama tugas PR wajib diisi.',
-            'nama_pr.min'      => 'Nama tugas PR minimal 3 karakter.',
-            'nama_pr.max'      => 'Nama tugas PR maksimal 100 karakter.',
-            'nama_pr.regex'    => 'Nama tugas PR hanya boleh berisi huruf, angka, spasi, dan tanda baca standar (- . , _ ()).',
-            'deskripsi.max'    => 'Deskripsi petunjuk PR maksimal 1000 karakter.',
+            'nama_pr.min' => 'Nama tugas PR minimal 3 karakter.',
+            'nama_pr.max' => 'Nama tugas PR maksimal 100 karakter.',
+            'nama_pr.regex' => 'Nama tugas PR hanya boleh berisi huruf, angka, spasi, dan tanda baca standar (- . , _ ()).',
+            'deskripsi.max' => 'Deskripsi petunjuk PR maksimal 1000 karakter.',
         ]);
 
         // Human Error Guardrail: Validasi Tenggat Waktu
@@ -435,7 +439,7 @@ class NotifikasiPrController extends Controller
 
                 $mapel = MataPelajaran::find($pr->id_mapel);
                 $tenggatCarbon = Carbon::parse($pr->tgl_tenggat);
-                $tenggatFormat = $tenggatCarbon->translatedFormat('d M Y') . ', ' . $tenggatCarbon->format('H:i') . ' WIB';
+                $tenggatFormat = $tenggatCarbon->translatedFormat('d M Y').', '.$tenggatCarbon->format('H:i').' WIB';
                 $pesanDefault = "Pembaruan Tugas: PR '{$pr->nama_pr}' ({$mapel?->nama_mapel}) diperbarui. Tenggat pengumpulan: {$tenggatFormat}. Silakan cek catatan tugas terbaru.";
                 $pesanFinal = $request->filled('pesan_update') ? trim($request->pesan_update) : $pesanDefault;
 
@@ -459,6 +463,7 @@ class NotifikasiPrController extends Controller
 
                     if ($alreadySent) {
                         $countDuplicates++;
+
                         continue;
                     }
 
@@ -483,16 +488,17 @@ class NotifikasiPrController extends Controller
 
             return redirect()->route('guru.notifikasi_pr.index')->with('success', $pesanSukses);
 
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             // Tangani error constraint database (misalnya duplikasi unique key)
             $errorCode = $e->errorInfo[1] ?? 0;
             if ($errorCode == 1062) {
                 return back()->withInput()->with('error', 'Gagal menyimpan perubahan: Notifikasi serupa sudah ada di dalam sistem (duplikasi terdeteksi oleh database). Ubah isi pesan atau pilih penerima yang berbeda.');
             }
-            return back()->withInput()->with('error', 'Gagal menyimpan perubahan PR karena terjadi kesalahan pada database: ' . $e->getMessage());
+
+            return back()->withInput()->with('error', 'Gagal menyimpan perubahan PR karena terjadi kesalahan pada database: '.$e->getMessage());
         } catch (\Exception $e) {
             // Tangani error umum lainnya
-            return back()->withInput()->with('error', 'Terjadi kesalahan tidak terduga saat menyimpan perubahan PR. Silakan coba kembali. Detail: ' . $e->getMessage());
+            return back()->withInput()->with('error', 'Terjadi kesalahan tidak terduga saat menyimpan perubahan PR. Silakan coba kembali. Detail: '.$e->getMessage());
         }
     }
 
@@ -527,7 +533,7 @@ class NotifikasiPrController extends Controller
         ]);
 
         $guruId = session('user_id');
-        if (!$guruId) {
+        if (! $guruId) {
             $firstGuru = Guru::first();
             $guruId = $firstGuru ? $firstGuru->id_guru : 1;
         }
@@ -537,7 +543,7 @@ class NotifikasiPrController extends Controller
         $siswaIds = [];
         if ($request->target_tipe === 'kelas' && $request->filled('target_kelas')) {
             $siswaIds = Siswa::where('id_rooms', $request->target_kelas)->pluck('id_siswa')->toArray();
-        } elseif ($request->target_tipe === 'siswa' && !empty($request->target_siswa)) {
+        } elseif ($request->target_tipe === 'siswa' && ! empty($request->target_siswa)) {
             $siswaIds = $request->target_siswa;
         } else {
             // Semua Siswa
@@ -561,6 +567,7 @@ class NotifikasiPrController extends Controller
 
             if ($alreadySent) {
                 $countDuplicates++;
+
                 continue;
             }
 

@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Materi extends Model
 {
     protected $table = 'materi';
+
     protected $primaryKey = 'id_materi';
+
     protected $guarded = ['id_materi'];
 
     public function subBab()
@@ -35,31 +37,33 @@ class Materi extends Model
      */
     public function getYoutubeIdAttribute()
     {
-        if (!$this->url_video) {
+        if (! $this->url_video) {
             return null;
         }
         if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?|shorts|live)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $this->url_video, $match)) {
             return $match[1];
         }
+
         return null;
     }
 
     public function getYoutubeEmbedUrlAttribute()
     {
         $id = $this->youtube_id;
-        if (!$id) {
+        if (! $id) {
             return null;
         }
+
         return "https://www.youtube.com/embed/{$id}?rel=0&enablejsapi=1";
     }
 
     public function getYoutubeWatchUrlAttribute()
     {
         $id = $this->youtube_id;
-        if (!$id) {
+        if (! $id) {
             return $this->url_video;
         }
+
         return "https://www.youtube.com/watch?v={$id}";
     }
 }
-

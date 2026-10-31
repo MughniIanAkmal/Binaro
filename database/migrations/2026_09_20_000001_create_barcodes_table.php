@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('barcodes') && !Schema::hasTable('barcode')) {
+        if (! Schema::hasTable('barcodes') && ! Schema::hasTable('barcode')) {
             Schema::create('barcodes', function (Blueprint $table) {
                 $table->id('id_barcode');
 

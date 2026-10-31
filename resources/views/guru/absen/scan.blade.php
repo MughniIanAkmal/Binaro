@@ -25,12 +25,12 @@
     @include('guru.absen._summary')
     @include('guru.absen._camera')
     @include('guru.absen._forms')
-    @include('guru.absen._attendance-list')
+    @include('guru.absen._attendance_list')
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script>
-@include('guru.absen._scan-script')
-@include('guru.absen._permission-script')
+@include('guru.absen._scan_script')
+@include('guru.absen._permission_script')
 </script>
 @endsection

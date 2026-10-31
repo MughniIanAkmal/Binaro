@@ -7,8 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class JadwalMataPelajaran extends Model
 {
     protected $table = 'jadwal_mata_pelajaran';
+
     protected $primaryKey = 'id_jadwal';
+
     public $timestamps = false;
+
     protected $guarded = ['id_jadwal'];
 
     public function mataPelajaran()

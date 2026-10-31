@@ -1,212 +1,911 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk - Binaro Learning & Assessment</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <title>Login - Binaro</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: 'Instrument Sans', sans-serif; background-color: #F8FAFC; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #0B2A44 0%, #13527D 55%, #1E7FA8 100%);
+            min-height: 100vh;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 20px;
+
+            position: relative;
+            overflow-x: hidden;
+        }
+
+
+        /* Lingkaran dekoratif latar */
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.35;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 420px;
+            height: 420px;
+            background: #2AA5C4;
+            top: -140px;
+            right: -120px;
+        }
+
+        body::after {
+            width: 360px;
+            height: 360px;
+            background: #F2A007;
+            bottom: -140px;
+            left: -120px;
+            opacity: 0.22;
+        }
+
+
+        /* =====================================================
+           CONTAINER
+        ===================================================== */
+
+        .login-container {
+            position: relative;
+            z-index: 1;
+
+            width: 920px;
+            max-width: 100%;
+            min-height: 540px;
+
+            background: white;
+
+            display: flex;
+
+            border-radius: 24px;
+
+            overflow: hidden;
+
+            box-shadow: 0 24px 70px rgba(4, 26, 43, 0.45);
+        }
+
+
+        /* =====================================================
+           BAGIAN KIRI
+        ===================================================== */
+
+        .left-side {
+            width: 46%;
+
+            background:
+                linear-gradient(rgba(14, 61, 93, 0.72), rgba(19, 82, 125, 0.88)),
+                url("{{ asset('images/sekolah.jpg') }}"),
+                #13527D;
+
+            background-size: cover;
+            background-position: center;
+
+            color: white;
+
+            padding: 44px 40px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            position: relative;
+            overflow: hidden;
+        }
+
+
+        /* Pola titik-titik dekoratif */
+        .left-side::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px);
+            background-size: 22px 22px;
+            mask-image: linear-gradient(to top, black 20%, transparent 75%);
+            pointer-events: none;
+        }
+
+
+        .left-side > * {
+            position: relative;
+            z-index: 1;
+        }
+
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+            margin-bottom: 20px;
+        }
+
+
+        .logo-icon {
+            width: 46px;
+            height: 46px;
+
+            background: linear-gradient(135deg, #F2A007, #F7C948);
+
+            border-radius: 13px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 22px;
+            font-weight: 800;
+            color: #0E3D5D;
+
+            box-shadow: 0 6px 16px rgba(242, 160, 7, 0.4);
+        }
+
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+        }
+
+
+        .logo p {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.75);
+            font-weight: 600;
+        }
+
+
+        .description {
+            font-size: 13px;
+            line-height: 1.7;
+
+            max-width: 350px;
+
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+
+        /* Daftar fitur unggulan */
+        .feature-list {
+            list-style: none;
+            margin-top: 26px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.92);
+        }
+
+
+        .feature-badge {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+
+            background: rgba(255, 255, 255, 0.14);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 15px;
+        }
+
+
+        /* =====================================================
+           BAGIAN KANAN
+        ===================================================== */
+
+        .right-side {
+            width: 54%;
+
+            padding: 48px 46px;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            background: #fff;
+        }
+
+
+        .login-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #0E3D5D;
+
+            margin-bottom: 4px;
+        }
+
+
+        .login-subtitle {
+            font-size: 12px;
+            color: #7b8a99;
+            font-weight: 500;
+
+            margin-bottom: 22px;
+        }
+
+
+        /* =====================================================
+           ROLE BUTTON
+        ===================================================== */
+
+        .role-container {
+            display: flex;
+
+            gap: 6px;
+
+            margin-bottom: 22px;
+
+            background: #EEF3F8;
+            border: 1px solid #E1E9F1;
+
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+
+        .role-button {
+            flex: 1;
+
+            border: none;
+            background: transparent;
+
+            color: #5b6f82;
+
+            padding: 9px 10px;
+
+            border-radius: 8px;
+
+            cursor: pointer;
+
+            font-size: 12px;
+            font-weight: 700;
+            font-family: inherit;
+
+            transition: 0.2s;
+        }
+
+
+        .role-button:hover {
+            background: rgba(19, 82, 125, 0.08);
+            color: #13527D;
+        }
+
+
+        .role-button.active {
+            background: #13527D;
+            color: white;
+            box-shadow: 0 4px 12px rgba(19, 82, 125, 0.35);
+        }
+
+
+        /* =====================================================
+           FORM
+        ===================================================== */
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            color: #3d5266;
+            margin-bottom: 6px;
+        }
+
+
+        .input-box {
+            width: 100%;
+            height: 44px;
+
+            border: 1.5px solid #D8E2EC;
+            background: #F7FAFD;
+
+            border-radius: 11px;
+
+            padding: 0 14px;
+
+            font-size: 13px;
+            font-weight: 600;
+            color: #0E3D5D;
+            font-family: inherit;
+
+            outline: none;
+            transition: 0.2s;
+        }
+
+
+        .input-box::placeholder {
+            font-weight: 500;
+            color: #93a5b6;
+        }
+
+
+        .input-box:focus {
+            border-color: #13527D;
+            background: #fff;
+
+            box-shadow:
+                0 0 0 3px rgba(19, 82, 125, 0.12);
+        }
+
+
+        /* =====================================================
+           LOGIN BUTTON
+        ===================================================== */
+
+        .login-button {
+            width: 100%;
+
+            height: 46px;
+
+            border: none;
+
+            border-radius: 12px;
+
+            background: linear-gradient(135deg, #13527D 0%, #1E7FA8 100%);
+
+            color: white;
+
+            font-size: 14px;
+            font-weight: 800;
+            font-family: inherit;
+            letter-spacing: 0.3px;
+
+            cursor: pointer;
+
+            margin-top: 12px;
+
+            transition: 0.2s;
+
+            box-shadow: 0 8px 20px rgba(19, 82, 125, 0.35);
+        }
+
+
+        .login-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 26px rgba(19, 82, 125, 0.45);
+        }
+
+
+        .login-button:active {
+            transform: translateY(0);
+        }
+
+
+        /* =====================================================
+           ERROR
+        ===================================================== */
+
+        .error-message {
+            background: #FEF0F0;
+
+            color: #c0392b;
+
+            border: 1px solid #F6C9C9;
+            border-left: 4px solid #E05252;
+
+            padding: 11px 13px;
+
+            border-radius: 10px;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            margin-bottom: 15px;
+        }
+
+
+        .success-message {
+            background: #EAF9F0;
+
+            color: #1e7a3c;
+
+            border: 1px solid #B9E6C9;
+            border-left: 4px solid #2FA95C;
+
+            padding: 11px 13px;
+
+            border-radius: 10px;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            margin-bottom: 15px;
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .access-text {
+            text-align: center;
+
+            font-size: 11px;
+            font-weight: 600;
+
+            color: #93a5b6;
+
+            margin-top: 20px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE MOBILE
+        ===================================================== */
+
+        @media (max-width: 700px) {
+
+            body {
+                padding: 15px;
+            }
+
+
+            .login-container {
+                width: 100%;
+
+                min-height: auto;
+
+                display: block;
+
+                border-radius: 20px;
+            }
+
+
+            .left-side {
+                width: 100%;
+
+                min-height: 260px;
+
+                padding: 32px 28px;
+
+                justify-content: center;
+            }
+
+
+            .feature-list {
+                margin-top: 18px;
+            }
+
+
+            .logo h1 {
+                font-size: 24px;
+            }
+
+
+            .description {
+                font-size: 11px;
+            }
+
+
+            .right-side {
+                width: 100%;
+
+                padding: 30px 25px;
+            }
+
+
+            .login-title {
+                font-size: 22px;
+            }
+
+
+            .role-button {
+                padding: 9px 6px;
+                font-size: 11px;
+            }
+
+        }
     </style>
+
 </head>
-<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-sm max-w-sm w-full p-8 border border-slate-200">
-        <!-- Logo & Branding -->
-        <div class="text-center mb-6">
-            <div class="w-14 h-14 bg-[#13527D] text-white font-black text-2xl rounded-2xl mx-auto flex items-center justify-center mb-3 shadow-md">
-                BN
-            </div>
-            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Binaro Learning & Assessment</h1>
-            <p class="text-xs text-slate-500 mt-0.5">SDN Kalitapen 01</p>
-        </div>
 
-        @if(session('error'))
-        <div class="mb-4 p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl flex items-center gap-2">
-            <i class="fas fa-circle-exclamation text-rose-500 shrink-0"></i>
-            <span>{{ session('error') }}</span>
-        </div>
-        @endif
 
-        @if(session('success'))
-        <div class="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl flex items-center gap-2">
-            <i class="fas fa-circle-check text-emerald-500 shrink-0"></i>
-            <span>{{ session('success') }}</span>
-        </div>
-        @endif
+<body>
 
-        <!-- Smart Auth Form (PRD Section 3) -->
-        <form action="{{ route('login.post') }}" method="POST" id="loginForm" class="space-y-4 text-xs">
-            @csrf
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <label class="font-bold text-slate-700">NISN / NIP / Username</label>
-                    <span id="role-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 transition">
-                        Deteksi Otomatis
-                    </span>
+
+    <div class="login-container">
+
+
+        <!-- =====================================================
+             BAGIAN KIRI
+        ====================================================== -->
+
+        <div class="left-side">
+
+            <div class="logo">
+
+                <div class="logo-icon">
+                    B
                 </div>
 
-                <div class="relative">
-                    <input type="text" id="username" name="username" required maxlength="100" autocomplete="username"
-                           placeholder="10 digit (Siswa) / 18 digit (Guru) / Username"
-                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-[#13527D] focus:bg-white text-xs transition">
-                    <div id="input-icon" class="absolute right-3 top-3 text-slate-400 text-xs">
-                        <i class="fas fa-id-card"></i>
-                    </div>
+                <div>
+                    <h1>Binaro</h1>
+                    <p>SD Negeri Kalitapen 1</p>
                 </div>
 
-                <!-- Helper Hint with Digit Count -->
-                <div class="flex items-center justify-between text-[11px] text-slate-400 mt-1.5 px-0.5">
-                    <span id="role-hint">Ketik nomor identitas atau nama pengguna.</span>
-                    <span id="digit-counter" class="font-mono text-[10px] text-slate-400 hidden">0 digit</span>
-                </div>
             </div>
 
-            <div>
-                <label class="block font-bold text-slate-700 mb-1">Kata Sandi</label>
-                <div class="relative">
-                    <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="Masukkan kata sandi akun"
-                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-[#13527D] focus:bg-white text-xs transition">
-                    <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 text-xs">
-                        <i id="eye-icon" class="fas fa-eye"></i>
+
+            <div class="description">
+
+                Selamat datang di Binaro! Silakan login untuk mengakses jadwal mata pelajaran,
+                materi pembelajaran, notifikasi PR, dan ujian dengan lebih terstruktur dan efisien!
+
+            </div>
+
+
+            <ul class="feature-list">
+                <li>
+                    <span class="feature-badge">📅</span>
+                    Jadwal & Absensi Terpadu
+                </li>
+                <li>
+                    <span class="feature-badge">📚</span>
+                    Materi & Notifikasi PR
+                </li>
+                <li>
+                    <span class="feature-badge">📝</span>
+                    Ujian Online & Nilai
+                </li>
+            </ul>
+
+        </div>
+
+
+
+        <!-- =====================================================
+             BAGIAN KANAN
+        ====================================================== -->
+
+        <div class="right-side">
+
+
+            <div class="login-title">
+                Selamat Datang 👋
+            </div>
+
+            <div class="login-subtitle">
+                Masuk untuk melanjutkan ke portal pembelajaran
+            </div>
+
+
+            <!-- =================================================
+                 ERROR
+            ================================================== -->
+
+            @if (session('error'))
+
+                <div class="error-message">
+
+                    {{ session('error') }}
+
+                </div>
+
+            @endif
+
+            @if (session('success'))
+
+                <div class="success-message">
+
+                    {{ session('success') }}
+
+                </div>
+
+            @endif
+
+            @if ($errors->any())
+
+                <div class="error-message">
+
+                    {{ $errors->first() }}
+
+                </div>
+
+            @endif
+
+
+
+            <!-- =================================================
+                 FORM LOGIN
+            ================================================== -->
+
+            <form action="{{ route('login.post') }}" method="POST">
+
+                @csrf
+
+
+                <!-- =============================================
+                     ROLE
+                ============================================== -->
+
+                <div class="role-container">
+
+
+                    <button type="button" class="role-button active" data-role="siswa" onclick="changeRole('siswa')">
+                        Siswa
                     </button>
+
+
+                    <button type="button" class="role-button" data-role="guru" onclick="changeRole('guru')">
+                        Guru
+                    </button>
+
+
+                    <button type="button" class="role-button" data-role="admin" onclick="changeRole('admin')">
+                        Admin
+                    </button>
+
                 </div>
+
+
+                <!--
+                    Role yang dipilih akan dikirim
+                    ke LoginController
+                -->
+
+                <input type="hidden" name="role" id="role" value="{{ old('role', 'siswa') }}">
+
+
+                <!-- =============================================
+                     USERNAME / NAMA
+                ============================================== -->
+
+                <div class="form-group" id="username-group" hidden>
+
+                    <label class="form-label" for="username">Nama / NIP Admin</label>
+                    <input type="text" name="username" id="username" class="input-box" placeholder="Nama atau NIP Admin"
+                        value="{{ old('username') }}">
+
+                </div>
+
+
+                <!-- =============================================
+                     IDENTITAS
+                ============================================== -->
+
+                <div class="form-group" id="identity-group">
+
+                    <label class="form-label" for="identity" id="identity-label">NISN Siswa</label>
+                    <input type="text" name="identity" id="identity" class="input-box" placeholder="NISN"
+                        value="{{ old('identity') }}" required>
+
+                </div>
+
+
+                <!-- =============================================
+                     PASSWORD
+                ============================================== -->
+
+                <div class="form-group">
+
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" name="password" id="password" class="input-box" placeholder="••••••••" required>
+
+                </div>
+
+
+                <!-- =============================================
+                     LOGIN BUTTON
+                ============================================== -->
+
+                <button type="submit" class="login-button">
+                    Masuk Sekarang →
+                </button>
+
+
+            </form>
+
+
+            <div class="access-text" id="access-text">
+                🔒 Akses Untuk Siswa • SDN Kalitapen 1
             </div>
 
-            <button type="submit" id="submitBtn" class="w-full py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white font-bold rounded-xl transition shadow-sm flex items-center justify-center gap-2">
-                <i class="fas fa-right-to-bracket"></i> Masuk ke Sistem
-            </button>
-        </form>
 
-        <!-- Quick 1-Click Auto Fill Demo Accounts -->
-        <div class="mt-4 pt-3 border-t border-slate-100">
-            <span class="block text-[10px] font-bold text-slate-400 text-center uppercase tracking-wider mb-2">
-                Pintasan Isi Otomatis Akun Demo
-            </span>
-            <div class="grid grid-cols-3 gap-1.5">
-                <button type="button" onclick="fillDemo('siswa')" title="Siswa: 0012345678 / siswa123" class="p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-emerald-50 hover:border-emerald-300 text-[11px] font-bold text-slate-700 transition flex flex-col items-center gap-0.5 group">
-                    <span class="text-xs group-hover:scale-110 transition">🎓</span>
-                    <span>Siswa</span>
-                    <span class="text-[9px] text-slate-400 font-normal">siswa123</span>
-                </button>
-                <button type="button" onclick="fillDemo('guru')" title="Guru: 198501012010012001 / guru123" class="p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-sky-50 hover:border-sky-300 text-[11px] font-bold text-slate-700 transition flex flex-col items-center gap-0.5 group">
-                    <span class="text-xs group-hover:scale-110 transition">👨‍🏫</span>
-                    <span>Guru</span>
-                    <span class="text-[9px] text-slate-400 font-normal">guru123</span>
-                </button>
-                <button type="button" onclick="fillDemo('admin')" title="Admin: admin / admin123" class="p-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-amber-50 hover:border-amber-300 text-[11px] font-bold text-slate-700 transition flex flex-col items-center gap-0.5 group">
-                    <span class="text-xs group-hover:scale-110 transition">🛡️</span>
-                    <span>Admin</span>
-                    <span class="text-[9px] text-slate-400 font-normal">admin123</span>
-                </button>
-            </div>
         </div>
 
-        <!-- Security Guardrail Badge (PRD 3 Anti-Bruteforce) -->
-        <div class="mt-5 pt-3 border-t border-slate-100 flex flex-col items-center gap-1.5 text-center">
-            <div class="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400">
-                <i class="fas fa-shield-halved text-emerald-600"></i>
-                <span>Anti-Bruteforce: Max 5x coba / 15 menit</span>
-            </div>
-            <div class="text-[10px] text-slate-400">
-                SDN Kalitapen 01 &bull; Binaro Smart Auth
-            </div>
-        </div>
     </div>
 
-    <script>
-        const input = document.getElementById('username');
-        const badge = document.getElementById('role-badge');
-        const hint = document.getElementById('role-hint');
-        const counter = document.getElementById('digit-counter');
-        const icon = document.getElementById('input-icon');
 
-        // 1-Click Auto-Fill Demo
-        function fillDemo(role) {
-            const u = document.getElementById('username');
-            const p = document.getElementById('password');
-            if (role === 'siswa') {
-                u.value = '0012345678';
-                p.value = 'siswa123';
-            } else if (role === 'guru') {
-                u.value = '198501012010012001';
-                p.value = 'guru123';
-            } else if (role === 'admin') {
-                u.value = 'admin';
-                p.value = 'admin123';
+
+    <!-- =========================================================
+         JAVASCRIPT ROLE
+    ========================================================= -->
+
+    <script>
+
+        function changeRole(role) {
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Simpan role
+            |--------------------------------------------------------------------------
+            */
+
+            document.getElementById('role').value = role;
+            document.getElementById('identity').required = role !== 'admin';
+            document.getElementById('identity-group').hidden = role === 'admin';
+            document.getElementById('username').required = role === 'admin';
+            document.getElementById('username-group').hidden = role !== 'admin';
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Ambil semua tombol role
+            |--------------------------------------------------------------------------
+            */
+
+            const buttons =
+                document.querySelectorAll('.role-button');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Hilangkan active dari semua tombol
+            |--------------------------------------------------------------------------
+            */
+
+            buttons.forEach(function (button) {
+
+                button.classList.remove('active');
+
+            });
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Aktifkan tombol yang dipilih
+            |--------------------------------------------------------------------------
+            */
+
+            const activeButton =
+                document.querySelector(
+                    '.role-button[data-role="' + role + '"]'
+                );
+
+
+            if (activeButton) {
+
+                activeButton.classList.add('active');
+
             }
-            u.dispatchEvent(new Event('input', { bubbles: true }));
-            u.dispatchEvent(new Event('change', { bubbles: true }));
-            p.dispatchEvent(new Event('input', { bubbles: true }));
-            p.dispatchEvent(new Event('change', { bubbles: true }));
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | Ambil input
+            |--------------------------------------------------------------------------
+            */
+
+            const username =
+                document.getElementById('username');
+
+            const identity =
+                document.getElementById('identity');
+
+            const accessText =
+                document.getElementById('access-text');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | SISWA
+            |--------------------------------------------------------------------------
+            */
+
+            if (role === 'siswa') {
+
+                identity.placeholder =
+                    'Contoh: 0012345678';
+
+                document.getElementById('identity-label').innerText =
+                    'NISN Siswa';
+
+                accessText.innerText =
+                    '🔒 Akses Untuk Siswa • SDN Kalitapen 1';
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | GURU
+            |--------------------------------------------------------------------------
+            */
+
+            else if (role === 'guru') {
+
+                identity.placeholder =
+                    'Contoh: 198501012010012001';
+
+                document.getElementById('identity-label').innerText =
+                    'NIP Guru';
+
+                accessText.innerText =
+                    '🔒 Akses Untuk Guru • SDN Kalitapen 1';
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ADMIN
+            |--------------------------------------------------------------------------
+            */
+
+            else if (role === 'admin') {
+
+                username.placeholder =
+                    'Nama atau NIP Admin';
+
+                accessText.innerText =
+                    '🔒 Akses Untuk Admin • SDN Kalitapen 1';
+
+            }
+
         }
 
-        // JS Input Mask & Real-time Digit Inspection (PRD Section 3)
-        input.addEventListener('input', function(e) {
-            let val = this.value;
 
-            // If user starts with digit, enforce digits only
-            if (/^\d/.test(val)) {
-                val = val.replace(/\D/g, ''); // strip non-digits
-                if (val.length > 18) {
-                    val = val.slice(0, 18); // limit to 18 digits (NIP max)
-                }
-                this.value = val;
-            }
+        /*
+        |--------------------------------------------------------------------------
+        | TAMPILKAN ROLE SETELAH VALIDASI ERROR
+        |--------------------------------------------------------------------------
+        */
 
-            const len = val.length;
+        document.addEventListener('DOMContentLoaded', function () {
 
-            if (/^\d+$/.test(val)) {
-                counter.classList.remove('hidden');
-                counter.textContent = `${len} digit`;
+            const currentRole =
+                document.getElementById('role').value;
 
-                if (len === 10) {
-                    badge.textContent = 'Role: SISWA';
-                    badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
-                    hint.textContent = '10 Digit NISN Terpenuhi (Entitas Siswa)';
-                    icon.innerHTML = '<i class="fas fa-graduation-cap text-emerald-600"></i>';
-                } else if (len === 18) {
-                    badge.textContent = 'Role: GURU';
-                    badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700';
-                    hint.textContent = '18 Digit NIP Terpenuhi (Entitas Guru)';
-                    icon.innerHTML = '<i class="fas fa-chalkboard-user text-emerald-600"></i>';
-                } else {
-                    badge.textContent = 'Angka Identitas';
-                    badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-[#13527D]';
-                    hint.textContent = len < 10 ? 'Menuju NISN Siswa (10 digit)' : 'Menuju NIP Guru (18 digit)';
-                    icon.innerHTML = '<i class="fas fa-hashtag text-[#13527D]"></i>';
-                }
-            } else if (len > 0) {
-                counter.classList.add('hidden');
-                badge.textContent = 'Role: ADMIN';
-                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#13527D]/10 text-[#13527D]';
-                hint.textContent = 'Username Terdeteksi (Entitas Administrator)';
-                icon.innerHTML = '<i class="fas fa-user-shield text-[#13527D]"></i>';
-            } else {
-                counter.classList.add('hidden');
-                badge.textContent = 'Deteksi Otomatis';
-                badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-500';
-                hint.textContent = 'Ketik nomor identitas atau nama pengguna.';
-                icon.innerHTML = '<i class="fas fa-id-card text-slate-400"></i>';
-            }
+            changeRole(currentRole);
+
         });
 
-        function togglePasswordVisibility() {
-            const pwd = document.getElementById('password');
-            const eye = document.getElementById('eye-icon');
-            if (pwd.type === 'password') {
-                pwd.type = 'text';
-                eye.classList.remove('fa-eye');
-                eye.classList.add('fa-eye-slash');
-            } else {
-                pwd.type = 'password';
-                eye.classList.remove('fa-eye-slash');
-                eye.classList.add('fa-eye');
-            }
-        }
     </script>
+
+
 </body>
+
 </html>

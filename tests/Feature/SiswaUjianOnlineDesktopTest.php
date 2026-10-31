@@ -17,8 +17,11 @@ class SiswaUjianOnlineDesktopTest extends TestCase
     use RefreshDatabase;
 
     protected $guru;
+
     protected $mapel;
+
     protected $kelas;
+
     protected $siswa;
 
     protected function setUp(): void
@@ -52,24 +55,24 @@ class SiswaUjianOnlineDesktopTest extends TestCase
     public function test_siswa_can_view_desktop_ujian_index_with_teacher_inputted_data()
     {
         $quiz = Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Penilaian Tengah Semester IPA',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Penilaian Tengah Semester IPA',
             'tingkat_level' => 'susah',
-            'durasi_menit'  => 75,
-            'target_tipe'   => 'semua',
-            'deskripsi'     => 'Ujian materi ekosistem dan rantai makanan.',
+            'durasi_menit' => 75,
+            'target_tipe' => 'semua',
+            'deskripsi' => 'Ujian materi ekosistem dan rantai makanan.',
         ]);
 
         SoalQuiz::create([
-            'id_quiz'       => $quiz->id_quiz,
-            'pertanyaan'    => 'Organisme yang berperan sebagai produsen adalah?',
-            'opsi_a'        => 'Tumbuhan hijau',
-            'opsi_b'        => 'Kelinci',
-            'opsi_c'        => 'Ular',
-            'opsi_d'        => 'Elang',
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Organisme yang berperan sebagai produsen adalah?',
+            'opsi_a' => 'Tumbuhan hijau',
+            'opsi_b' => 'Kelinci',
+            'opsi_c' => 'Ular',
+            'opsi_d' => 'Elang',
             'kunci_jawaban' => 'A',
-            'bobot_nilai'   => 20,
+            'bobot_nilai' => 20,
         ]);
 
         $response = $this->withSession(['user_id' => $this->siswa->id_siswa, 'user_type' => 'siswa', 'user_name' => $this->siswa->nm_siswa])
@@ -90,46 +93,46 @@ class SiswaUjianOnlineDesktopTest extends TestCase
     public function test_siswa_plays_cbt_exam_and_sees_all_teacher_questions_without_dummy_relics()
     {
         $quiz = Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Ulangan Harian Bab Gaya',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ulangan Harian Bab Gaya',
             'tingkat_level' => 'sedang',
-            'durasi_menit'  => 45,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 45,
+            'target_tipe' => 'semua',
         ]);
 
         // Input 3 distinct questions from teacher
         $soal1 = SoalQuiz::create([
-            'id_quiz'       => $quiz->id_quiz,
-            'pertanyaan'    => 'Apa satuan gaya dalam SI?',
-            'opsi_a'        => 'Newton (N)',
-            'opsi_b'        => 'Joule (J)',
-            'opsi_c'        => 'Watt (W)',
-            'opsi_d'        => 'Pascal (Pa)',
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Apa satuan gaya dalam SI?',
+            'opsi_a' => 'Newton (N)',
+            'opsi_b' => 'Joule (J)',
+            'opsi_c' => 'Watt (W)',
+            'opsi_d' => 'Pascal (Pa)',
             'kunci_jawaban' => 'A',
-            'bobot_nilai'   => 10,
+            'bobot_nilai' => 10,
         ]);
 
         $soal2 = SoalQuiz::create([
-            'id_quiz'       => $quiz->id_quiz,
-            'pertanyaan'    => 'Gaya yang terjadi ketika dua permukaan saling bersentuhan disebut?',
-            'opsi_a'        => 'Gaya Gravitasi',
-            'opsi_b'        => 'Gaya Gesek',
-            'opsi_c'        => 'Gaya Magnet',
-            'opsi_d'        => 'Gaya Listrik',
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Gaya yang terjadi ketika dua permukaan saling bersentuhan disebut?',
+            'opsi_a' => 'Gaya Gravitasi',
+            'opsi_b' => 'Gaya Gesek',
+            'opsi_c' => 'Gaya Magnet',
+            'opsi_d' => 'Gaya Listrik',
             'kunci_jawaban' => 'B',
-            'bobot_nilai'   => 15,
+            'bobot_nilai' => 15,
         ]);
 
         $soal3 = SoalQuiz::create([
-            'id_quiz'       => $quiz->id_quiz,
-            'pertanyaan'    => 'Buah kelapa jatuh dari pohon ke tanah karena gaya?',
-            'opsi_a'        => 'Gaya Otot',
-            'opsi_b'        => 'Gaya Pegas',
-            'opsi_c'        => 'Gaya Gravitasi Bumi',
-            'opsi_d'        => 'Gaya Mesin',
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Buah kelapa jatuh dari pohon ke tanah karena gaya?',
+            'opsi_a' => 'Gaya Otot',
+            'opsi_b' => 'Gaya Pegas',
+            'opsi_c' => 'Gaya Gravitasi Bumi',
+            'opsi_d' => 'Gaya Mesin',
             'kunci_jawaban' => 'C',
-            'bobot_nilai'   => 10,
+            'bobot_nilai' => 10,
         ]);
 
         $session = ['user_id' => $this->siswa->id_siswa, 'user_type' => 'siswa', 'user_name' => $this->siswa->nm_siswa];
@@ -159,34 +162,34 @@ class SiswaUjianOnlineDesktopTest extends TestCase
     public function test_siswa_submits_exam_and_views_desktop_result_review()
     {
         $quiz = Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Kuis Ekosistem',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Kuis Ekosistem',
             'tingkat_level' => 'sedang',
-            'durasi_menit'  => 30,
-            'target_tipe'   => 'semua',
+            'durasi_menit' => 30,
+            'target_tipe' => 'semua',
         ]);
 
         $soal1 = SoalQuiz::create([
-            'id_quiz'       => $quiz->id_quiz,
-            'pertanyaan'    => 'Rantai makanan dimulai dari?',
-            'opsi_a'        => 'Produsen',
-            'opsi_b'        => 'Konsumen 1',
-            'opsi_c'        => 'Pengurai',
-            'opsi_d'        => 'Karnivora',
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Rantai makanan dimulai dari?',
+            'opsi_a' => 'Produsen',
+            'opsi_b' => 'Konsumen 1',
+            'opsi_c' => 'Pengurai',
+            'opsi_d' => 'Karnivora',
             'kunci_jawaban' => 'A',
-            'bobot_nilai'   => 10,
+            'bobot_nilai' => 10,
         ]);
 
         $soal2 = SoalQuiz::create([
-            'id_quiz'       => $quiz->id_quiz,
-            'pertanyaan'    => 'Pengurai dalam ekosistem contohnya adalah?',
-            'opsi_a'        => 'Singa',
-            'opsi_b'        => 'Bakteri dan Jamur',
-            'opsi_c'        => 'Padi',
-            'opsi_d'        => 'Belalang',
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Pengurai dalam ekosistem contohnya adalah?',
+            'opsi_a' => 'Singa',
+            'opsi_b' => 'Bakteri dan Jamur',
+            'opsi_c' => 'Padi',
+            'opsi_d' => 'Belalang',
             'kunci_jawaban' => 'B',
-            'bobot_nilai'   => 10,
+            'bobot_nilai' => 10,
         ]);
 
         $session = ['user_id' => $this->siswa->id_siswa, 'user_type' => 'siswa', 'user_name' => $this->siswa->nm_siswa];
@@ -209,9 +212,9 @@ class SiswaUjianOnlineDesktopTest extends TestCase
         $this->assertNotNull($hasil);
         $this->assertEquals(1, $hasil->jumlah_benar);
         $this->assertEquals(1, $hasil->jumlah_salah);
-        $this->assertEquals(50.00, (float)$hasil->nilai_akhir);
+        $this->assertEquals(50.00, (float) $hasil->nilai_akhir);
         // By default, online exam score is NOT yet published to the student
-        $this->assertFalse((bool)$hasil->status_kirim);
+        $this->assertFalse((bool) $hasil->status_kirim);
 
         // 1. Result view before teacher publishes: Score number and review are held
         $resultRes = $this->withSession($session)
@@ -228,7 +231,7 @@ class SiswaUjianOnlineDesktopTest extends TestCase
 
         $kirimRes->assertSessionHas('success');
         $hasil->refresh();
-        $this->assertTrue((bool)$hasil->status_kirim);
+        $this->assertTrue((bool) $hasil->status_kirim);
 
         // 3. Result view after teacher publishes: Score, grade status, and review are now visible!
         $publishedRes = $this->withSession($session)
@@ -245,33 +248,33 @@ class SiswaUjianOnlineDesktopTest extends TestCase
     public function test_siswa_can_choose_difficulty_level_and_get_filtered_questions()
     {
         $quiz = Quiz::create([
-            'id_guru'       => $this->guru->id_guru,
-            'id_mapel'      => $this->mapel->id_mapel,
-            'judul_quiz'    => 'Ujian Sains Bertingkat',
-            'durasi_menit'  => 60,
-            'target_tipe'   => 'semua',
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Sains Bertingkat',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
         ]);
 
         $soalMudah = SoalQuiz::create([
-            'id_quiz'          => $quiz->id_quiz,
-            'pertanyaan'       => 'Soal Mudah: Apa warna daun pada umumnya?',
-            'opsi_a'           => 'Hijau',
-            'opsi_b'           => 'Biru',
-            'opsi_c'           => 'Merah',
-            'opsi_d'           => 'Hitam',
-            'kunci_jawaban'    => 'A',
-            'tingkat_kesulitan'=> 'mudah',
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Soal Mudah: Apa warna daun pada umumnya?',
+            'opsi_a' => 'Hijau',
+            'opsi_b' => 'Biru',
+            'opsi_c' => 'Merah',
+            'opsi_d' => 'Hitam',
+            'kunci_jawaban' => 'A',
+            'tingkat_kesulitan' => 'mudah',
         ]);
 
         $soalSulit = SoalQuiz::create([
-            'id_quiz'          => $quiz->id_quiz,
-            'pertanyaan'       => 'Soal Sulit: Proses fotolisis air terjadi pada tahap?',
-            'opsi_a'           => 'Reaksi Terang',
-            'opsi_b'           => 'Reaksi Gelap',
-            'opsi_c'           => 'Siklus Calvin',
-            'opsi_d'           => 'Glikolisis',
-            'kunci_jawaban'    => 'A',
-            'tingkat_kesulitan'=> 'sulit',
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Soal Sulit: Proses fotolisis air terjadi pada tahap?',
+            'opsi_a' => 'Reaksi Terang',
+            'opsi_b' => 'Reaksi Gelap',
+            'opsi_c' => 'Siklus Calvin',
+            'opsi_d' => 'Glikolisis',
+            'kunci_jawaban' => 'A',
+            'tingkat_kesulitan' => 'sulit',
         ]);
 
         $session = ['user_id' => $this->siswa->id_siswa, 'user_type' => 'siswa', 'user_name' => $this->siswa->nm_siswa];
@@ -312,7 +315,7 @@ class SiswaUjianOnlineDesktopTest extends TestCase
         $submitRes = $this->withSession($session)
             ->post(route('siswa.quiz.submit', $quiz->id_quiz), [
                 'soal_ids' => [$soalMudah->id_soal],
-                'jawaban'  => [
+                'jawaban' => [
                     $soalMudah->id_soal => 'A',
                 ],
             ]);
@@ -326,7 +329,7 @@ class SiswaUjianOnlineDesktopTest extends TestCase
         $this->assertNotNull($hasil);
         $this->assertEquals(1, $hasil->jumlah_benar);
         $this->assertEquals(0, $hasil->jumlah_salah);
-        $this->assertEquals(100.00, (float)$hasil->nilai_akhir);
+        $this->assertEquals(100.00, (float) $hasil->nilai_akhir);
 
         // Teacher publishes score
         $hasil->update(['status_kirim' => true]);
@@ -338,4 +341,3 @@ class SiswaUjianOnlineDesktopTest extends TestCase
         $resultRes->assertSee('🟢 Mudah');
     }
 }
-

@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Rpp extends Model
 {
     protected $table = 'rpp';
+
     protected $primaryKey = 'id_rpp';
+
     public $timestamps = true;
 
     protected $fillable = [

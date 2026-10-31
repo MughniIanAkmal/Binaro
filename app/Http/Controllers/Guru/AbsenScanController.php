@@ -18,7 +18,7 @@ class AbsenScanController extends Controller
         $hariIni = Absen::with('siswa.kelas')
             ->where(function ($q) use ($today) {
                 $q->where('tanggal', $today)
-                  ->orWhereDate('waktu_absen', $today);
+                    ->orWhereDate('waktu_absen', $today);
             })
             ->orderByDesc('waktu_absen')
             ->get();
@@ -45,7 +45,7 @@ class AbsenScanController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'kode'   => 'required|string|max:50',
+            'kode' => 'required|string|max:50',
             'metode' => 'nullable|in:scan,manual',
         ]);
 
@@ -61,7 +61,7 @@ class AbsenScanController extends Controller
 
         if (! $barcode || ! $barcode->siswa) {
             return response()->json([
-                'status'  => 'tidak_dikenal',
+                'status' => 'tidak_dikenal',
                 'message' => 'Kode tidak dikenal. Pastikan kartu siswa masih berlaku.',
             ], 404);
         }
@@ -116,29 +116,29 @@ class AbsenScanController extends Controller
             }
 
             return response()->json([
-                'status'  => 'duplikat',
+                'status' => 'duplikat',
                 'success' => false,
                 'message' => "{$siswa->nm_siswa} sudah absen hari ini.",
             ], 200);
         }
 
         $absenData = Absen::create([
-            'id_guru'     => $guruId,
-            'id_siswa'    => $siswa->id_siswa,
-            'id_barcode'  => $barcode->id_barcode,
-            'metode'      => $metodeVal,
-            'status'      => 'Hadir',
-            'keterangan'  => $keterangan,
-            'tanggal'     => $today,
+            'id_guru' => $guruId,
+            'id_siswa' => $siswa->id_siswa,
+            'id_barcode' => $barcode->id_barcode,
+            'metode' => $metodeVal,
+            'status' => 'Hadir',
+            'keterangan' => $keterangan,
+            'tanggal' => $today,
             'waktu_absen' => $waktu,
         ]);
 
         return response()->json([
-            'status'  => 'ok',
+            'status' => 'ok',
             'success' => true,
             'message' => "Hadir: {$siswa->nm_siswa}",
-            'siswa'   => ['nama' => $siswa->nm_siswa, 'kelas' => $siswa->nama_kelas],
-            'jam'     => $waktu->format('H:i'),
+            'siswa' => ['nama' => $siswa->nm_siswa, 'kelas' => $siswa->nama_kelas],
+            'jam' => $waktu->format('H:i'),
             'statusAbsen' => $keterangan === 'Terlambat' ? 'Terlambat' : 'Hadir',
         ]);
     }
@@ -152,14 +152,14 @@ class AbsenScanController extends Controller
     public function storeIzin(Request $request)
     {
         $data = $request->validate([
-            'nama'       => 'required|string|max:100',
-            'jenis'      => 'required|in:Sakit,Izin',
+            'nama' => 'required|string|max:100',
+            'jenis' => 'required|in:Sakit,Izin',
             'keterangan' => 'nullable|string|max:255',
         ]);
 
         if ($data['jenis'] === 'Izin' && trim($data['keterangan'] ?? '') === '') {
             return response()->json([
-                'status'  => 'invalid',
+                'status' => 'invalid',
                 'message' => 'Anda memilih keterangan lain: wajib mengisi kolom keterangan.',
             ], 422);
         }
@@ -178,8 +178,9 @@ class AbsenScanController extends Controller
             if ($cocok->isEmpty()) {
                 $mirip = Siswa::where('nm_siswa', 'like', "%{$namaInput}%")->take(5)->get();
                 $saran = $mirip->map(fn ($s) => $s->nm_siswa.' ('.$s->nisn.')')->join(', ');
+
                 return response()->json([
-                    'status'  => 'tidak_dikenal',
+                    'status' => 'tidak_dikenal',
                     'message' => 'Nama tidak terdaftar. Isi ulang nama dengan benar.'
                         .($saran ? ' Maksud Anda: '.$saran.'?' : ''),
                 ], 404);
@@ -187,8 +188,9 @@ class AbsenScanController extends Controller
 
             if ($cocok->count() > 1) {
                 $daftar = $cocok->map(fn ($s) => $s->nm_siswa.' ('.$s->nisn.')')->join(', ');
+
                 return response()->json([
-                    'status'  => 'ambigu',
+                    'status' => 'ambigu',
                     'message' => 'Ada '.$cocok->count().' siswa bernama "'.$cocok->first()->nm_siswa
                         .'". Tulis "Nama (NISN)", contoh: '.$cocok->first()->nm_siswa.' ('.$cocok->first()->nisn
                         .'). Pilihan: '.$daftar,
@@ -229,29 +231,29 @@ class AbsenScanController extends Controller
             }
 
             return response()->json([
-                'status'  => 'duplikat',
+                'status' => 'duplikat',
                 'success' => false,
                 'message' => "{$siswa->nm_siswa} sudah tercatat hari ini ({$existing->status}).",
             ], 200);
         }
 
         Absen::create([
-            'id_guru'     => $this->resolveGuruId($request),
-            'id_siswa'    => $siswa->id_siswa,
-            'id_barcode'  => null,
-            'metode'      => 'manual_guru',
-            'status'      => $status,
-            'keterangan'  => $keterangan,
-            'tanggal'     => $today,
+            'id_guru' => $this->resolveGuruId($request),
+            'id_siswa' => $siswa->id_siswa,
+            'id_barcode' => null,
+            'metode' => 'manual_guru',
+            'status' => $status,
+            'keterangan' => $keterangan,
+            'tanggal' => $today,
             'waktu_absen' => $waktu,
         ]);
 
         return response()->json([
-            'status'  => 'ok',
+            'status' => 'ok',
             'success' => true,
             'message' => "{$status} tercatat: {$siswa->nm_siswa}",
-            'siswa'   => ['nama' => $siswa->nm_siswa, 'kelas' => $siswa->nama_kelas],
-            'jam'     => $waktu->format('H:i'),
+            'siswa' => ['nama' => $siswa->nm_siswa, 'kelas' => $siswa->nama_kelas],
+            'jam' => $waktu->format('H:i'),
             'statusAbsen' => $status,
         ]);
     }

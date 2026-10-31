@@ -11,7 +11,7 @@ return new class extends Migration
         if (Schema::getConnection()->getDriverName() !== 'mysql') {
             return;
         }
-        if (!Schema::hasTable('hasil_kuis_siswa') || !Schema::hasColumn('hasil_kuis_siswa', 'id_hasil')) {
+        if (! Schema::hasTable('hasil_kuis_siswa') || ! Schema::hasColumn('hasil_kuis_siswa', 'id_hasil')) {
             return;
         }
 
@@ -23,7 +23,7 @@ return new class extends Migration
             fn ($index) => $index->COLUMN_NAME === 'id_hasil' && (int) $index->SEQ_IN_INDEX === 1
         );
 
-        if (!$hasLeadingIdIndex) {
+        if (! $hasLeadingIdIndex) {
             $hasPrimaryKey = collect($indexes)->contains(fn ($index) => $index->INDEX_NAME === 'PRIMARY');
             $keyType = $hasPrimaryKey ? 'UNIQUE KEY `hasil_kuis_siswa_id_hasil_unique`' : 'PRIMARY KEY';
             DB::statement("ALTER TABLE `hasil_kuis_siswa` ADD {$keyType} (`id_hasil`)");

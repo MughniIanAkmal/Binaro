@@ -2,11 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Absen;
 use App\Models\Barcode;
-use App\Models\Guru;
-use App\Models\MataPelajaran;
-use App\Models\Rpp;
 use App\Models\Siswa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;

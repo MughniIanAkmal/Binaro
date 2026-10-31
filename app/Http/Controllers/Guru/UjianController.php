@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Guru\SoalUjianRequest;
+use App\Http\Requests\Guru\StoreUjianRequest;
+use App\Http\Requests\Guru\UpdateUjianRequest;
 use App\Models\Guru;
 use App\Models\JadwalMataPelajaran;
 use App\Models\Kelas;
@@ -11,6 +14,7 @@ use App\Models\Quiz;
 use App\Models\Siswa;
 use App\Models\SoalQuiz;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,21 +28,21 @@ class UjianController extends Controller
         $guru = $this->authenticatedGuru();
         $search = $request->get('search');
         if ($search) {
-            $search = preg_replace('/[^a-zA-Z0-9\s]/u', '', (string)$search);
+            $search = preg_replace('/[^a-zA-Z0-9\s]/u', '', (string) $search);
         }
         $level = $request->get('level');
         $mapelId = $request->get('mapel_id');
 
-    $query = Quiz::whereNull('id_sub_bab')
-        ->where('id_guru', $guru->id_guru)
+        $query = Quiz::whereNull('id_sub_bab')
+            ->where('id_guru', $guru->id_guru)
             ->with(['mataPelajaran', 'guru', 'soal', 'targetSiswa.kelas', 'hasilSiswa'])
             ->withCount(['soal', 'hasilSiswa']);
 
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('judul_quiz', 'like', "%{$search}%")
-                  ->orWhere('nama_quiz', 'like', "%{$search}%")
-                  ->orWhere('deskripsi', 'like', "%{$search}%");
+                    ->orWhere('nama_quiz', 'like', "%{$search}%")
+                    ->orWhere('deskripsi', 'like', "%{$search}%");
             });
         }
 
@@ -59,7 +63,7 @@ class UjianController extends Controller
             ->count();
         $totalSoal = SoalQuiz::whereHas('quiz', function ($q) use ($guru) {
             $q->whereNull('id_sub_bab')
-            ->where('id_guru', $guru->id_guru);
+                ->where('id_guru', $guru->id_guru);
         })->count();
         $totalHasil = DB::table('hasil_kuis_siswa')
             ->join('quiz', 'hasil_kuis_siswa.id_quiz', '=', 'quiz.id_quiz')
@@ -88,99 +92,41 @@ class UjianController extends Controller
     /**
      * Menyimpan ujian online baru
      */
-    public function store(Request $request)
+    public function store(StoreUjianRequest $request)
     {
         $guru = $this->authenticatedGuru();
-        $request->validate([
-            'judul_quiz'    => [
-                'required',
-                'string',
-                'min:3',
-                'max:100',
-                'regex:/^[a-zA-Z\s]+$/u',
-            ],
-            'id_mapel'      => 'required|exists:mata_pelajaran,id_mapel',
-            'tingkat_level' => 'required|in:mudah,sedang,susah',
-            'durasi_menit'  => 'required|integer|min:5|max:300',
-            'target_tipe'   => 'required|in:semua,pilihan',
-            'target_siswa'  => 'nullable|array',
-            'target_siswa.*'=> 'exists:siswa,id_siswa',
-            'deskripsi'     => 'nullable|string|max:1000',
-            'soal'          => 'nullable|array',
-            'soal.*.pertanyaan' => 'nullable|string|max:2000',
-            'soal.*.opsi_a' => 'nullable|string|max:255',
-            'soal.*.opsi_b' => 'nullable|string|max:255',
-            'soal.*.opsi_c' => 'nullable|string|max:255',
-            'soal.*.opsi_d' => 'nullable|string|max:255',
-            'soal.*.kunci_jawaban' => 'nullable|in:A,B,C,D',
-            'soal.*.bobot_nilai' => 'nullable|numeric|min:1|max:100',
-            'soal.*.tingkat_kesulitan' => 'nullable|in:mudah,sedang,susah,sulit',
-            'soal.*.gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
-        ], [
-            'judul_quiz.required'    => 'Judul ujian wajib diisi.',
-            'judul_quiz.min'         => 'Judul ujian minimal 3 karakter.',
-            'judul_quiz.max'         => 'Judul ujian maksimal 100 karakter.',
-            'judul_quiz.regex'       => 'Judul ujian hanya boleh berisi huruf dan spasi (tidak boleh mengandung angka maupun simbol).',
-            'id_mapel.required'      => 'Mata pelajaran wajib dipilih.',
-            'tingkat_level.required' => 'Tingkatan level ujian wajib dipilih (mudah, sedang, atau susah).',
-            'durasi_menit.required'  => 'Durasi ujian wajib diisi (minimal 5 menit).',
-            'target_tipe.required'   => 'Pilih sasaran peserta ujian (Semua Siswa atau Siswa Tertentu).',
-            'deskripsi.max'          => 'Deskripsi ujian maksimal 1000 karakter.',
-        ]);
 
         if (! $this->mapelAmpuanIds()->contains((int) $request->id_mapel)) {
             return back()->withInput()->withErrors([
-                'id_mapel' => 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.'
-            ])->with('error', 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.');
+                'id_mapel' => 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.',
+            ]);
         }
 
         if ($request->target_tipe === 'pilihan' && empty($request->target_siswa)) {
             return back()->withInput()->withErrors([
-                'target_siswa' => 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.'
-            ])->with('error', 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.');
+                'target_siswa' => 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.',
+            ]);
         }
 
         $judulQuiz = trim($request->judul_quiz);
-    $deskripsi = trim((string) $request->deskripsi);
+        $deskripsi = trim((string) $request->deskripsi);
 
-        $duplicateQuiz = Quiz::whereNull('id_sub_bab')
-            ->where(function ($q) use ($judulQuiz, $deskripsi) {
-                $q->whereRaw('LOWER(TRIM(judul_quiz)) = ?', [mb_strtolower($judulQuiz)])
-                  ->orWhereRaw('LOWER(TRIM(nama_quiz)) = ?', [mb_strtolower($judulQuiz)]);
-
-                if (!empty($deskripsi)) {
-                    $q->orWhereRaw('LOWER(TRIM(deskripsi)) = ?', [mb_strtolower($deskripsi)]);
-                }
-            })
-            ->first();
-
-        if ($duplicateQuiz) {
-            $isDeskripsiSama = !empty($deskripsi) && mb_strtolower(trim($duplicateQuiz->deskripsi)) === mb_strtolower($deskripsi);
-
-            $errorMsg = 'Ujian online dengan judul yang serupa sudah ada (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan judul ujian lain.';
-            if ($isDeskripsiSama && mb_strtolower(trim($duplicateQuiz->judul_quiz)) !== mb_strtolower($judulQuiz) && mb_strtolower(trim($duplicateQuiz->nama_quiz)) !== mb_strtolower($judulQuiz)) {
-                $errorMsg = 'Ujian online dengan deskripsi yang serupa sudah ada pada ujian (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan deskripsi yang berbeda.';
-            } elseif ($isDeskripsiSama) {
-                $errorMsg = 'Ujian online dengan judul dan deskripsi yang serupa sudah ada (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan yang lain.';
-            }
-
-            return back()->withInput()->withErrors([
-                'judul_quiz' => $errorMsg,
-                'deskripsi' => $errorMsg
-            ]);
+        $pesanDuplikat = $this->pesanDuplikasiQuiz($judulQuiz, $deskripsi);
+        if ($pesanDuplikat !== null) {
+            return back()->withInput()->withErrors(['judul_quiz' => $pesanDuplikat]);
         }
 
         DB::beginTransaction();
         try {
             $quiz = Quiz::create([
-                'id_guru'       => $guru->id_guru,
-                'id_mapel'      => $request->id_mapel,
-                'judul_quiz'    => trim($request->judul_quiz),
-                'nama_quiz'     => trim($request->judul_quiz),
+                'id_guru' => $guru->id_guru,
+                'id_mapel' => $request->id_mapel,
+                'judul_quiz' => $judulQuiz,
+                'nama_quiz' => $judulQuiz,
                 'tingkat_level' => $request->tingkat_level,
-                'durasi_menit'  => $request->durasi_menit,
-                'target_tipe'   => $request->target_tipe,
-                'deskripsi'     => $request->deskripsi,
+                'durasi_menit' => $request->durasi_menit,
+                'target_tipe' => $request->target_tipe,
+                'deskripsi' => $request->deskripsi,
             ]);
 
             // Sync target siswa jika tipe pilihan
@@ -201,23 +147,17 @@ class UjianController extends Controller
                         $gambarPath = $gambarFile->store('soal_ujian', 'public');
                     }
 
-                    $kesulitanItem = strtolower($item['tingkat_kesulitan'] ?? '');
-                    if (!in_array($kesulitanItem, ['mudah', 'sedang', 'susah', 'sulit'])) {
-                        $kesulitanItem = $request->tingkat_level ?? 'sedang';
-                    }
-                    if ($kesulitanItem === 'susah') $kesulitanItem = 'sulit';
-
                     SoalQuiz::create([
-                        'id_quiz'           => $quiz->id_quiz,
-                        'pertanyaan'        => trim($item['pertanyaan']),
-                        'gambar'            => $gambarPath,
-                        'opsi_a'            => trim($item['opsi_a']),
-                        'opsi_b'            => trim($item['opsi_b']),
-                        'opsi_c'            => trim($item['opsi_c']),
-                        'opsi_d'            => trim($item['opsi_d']),
-                        'kunci_jawaban'     => strtoupper($item['kunci_jawaban'] ?? 'A'),
-                        'bobot_nilai'       => isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int)$item['bobot_nilai'] : 10,
-                        'tingkat_kesulitan' => $kesulitanItem,
+                        'id_quiz' => $quiz->id_quiz,
+                        'pertanyaan' => trim($item['pertanyaan']),
+                        'gambar' => $gambarPath,
+                        'opsi_a' => trim($item['opsi_a']),
+                        'opsi_b' => trim($item['opsi_b']),
+                        'opsi_c' => trim($item['opsi_c']),
+                        'opsi_d' => trim($item['opsi_d']),
+                        'kunci_jawaban' => strtoupper($item['kunci_jawaban'] ?? 'A'),
+                        'bobot_nilai' => isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int) $item['bobot_nilai'] : 10,
+                        'tingkat_kesulitan' => $this->normalisasiKesulitan($item['tingkat_kesulitan'] ?? null, $request->tingkat_level ?? 'sedang'),
                     ]);
                 }
             }
@@ -228,7 +168,8 @@ class UjianController extends Controller
                 ->with('success', 'Berhasil menambah ujian online.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan ujian: ' . $e->getMessage());
+
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan ujian: '.$e->getMessage());
         }
     }
 
@@ -242,7 +183,7 @@ class UjianController extends Controller
             'guru',
             'soal',
             'targetSiswa.kelas',
-            'hasilSiswa.siswa.kelas'
+            'hasilSiswa.siswa.kelas',
         ]);
 
         $totalBobot = $quiz->soal->sum('bobot_nilai');
@@ -281,90 +222,41 @@ class UjianController extends Controller
     /**
      * Update ujian online
      */
-    public function update(Request $request, $id)
+    public function update(UpdateUjianRequest $request, $id)
     {
         $quiz = $this->ownedQuiz($id);
-
-        $request->validate([
-            'judul_quiz'    => [
-                'required',
-                'string',
-                'min:3',
-                'max:100',
-                'regex:/^[a-zA-Z\s]+$/u',
-            ],
-            'id_mapel'      => 'required|exists:mata_pelajaran,id_mapel',
-            'tingkat_level' => 'required|in:mudah,sedang,susah',
-            'durasi_menit'  => 'required|integer|min:5|max:300',
-            'target_tipe'   => 'required|in:semua,pilihan',
-            'target_siswa'  => 'nullable|array',
-            'target_siswa.*'=> 'exists:siswa,id_siswa',
-            'deskripsi'     => 'nullable|string|max:1000',
-        ], [
-            'judul_quiz.required'    => 'Judul ujian wajib diisi.',
-            'judul_quiz.min'         => 'Judul ujian minimal 3 karakter.',
-            'judul_quiz.max'         => 'Judul ujian maksimal 100 karakter.',
-            'judul_quiz.regex'       => 'Judul ujian hanya boleh berisi huruf dan spasi (tidak boleh mengandung angka maupun simbol).',
-            'id_mapel.required'      => 'Mata pelajaran wajib dipilih.',
-            'tingkat_level.required' => 'Tingkatan level ujian wajib dipilih.',
-            'durasi_menit.required'  => 'Durasi ujian wajib diisi.',
-            'deskripsi.max'          => 'Deskripsi ujian maksimal 1000 karakter.',
-        ]);
 
         $mapelDiizinkan = $this->mapelAmpuanIds()->push((int) $quiz->id_mapel);
         if (! $mapelDiizinkan->contains((int) $request->id_mapel)) {
             return back()->withInput()->withErrors([
-                'id_mapel' => 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.'
-            ])->with('error', 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.');
+                'id_mapel' => 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.',
+            ]);
         }
 
         if ($request->target_tipe === 'pilihan' && empty($request->target_siswa)) {
             return back()->withInput()->withErrors([
-                'target_siswa' => 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.'
-            ])->with('error', 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.');
+                'target_siswa' => 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.',
+            ]);
         }
 
         $judulQuiz = trim($request->judul_quiz);
         $deskripsi = trim((string) $request->deskripsi);
 
-        $duplicateQuiz = Quiz::whereNull('id_sub_bab')
-            ->where('id_quiz', '!=', $quiz->id_quiz)
-            ->where(function ($q) use ($judulQuiz, $deskripsi) {
-                $q->whereRaw('LOWER(TRIM(judul_quiz)) = ?', [mb_strtolower($judulQuiz)])
-                  ->orWhereRaw('LOWER(TRIM(nama_quiz)) = ?', [mb_strtolower($judulQuiz)]);
-
-                if (!empty($deskripsi)) {
-                    $q->orWhereRaw('LOWER(TRIM(deskripsi)) = ?', [mb_strtolower($deskripsi)]);
-                }
-            })
-            ->first();
-
-        if ($duplicateQuiz) {
-            $isDeskripsiSama = !empty($deskripsi) && mb_strtolower(trim($duplicateQuiz->deskripsi)) === mb_strtolower($deskripsi);
-
-            $errorMsg = 'Ujian online dengan judul yang serupa sudah ada (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan judul ujian lain.';
-            if ($isDeskripsiSama && mb_strtolower(trim($duplicateQuiz->judul_quiz)) !== mb_strtolower($judulQuiz) && mb_strtolower(trim($duplicateQuiz->nama_quiz)) !== mb_strtolower($judulQuiz)) {
-                $errorMsg = 'Ujian online dengan deskripsi yang serupa sudah ada pada ujian (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan deskripsi yang berbeda.';
-            } elseif ($isDeskripsiSama) {
-                $errorMsg = 'Ujian online dengan judul dan deskripsi yang serupa sudah ada (' . $duplicateQuiz->judul_quiz . '). Silakan gunakan yang lain.';
-            }
-
-            return back()->withInput()->withErrors([
-                'judul_quiz' => $errorMsg,
-                'deskripsi'  => $errorMsg,
-            ]);
+        $pesanDuplikat = $this->pesanDuplikasiQuiz($judulQuiz, $deskripsi, $quiz->id_quiz);
+        if ($pesanDuplikat !== null) {
+            return back()->withInput()->withErrors(['judul_quiz' => $pesanDuplikat]);
         }
 
         DB::beginTransaction();
         try {
             $quiz->update([
-                'id_mapel'      => $request->id_mapel,
-                'judul_quiz'    => trim($request->judul_quiz),
-                'nama_quiz'     => trim($request->judul_quiz),
+                'id_mapel' => $request->id_mapel,
+                'judul_quiz' => $judulQuiz,
+                'nama_quiz' => $judulQuiz,
                 'tingkat_level' => $request->tingkat_level,
-                'durasi_menit'  => $request->durasi_menit,
-                'target_tipe'   => $request->target_tipe,
-                'deskripsi'     => $request->deskripsi,
+                'durasi_menit' => $request->durasi_menit,
+                'target_tipe' => $request->target_tipe,
+                'deskripsi' => $request->deskripsi,
             ]);
 
             if ($request->target_tipe === 'pilihan') {
@@ -379,7 +271,8 @@ class UjianController extends Controller
                 ->with('success', 'Data ujian online berhasil diperbarui.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Gagal memperbarui ujian: ' . $e->getMessage());
+
+            return back()->withInput()->with('error', 'Gagal memperbarui ujian: '.$e->getMessage());
         }
     }
 
@@ -403,43 +296,16 @@ class UjianController extends Controller
             return redirect()->route('guru.ujian.index')
                 ->with('success', 'Ujian online berhasil dihapus beserta seluruh soal dan data terkait.');
         } catch (\Exception $e) {
-            return back()->with('error', 'Gagal menghapus ujian: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menghapus ujian: '.$e->getMessage());
         }
     }
 
     /**
      * Menambah soal ujian baru
      */
-    public function storeSoal(Request $request, $idQuiz)
+    public function storeSoal(SoalUjianRequest $request, $idQuiz)
     {
         $quiz = $this->ownedQuiz($idQuiz);
-
-        $request->validate([
-            'pertanyaan'    => 'required|string|max:2000',
-            'gambar'        => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
-            'opsi_a'        => 'required|string|max:255',
-            'opsi_b'        => 'required|string|max:255',
-            'opsi_c'        => 'required|string|max:255',
-            'opsi_d'        => 'required|string|max:255',
-            'kunci_jawaban' => 'required|in:A,B,C,D',
-            'bobot_nilai'   => 'required|numeric|min:1|max:100',
-            'tingkat_kesulitan' => 'nullable|in:mudah,sedang,susah,sulit',
-        ], [
-            'pertanyaan.required'    => 'Teks pertanyaan soal wajib diisi.',
-            'pertanyaan.max'         => 'Teks pertanyaan soal maksimal 2000 karakter.',
-            'gambar.image'           => 'File pendukung harus berupa gambar valid (JPEG, PNG, WEBP, GIF).',
-            'gambar.max'             => 'Ukuran gambar maksimal 2MB.',
-            'opsi_a.required'        => 'Pilihan A wajib diisi.',
-            'opsi_a.max'             => 'Pilihan A maksimal 255 karakter.',
-            'opsi_b.required'        => 'Pilihan B wajib diisi.',
-            'opsi_b.max'             => 'Pilihan B maksimal 255 karakter.',
-            'opsi_c.required'        => 'Pilihan C wajib diisi.',
-            'opsi_c.max'             => 'Pilihan C maksimal 255 karakter.',
-            'opsi_d.required'        => 'Pilihan D wajib diisi.',
-            'opsi_d.max'             => 'Pilihan D maksimal 255 karakter.',
-            'kunci_jawaban.required' => 'Kunci jawaban wajib dipilih.',
-            'bobot_nilai.required'   => 'Bobot nilai soal wajib ditentukan.',
-        ]);
 
         // Anti-duplikasi pertanyaan pada ujian yang sama
         $pertanyaanTrim = trim($request->pertanyaan);
@@ -455,21 +321,17 @@ class UjianController extends Controller
             $gambarPath = $request->file('gambar')->store('soal_ujian', 'public');
         }
 
-        $kesulitanSoal = strtolower($request->input('tingkat_kesulitan', $quiz->tingkat_level ?? 'sedang'));
-        if ($kesulitanSoal === 'susah') $kesulitanSoal = 'sulit';
-        if (!in_array($kesulitanSoal, ['mudah', 'sedang', 'sulit'])) $kesulitanSoal = 'sedang';
-
         SoalQuiz::create([
-            'id_quiz'           => $quiz->id_quiz,
-            'pertanyaan'        => trim($request->pertanyaan),
-            'gambar'            => $gambarPath,
-            'opsi_a'            => trim($request->opsi_a),
-            'opsi_b'            => trim($request->opsi_b),
-            'opsi_c'            => trim($request->opsi_c),
-            'opsi_d'            => trim($request->opsi_d),
-            'kunci_jawaban'     => strtoupper($request->kunci_jawaban),
-            'bobot_nilai'       => $request->bobot_nilai,
-            'tingkat_kesulitan' => $kesulitanSoal,
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => trim($request->pertanyaan),
+            'gambar' => $gambarPath,
+            'opsi_a' => trim($request->opsi_a),
+            'opsi_b' => trim($request->opsi_b),
+            'opsi_c' => trim($request->opsi_c),
+            'opsi_d' => trim($request->opsi_d),
+            'kunci_jawaban' => strtoupper($request->kunci_jawaban),
+            'bobot_nilai' => $request->bobot_nilai,
+            'tingkat_kesulitan' => $this->normalisasiKesulitan($request->input('tingkat_kesulitan'), $quiz->tingkat_level ?? 'sedang'),
         ]);
 
         return redirect()->route('guru.ujian.show', $quiz->id_quiz)
@@ -479,37 +341,10 @@ class UjianController extends Controller
     /**
      * Memperbarui soal ujian
      */
-    public function updateSoal(Request $request, $idQuiz, $idSoal)
+    public function updateSoal(SoalUjianRequest $request, $idQuiz, $idSoal)
     {
         $this->ownedQuiz($idQuiz);
         $soal = SoalQuiz::where('id_quiz', $idQuiz)->findOrFail($idSoal);
-
-        $request->validate([
-            'pertanyaan'    => 'required|string|max:2000',
-            'gambar'        => 'nullable|image|mimes:jpeg,png,jpg,webp,gif|max:2048',
-            'opsi_a'        => 'required|string|max:255',
-            'opsi_b'        => 'required|string|max:255',
-            'opsi_c'        => 'required|string|max:255',
-            'opsi_d'        => 'required|string|max:255',
-            'kunci_jawaban' => 'required|in:A,B,C,D',
-            'bobot_nilai'   => 'required|numeric|min:1|max:100',
-            'tingkat_kesulitan' => 'nullable|in:mudah,sedang,susah,sulit',
-        ], [
-            'pertanyaan.required'    => 'Teks pertanyaan soal wajib diisi.',
-            'pertanyaan.max'         => 'Teks pertanyaan soal maksimal 2000 karakter.',
-            'gambar.image'           => 'File pendukung harus berupa gambar valid (JPEG, PNG, WEBP, GIF).',
-            'gambar.max'             => 'Ukuran gambar maksimal 2MB.',
-            'opsi_a.required'        => 'Pilihan A wajib diisi.',
-            'opsi_a.max'             => 'Pilihan A maksimal 255 karakter.',
-            'opsi_b.required'        => 'Pilihan B wajib diisi.',
-            'opsi_b.max'             => 'Pilihan B maksimal 255 karakter.',
-            'opsi_c.required'        => 'Pilihan C wajib diisi.',
-            'opsi_c.max'             => 'Pilihan C maksimal 255 karakter.',
-            'opsi_d.required'        => 'Pilihan D wajib diisi.',
-            'opsi_d.max'             => 'Pilihan D maksimal 255 karakter.',
-            'kunci_jawaban.required' => 'Kunci jawaban wajib dipilih.',
-            'bobot_nilai.required'   => 'Bobot nilai soal wajib ditentukan.',
-        ]);
 
         // Anti-duplikasi pertanyaan pada ujian yang sama
         $pertanyaanTrim = trim($request->pertanyaan);
@@ -521,19 +356,15 @@ class UjianController extends Controller
             return back()->withInput()->with('error', 'Pertanyaan soal yang serupa sudah ada di ujian ini.');
         }
 
-        $kesulitanSoal = strtolower($request->input('tingkat_kesulitan', $soal->tingkat_kesulitan ?? 'sedang'));
-        if ($kesulitanSoal === 'susah') $kesulitanSoal = 'sulit';
-        if (!in_array($kesulitanSoal, ['mudah', 'sedang', 'sulit'])) $kesulitanSoal = 'sedang';
-
         $data = [
-            'pertanyaan'        => trim($request->pertanyaan),
-            'opsi_a'            => trim($request->opsi_a),
-            'opsi_b'            => trim($request->opsi_b),
-            'opsi_c'            => trim($request->opsi_c),
-            'opsi_d'            => trim($request->opsi_d),
-            'kunci_jawaban'     => strtoupper($request->kunci_jawaban),
-            'bobot_nilai'       => $request->bobot_nilai,
-            'tingkat_kesulitan' => $kesulitanSoal,
+            'pertanyaan' => trim($request->pertanyaan),
+            'opsi_a' => trim($request->opsi_a),
+            'opsi_b' => trim($request->opsi_b),
+            'opsi_c' => trim($request->opsi_c),
+            'opsi_d' => trim($request->opsi_d),
+            'kunci_jawaban' => strtoupper($request->kunci_jawaban),
+            'bobot_nilai' => $request->bobot_nilai,
+            'tingkat_kesulitan' => $this->normalisasiKesulitan($request->input('tingkat_kesulitan'), $soal->tingkat_kesulitan ?? 'sedang'),
         ];
 
         // Jika minta hapus gambar lama
@@ -582,14 +413,69 @@ class UjianController extends Controller
     }
 
     /**
+     * Pesan error jika sudah ada ujian (bukan kuis materi) dengan judul
+     * atau deskripsi yang serupa; null jika aman disimpan.
+     */
+    private function pesanDuplikasiQuiz(string $judul, string $deskripsi, ?int $kecualiId = null): ?string
+    {
+        $duplicateQuiz = Quiz::whereNull('id_sub_bab')
+            ->when($kecualiId !== null, fn ($q) => $q->where('id_quiz', '!=', $kecualiId))
+            ->where(function ($q) use ($judul, $deskripsi) {
+                $q->whereRaw('LOWER(TRIM(judul_quiz)) = ?', [mb_strtolower($judul)])
+                    ->orWhereRaw('LOWER(TRIM(nama_quiz)) = ?', [mb_strtolower($judul)]);
+
+                if ($deskripsi !== '') {
+                    $q->orWhereRaw('LOWER(TRIM(deskripsi)) = ?', [mb_strtolower($deskripsi)]);
+                }
+            })
+            ->first();
+
+        if (! $duplicateQuiz) {
+            return null;
+        }
+
+        $isDeskripsiSama = $deskripsi !== '' && mb_strtolower(trim((string) $duplicateQuiz->deskripsi)) === mb_strtolower($deskripsi);
+        $judulLain = mb_strtolower(trim((string) $duplicateQuiz->judul_quiz)) !== mb_strtolower($judul)
+            && mb_strtolower(trim((string) $duplicateQuiz->nama_quiz)) !== mb_strtolower($judul);
+
+        if ($isDeskripsiSama && $judulLain) {
+            return 'Ujian online dengan deskripsi yang serupa sudah ada pada ujian ('.$duplicateQuiz->judul_quiz.'). Silakan gunakan deskripsi yang berbeda.';
+        }
+
+        if ($isDeskripsiSama) {
+            return 'Ujian online dengan judul dan deskripsi yang serupa sudah ada ('.$duplicateQuiz->judul_quiz.'). Silakan gunakan yang lain.';
+        }
+
+        return 'Ujian online dengan judul yang serupa sudah ada ('.$duplicateQuiz->judul_quiz.'). Silakan gunakan judul ujian lain.';
+    }
+
+    /**
+     * Menyamakan istilah tingkat kesulitan soal dengan pilihan yang valid;
+     * nilai di luar daftar digantikan oleh nilai fallback.
+     */
+    private function normalisasiKesulitan(?string $nilai, ?string $fallback): string
+    {
+        $kesulitan = strtolower((string) $nilai);
+        if (! in_array($kesulitan, ['mudah', 'sedang', 'susah', 'sulit'], true)) {
+            $kesulitan = strtolower((string) $fallback);
+        }
+
+        if ($kesulitan === 'susah') {
+            return 'sulit';
+        }
+
+        return in_array($kesulitan, ['mudah', 'sedang', 'sulit'], true) ? $kesulitan : 'sedang';
+    }
+
+    /**
      * Mata pelajaran yang diampu guru (berdasarkan jadwal mengajar).
      */
-    private function mapelAmpuan(): \Illuminate\Support\Collection
+    private function mapelAmpuan(): Collection
     {
         return MataPelajaran::whereIn('id_mapel', $this->mapelAmpuanIds())->orderBy('nama_mapel')->get();
     }
 
-    private function mapelAmpuanIds(): \Illuminate\Support\Collection
+    private function mapelAmpuanIds(): Collection
     {
         return JadwalMataPelajaran::where('id_guru', $this->authenticatedGuru()->id_guru)
             ->distinct()

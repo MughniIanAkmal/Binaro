@@ -43,7 +43,7 @@ class AbsensiSettingsAdminTest extends TestCase
     {
         $response = $this->withSession(['user_id' => $this->admin->id_admin, 'user_type' => 'admin', 'user_name' => $this->admin->nama_admin])
             ->post(route('admin.absensi.settings.update'), [
-                'batas_awal'  => '07:00',
+                'batas_awal' => '07:00',
                 'batas_tepat' => '08:00',
                 'batas_tutup' => '14:30',
             ]);
@@ -61,7 +61,7 @@ class AbsensiSettingsAdminTest extends TestCase
         // batas_awal >= batas_tepat
         $response = $this->withSession(['user_id' => $this->admin->id_admin, 'user_type' => 'admin', 'user_name' => $this->admin->nama_admin])
             ->post(route('admin.absensi.settings.update'), [
-                'batas_awal'  => '08:30',
+                'batas_awal' => '08:30',
                 'batas_tepat' => '08:00',
                 'batas_tutup' => '15:00',
             ]);

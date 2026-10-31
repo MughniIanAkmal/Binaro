@@ -15,9 +15,10 @@ class GuruApiController extends Controller
 {
     protected function authGuruId()
     {
-        if (Session::has('user_type') && Session::get('user_type') !== 'guru' && !Session::has('guru_id')) {
+        if (Session::has('user_type') && Session::get('user_type') !== 'guru' && ! Session::has('guru_id')) {
             return null;
         }
+
         return Session::get('guru_id') ?? Session::get('user_id');
     }
 
@@ -247,6 +248,7 @@ class GuruApiController extends Controller
 
             if ($existing) {
                 $results[] = ['id_siswa' => $entry['id_siswa'], 'status' => 'duplikat'];
+
                 continue;
             }
 
