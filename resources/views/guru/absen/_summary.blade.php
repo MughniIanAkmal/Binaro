@@ -27,7 +27,7 @@
         <div class="bg-emerald-50 border border-emerald-100 rounded-xl py-3">
             <p id="statTercatat" class="text-xl font-black text-emerald-600">{{ $tercatatCount }}</p>
             <p class="text-[10px] text-emerald-600/70 font-semibold mt-0.5">Sudah Absen</p>
-            <p class="text-[10px] text-emerald-600/60 mt-0.5">Hadir {{ $hadirCount }} &bull; Izin/Sakit {{ $izinSakitCount }}</p>
+            <p class="text-[10px] text-emerald-600/60 mt-0.5">Hadir {{ $hadirCount }} &bull; Izin/Sakit {{ $izinSakitCount }} &bull; Alpa {{ $alpaCount }}</p>
         </div>
         <div class="bg-amber-50 border border-amber-100 rounded-xl py-3">
             <p id="statBelum" class="text-xl font-black text-amber-600">{{ $belumCount }}</p>

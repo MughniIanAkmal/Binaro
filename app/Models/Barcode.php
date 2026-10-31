@@ -13,10 +13,9 @@ class Barcode extends Model
 
     public $timestamps = true;
 
-    protected $fillable = ['id_siswa', 'kode_barcode', 'qr_image_path', 'is_active'];
+    protected $fillable = ['id_siswa', 'kode_barcode', 'qr_image_path'];
 
     protected $casts = [
-        'is_active' => 'boolean',
         'created_at' => 'datetime',
     ];
 

@@ -14,10 +14,11 @@ function tampilkan(tipe, pesan) {
 }
 
 const STATUS_STYLE = {
-    Hadir: { box: 'bg-emerald-50 text-emerald-600', jam: 'text-emerald-600', label: 'hadir' },
-    Terlambat: { box: 'bg-amber-50 text-amber-600', jam: 'text-amber-600', label: 'terlambat' },
-    Izin:  { box: 'bg-sky-50 text-sky-600', jam: 'text-sky-600', label: 'izin' },
-    Sakit: { box: 'bg-amber-50 text-amber-600', jam: 'text-amber-600', label: 'sakit' },
+    Hadir: { box: 'bg-emerald-50 text-emerald-600', jam: 'text-emerald-600', label: 'hadir', ikon: 'fa-user-check' },
+    Terlambat: { box: 'bg-amber-50 text-amber-600', jam: 'text-amber-600', label: 'terlambat', ikon: 'fa-clock' },
+    Izin:  { box: 'bg-sky-50 text-sky-600', jam: 'text-sky-600', label: 'izin', ikon: 'fa-circle-info' },
+    Sakit: { box: 'bg-violet-50 text-violet-600', jam: 'text-violet-600', label: 'sakit', ikon: 'fa-notes-medical' },
+    Alpa:  { box: 'bg-rose-50 text-rose-600', jam: 'text-rose-600', label: 'alpa', ikon: 'fa-user-xmark' },
 };
 
 function tambahLog(data) {
@@ -28,7 +29,7 @@ function tambahLog(data) {
     kiri.className = 'flex items-center gap-3';
     const ikon = document.createElement('span');
     ikon.className = 'w-9 h-9 shrink-0 rounded-xl flex items-center justify-center text-sm ' + st.box;
-    ikon.innerHTML = '<i class="fas fa-user-check"></i>';
+    ikon.innerHTML = '<i class="fas ' + (st.ikon || 'fa-user-check') + '"></i>';
     const teks = document.createElement('div');
     const nama = document.createElement('div');
     nama.className = 'font-bold text-xs text-slate-900';

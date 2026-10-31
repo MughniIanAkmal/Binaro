@@ -14,7 +14,7 @@
 
 <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
     <h2 class="font-bold text-sm text-slate-900 mb-1 flex items-center gap-2">
-        <i class="fas fa-notes-medical text-sky-500"></i> Input Izin / Sakit
+        <i class="fas fa-notes-medical text-sky-500"></i> Input Izin / Sakit / Alpa
     </h2>
     <p class="text-[11px] text-slate-400 mb-4">Isi nama siswa sesuai data terdaftar. Hasilnya langsung tercatat dan muncul di rekap absensi.</p>
     <form id="formIzin" autocomplete="off" class="space-y-3 text-xs" novalidate>
@@ -31,29 +31,36 @@
         </div>
         <div>
             <span class="block font-bold text-slate-700 mb-1.5">Jenis</span>
-            <div class="grid grid-cols-2 gap-2">
+            <div class="grid grid-cols-3 gap-2">
                 <label class="cursor-pointer">
                     <input type="radio" name="izinJenis" value="Sakit" class="peer sr-only" checked>
-                    <span class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 font-bold text-slate-500 peer-checked:border-amber-400 peer-checked:bg-amber-50 peer-checked:text-amber-700 transition">
+                    <span class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 font-bold text-slate-500 peer-checked:border-violet-400 peer-checked:bg-violet-50 peer-checked:text-violet-700 transition">
                         <i class="fas fa-plus-circle"></i> Sakit
                     </span>
                 </label>
                 <label class="cursor-pointer">
                     <input type="radio" name="izinJenis" value="Izin" class="peer sr-only">
                     <span class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 font-bold text-slate-500 peer-checked:border-sky-400 peer-checked:bg-sky-50 peer-checked:text-sky-700 transition">
-                        <i class="fas fa-info-circle"></i> Lainnya
+                        <i class="fas fa-circle-info"></i> Izin
+                    </span>
+                </label>
+                <label class="cursor-pointer">
+                    <input type="radio" name="izinJenis" value="Alpa" class="peer sr-only">
+                    <span class="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-200 font-bold text-slate-500 peer-checked:border-rose-400 peer-checked:bg-rose-50 peer-checked:text-rose-700 transition">
+                        <i class="fas fa-user-xmark"></i> Alpa
                     </span>
                 </label>
             </div>
         </div>
         <div id="wrapIzinKeterangan" class="hidden">
-            <label class="block font-bold text-slate-700 mb-1.5">Keterangan <span class="text-rose-500">*</span></label>
+            <label class="block font-bold text-slate-700 mb-1.5">Keterangan <span class="text-rose-500" id="izinKetWajib">*</span></label>
             <textarea id="izinKeterangan" rows="2" maxlength="255" placeholder="Contoh: Izin mengikuti lomba kecamatan…"
                 class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition"></textarea>
+            <p id="izinKetHint" class="text-[10px] text-slate-400 mt-1">Wajib untuk status Izin, opsional untuk Sakit / Alpa.</p>
         </div>
         <p id="izinHasil" class="hidden px-3 py-2.5 rounded-xl text-xs font-bold text-center"></p>
         <button type="submit" class="w-full py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-xl transition">
-            <i class="fas fa-save mr-1.5"></i>Simpan Izin
+            <i class="fas fa-save mr-1.5"></i>Simpan Status
         </button>
     </form>
 </section>

@@ -4,15 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Absen;
-use App\Models\Barcode;
 use App\Models\Rpp;
 use App\Models\Siswa;
+use App\Services\AbsensiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class GuruApiController extends Controller
 {
+    public function __construct(private AbsensiService $absensiService) {}
+
     protected function authGuruId()
     {
         if (Session::has('user_type') && Session::get('user_type') !== 'guru' && ! Session::has('guru_id')) {
@@ -162,64 +164,31 @@ class GuruApiController extends Controller
             'kode_barcode' => 'required|string',
         ]);
 
-        $kode = trim($data['kode_barcode']);
+        $hasil = $this->absensiService->catatScan($data['kode_barcode'], $this->authGuruId(), 'scan_qr');
 
-        $barcode = Barcode::where('kode_barcode', $kode)
-            ->where('is_active', true)
-            ->with('siswa')
-            ->first();
-
-        if (! $barcode || ! $barcode->siswa) {
+        if ($hasil['hasil'] === 'tidak_dikenal') {
             return response()->json([
                 'success' => false,
                 'message' => 'QR tidak valid',
             ], 404);
         }
 
-        $siswa = $barcode->siswa;
-        $today = now()->toDateString();
-
-        $existing = Absen::where('id_siswa', $siswa->id_siswa)
-            ->whereDate('tanggal', $today)
-            ->first();
-
-        if ($existing) {
+        if ($hasil['hasil'] === 'duplikat') {
             return response()->json([
                 'success' => false,
-                'message' => "Siswa {$siswa->nm_siswa} sudah absen {$existing->status} pada {$existing->tanggal}",
+                'message' => $hasil['message'],
             ], 409);
         }
 
-        $guruId = $this->authGuruId();
-        if (! $guruId) {
-            $guruId = DB::table('guru')->value('id_guru');
-        }
-        if (! $guruId) {
-            $guruId = DB::table('guru')->insertGetId([
-                'nip' => 'GURU-DEMO',
-                'nama_guru' => 'Guru Demo',
-                'created_at' => now(),
-            ], 'id_guru');
-        }
-
-        $absen = Absen::create([
-            'id_guru' => $guruId,
-            'id_siswa' => $siswa->id_siswa,
-            'id_barcode' => $barcode->id_barcode,
-            'status' => 'Hadir',
-            'metode' => 'scan_qr',
-            'waktu_absen' => now(),
-            'tanggal' => $today,
-        ]);
-
         return response()->json([
             'success' => true,
-            'message' => 'Absensi registrasi',
+            'message' => $hasil['upgrade'] ? 'Absensi diperbarui dari status Alpa' : 'Absensi registrasi',
             'data' => [
-                'siswa' => $siswa->nm_siswa,
-                'nisn' => $siswa->nisn,
+                'siswa' => $hasil['siswa']->nm_siswa,
+                'nisn' => $hasil['siswa']->nisn,
                 'status' => 'Hadir',
-                'waktu_absen' => $absen->waktu_absen,
+                'keterangan' => $hasil['keterangan'],
+                'waktu_absen' => $hasil['absen']->waktu_absen,
                 'metode' => 'scan_qr',
             ],
         ], 201);

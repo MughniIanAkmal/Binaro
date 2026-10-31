@@ -31,8 +31,8 @@
         </div>
     </div>
 
-    <!-- 6 KPI Cards -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <!-- 5 KPI Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         <!-- Card 1: Total Siswa -->
         <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
             <div class="text-[11px] font-bold text-slate-500 uppercase">Total Siswa</div>
@@ -66,13 +66,6 @@
             <div class="text-[11px] font-bold text-rose-700 uppercase">Alpa</div>
             <div class="text-2xl font-black text-rose-600 mt-1">{{ $summary['alpa'] ?? 0 }}</div>
             <div class="text-[10px] text-rose-500 font-bold mt-1"><i class="fas fa-exclamation-triangle"></i> Tanpa keterangan</div>
-        </div>
-
-        <!-- Card 6: % Hadir -->
-        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between border-l-4 border-l-blue-600">
-            <div class="text-[11px] font-bold text-blue-700 uppercase">% Hadir</div>
-            <div class="text-2xl font-black text-blue-600 mt-1">{{ $summary['persentase'] ?? $summary['persentase_hadir'] ?? 0 }}%</div>
-            <div class="text-[10px] text-blue-600 font-semibold mt-1">Tingkat kehadiran</div>
         </div>
     </div>
 
@@ -154,7 +147,7 @@
                             @elseif($status == 'Hadir')
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800"><i class="fas fa-check text-[9px]"></i> Hadir</span>
                             @elseif($status == 'Sakit')
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-plus-circle text-[9px]"></i> Sakit</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-violet-100 text-violet-800"><i class="fas fa-plus-circle text-[9px]"></i> Sakit</span>
                             @elseif($status == 'Izin')
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800"><i class="fas fa-info-circle text-[9px]"></i> Izin</span>
                             @else

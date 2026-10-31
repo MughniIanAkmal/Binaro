@@ -15,6 +15,10 @@ class AbsensiRekapTest extends TestCase
 
     public function test_rekap_lists_only_students_with_absence_on_selected_date_and_future_date_is_empty(): void
     {
+        // Kunci jam sebelum batas tutup agar Alpa otomatis tidak
+        // membuat record untuk siswa yang sengaja belum dicatat.
+        $this->travelTo(now()->setTime(7, 0));
+
         $guru = Guru::create([
             'nama_guru' => 'Guru Rekap',
             'nip' => '198501012010011050',

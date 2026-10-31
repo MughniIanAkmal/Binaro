@@ -42,7 +42,6 @@ class PrdComplianceTest extends TestCase
         // Assert a Barcode record exists
         $this->assertDatabaseHas('barcode', [
             'id_siswa' => $siswa->id_siswa,
-            'is_active' => true,
         ]);
 
         // Get the barcode and check format
@@ -53,7 +52,6 @@ class PrdComplianceTest extends TestCase
         $randomPart = substr($barcode->kode_barcode, strlen('BIN-1234567890-'));
         $this->assertEquals(6, strlen($randomPart));
         $this->assertTrue(ctype_alnum($randomPart));
-        $this->assertTrue($barcode->is_active);
     }
 
     /**
@@ -255,6 +253,10 @@ class PrdComplianceTest extends TestCase
      */
     public function test_admin_rekap_returns_summary_and_data(): void
     {
+        // Kunci jam sebelum batas tutup: siswa tanpa absen sengaja
+        // belum diberi record Alpa otomatis pada skenario ini.
+        $this->travelTo(now()->setTime(7, 0));
+
         // Create required related records first
         $mapel = MataPelajaran::create(['nama_mapel' => 'Test Mapel']);
         $kelas = Kelas::create(['pararel' => '10A']);
