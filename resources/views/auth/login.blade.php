@@ -263,60 +263,6 @@
 
 
         /* =====================================================
-           ROLE BUTTON
-        ===================================================== */
-
-        .role-container {
-            display: flex;
-
-            gap: 6px;
-
-            margin-bottom: 22px;
-
-            background: #EEF3F8;
-            border: 1px solid #E1E9F1;
-
-            padding: 5px;
-            border-radius: 12px;
-        }
-
-
-        .role-button {
-            flex: 1;
-
-            border: none;
-            background: transparent;
-
-            color: #5b6f82;
-
-            padding: 9px 10px;
-
-            border-radius: 8px;
-
-            cursor: pointer;
-
-            font-size: 12px;
-            font-weight: 700;
-            font-family: inherit;
-
-            transition: 0.2s;
-        }
-
-
-        .role-button:hover {
-            background: rgba(19, 82, 125, 0.08);
-            color: #13527D;
-        }
-
-
-        .role-button.active {
-            background: #13527D;
-            color: white;
-            box-shadow: 0 4px 12px rgba(19, 82, 125, 0.35);
-        }
-
-
-        /* =====================================================
            FORM
         ===================================================== */
 
@@ -530,12 +476,6 @@
                 font-size: 22px;
             }
 
-
-            .role-button {
-                padding: 9px 6px;
-                font-size: 11px;
-            }
-
         }
     </style>
 
@@ -562,7 +502,7 @@
 
                 <div>
                     <h1>Binaro</h1>
-                    <p>SD Negeri Kalitapen 1</p>
+                    <p>SDN Kalitapen 01</p>
                 </div>
 
             </div>
@@ -657,59 +597,16 @@
 
 
                 <!-- =============================================
-                     ROLE
+                     IDENTITAS (peran dikenali otomatis dari format:
+                     NISN 10 digit, NIP, atau username)
                 ============================================== -->
 
-                <div class="role-container">
+                <div class="form-group">
 
-
-                    <button type="button" class="role-button active" data-role="siswa" onclick="changeRole('siswa')">
-                        Siswa
-                    </button>
-
-
-                    <button type="button" class="role-button" data-role="guru" onclick="changeRole('guru')">
-                        Guru
-                    </button>
-
-
-                    <button type="button" class="role-button" data-role="admin" onclick="changeRole('admin')">
-                        Admin
-                    </button>
-
-                </div>
-
-
-                <!--
-                    Role yang dipilih akan dikirim
-                    ke LoginController
-                -->
-
-                <input type="hidden" name="role" id="role" value="{{ old('role', 'siswa') }}">
-
-
-                <!-- =============================================
-                     USERNAME / NAMA
-                ============================================== -->
-
-                <div class="form-group" id="username-group" hidden>
-
-                    <label class="form-label" for="username">Nama / NIP Admin</label>
-                    <input type="text" name="username" id="username" class="input-box" placeholder="Nama atau NIP Admin"
-                        value="{{ old('username') }}">
-
-                </div>
-
-
-                <!-- =============================================
-                     IDENTITAS
-                ============================================== -->
-
-                <div class="form-group" id="identity-group">
-
-                    <label class="form-label" for="identity" id="identity-label">NISN Siswa</label>
-                    <input type="text" name="identity" id="identity" class="input-box" placeholder="NISN"
-                        value="{{ old('identity') }}" required>
+                    <label class="form-label" for="identity">NISN / NIP / Username</label>
+                    <input type="text" name="identity" id="identity" class="input-box"
+                        placeholder="NISN, NIP, atau username" autocomplete="username"
+                        aria-label="NISN, NIP, atau username" value="{{ old('identity') }}" required>
 
                 </div>
 
@@ -721,7 +618,16 @@
                 <div class="form-group">
 
                     <label class="form-label" for="password">Password</label>
-                    <input type="password" name="password" id="password" class="input-box" placeholder="••••••••" required>
+                    <div style="position: relative;">
+                        <input type="password" name="password" id="password" class="input-box"
+                            placeholder="••••••••" autocomplete="current-password"
+                            aria-label="Password" required style="padding-right: 44px;">
+                        <button type="button" id="toggle-password"
+                            aria-label="Tampilkan atau sembunyikan password"
+                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #94a3b8; padding: 4px;">
+                            <i class="fas fa-eye" id="toggle-password-icon"></i>
+                        </button>
+                    </div>
 
                 </div>
 
@@ -739,7 +645,7 @@
 
 
             <div class="access-text" id="access-text">
-                🔒 Akses Untuk Siswa • SDN Kalitapen 1
+                🔒 Akses untuk Siswa, Guru, dan Admin • SDN Kalitapen 01
             </div>
 
 
@@ -750,160 +656,25 @@
 
 
     <!-- =========================================================
-         JAVASCRIPT ROLE
+         TOGGLE LIHAT PASSWORD
     ========================================================= -->
 
     <script>
 
-        function changeRole(role) {
+        document.getElementById('toggle-password').addEventListener('click', function () {
 
+            const input = document.getElementById('password');
+            const ikon = document.getElementById('toggle-password-icon');
+            const tampil = input.type === 'password';
 
-            /*
-            |--------------------------------------------------------------------------
-            | Simpan role
-            |--------------------------------------------------------------------------
-            */
-
-            document.getElementById('role').value = role;
-            document.getElementById('identity').required = role !== 'admin';
-            document.getElementById('identity-group').hidden = role === 'admin';
-            document.getElementById('username').required = role === 'admin';
-            document.getElementById('username-group').hidden = role !== 'admin';
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Ambil semua tombol role
-            |--------------------------------------------------------------------------
-            */
-
-            const buttons =
-                document.querySelectorAll('.role-button');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Hilangkan active dari semua tombol
-            |--------------------------------------------------------------------------
-            */
-
-            buttons.forEach(function (button) {
-
-                button.classList.remove('active');
-
-            });
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Aktifkan tombol yang dipilih
-            |--------------------------------------------------------------------------
-            */
-
-            const activeButton =
-                document.querySelector(
-                    '.role-button[data-role="' + role + '"]'
-                );
-
-
-            if (activeButton) {
-
-                activeButton.classList.add('active');
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | Ambil input
-            |--------------------------------------------------------------------------
-            */
-
-            const username =
-                document.getElementById('username');
-
-            const identity =
-                document.getElementById('identity');
-
-            const accessText =
-                document.getElementById('access-text');
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | SISWA
-            |--------------------------------------------------------------------------
-            */
-
-            if (role === 'siswa') {
-
-                identity.placeholder =
-                    'Contoh: 0012345678';
-
-                document.getElementById('identity-label').innerText =
-                    'NISN Siswa';
-
-                accessText.innerText =
-                    '🔒 Akses Untuk Siswa • SDN Kalitapen 1';
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | GURU
-            |--------------------------------------------------------------------------
-            */
-
-            else if (role === 'guru') {
-
-                identity.placeholder =
-                    'Contoh: 198501012010012001';
-
-                document.getElementById('identity-label').innerText =
-                    'NIP Guru';
-
-                accessText.innerText =
-                    '🔒 Akses Untuk Guru • SDN Kalitapen 1';
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | ADMIN
-            |--------------------------------------------------------------------------
-            */
-
-            else if (role === 'admin') {
-
-                username.placeholder =
-                    'Nama atau NIP Admin';
-
-                accessText.innerText =
-                    '🔒 Akses Untuk Admin • SDN Kalitapen 1';
-
-            }
-
-        }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | TAMPILKAN ROLE SETELAH VALIDASI ERROR
-        |--------------------------------------------------------------------------
-        */
-
-        document.addEventListener('DOMContentLoaded', function () {
-
-            const currentRole =
-                document.getElementById('role').value;
-
-            changeRole(currentRole);
+            input.type = tampil ? 'text' : 'password';
+            ikon.classList.toggle('fa-eye', !tampil);
+            ikon.classList.toggle('fa-eye-slash', tampil);
 
         });
 
     </script>
+
 
 
 </body>

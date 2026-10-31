@@ -18,7 +18,7 @@ class LoginRoleTest extends TestCase
         $response = $this->get('/login');
         $response->assertStatus(200);
         $response->assertSee('Binaro');
-        $response->assertSee('SD Negeri Kalitapen 1');
+        $response->assertSee('SDN Kalitapen 01');
         $response->assertSee('images/sekolah.jpg');
         $response->assertSee('Siswa');
         $response->assertSee('Guru');
@@ -33,7 +33,7 @@ class LoginRoleTest extends TestCase
             'password' => Hash::make('password123'),
         ]);
 
-        $response = $this->post('/login/process', [
+        $response = $this->post('/login', [
             'role' => 'siswa',
             'username' => 'Budi Santoso',
             'identity' => '1234567890',
@@ -43,8 +43,7 @@ class LoginRoleTest extends TestCase
         $response->assertRedirect('/siswa/dashboard');
         $this->assertEquals($siswa->id_siswa, session('user_id'));
         $this->assertEquals('siswa', session('user_type'));
-        $this->assertEquals('siswa', session('role'));
-        $this->assertTrue(session('login'));
+        $this->assertEquals($siswa->id_siswa, session('id_user'));
 
         // Test beranda redirect
         $beranda = $this->get('/beranda');
@@ -59,7 +58,7 @@ class LoginRoleTest extends TestCase
             'password' => Hash::make('guru123'),
         ]);
 
-        $response = $this->post('/login/process', [
+        $response = $this->post('/login', [
             'role' => 'guru',
             'username' => 'Bu Guru Ani',
             'identity' => '198501012010012001',
@@ -69,8 +68,7 @@ class LoginRoleTest extends TestCase
         $response->assertRedirect('/guru/dashboard');
         $this->assertEquals($guru->id_guru, session('user_id'));
         $this->assertEquals('guru', session('user_type'));
-        $this->assertEquals('guru', session('role'));
-        $this->assertTrue(session('login'));
+        $this->assertEquals($guru->id_guru, session('id_user'));
 
         // Test beranda redirect
         $beranda = $this->get('/beranda');
@@ -85,7 +83,7 @@ class LoginRoleTest extends TestCase
             'password' => Hash::make('admin123'),
         ]);
 
-        $response = $this->post('/login/process', [
+        $response = $this->post('/login', [
             'role' => 'admin',
             'username' => 'admin_kalitapen',
             'password' => 'admin123',
@@ -94,8 +92,7 @@ class LoginRoleTest extends TestCase
         $response->assertRedirect('/admin/dashboard');
         $this->assertEquals($admin->id_admin, session('user_id'));
         $this->assertEquals('admin', session('user_type'));
-        $this->assertEquals('admin', session('role'));
-        $this->assertTrue(session('login'));
+        $this->assertEquals($admin->id_admin, session('id_user'));
 
         // Test beranda redirect
         $beranda = $this->get('/beranda');

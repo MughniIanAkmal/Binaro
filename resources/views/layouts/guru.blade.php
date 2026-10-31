@@ -111,9 +111,12 @@
         </nav>
 
         <div class="p-4 border-t border-white/10 text-xs">
-            <div class="flex items-center gap-2 text-emerald-300">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Binaro LMS v2.4
-            </div>
+            <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar?')">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 text-rose-300 hover:bg-rose-500/20 rounded-lg text-xs transition">
+                    <i class="fas fa-sign-out-alt"></i> Keluar
+                </button>
+            </form>
         </div>
     </aside>
 
@@ -139,9 +142,6 @@
                     <div class="w-9 h-9 rounded-xl bg-[#13527D] text-white flex items-center justify-center font-bold text-xs shadow-sm">
                         {{ strtoupper(substr($guru->nama_guru ?? session('user_name', 'GB'), 0, 2)) }}
                     </div>
-                    <a href="{{ route('logout.get') }}" class="ml-2 px-3 py-1.5 text-xs text-rose-600 border border-rose-200 rounded-lg hover:bg-rose-50 font-semibold transition" title="Logout">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Keluar
-                    </a>
                 </div>
             </div>
         </header>

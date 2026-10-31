@@ -25,15 +25,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-Route::post('/login/process', [LoginController::class, 'login'])->name('login.process');
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout.get');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/beranda', function () {
     if (! session()->has('user_id') && ! session()->has('id_user')) {
         return redirect('/login');
     }
-    $type = session('user_type') ?? session('role');
+    $type = session('user_type');
     if ($type === 'admin') {
         return redirect('/admin/dashboard');
     }

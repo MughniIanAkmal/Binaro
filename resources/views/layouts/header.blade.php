@@ -21,9 +21,5 @@
             @endphp
             {{ $initials }}
         </div>
-        <a href="{{ route('logout.get') }}" title="Keluar / Logout" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-500 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 text-xs font-semibold transition flex items-center gap-1.5">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Keluar</span>
-        </a>
     </div>
 </header>
