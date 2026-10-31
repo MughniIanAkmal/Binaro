@@ -8,7 +8,6 @@
         <form action="{{ route('absensi.manual') }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
             @csrf
             <input type="hidden" name="id_siswa" id="modalIdSiswa">
-            <input type="hidden" name="id_guru" value="{{ auth()->user()->id_guru ?? 1 }}">
             <input type="hidden" name="tanggal" value="{{ $selectedDate }}">
 
             <div>

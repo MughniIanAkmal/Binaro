@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
 use App\Models\Absen;
-use App\Models\AbsensiSetting;
-use App\Models\Barcode;
 use App\Models\Siswa;
+use App\Services\AbsensiService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class AbsenScanController extends Controller
 {
+    public function __construct(private AbsensiService $absensiService) {}
+
     public function index()
     {
         $today = today()->toDateString();
@@ -27,6 +27,8 @@ class AbsenScanController extends Controller
         $tercatatCount = $hariIni->count();
         $hadirCount = $hariIni->where('status', 'Hadir')->count();
         $izinSakitCount = $hariIni->whereIn('status', ['Izin', 'Sakit'])->count();
+        $alpaCount = $hariIni->where('status', 'Alpa')->count();
+        $tanggalAbsen = today()->translatedFormat('d F Y');
 
         $daftarNama = Siswa::with('kelas')->orderBy('nm_siswa')->get()->map(fn ($s) => [
             'nama' => $s->nm_siswa,
@@ -34,7 +36,16 @@ class AbsenScanController extends Controller
             'kelas' => $s->nama_kelas,
         ])->values();
 
-        return view('guru.absen.scan', compact('hariIni', 'totalSiswa', 'tercatatCount', 'hadirCount', 'izinSakitCount', 'daftarNama'));
+        return view('guru.absen.scan', compact(
+            'hariIni',
+            'totalSiswa',
+            'tercatatCount',
+            'hadirCount',
+            'izinSakitCount',
+            'alpaCount',
+            'daftarNama',
+            'tanggalAbsen',
+        ));
     }
 
     /**
@@ -49,97 +60,31 @@ class AbsenScanController extends Controller
             'metode' => 'nullable|in:scan,manual',
         ]);
 
-        $kode = strtoupper(trim($data['kode']));
+        $metode = ($data['metode'] ?? 'scan') === 'manual' ? 'manual_guru' : 'scan_qr';
+        $hasil = $this->absensiService->catatScan($data['kode'], null, $metode);
 
-        $barcode = Barcode::with('siswa.kelas')->where('kode_barcode', $kode)->first();
-
-        // Toleran: hasil scan kadang membawa karakter tambahan (URL, newline, spasi).
-        // Coba ekstrak kandidat kode (QR-XXXXXXXX atau BIN-NISN-XXXXXX) dari payload.
-        if (! $barcode && preg_match('/\b((?:QR|BIN)-[A-Z0-9-]{4,40})\b/', $kode, $m)) {
-            $barcode = Barcode::with('siswa.kelas')->where('kode_barcode', $m[1])->first();
-        }
-
-        if (! $barcode || ! $barcode->siswa) {
+        if ($hasil['hasil'] === 'tidak_dikenal') {
             return response()->json([
                 'status' => 'tidak_dikenal',
-                'message' => 'Kode tidak dikenal. Pastikan kartu siswa masih berlaku.',
+                'message' => $hasil['message'],
             ], 404);
         }
 
-        $siswa = $barcode->siswa;
-        $today = today()->toDateString();
-
-        $guruId = $this->resolveGuruId($request);
-        $metodeVal = ($data['metode'] ?? 'scan') === 'manual' ? 'manual_guru' : 'scan_qr';
-        $waktu = now();
-        $timeStr = $waktu->format('H:i');
-
-        $batasAwal = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_awal', '07:00') : '07:00';
-        $batasTepat = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_tepat', '08:00') : '08:00';
-        $batasTutup = class_exists(AbsensiSetting::class) ? AbsensiSetting::get('batas_tutup', '12:00') : '12:00';
-
-        if ($timeStr > $batasTutup) {
-            // Melewati batas waktu admin: tetap tercatat, status Hadir dengan keterangan Terlambat.
-            $keterangan = 'Terlambat';
-        } elseif ($timeStr < $batasAwal) {
-            $keterangan = 'Datang Lebih Awal';
-        } elseif ($timeStr <= $batasTepat) {
-            $keterangan = 'Tepat Waktu';
-        } else {
-            $keterangan = 'Terlambat';
-        }
-
-        $absen = Absen::where('id_siswa', $siswa->id_siswa)
-            ->whereDate('tanggal', $today)
-            ->first();
-
-        if ($absen) {
-            // Jika sebelumnya Alpha otomatis, tingkatkan jadi Hadir (scan susulan)
-            if ($absen->status === 'Alpa') {
-                $absen->update([
-                    'id_guru' => $guruId,
-                    'id_barcode' => $barcode->id_barcode,
-                    'metode' => $metodeVal,
-                    'status' => 'Hadir',
-                    'keterangan' => $keterangan,
-                    'waktu_absen' => $waktu,
-                ]);
-
-                return response()->json([
-                    'status' => 'ok',
-                    'success' => true,
-                    'message' => "Hadir: {$siswa->nm_siswa} (Alpa otomatis diperbarui)",
-                    'siswa' => ['nama' => $siswa->nm_siswa, 'kelas' => $siswa->nama_kelas],
-                    'jam' => $waktu->format('H:i'),
-                    'statusAbsen' => $keterangan === 'Terlambat' ? 'Terlambat' : 'Hadir',
-                ]);
-            }
-
+        if ($hasil['hasil'] === 'duplikat') {
             return response()->json([
                 'status' => 'duplikat',
                 'success' => false,
-                'message' => "{$siswa->nm_siswa} sudah absen hari ini.",
+                'message' => $hasil['message'],
             ], 200);
         }
-
-        $absenData = Absen::create([
-            'id_guru' => $guruId,
-            'id_siswa' => $siswa->id_siswa,
-            'id_barcode' => $barcode->id_barcode,
-            'metode' => $metodeVal,
-            'status' => 'Hadir',
-            'keterangan' => $keterangan,
-            'tanggal' => $today,
-            'waktu_absen' => $waktu,
-        ]);
 
         return response()->json([
             'status' => 'ok',
             'success' => true,
-            'message' => "Hadir: {$siswa->nm_siswa}",
-            'siswa' => ['nama' => $siswa->nm_siswa, 'kelas' => $siswa->nama_kelas],
-            'jam' => $waktu->format('H:i'),
-            'statusAbsen' => $keterangan === 'Terlambat' ? 'Terlambat' : 'Hadir',
+            'message' => $hasil['message'],
+            'siswa' => ['nama' => $hasil['siswa']->nm_siswa, 'kelas' => $hasil['siswa']->nama_kelas],
+            'jam' => $hasil['jam'],
+            'statusAbsen' => $hasil['statusTampil'],
         ]);
     }
 
@@ -153,7 +98,7 @@ class AbsenScanController extends Controller
     {
         $data = $request->validate([
             'nama' => 'required|string|max:100',
-            'jenis' => 'required|in:Sakit,Izin',
+            'jenis' => 'required|in:Sakit,Izin,Alpa',
             'keterangan' => 'nullable|string|max:255',
         ]);
 
@@ -213,7 +158,7 @@ class AbsenScanController extends Controller
             // Jika sebelumnya Alpha otomatis, izinkan koreksi jadi Izin/Sakit
             if ($existing->status === 'Alpa') {
                 $existing->update([
-                    'id_guru' => $this->resolveGuruId($request),
+                    'id_guru' => $this->absensiService->guruPencatatId(),
                     'metode' => 'manual_guru',
                     'status' => $status,
                     'keterangan' => $keterangan,
@@ -238,7 +183,7 @@ class AbsenScanController extends Controller
         }
 
         Absen::create([
-            'id_guru' => $this->resolveGuruId($request),
+            'id_guru' => $this->absensiService->guruPencatatId(),
             'id_siswa' => $siswa->id_siswa,
             'id_barcode' => null,
             'metode' => 'manual_guru',
@@ -256,24 +201,5 @@ class AbsenScanController extends Controller
             'jam' => $waktu->format('H:i'),
             'statusAbsen' => $status,
         ]);
-    }
-
-    private function resolveGuruId(Request $request)
-    {
-        $guruId = session('user_type') === 'guru' ? session('user_id') : ($request->user()?->id_guru ?? null);
-
-        if (! $guruId || ! DB::table('guru')->where('id_guru', $guruId)->exists()) {
-            $guruId = DB::table('guru')->value('id_guru');
-        }
-
-        if (! $guruId) {
-            $guruId = DB::table('guru')->insertGetId([
-                'nip' => 'GURU-DEMO',
-                'nama_guru' => 'Guru Demo',
-                'created_at' => now(),
-            ], 'id_guru');
-        }
-
-        return $guruId;
     }
 }

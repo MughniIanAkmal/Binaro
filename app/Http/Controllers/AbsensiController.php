@@ -4,104 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\Absen;
 use App\Models\AbsensiSetting;
-use App\Models\Barcode;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\Siswa;
+use App\Services\AbsensiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class AbsensiController extends Controller
 {
-    /**
-     * Alpha otomatis: siswa tanpa baris absen pada $tanggal
-     * dianggap Alpa dan dibuatkan record Alpa.
-     *
-     * Aturan:
-     * - tanggal future ( > hari ini ) -> dilewati, return 0.
-     * - tanggal lalu ( < hari ini ) -> langsung dibuatkan Alpa.
-     * - tanggal hari ini -> hanya dibuatkan Alpa jika sudah
-     *   melewati batas_tutup absensi (default 12:00), agar siswa
-     *   yang datang terlambat masih bisa scan QR.
-     *
-     * @return int jumlah record Alpa otomatis yang dibuat
-     */
-    public static function ensureAlphaOtomatis(string $tanggal): int
-    {
-        // Jangan ganggu data saat unit test (PrdComplianceTest mengharapkan
-        // 1 siswa tanpa absen tetap tanpa record).
-        if (app()->runningUnitTests()) {
-            return 0;
-        }
-
-        $today = now()->toDateString();
-
-        if ($tanggal > $today) {
-            return 0;
-        }
-
-        if ($tanggal === $today) {
-            $batasTutup = AbsensiSetting::get('batas_tutup', '12:00');
-            if (now()->format('H:i') <= $batasTutup) {
-                return 0;
-            }
-        }
-
-        $existingIds = Absen::where('tanggal', $tanggal)->pluck('id_siswa')->toArray();
-
-        $missingIds = Siswa::when(! empty($existingIds), fn ($q) => $q->whereNotIn('id_siswa', $existingIds))
-            ->pluck('id_siswa')
-            ->toArray();
-
-        if (empty($missingIds)) {
-            return 0;
-        }
-
-        $guruId = null;
-        if (session()->has('user_id') && session('user_type') === 'guru') {
-            $guruId = session('user_id');
-        }
-        if (! $guruId || ! Guru::where('id_guru', $guruId)->exists()) {
-            $guruId = Guru::query()->value('id_guru');
-        }
-        if (! $guruId) {
-            return 0;
-        }
-
-        $now = now();
-        $rows = [];
-        foreach ($missingIds as $idSiswa) {
-            $rows[] = [
-                'id_guru' => $guruId,
-                'id_siswa' => $idSiswa,
-                'id_barcode' => null,
-                'metode' => 'manual_guru',
-                'status' => 'Alpa',
-                'keterangan' => 'Alpha otomatis - tanpa keterangan',
-                'waktu_absen' => $now,
-                'tanggal' => $tanggal,
-            ];
-        }
-
-        // Insert aman dari duplikat (unique id_siswa+tanggal)
-        $created = 0;
-        foreach (array_chunk($rows, 500) as $chunk) {
-            foreach ($chunk as $row) {
-                try {
-                    Absen::firstOrCreate(
-                        ['id_siswa' => $row['id_siswa'], 'tanggal' => $row['tanggal']],
-                        $row
-                    );
-                    $created++;
-                } catch (\Throwable $e) {
-                    // Abaikan race-condition duplikat
-                }
-            }
-        }
-
-        return $created;
-    }
+    public function __construct(private AbsensiService $absensiService) {}
 
     public function index(Request $request)
     {
@@ -109,7 +22,7 @@ class AbsensiController extends Controller
         $selectedKelas = $request->input('id_rooms');
 
         // Alpha otomatis untuk hari ini (lewat batas tutup) & hari lalu
-        static::ensureAlphaOtomatis($selectedDate);
+        $this->absensiService->ensureAlphaOtomatis($selectedDate);
 
         $query = Siswa::query()
             ->leftJoin('absen', function ($join) use ($selectedDate) {
@@ -177,68 +90,22 @@ class AbsensiController extends Controller
             'id_guru' => 'nullable|exists:guru,id_guru',
         ]);
 
-        $barcode = Barcode::where('kode_barcode', $request->kode_barcode)->first();
-        if (! $barcode) {
+        $hasil = $this->absensiService->catatScan($request->kode_barcode, $request->id_guru, 'scan_qr');
+
+        if ($hasil['hasil'] === 'tidak_dikenal') {
             return back()->with('error', 'Barcode QR Siswa tidak terdaftar.');
         }
 
-        $today = now()->toDateString();
-        $now = now();
-        $timeStr = $now->format('H:i');
-
-        $batasAwal = AbsensiSetting::get('batas_awal', '07:00');
-        $batasTepat = AbsensiSetting::get('batas_tepat', '08:00');
-        $batasTutup = AbsensiSetting::get('batas_tutup', '12:00');
-
-        if ($timeStr > $batasTutup) {
-            // Melewati batas waktu admin: tetap tercatat sebagai Terlambat.
-            $ket = 'Terlambat';
-        } elseif ($timeStr < $batasAwal) {
-            $ket = 'Datang Lebih Awal';
-        } elseif ($timeStr <= $batasTepat) {
-            $ket = 'Tepat Waktu';
-        } else {
-            $ket = 'Terlambat';
-        }
-
-        $idGuru = $request->id_guru ?? 1; // Default fallback guru piket/admin
-
-        $existing = Absen::where('id_siswa', $barcode->id_siswa)
-            ->where('tanggal', $today)
-            ->first();
-
-        if ($existing) {
-            // Jika sebelumnya Alpha otomatis, izinkan scan mengubahnya jadi Hadir
-            if ($existing->status === 'Alpa') {
-                $existing->update([
-                    'id_guru' => $idGuru,
-                    'id_barcode' => $barcode->id_barcode,
-                    'metode' => 'scan_qr',
-                    'status' => 'Hadir',
-                    'keterangan' => $ket,
-                    'waktu_absen' => $now,
-                ]);
-
-                return back()->with('success', "Presensi QR berhasil tercatat ({$ket}). Status Alpa otomatis diperbarui.");
-            }
-
+        if ($hasil['hasil'] === 'duplikat') {
             return back()->with('error', 'Siswa sudah melakukan absensi hari ini.');
         }
 
-        Absen::create(
-            [
-                'id_siswa' => $barcode->id_siswa,
-                'tanggal' => $today,
-                'id_guru' => $idGuru,
-                'id_barcode' => $barcode->id_barcode,
-                'metode' => 'scan_qr',
-                'status' => 'Hadir',
-                'keterangan' => $ket,
-                'waktu_absen' => $now,
-            ]
-        );
+        $pesan = 'Presensi QR berhasil tercatat ('.$hasil['keterangan'].').';
+        if ($hasil['upgrade']) {
+            $pesan .= ' Status Alpa otomatis diperbarui.';
+        }
 
-        return back()->with('success', "Presensi QR berhasil tercatat ({$ket}).");
+        return back()->with('success', $pesan);
     }
 
     public function updateManual(Request $request)
@@ -257,7 +124,7 @@ class AbsensiController extends Controller
         ]);
 
         $data = [
-            'id_guru' => $request->id_guru ?? 1,
+            'id_guru' => $this->absensiService->guruPencatatId($request->id_guru),
             'metode' => 'manual_guru',
             'status' => $request->status,
             'keterangan' => $request->keterangan,
@@ -287,7 +154,7 @@ class AbsensiController extends Controller
         $selectedStatus = $request->input('status');
 
         // Alpha otomatis untuk hari ini (lewat batas tutup) & hari lalu
-        static::ensureAlphaOtomatis($selectedDate);
+        $this->absensiService->ensureAlphaOtomatis($selectedDate);
 
         $totalSiswa = Siswa::when($selectedKelas, fn ($q) => $q->where('id_rooms', $selectedKelas))->count();
 

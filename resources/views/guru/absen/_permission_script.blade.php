@@ -10,7 +10,10 @@ function izinJenisTerpilih() {
 
 document.querySelectorAll('input[name="izinJenis"]').forEach(function (r) {
     r.addEventListener('change', function () {
-        wrapIzinKet.classList.toggle('hidden', izinJenisTerpilih() !== 'Izin');
+        const jenis = izinJenisTerpilih();
+        wrapIzinKet.classList.toggle('hidden', jenis === 'Sakit');
+        const wajib = document.getElementById('izinKetWajib');
+        if (wajib) wajib.classList.toggle('hidden', jenis !== 'Izin');
     });
 });
 

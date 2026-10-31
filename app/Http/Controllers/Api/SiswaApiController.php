@@ -4,12 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Absen;
 use App\Models\Siswa;
+use App\Services\AbsensiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class SiswaApiController extends ApiController
 {
+    public function __construct(private AbsensiService $absensiService) {}
+
     // GET /api/siswa/profile
     public function profile(Request $request)
     {
@@ -91,47 +94,17 @@ class SiswaApiController extends ApiController
 
         $barcode = DB::table('barcode')
             ->where('id_barcode', $data['id_barcode'])
-            ->where('is_active', true)
             ->first();
 
-        if (! $barcode) {
+        if (! $barcode || $barcode->id_siswa != $userId) {
             return $this->error('QR tidak valid', 404);
         }
 
-        if ($barcode->id_siswa != $userId) {
-            return $this->error('QR tidak valid', 404);
+        $hasil = $this->absensiService->catatScan($barcode->kode_barcode, null, 'scan_qr');
+
+        if ($hasil['hasil'] === 'duplikat') {
+            return $this->error($hasil['message'], 409);
         }
-
-        $today = now()->toDateString();
-        $absen = Absen::where('id_siswa', $userId)
-            ->where('tanggal', $today)
-            ->first();
-
-        if ($absen) {
-            return $this->error(
-                "Siswa sudah absen {$absen->status} pada {$absen->tanggal}",
-                409
-            );
-        }
-
-        $guruId = Session::get('guru_id') ?? DB::table('guru')->value('id_guru');
-        if (! $guruId) {
-            $guruId = DB::table('guru')->insertGetId([
-                'nip' => 'GURU-DEMO',
-                'nama_guru' => 'Guru Demo',
-                'created_at' => now(),
-            ], 'id_guru');
-        }
-
-        $absen = Absen::create([
-            'id_guru' => $guruId,
-            'id_siswa' => $userId,
-            'id_barcode' => $barcode->id_barcode,
-            'status' => 'Hadir',
-            'metode' => 'scan',
-            'waktu_absen' => now(),
-            'tanggal' => $today,
-        ]);
 
         $siswa = Siswa::find($userId);
 
@@ -139,8 +112,9 @@ class SiswaApiController extends ApiController
             'siswa' => $siswa->nm_siswa,
             'nisn' => $siswa->nisn,
             'status' => 'Hadir',
-            'waktu_absen' => $absen->waktu_absen,
-            'metode' => 'scan',
-        ], 'Absensi registrasi', 201);
+            'keterangan' => $hasil['keterangan'],
+            'waktu_absen' => $hasil['absen']->waktu_absen,
+            'metode' => 'scan_qr',
+        ], $hasil['upgrade'] ? 'Absensi diperbarui dari status Alpa' : 'Absensi registrasi', 201);
     }
 }

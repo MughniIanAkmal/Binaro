@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\Controller;
 use App\Models\Absen;
 use App\Models\Barcode;
 use App\Models\Siswa;
+use App\Services\AbsensiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class AdminApiController extends Controller
 {
+    public function __construct(private AbsensiService $absensiService) {}
+
     // GET /api/admin/absensi/rekap
     public function rekapAbsensi(Request $request)
     {
@@ -20,7 +22,7 @@ class AdminApiController extends Controller
         $status = $request->query('status');
 
         // Alpha otomatis untuk hari ini (lewat batas tutup) & hari lalu
-        AbsensiController::ensureAlphaOtomatis($fecha);
+        $this->absensiService->ensureAlphaOtomatis($fecha);
 
         $query = Absen::query()
             ->with(['siswa.kelas', 'guru'])
@@ -99,12 +101,10 @@ class AdminApiController extends Controller
             $barcode = Barcode::create([
                 'id_siswa' => $siswa_id,
                 'kode_barcode' => $newKode,
-                'is_active' => true,
             ]);
         } else {
             $barcode->update([
                 'kode_barcode' => $newKode,
-                'is_active' => true,
                 'updated_at' => now(),
             ]);
         }
