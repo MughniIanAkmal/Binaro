@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Pr extends Model
 {
     protected $table = 'pr';
+
     protected $primaryKey = 'id_pr';
+
     protected $guarded = ['id_pr'];
 
     protected $casts = [

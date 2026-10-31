@@ -4,8 +4,8 @@
 <div class="p-8 space-y-6 pb-12">
     @include('guru.jadwal._header')
     @include('guru.jadwal._summary')
-    @include('guru.jadwal._day-tabs')
-    @include('guru.jadwal._schedule-list')
+    @include('guru.jadwal._day_tabs')
+    @include('guru.jadwal._schedule_list')
     @include('guru.jadwal._notes')
 </div>
 

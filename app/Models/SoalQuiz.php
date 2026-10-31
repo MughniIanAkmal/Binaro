@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class SoalQuiz extends Model
 {
     protected $table = 'soal_quiz';
+
     protected $primaryKey = 'id_soal';
+
     protected $guarded = ['id_soal'];
 
     public function quiz()

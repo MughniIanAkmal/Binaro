@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Guru;
+use App\Models\JadwalMataPelajaran;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
-use App\Models\JadwalMataPelajaran;
 use App\Models\Rpp;
+use Illuminate\Database\Seeder;
 
 class RppDemoSeeder extends Seeder
 {

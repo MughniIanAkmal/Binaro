@@ -2,16 +2,15 @@
 
 namespace Tests\Feature;
 
+use App\Models\Bab;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
-use App\Models\Bab;
-use App\Models\SubBab;
 use App\Models\Materi;
 use App\Models\Quiz;
 use App\Models\Siswa;
 use App\Models\SoalQuiz;
-use App\Models\HasilKuisSiswa;
+use App\Models\SubBab;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -20,13 +19,21 @@ class QuizVsUjianSeparationTest extends TestCase
     use RefreshDatabase;
 
     protected $guru;
+
     protected $mapel;
+
     protected $kelas;
+
     protected $siswa;
+
     protected $bab;
+
     protected $subBab;
+
     protected $materiKuis;
+
     protected $quizMateri;
+
     protected $ujianOnline;
 
     protected function setUp(): void

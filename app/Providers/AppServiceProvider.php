@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use App\Observers\SiswaObserver;
 use App\Models\Siswa;
+use App\Observers\SiswaObserver;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

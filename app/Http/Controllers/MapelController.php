@@ -40,19 +40,19 @@ class MapelController extends Controller
                 'regex:/^[a-zA-Z0-9\s\&\-\(\)\/\.]+$/u',
                 'unique:mata_pelajaran,nama_mapel',
             ],
-            'deskripsi'  => 'nullable|string|max:1000',
+            'deskripsi' => 'nullable|string|max:1000',
         ], [
             'nama_mapel.required' => 'Nama mata pelajaran wajib diisi.',
-            'nama_mapel.min'      => 'Nama mata pelajaran minimal 2 karakter.',
-            'nama_mapel.max'      => 'Nama mata pelajaran maksimal 100 karakter.',
-            'nama_mapel.unique'   => 'Nama mata pelajaran sudah terdaftar.',
-            'nama_mapel.regex'    => 'Nama mata pelajaran hanya boleh mengandung huruf, angka, spasi, dan karakter (&, -, (, ), /, .).',
-            'deskripsi.max'       => 'Deskripsi mata pelajaran maksimal 1000 karakter.',
+            'nama_mapel.min' => 'Nama mata pelajaran minimal 2 karakter.',
+            'nama_mapel.max' => 'Nama mata pelajaran maksimal 100 karakter.',
+            'nama_mapel.unique' => 'Nama mata pelajaran sudah terdaftar.',
+            'nama_mapel.regex' => 'Nama mata pelajaran hanya boleh mengandung huruf, angka, spasi, dan karakter (&, -, (, ), /, .).',
+            'deskripsi.max' => 'Deskripsi mata pelajaran maksimal 1000 karakter.',
         ]);
 
         MataPelajaran::create([
             'nama_mapel' => trim($request->nama_mapel),
-            'deskripsi'  => $request->deskripsi,
+            'deskripsi' => $request->deskripsi,
         ]);
 
         $redirectUrl = $request->header('referer');
@@ -74,21 +74,21 @@ class MapelController extends Controller
                 'min:2',
                 'max:100',
                 'regex:/^[a-zA-Z0-9\s\&\-\(\)\/\.]+$/u',
-                'unique:mata_pelajaran,nama_mapel,' . $id . ',id_mapel',
+                'unique:mata_pelajaran,nama_mapel,'.$id.',id_mapel',
             ],
-            'deskripsi'  => 'nullable|string|max:1000',
+            'deskripsi' => 'nullable|string|max:1000',
         ], [
             'nama_mapel.required' => 'Nama mata pelajaran wajib diisi.',
-            'nama_mapel.min'      => 'Nama mata pelajaran minimal 2 karakter.',
-            'nama_mapel.max'      => 'Nama mata pelajaran maksimal 100 karakter.',
-            'nama_mapel.unique'   => 'Nama mata pelajaran sudah terdaftar.',
-            'nama_mapel.regex'    => 'Nama mata pelajaran hanya boleh mengandung huruf, angka, spasi, dan karakter (&, -, (, ), /, .).',
-            'deskripsi.max'       => 'Deskripsi mata pelajaran maksimal 1000 karakter.',
+            'nama_mapel.min' => 'Nama mata pelajaran minimal 2 karakter.',
+            'nama_mapel.max' => 'Nama mata pelajaran maksimal 100 karakter.',
+            'nama_mapel.unique' => 'Nama mata pelajaran sudah terdaftar.',
+            'nama_mapel.regex' => 'Nama mata pelajaran hanya boleh mengandung huruf, angka, spasi, dan karakter (&, -, (, ), /, .).',
+            'deskripsi.max' => 'Deskripsi mata pelajaran maksimal 1000 karakter.',
         ]);
 
         $mapel->update([
             'nama_mapel' => trim($request->nama_mapel),
-            'deskripsi'  => $request->deskripsi,
+            'deskripsi' => $request->deskripsi,
         ]);
 
         return redirect()->route('mapel.index')->with('success', 'Mata pelajaran berhasil diperbarui.');
@@ -100,6 +100,7 @@ class MapelController extends Controller
 
         try {
             $mapel->delete();
+
             return redirect()->route('mapel.index')->with('success', 'Mata pelajaran berhasil dihapus.');
         } catch (\Exception $e) {
             return redirect()->route('mapel.index')->with('error', 'Gagal menghapus. Mata pelajaran masih digunakan oleh data lain.');

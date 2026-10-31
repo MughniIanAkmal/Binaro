@@ -1,24 +1,26 @@
 <?php
 
 use App\Http\Controllers\AbsensiController;
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\MapelController;
-use App\Http\Controllers\MateriController;
-use App\Http\Controllers\QuizController;
-use App\Http\Controllers\RppController;
-use App\Http\Controllers\GuruController;
-use App\Http\Controllers\GuruDashboardController;
-use App\Http\Controllers\LoginController;
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\SiswaLearningController;
-use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\BarcodeController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Guru\AbsenScanController;
+use App\Http\Controllers\Guru\GuruController;
+use App\Http\Controllers\Guru\GuruDashboardController;
+use App\Http\Controllers\Guru\MateriController;
 use App\Http\Controllers\Guru\NotifikasiPrController;
 use App\Http\Controllers\Guru\UjianController;
+use App\Http\Controllers\JadwalController;
+use App\Http\Controllers\MapelController;
+use App\Http\Controllers\QuizController;
+use App\Http\Controllers\RppController;
+use App\Http\Controllers\Siswa\SiswaController;
+use App\Http\Controllers\Siswa\SiswaLearningController;
 use App\Http\Controllers\Siswa\SiswaNotifikasiPrController;
 use App\Http\Middleware\EnsureAuthenticated;
-use App\Http\Middleware\EnsureRole;
 use App\Http\Middleware\EnsureGuruOrAdmin;
+use App\Http\Middleware\EnsureRole;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [LoginController::class, 'showLogin'])->name('login');
@@ -28,38 +30,53 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout.get');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/beranda', function () {
-    if (!session()->has('user_id') && !session()->has('id_user')) {
+    if (! session()->has('user_id') && ! session()->has('id_user')) {
         return redirect('/login');
     }
     $type = session('user_type') ?? session('role');
-    if ($type === 'admin') return redirect('/admin/dashboard');
-    if ($type === 'siswa') return redirect('/siswa/dashboard');
+    if ($type === 'admin') {
+        return redirect('/admin/dashboard');
+    }
+    if ($type === 'siswa') {
+        return redirect('/siswa/dashboard');
+    }
+
     return redirect('/guru/dashboard');
 })->name('beranda');
 
 Route::get('/', function () {
-    if (!session()->has('user_id')) {
+    if (! session()->has('user_id')) {
         return redirect('/login');
     }
     $type = session('user_type');
-    if ($type === 'admin') return redirect('/admin/dashboard');
-    if ($type === 'siswa') return redirect('/siswa/dashboard');
+    if ($type === 'admin') {
+        return redirect('/admin/dashboard');
+    }
+    if ($type === 'siswa') {
+        return redirect('/siswa/dashboard');
+    }
+
     return redirect('/guru/dashboard');
 });
 
 Route::get('/dashboard', function () {
-    if (!session()->has('user_id')) {
+    if (! session()->has('user_id')) {
         return redirect('/login');
     }
     $type = session('user_type');
-    if ($type === 'admin') return redirect('/admin/dashboard');
-    if ($type === 'siswa') return redirect('/siswa/dashboard');
+    if ($type === 'admin') {
+        return redirect('/admin/dashboard');
+    }
+    if ($type === 'siswa') {
+        return redirect('/siswa/dashboard');
+    }
+
     return redirect('/guru/dashboard');
 })->name('dashboard');
 
 Route::middleware([EnsureAuthenticated::class])->group(function () {
     // 1. RPP (Modul Ajar) - Admin & Guru
-    Route::middleware([EnsureRole::class . ':admin,guru'])->prefix('rpp')->name('rpp.')->group(function () {
+    Route::middleware([EnsureRole::class.':admin,guru'])->prefix('rpp')->name('rpp.')->group(function () {
         Route::get('/', [RppController::class, 'index'])->name('index');
         Route::post('/', [RppController::class, 'store'])->name('store');
         Route::get('/{id}', [RppController::class, 'show'])->name('show');
@@ -70,7 +87,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     });
 
     // 2. Absensi Harian - Admin & Guru
-    Route::middleware([EnsureRole::class . ':admin,guru'])->prefix('absensi')->name('absensi.')->group(function () {
+    Route::middleware([EnsureRole::class.':admin,guru'])->prefix('absensi')->name('absensi.')->group(function () {
         Route::get('/', [AbsensiController::class, 'index'])->name('index');
         Route::get('/rekap', [AbsensiController::class, 'rekap'])->name('rekap');
         Route::post('/scan-qr', [AbsensiController::class, 'scanQr'])
@@ -82,7 +99,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     });
 
     // 3. Kelola Mata Pelajaran - Admin & Guru
-    Route::middleware([EnsureRole::class . ':admin,guru'])->prefix('mapel')->name('mapel.')->group(function () {
+    Route::middleware([EnsureRole::class.':admin,guru'])->prefix('mapel')->name('mapel.')->group(function () {
         Route::get('/', [MapelController::class, 'index'])->name('index');
         Route::post('/', [MapelController::class, 'store'])->name('store');
         Route::put('/{id}', [MapelController::class, 'update'])->name('update');
@@ -90,7 +107,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     });
 
     // 4. Guru Dashboard & Pembelajaran (Role: Guru)
-    Route::middleware([EnsureRole::class . ':guru'])->prefix('guru')->name('guru.')->group(function () {
+    Route::middleware([EnsureRole::class.':guru'])->prefix('guru')->name('guru.')->group(function () {
         Route::get('/dashboard', [GuruDashboardController::class, 'index'])->name('dashboard');
         Route::get('/jadwal-mengajar', [GuruController::class, 'jadwalMengajar'])->name('jadwal.index');
         Route::get('/jadwal', [GuruController::class, 'jadwalMengajar'])->name('jadwal');
@@ -178,20 +195,20 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         });
     });
 
-    Route::middleware([EnsureRole::class . ':admin,guru'])->get('/rpp-guru', [RppController::class, 'guruIndex'])->name('rpp_guru.index');
-    Route::middleware([EnsureRole::class . ':admin,guru'])->get('/rekap-nilai', [QuizController::class, 'rekap'])->name('rekap_nilai.index');
-    Route::middleware([EnsureRole::class . ':admin,guru'])->get('/rekap-ujian', [QuizController::class, 'rekap'])->name('rekap_ujian.index');
-    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-nilai/feedback', [QuizController::class, 'simpanFeedback'])->name('rekap_nilai.feedback');
-    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/feedback', [QuizController::class, 'simpanFeedback'])->name('rekap_ujian.feedback');
-    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-nilai/kirim', [QuizController::class, 'kirimNilai'])->name('rekap_nilai.kirim');
-    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/kirim', [QuizController::class, 'kirimNilai'])->name('rekap_ujian.kirim');
-    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-nilai/kirim-semua/{idQuiz}', [QuizController::class, 'kirimNilaiSemua'])->name('rekap_nilai.kirim_semua');
-    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/kirim-semua/{idQuiz}', [QuizController::class, 'kirimNilaiSemua'])->name('rekap_ujian.kirim_semua');
-    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-nilai/jadwalkan-remedial/{idQuiz}', [QuizController::class, 'jadwalkanRemedial'])->name('rekap_nilai.jadwalkan_remedial');
-    Route::middleware([EnsureRole::class . ':admin,guru'])->post('/rekap-ujian/jadwalkan-remedial/{idQuiz}', [QuizController::class, 'jadwalkanRemedial'])->name('rekap_ujian.jadwalkan_remedial');
+    Route::middleware([EnsureRole::class.':admin,guru'])->get('/rpp-guru', [RppController::class, 'guruIndex'])->name('rpp_guru.index');
+    Route::middleware([EnsureRole::class.':admin,guru'])->get('/rekap-nilai', [QuizController::class, 'rekap'])->name('rekap_nilai.index');
+    Route::middleware([EnsureRole::class.':admin,guru'])->get('/rekap-ujian', [QuizController::class, 'rekap'])->name('rekap_ujian.index');
+    Route::middleware([EnsureRole::class.':admin,guru'])->post('/rekap-nilai/feedback', [QuizController::class, 'simpanFeedback'])->name('rekap_nilai.feedback');
+    Route::middleware([EnsureRole::class.':admin,guru'])->post('/rekap-ujian/feedback', [QuizController::class, 'simpanFeedback'])->name('rekap_ujian.feedback');
+    Route::middleware([EnsureRole::class.':admin,guru'])->post('/rekap-nilai/kirim', [QuizController::class, 'kirimNilai'])->name('rekap_nilai.kirim');
+    Route::middleware([EnsureRole::class.':admin,guru'])->post('/rekap-ujian/kirim', [QuizController::class, 'kirimNilai'])->name('rekap_ujian.kirim');
+    Route::middleware([EnsureRole::class.':admin,guru'])->post('/rekap-nilai/kirim-semua/{idQuiz}', [QuizController::class, 'kirimNilaiSemua'])->name('rekap_nilai.kirim_semua');
+    Route::middleware([EnsureRole::class.':admin,guru'])->post('/rekap-ujian/kirim-semua/{idQuiz}', [QuizController::class, 'kirimNilaiSemua'])->name('rekap_ujian.kirim_semua');
+    Route::middleware([EnsureRole::class.':admin,guru'])->post('/rekap-nilai/jadwalkan-remedial/{idQuiz}', [QuizController::class, 'jadwalkanRemedial'])->name('rekap_nilai.jadwalkan_remedial');
+    Route::middleware([EnsureRole::class.':admin,guru'])->post('/rekap-ujian/jadwalkan-remedial/{idQuiz}', [QuizController::class, 'jadwalkanRemedial'])->name('rekap_ujian.jadwalkan_remedial');
 
     // 5. Akun Guru CRUD (Role: Admin)
-    Route::middleware([EnsureRole::class . ':admin'])->prefix('guru')->name('guru.')->group(function () {
+    Route::middleware([EnsureRole::class.':admin'])->prefix('guru')->name('guru.')->group(function () {
         Route::get('/', [GuruController::class, 'index'])->name('index');
         Route::get('/create', [GuruController::class, 'create'])->name('create');
         Route::post('/', [GuruController::class, 'store'])->name('store');
@@ -201,7 +218,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     });
 
     // 6. Siswa Dashboard & Learning Engine (Role: Siswa)
-    Route::middleware([EnsureRole::class . ':siswa'])->prefix('siswa')->name('siswa.')->group(function () {
+    Route::middleware([EnsureRole::class.':siswa'])->prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/dashboard', [SiswaController::class, 'dashboard'])->name('dashboard');
         Route::get('/beranda', [SiswaController::class, 'dashboard'])->name('beranda');
         Route::get('/profil', [SiswaController::class, 'profile'])->name('profile');
@@ -232,7 +249,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     }); // end siswa group
 
     // Notifikasi PR Siswa (Role: Siswa, serta Guru & Admin untuk pengujian portal siswa)
-    Route::middleware([EnsureRole::class . ':siswa,guru,admin'])->prefix('siswa/notifikasi-pr')->name('siswa.notifikasi_pr.')->group(function () {
+    Route::middleware([EnsureRole::class.':siswa,guru,admin'])->prefix('siswa/notifikasi-pr')->name('siswa.notifikasi_pr.')->group(function () {
         Route::get('/', [SiswaNotifikasiPrController::class, 'index'])->name('index');
         Route::get('/{id}', [SiswaNotifikasiPrController::class, 'show'])->name('show');
         Route::post('/{id}/baca', [SiswaNotifikasiPrController::class, 'tandaiBaca'])->name('tandai_baca');
@@ -240,7 +257,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     });
 
     // 7. Akun Siswa CRUD (Role: Admin & Guru)
-    Route::middleware([EnsureRole::class . ':admin,guru'])->prefix('siswa')->name('siswa.')->group(function () {
+    Route::middleware([EnsureRole::class.':admin,guru'])->prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/', [SiswaController::class, 'index'])->name('index');
         Route::get('/create', [SiswaController::class, 'create'])->name('create');
         Route::post('/', [SiswaController::class, 'store'])->name('store');
@@ -250,16 +267,18 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     });
 
     // 8. Admin Dashboard & Pengaturan (Role: Admin)
-    Route::middleware([EnsureRole::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::middleware([EnsureRole::class.':admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-        Route::get('/', function() { return redirect()->route('admin.dashboard'); });
+        Route::get('/', function () {
+            return redirect()->route('admin.dashboard');
+        });
         Route::get('/absensi/rekap', [AbsensiController::class, 'rekap'])->name('absensi.rekap');
         Route::get('/absensi/settings', [AbsensiController::class, 'settingsView'])->name('absensi.settings');
         Route::post('/absensi/settings', [AbsensiController::class, 'updateSettings'])->name('absensi.settings.update');
     });
 
     // 9. Jadwal (Role: Admin & Guru)
-    Route::middleware([EnsureRole::class . ':admin,guru'])->prefix('jadwal')->name('jadwal.')->group(function () {
+    Route::middleware([EnsureRole::class.':admin,guru'])->prefix('jadwal')->name('jadwal.')->group(function () {
         Route::get('/', [JadwalController::class, 'index'])->name('index');
         Route::get('/create', [JadwalController::class, 'create'])->name('create');
         Route::post('/', [JadwalController::class, 'store'])->name('store');
@@ -270,4 +289,19 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     });
 });
 
-require __DIR__ . '/qr_absen.php';
+// 10. QR Absensi (kelola QR siswa: Admin; scan absensi: Guru & Admin)
+Route::middleware([EnsureAuthenticated::class, EnsureRole::class.':admin'])->prefix('admin/qr-siswa')->name('admin.qr.')->group(function () {
+    Route::get('/', [BarcodeController::class, 'index'])->name('index');
+    Route::post('/buat-semua', [BarcodeController::class, 'storeAll'])->name('storeAll');
+    Route::get('/cetak', [BarcodeController::class, 'cetakKelas'])->name('cetakKelas');
+
+    Route::post('/{siswa}', [BarcodeController::class, 'store'])->name('store');
+    Route::post('/{siswa}/buat-ulang', [BarcodeController::class, 'regenerate'])->name('regenerate');
+    Route::get('/{siswa}/cetak', [BarcodeController::class, 'cetak'])->name('cetak');
+});
+
+Route::middleware([EnsureAuthenticated::class, EnsureRole::class.':admin,guru'])->prefix('guru/absen')->name('guru.absen.')->group(function () {
+    Route::get('/', [AbsenScanController::class, 'index'])->name('index');
+    Route::post('/scan', [AbsenScanController::class, 'store'])->name('scan');
+    Route::post('/izin', [AbsenScanController::class, 'storeIzin'])->name('izin');
+});

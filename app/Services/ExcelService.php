@@ -16,6 +16,7 @@ class ExcelService
         if ($ext === 'csv') {
             return self::parseCsv($filePath);
         }
+
         return self::parseRows($filePath);
     }
 
@@ -40,6 +41,7 @@ class ExcelService
             }
             fclose($handle);
         }
+
         return $rows;
     }
 
@@ -49,7 +51,7 @@ class ExcelService
      */
     public static function parseRows(string $filePath): array
     {
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         if ($zip->open($filePath) !== true) {
             return [];
         }
@@ -106,6 +108,7 @@ class ExcelService
         }
 
         $zip->close();
+
         return $rows;
     }
 
@@ -114,8 +117,8 @@ class ExcelService
      */
     public static function generateQuizTemplate(): string
     {
-        $tempPath = tempnam(sys_get_temp_dir(), 'tpl_') . '.xlsx';
-        $zip = new ZipArchive();
+        $tempPath = tempnam(sys_get_temp_dir(), 'tpl_').'.xlsx';
+        $zip = new ZipArchive;
 
         if ($zip->open($tempPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === true) {
             // [Content_Types].xml
@@ -157,33 +160,33 @@ class ExcelService
                 'Hasil dari 8 x 7 adalah...', '54', '56', '58', '60', 'B',
             ];
 
-            $sst = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . "\n";
-            $sst .= '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="' . count($sampleStrings) . '" uniqueCount="' . count($sampleStrings) . '">';
+            $sst = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'."\n";
+            $sst .= '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="'.count($sampleStrings).'" uniqueCount="'.count($sampleStrings).'">';
             foreach ($sampleStrings as $s) {
-                $sst .= '<si><t>' . htmlspecialchars($s, ENT_QUOTES | ENT_XML1, 'UTF-8') . '</t></si>';
+                $sst .= '<si><t>'.htmlspecialchars($s, ENT_QUOTES | ENT_XML1, 'UTF-8').'</t></si>';
             }
             $sst .= '</sst>';
             $zip->addFromString('xl/sharedStrings.xml', $sst);
 
             // Sheet1
-            $sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . "\n";
+            $sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'."\n";
             $sheet .= '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>';
 
             // Header row
             $sheet .= '<row r="1">';
             for ($i = 0; $i < 6; $i++) {
                 $col = chr(65 + $i);
-                $sheet .= '<c r="' . $col . '1" t="s"><v>' . $i . '</v></c>';
+                $sheet .= '<c r="'.$col.'1" t="s"><v>'.$i.'</v></c>';
             }
             $sheet .= '</row>';
 
             // Sample rows
             $dataIdx = 6;
             for ($row = 2; $row <= 4; $row++) {
-                $sheet .= '<row r="' . $row . '">';
+                $sheet .= '<row r="'.$row.'">';
                 for ($col = 0; $col < 6; $col++) {
                     $colChar = chr(65 + $col);
-                    $sheet .= '<c r="' . $colChar . $row . '" t="s"><v>' . $dataIdx . '</v></c>';
+                    $sheet .= '<c r="'.$colChar.$row.'" t="s"><v>'.$dataIdx.'</v></c>';
                     $dataIdx++;
                 }
                 $sheet .= '</row>';
@@ -196,6 +199,7 @@ class ExcelService
 
         $content = file_get_contents($tempPath);
         @unlink($tempPath);
+
         return $content;
     }
 }

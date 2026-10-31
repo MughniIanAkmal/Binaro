@@ -12,7 +12,6 @@ class Jadwal extends Model
 
     public $timestamps = false;
 
-
     protected $fillable = [
         'id_mapel',
         'id_guru',

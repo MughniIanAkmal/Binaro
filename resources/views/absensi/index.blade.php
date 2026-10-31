@@ -194,7 +194,7 @@
     </div>
 </div>
 
-@include('absensi.modal-edit')
+@include('absensi.modal_edit')
 
 <!-- Modal Settings -->
 <div id="settingsModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">

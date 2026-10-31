@@ -15,10 +15,10 @@
         </div>
         <div class="flex items-center gap-2.5">
             @if(session('user_type') === 'admin')
-            <a href="{{ route('admin.absensi.settings') }}" class="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition flex items-center gap-1.5 shadow-xs">
+            <!-- <a href="{{ route('admin.absensi.settings') }}" class="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition flex items-center gap-1.5 shadow-xs">
                 <i class="fas fa-clock text-slate-500"></i>
                 <span>Setting Jam Absen</span>
-            </a>
+            </a> -->
             @endif
             <a href="{{ route('jadwal.create') }}" class="bg-[#13527D] hover:bg-[#0E3D5D] text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                 <i class="fas fa-plus"></i> Tambah Jadwal

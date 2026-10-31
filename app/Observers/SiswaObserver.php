@@ -24,7 +24,7 @@ class SiswaObserver
 
         $data = [
             'id_siswa' => $siswa->id_siswa,
-            'kode_barcode' => 'BIN-' . $siswa->nisn . '-' . Str::upper(Str::random(6)),
+            'kode_barcode' => 'BIN-'.$siswa->nisn.'-'.Str::upper(Str::random(6)),
         ];
 
         if (Schema::hasColumn('barcode', 'is_active')) {

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Absen;
 use App\Models\Siswa;
 use Illuminate\Http\Request;

@@ -7,6 +7,8 @@ use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Rpp;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class RppValidationAndLimitsTest extends TestCase
@@ -14,8 +16,11 @@ class RppValidationAndLimitsTest extends TestCase
     use RefreshDatabase;
 
     protected $guru;
+
     protected $mapel;
+
     protected $kelas;
+
     protected $session;
 
     protected function setUp(): void
@@ -231,10 +236,10 @@ class RppValidationAndLimitsTest extends TestCase
 
     public function test_rpp_file_only_accepts_pdf_and_word_documents()
     {
-        \Illuminate\Support\Facades\Storage::fake('public');
+        Storage::fake('public');
 
         // 1. Rejected: PNG image
-        $pngFile = \Illuminate\Http\UploadedFile::fake()->create('skenario.png', 500, 'image/png');
+        $pngFile = UploadedFile::fake()->create('skenario.png', 500, 'image/png');
         $resPng = $this->withSession($this->session)->post(route('guru.rpp.store'), [
             'id_mapel' => $this->mapel->id_mapel,
             'judul_rpp' => 'Modul Ajar IPA',
@@ -244,7 +249,7 @@ class RppValidationAndLimitsTest extends TestCase
         $resPng->assertSessionHasErrors(['file_rpp']);
 
         // 2. Rejected: Executable or arbitrary file
-        $exeFile = \Illuminate\Http\UploadedFile::fake()->create('program.exe', 500);
+        $exeFile = UploadedFile::fake()->create('program.exe', 500);
         $resExe = $this->withSession($this->session)->post(route('guru.rpp.store'), [
             'id_mapel' => $this->mapel->id_mapel,
             'judul_rpp' => 'Modul Ajar IPA',
@@ -254,7 +259,7 @@ class RppValidationAndLimitsTest extends TestCase
         $resExe->assertSessionHasErrors(['file_rpp']);
 
         // 3. Accepted: PDF
-        $pdfFile = \Illuminate\Http\UploadedFile::fake()->create('modul_ajar.pdf', 500, 'application/pdf');
+        $pdfFile = UploadedFile::fake()->create('modul_ajar.pdf', 500, 'application/pdf');
         $resPdf = $this->withSession($this->session)->post(route('guru.rpp.store'), [
             'id_mapel' => $this->mapel->id_mapel,
             'judul_rpp' => 'Modul Ajar IPA PDF',
@@ -264,7 +269,7 @@ class RppValidationAndLimitsTest extends TestCase
         $resPdf->assertSessionHas('success');
 
         // 4. Accepted: Word DOCX
-        $docxFile = \Illuminate\Http\UploadedFile::fake()->create('modul_ajar.docx', 500, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        $docxFile = UploadedFile::fake()->create('modul_ajar.docx', 500, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         $resDocx = $this->withSession($this->session)->post(route('guru.rpp.store'), [
             'id_mapel' => $this->mapel->id_mapel,
             'judul_rpp' => 'Modul Ajar IPA Word',

@@ -11,15 +11,17 @@ class EnsureRole
     {
         $userType = session('user_type');
 
-        if (!$userType || !in_array($userType, $roles)) {
+        if (! $userType || ! in_array($userType, $roles)) {
             if ($userType) {
                 $target = match ($userType) {
                     'admin' => '/admin/dashboard',
                     'siswa' => '/siswa/dashboard',
                     default => '/guru/dashboard',
                 };
+
                 return redirect($target)->with('error', 'Akses ditolak. Anda tidak memiliki hak akses ke halaman tersebut.');
             }
+
             return redirect('/login')->with('error', 'Akses ditolak. Anda tidak memiliki hak akses.');
         }
 

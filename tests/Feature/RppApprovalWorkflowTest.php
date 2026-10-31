@@ -7,6 +7,7 @@ use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Rpp;
+use App\Models\Siswa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,8 +16,11 @@ class RppApprovalWorkflowTest extends TestCase
     use RefreshDatabase;
 
     protected $guru;
+
     protected $admin;
+
     protected $mapel;
+
     protected $kelas;
 
     protected function setUp(): void
@@ -211,7 +215,7 @@ class RppApprovalWorkflowTest extends TestCase
 
     public function test_admin_approving_or_revising_rpp_does_not_create_siswa_notifikasi_pr()
     {
-        $siswa = \App\Models\Siswa::create([
+        $siswa = Siswa::create([
             'nm_siswa' => 'Budi Santoso',
             'nis' => '12345',
             'nisn' => '0098765432',

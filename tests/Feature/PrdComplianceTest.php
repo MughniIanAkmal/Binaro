@@ -2,19 +2,19 @@
 
 namespace Tests\Feature;
 
-use App\Models\Admin;
 use App\Models\Absen;
+use App\Models\Admin;
 use App\Models\Barcode;
 use App\Models\Guru;
-use App\Models\MataPelajaran;
 use App\Models\Kelas;
+use App\Models\MataPelajaran;
 use App\Models\Rpp;
 use App\Models\Siswa;
+use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Session;
 use Tests\TestCase;
-use Carbon\Carbon;
 
 class PrdComplianceTest extends TestCase
 {
@@ -157,7 +157,7 @@ class PrdComplianceTest extends TestCase
         ]);
 
         $barcode = Barcode::where('id_siswa', $siswa->id_siswa)->first();
-        if (!$barcode) {
+        if (! $barcode) {
             $barcode = Barcode::create([
                 'id_siswa' => $siswa->id_siswa,
                 'kode_barcode' => 'BIN-1111111111-ABCDEF',
@@ -184,7 +184,7 @@ class PrdComplianceTest extends TestCase
                 'status',
                 'waktu_absen',
                 'metode',
-            ]
+            ],
         ]);
         $this->assertTrue($response->json('success'));
         $this->assertEquals('Hadir', $response->json('data.status'));
@@ -244,7 +244,7 @@ class PrdComplianceTest extends TestCase
         // Should return unauthorized (401) or forbidden (403)
         $this->assertTrue(
             $response->status() === 401 || $response->status() === 403,
-            'Expected 401 or 403 status code, got ' . $response->status()
+            'Expected 401 or 403 status code, got '.$response->status()
         );
     }
 
@@ -364,7 +364,7 @@ class PrdComplianceTest extends TestCase
 
         // Call the rekap endpoint with admin session
         $response = $this->actingAs($admin, 'sanctum')
-            ->getJson('/api/admin/absensi/rekap?fecha=' . $today);
+            ->getJson('/api/admin/absensi/rekap?fecha='.$today);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([

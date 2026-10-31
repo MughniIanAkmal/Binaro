@@ -7,7 +7,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class Guru extends Authenticatable
 {
     protected $table = 'guru';
+
     protected $primaryKey = 'id_guru';
+
     public $timestamps = true;
 
     protected $fillable = [

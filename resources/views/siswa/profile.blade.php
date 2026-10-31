@@ -22,15 +22,15 @@
         @include('siswa.profile._identity')
 
         <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-            @include('siswa.profile._qr-card')
-            @include('siswa.profile._details-card')
+            @include('siswa.profile._qr_card')
+            @include('siswa.profile._details_card')
         </div>
 
         @include('siswa.profile._security')
     </div>
 </div>
 
-@include('siswa.profile._qr-modal')
-@include('siswa.profile._edit-modal')
+@include('siswa.profile._qr_modal')
+@include('siswa.profile._edit_modal')
 @include('siswa.profile._scripts')
 @endsection

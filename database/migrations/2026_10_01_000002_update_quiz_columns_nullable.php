@@ -18,13 +18,13 @@ return new class extends Migration
             if (Schema::hasColumn('quiz', 'nama_quiz')) {
                 $table->string('nama_quiz', 150)->nullable()->change();
             }
-            if (!Schema::hasColumn('quiz', 'id_sub_bab')) {
+            if (! Schema::hasColumn('quiz', 'id_sub_bab')) {
                 $table->unsignedBigInteger('id_sub_bab')->nullable()->after('id_quiz');
             }
-            if (!Schema::hasColumn('quiz', 'id_materi')) {
+            if (! Schema::hasColumn('quiz', 'id_materi')) {
                 $table->unsignedBigInteger('id_materi')->nullable()->after('id_sub_bab');
             }
-            if (!Schema::hasColumn('quiz', 'judul_quiz')) {
+            if (! Schema::hasColumn('quiz', 'judul_quiz')) {
                 $table->string('judul_quiz', 150)->nullable()->after('id_materi');
             }
         });

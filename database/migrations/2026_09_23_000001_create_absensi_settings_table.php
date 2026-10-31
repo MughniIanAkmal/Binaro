@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -15,7 +16,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        \Illuminate\Support\Facades\DB::table('absensi_settings')->insert([
+        DB::table('absensi_settings')->insert([
             ['key' => 'batas_awal', 'value' => '07:00'],
             ['key' => 'batas_tepat', 'value' => '08:00'],
             ['key' => 'batas_tutup', 'value' => '12:00'],

@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Rpp;
-use App\Models\Kelas;
-use App\Models\MataPelajaran;
 use App\Models\Guru;
 use App\Models\JadwalMataPelajaran;
-use App\Models\Notifikasi;
-use App\Models\Siswa;
+use App\Models\Kelas;
+use App\Models\MataPelajaran;
+use App\Models\Rpp;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class RppController extends Controller
 {
@@ -47,7 +46,7 @@ class RppController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('judul_rpp', 'like', "%{$search}%")
                     ->orWhere('deskripsi', 'like', "%{$search}%")
-                    ->orWhereHas('guru', fn($g) => $g->where('nama_guru', 'like', "%{$search}%")->orWhere('nip', 'like', "%{$search}%"));
+                    ->orWhereHas('guru', fn ($g) => $g->where('nama_guru', 'like', "%{$search}%")->orWhere('nip', 'like', "%{$search}%"));
             });
         }
 
@@ -68,7 +67,7 @@ class RppController extends Controller
         if (session()->has('user_id') && session('user_type') === 'guru') {
             $guru = Guru::find(session('user_id'));
         }
-        if (!$guru) {
+        if (! $guru) {
             $guru = Guru::first();
         }
 
@@ -134,7 +133,7 @@ class RppController extends Controller
                 $q->where('judul_rpp', 'like', "%{$search}%")
                     ->orWhere('deskripsi', 'like', "%{$search}%")
                     ->orWhere('modul_ke', 'like', "%{$search}%")
-                    ->orWhereHas('mataPelajaran', fn($m) => $m->where('nama_mapel', 'like', "%{$search}%"));
+                    ->orWhereHas('mataPelajaran', fn ($m) => $m->where('nama_mapel', 'like', "%{$search}%"));
             });
         }
 
@@ -143,7 +142,7 @@ class RppController extends Controller
         $kelasList = Kelas::all();
         $jadwalList = $guru ? JadwalMataPelajaran::with(['mataPelajaran', 'kelas'])->where('id_guru', $guru->id_guru)->get() : collect();
 
-        return view('rpp-guru.index', compact(
+        return view('rpp_guru.index', compact(
             'rppList',
             'kpiGuru',
             'mapelList',
@@ -161,61 +160,64 @@ class RppController extends Controller
         }
 
         $idGuru = $request->input('id_guru');
-        if (!$idGuru && session('user_type') === 'guru') {
+        if (! $idGuru && session('user_type') === 'guru') {
             $idGuru = session('user_id');
         }
-        if (!$idGuru) {
+        if (! $idGuru) {
             $idGuru = Guru::value('id_guru');
         }
         $request->merge(['id_guru' => $idGuru]);
 
         $validated = $request->validate([
-            'id_guru'       => 'required|exists:guru,id_guru',
-            'id_mapel'      => 'required|exists:mata_pelajaran,id_mapel',
-            'id_rooms'      => 'nullable|exists:kelas,id_rooms',
-            'id_jadwal'     => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
-            'judul_rpp'     => [
+            'id_guru' => 'required|exists:guru,id_guru',
+            'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
+            'id_rooms' => 'nullable|exists:kelas,id_rooms',
+            'id_jadwal' => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
+            'judul_rpp' => [
                 'required',
                 'string',
                 'min:3',
                 'max:100',
                 'regex:/^[a-zA-Z0-9\s]+$/u',
             ],
-            'deskripsi'     => ['nullable', 'string', 'max:500'],
+            'deskripsi' => ['nullable', 'string', 'max:500'],
             'alokasi_waktu' => ['nullable', 'string', 'max:4'],
-            'fase'          => ['nullable', 'string', 'max:20'],
-            'modul_ke'      => ['nullable', 'string', 'max:20', 'regex:/^[a-zA-Z0-9\s]+$/u'],
+            'fase' => ['nullable', 'string', 'max:20'],
+            'modul_ke' => ['nullable', 'string', 'max:20', 'regex:/^[a-zA-Z0-9\s]+$/u'],
             'target_jadwal' => ['nullable', 'string', 'max:50'],
-            'ruang'         => ['nullable', 'string', 'max:50'],
-            'target_tanggal'=> 'nullable|string|max:50',
-            'custom_tags'   => [
+            'ruang' => ['nullable', 'string', 'max:50'],
+            'target_tanggal' => 'nullable|string|max:50',
+            'custom_tags' => [
                 'nullable',
                 function ($attribute, $value, $fail) {
-                    if (empty($value)) return;
+                    if (empty($value)) {
+                        return;
+                    }
                     $tags = is_array($value) ? $value : array_filter(array_map('trim', explode(',', $value)));
                     foreach ($tags as $tag) {
-                        if (!preg_match('/^[a-zA-Z0-9\s]+$/u', $tag)) {
+                        if (! preg_match('/^[a-zA-Z0-9\s]+$/u', $tag)) {
                             $fail('Label / Tag hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).');
+
                             return;
                         }
                     }
-                }
+                },
             ],
-            'status'        => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
-            'file_rpp'      => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+            'status' => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
+            'file_rpp' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
         ], [
             'judul_rpp.required' => 'Topik / Judul Modul Ajar wajib diisi.',
-            'judul_rpp.min'      => 'Topik / Judul Modul Ajar minimal 3 karakter.',
-            'judul_rpp.max'      => 'Topik / Judul Modul Ajar maksimal 100 karakter.',
-            'judul_rpp.regex'    => 'Topik / Judul Modul Ajar hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
-            'modul_ke.max'       => 'Nomor Modul atau Bab maksimal 20 karakter.',
-            'modul_ke.regex'     => 'Nomor Modul atau Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
-            'alokasi_waktu.max'  => 'Alokasi Waktu maksimal 4 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
-            'target_jadwal.max'  => 'Target Roster Jadwal maksimal 50 karakter.',
-            'ruang.max'          => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
-            'deskripsi.max'      => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
-            'file_rpp.mimes'     => 'Format berkas RPP & Modul hanya boleh berupa dokumen PDF (.pdf) atau Word (.docx, .doc).',
-            'file_rpp.max'       => 'Ukuran berkas RPP & Modul maksimal 10MB.',
+            'judul_rpp.min' => 'Topik / Judul Modul Ajar minimal 3 karakter.',
+            'judul_rpp.max' => 'Topik / Judul Modul Ajar maksimal 100 karakter.',
+            'judul_rpp.regex' => 'Topik / Judul Modul Ajar hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
+            'modul_ke.max' => 'Nomor Modul atau Bab maksimal 20 karakter.',
+            'modul_ke.regex' => 'Nomor Modul atau Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
+            'alokasi_waktu.max' => 'Alokasi Waktu maksimal 4 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
+            'target_jadwal.max' => 'Target Roster Jadwal maksimal 50 karakter.',
+            'ruang.max' => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
+            'deskripsi.max' => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
+            'file_rpp.mimes' => 'Format berkas RPP & Modul hanya boleh berupa dokumen PDF (.pdf) atau Word (.docx, .doc).',
+            'file_rpp.max' => 'Ukuran berkas RPP & Modul maksimal 10MB.',
         ]);
 
         if ($request->hasFile('file_rpp')) {
@@ -256,7 +258,7 @@ class RppController extends Controller
     public function show(Request $request, $id)
     {
         $rpp = Rpp::with(['guru', 'mataPelajaran', 'kelas', 'jadwal'])->where('id_rpp', $id)->first();
-        if (!$rpp) {
+        if (! $rpp) {
             if ($request->wantsJson() || $request->ajax()) {
                 return response()->json(['error' => 'RPP tidak ditemukan.'], 404);
             }
@@ -273,56 +275,59 @@ class RppController extends Controller
     public function update(Request $request, $id)
     {
         $rpp = Rpp::where('id_rpp', $id)->first();
-        if (!$rpp) {
+        if (! $rpp) {
             abort(404, 'RPP tidak ditemukan.');
         }
 
         $validated = $request->validate([
-            'id_mapel'      => 'required|exists:mata_pelajaran,id_mapel',
-            'id_rooms'      => 'nullable|exists:kelas,id_rooms',
-            'id_jadwal'     => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
-            'judul_rpp'     => [
+            'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
+            'id_rooms' => 'nullable|exists:kelas,id_rooms',
+            'id_jadwal' => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
+            'judul_rpp' => [
                 'required',
                 'string',
                 'min:3',
                 'max:100',
                 'regex:/^[a-zA-Z0-9\s]+$/u',
             ],
-            'deskripsi'     => ['nullable', 'string', 'max:500'],
+            'deskripsi' => ['nullable', 'string', 'max:500'],
             'alokasi_waktu' => ['nullable', 'string', 'max:4'],
-            'fase'          => ['nullable', 'string', 'max:20'],
-            'modul_ke'      => ['nullable', 'string', 'max:20', 'regex:/^[a-zA-Z0-9\s]+$/u'],
+            'fase' => ['nullable', 'string', 'max:20'],
+            'modul_ke' => ['nullable', 'string', 'max:20', 'regex:/^[a-zA-Z0-9\s]+$/u'],
             'target_jadwal' => ['nullable', 'string', 'max:50'],
-            'ruang'         => ['nullable', 'string', 'max:50'],
-            'target_tanggal'=> 'nullable|string|max:50',
-            'custom_tags'   => [
+            'ruang' => ['nullable', 'string', 'max:50'],
+            'target_tanggal' => 'nullable|string|max:50',
+            'custom_tags' => [
                 'nullable',
                 function ($attribute, $value, $fail) {
-                    if (empty($value)) return;
+                    if (empty($value)) {
+                        return;
+                    }
                     $tags = is_array($value) ? $value : array_filter(array_map('trim', explode(',', $value)));
                     foreach ($tags as $tag) {
-                        if (!preg_match('/^[a-zA-Z0-9\s]+$/u', $tag)) {
+                        if (! preg_match('/^[a-zA-Z0-9\s]+$/u', $tag)) {
                             $fail('Label / Tag hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).');
+
                             return;
                         }
                     }
-                }
+                },
             ],
-            'status'        => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
-            'file_rpp'      => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+            'status' => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
+            'file_rpp' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
         ], [
             'judul_rpp.required' => 'Topik / Judul Modul Ajar wajib diisi.',
-            'judul_rpp.min'      => 'Topik / Judul Modul Ajar minimal 3 karakter.',
-            'judul_rpp.max'      => 'Topik / Judul Modul Ajar maksimal 100 karakter.',
-            'judul_rpp.regex'    => 'Topik / Judul Modul Ajar hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
-            'modul_ke.max'       => 'Nomor Modul atau Bab maksimal 20 karakter.',
-            'modul_ke.regex'     => 'Nomor Modul atau Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
-            'alokasi_waktu.max'  => 'Alokasi Waktu maksimal 4 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
-            'target_jadwal.max'  => 'Target Roster Jadwal maksimal 50 karakter.',
-            'ruang.max'          => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
-            'deskripsi.max'      => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
-            'file_rpp.mimes'     => 'Format berkas RPP & Modul hanya boleh berupa dokumen PDF (.pdf) atau Word (.docx, .doc).',
-            'file_rpp.max'       => 'Ukuran berkas RPP & Modul maksimal 10MB.',
+            'judul_rpp.min' => 'Topik / Judul Modul Ajar minimal 3 karakter.',
+            'judul_rpp.max' => 'Topik / Judul Modul Ajar maksimal 100 karakter.',
+            'judul_rpp.regex' => 'Topik / Judul Modul Ajar hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
+            'modul_ke.max' => 'Nomor Modul atau Bab maksimal 20 karakter.',
+            'modul_ke.regex' => 'Nomor Modul atau Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
+            'alokasi_waktu.max' => 'Alokasi Waktu maksimal 4 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
+            'target_jadwal.max' => 'Target Roster Jadwal maksimal 50 karakter.',
+            'ruang.max' => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
+            'deskripsi.max' => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
+            'file_rpp.mimes' => 'Format berkas RPP & Modul hanya boleh berupa dokumen PDF (.pdf) atau Word (.docx, .doc).',
+            'file_rpp.max' => 'Ukuran berkas RPP & Modul maksimal 10MB.',
         ]);
 
         if ($request->hasFile('file_rpp')) {
@@ -375,7 +380,7 @@ class RppController extends Controller
         ]);
 
         $rpp = Rpp::where('id_rpp', $id)->first();
-        if (!$rpp) {
+        if (! $rpp) {
             abort(404, 'RPP tidak ditemukan.');
         }
 
@@ -386,10 +391,10 @@ class RppController extends Controller
             'catatan_revisi' => $catatan,
         ]);
 
-        $pesanSukses = match($request->status) {
+        $pesanSukses = match ($request->status) {
             'terverifikasi' => "Permintaan RPP '{$rpp->judul_rpp}' berhasil diterima dan disetujui.",
-            'perlu_revisi'  => "Permintaan RPP '{$rpp->judul_rpp}' dikembalikan ke guru untuk revisi.",
-            default => "Status RPP berhasil diperbarui.",
+            'perlu_revisi' => "Permintaan RPP '{$rpp->judul_rpp}' dikembalikan ke guru untuk revisi.",
+            default => 'Status RPP berhasil diperbarui.',
         };
 
         return back()->with('success', $pesanSukses);
@@ -398,47 +403,49 @@ class RppController extends Controller
     public function destroy($id)
     {
         $rpp = Rpp::where('id_rpp', $id)->first();
-        if (!$rpp) {
+        if (! $rpp) {
             abort(404, 'RPP tidak ditemukan.');
         }
         if ($rpp->file_rpp) {
             Storage::disk('public')->delete($rpp->file_rpp);
         }
         $rpp->delete();
+
         return back()->with('success', 'RPP sukses dihapus.');
     }
 
     public function download($id)
     {
         $rpp = Rpp::with(['guru', 'mataPelajaran', 'kelas'])->where('id_rpp', $id)->first();
-        if (!$rpp) {
+        if (! $rpp) {
             abort(404, 'Berkas RPP tidak ditemukan.');
         }
 
         if ($rpp->file_rpp && Storage::disk('public')->exists($rpp->file_rpp)) {
-            return response()->download(storage_path('app/public/' . $rpp->file_rpp), basename($rpp->file_rpp));
+            return response()->download(storage_path('app/public/'.$rpp->file_rpp), basename($rpp->file_rpp));
         }
 
         // Jika belum ada berkas upload fisik, buat dokumen ringkasan format text / docx siap cetak
         $content = "RENCANA PELAKSANAAN PEMBELAJARAN (MODUL AJAR)\n";
         $content .= "KURIKULUM MERDEKA - SDN KALITAPEN 01\n";
         $content .= "=========================================================\n\n";
-        $content .= "Topik / Judul: " . $rpp->judul_rpp . "\n";
-        $content .= "Fase & Modul: " . ($rpp->fase ?? 'Fase B') . " • " . ($rpp->modul_ke ?? 'Modul #' . $rpp->id_rpp) . "\n";
-        $content .= "Mata Pelajaran: " . ($rpp->mataPelajaran->nama_mapel ?? '-') . "\n";
-        $content .= "Kelas: " . ($rpp->kelas->pararel ?? 'Kelas 4B') . "\n";
-        $content .= "Guru Pengajar: " . ($rpp->guru->nama_guru ?? '-') . " (NIP. " . ($rpp->guru->nip ?? '-') . ")\n";
-        $content .= "Alokasi Waktu: " . ($rpp->alokasi_waktu ?? '2 JP') . "\n";
-        $content .= "Jadwal & Ruang: " . ($rpp->target_jadwal ?? '-') . " (" . ($rpp->ruang ?? 'Ruang Kelas 4B') . ")\n\n";
+        $content .= 'Topik / Judul: '.$rpp->judul_rpp."\n";
+        $content .= 'Fase & Modul: '.($rpp->fase ?? 'Fase B').' • '.($rpp->modul_ke ?? 'Modul #'.$rpp->id_rpp)."\n";
+        $content .= 'Mata Pelajaran: '.($rpp->mataPelajaran->nama_mapel ?? '-')."\n";
+        $content .= 'Kelas: '.($rpp->kelas->pararel ?? 'Kelas 4B')."\n";
+        $content .= 'Guru Pengajar: '.($rpp->guru->nama_guru ?? '-').' (NIP. '.($rpp->guru->nip ?? '-').")\n";
+        $content .= 'Alokasi Waktu: '.($rpp->alokasi_waktu ?? '2 JP')."\n";
+        $content .= 'Jadwal & Ruang: '.($rpp->target_jadwal ?? '-').' ('.($rpp->ruang ?? 'Ruang Kelas 4B').")\n\n";
         $content .= "CAPAIAN PEMBELAJARAN (TP):\n";
-        $content .= ($rpp->deskripsi ?? 'Peserta didik memahami konsep pembelajaran secara komprehensif.') . "\n\n";
-        $content .= "STATUS SUPERVISI: " . strtoupper($rpp->status) . "\n";
-        $content .= "Dicetak pada: " . now()->format('d F Y H:i') . " WIB\n";
+        $content .= ($rpp->deskripsi ?? 'Peserta didik memahami konsep pembelajaran secara komprehensif.')."\n\n";
+        $content .= 'STATUS SUPERVISI: '.strtoupper($rpp->status)."\n";
+        $content .= 'Dicetak pada: '.now()->format('d F Y H:i')." WIB\n";
 
-        $fileName = 'RPP_' . \Illuminate\Support\Str::slug($rpp->judul_rpp) . '.txt';
+        $fileName = 'RPP_'.Str::slug($rpp->judul_rpp).'.txt';
+
         return Response::make($content, 200, [
             'Content-Type' => 'text/plain',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
         ]);
     }
 }

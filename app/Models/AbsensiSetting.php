@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Fluent;
 
 class AbsensiSetting extends Model
 {
@@ -22,9 +23,9 @@ class AbsensiSetting extends Model
         static::updateOrCreate(['key' => $key], ['value' => $value]);
     }
 
-    public static function getSettings(): \Illuminate\Support\Fluent
+    public static function getSettings(): Fluent
     {
-        return new \Illuminate\Support\Fluent([
+        return new Fluent([
             'batas_awal' => static::get('batas_awal', '07:00'),
             'batas_tepat' => static::get('batas_tepat', '08:00'),
             'batas_tutup' => static::get('batas_tutup', '12:00'),
