@@ -30,23 +30,15 @@ class LoginController extends Controller
             'password' => 'required|string|max:100',
         ]);
 
-        $role = $validated['role'] ?? null;
-
-        // Ambil identifier dari salah satu field (toleran: username ATAU identity).
+        // Ambil identifier dari field identitas (toleran: username ATAU identity).
         // ConvertEmptyStringsToNull mengubah "" menjadi null, jadi pakai null-coalescing + trim.
         $identity = isset($validated['identity']) ? trim((string) $validated['identity']) : '';
         $username = isset($validated['username']) ? trim((string) $validated['username']) : '';
         $identifier = $identity !== '' ? $identity : $username;
 
         if ($identifier === '') {
-            $field = in_array($role, ['siswa', 'guru'], true) || $role === null
-                ? ($role === 'admin' ? 'username' : 'identity')
-                : 'username';
-
             return back()
-                ->withErrors([$field => $role === 'admin'
-                    ? 'Nama / NIP Admin wajib diisi.'
-                    : 'NISN / NIP wajib diisi.'])
+                ->withErrors(['identity' => 'NISN / NIP / Username wajib diisi.'])
                 ->withInput();
         }
 

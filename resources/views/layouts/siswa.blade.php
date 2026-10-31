@@ -79,9 +79,12 @@
                 <p class="font-bold text-white truncate">{{ session('user_name', 'Siswa') }}</p>
                 <p class="text-[10px] text-white/70">Role: Siswa</p>
             </div>
-            <a href="{{ route('logout.get') }}" class="w-full flex items-center gap-2 px-3 py-2 text-rose-300 hover:bg-rose-500/20 rounded-lg text-xs transition">
-                <i class="fas fa-sign-out-alt"></i> Keluar
-            </a>
+            <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar?')">
+                @csrf
+                <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 text-rose-300 hover:bg-rose-500/20 rounded-lg text-xs transition">
+                    <i class="fas fa-sign-out-alt"></i> Keluar
+                </button>
+            </form>
         </div>
     </aside>
 

@@ -14,23 +14,6 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    public function showLogin()
-    {
-        if (session()->has('user_id')) {
-            $type = session('user_type');
-            if ($type === 'admin') {
-                return redirect('/admin/dashboard');
-            }
-            if ($type === 'siswa') {
-                return redirect('/siswa/dashboard');
-            }
-
-            return redirect('/guru/dashboard');
-        }
-
-        return view('auth.login');
-    }
-
     private function verifyPassword(string $inputPassword, ?string $storedPassword): bool
     {
         if ($storedPassword === null || $storedPassword === '') {
@@ -39,34 +22,12 @@ class AuthController extends Controller
         $trimmedInput = trim($inputPassword);
         $trimmedStored = trim($storedPassword);
 
-        // 1. Plain-text exact match
+        // 1. Plain-text exact match (kompatibilitas data lama)
         if ($trimmedInput === $trimmedStored) {
             return true;
         }
 
-        // 2. Demo and shortcut aliases
-        $lowIn = strtolower($trimmedInput);
-        $lowSt = strtolower($trimmedStored);
-        if ($lowSt === 'admin123' && in_array($lowIn, ['admin', 'admin123'])) {
-            return true;
-        }
-        if ($lowSt === 'admin' && in_array($lowIn, ['admin', 'admin123'])) {
-            return true;
-        }
-        if ($lowSt === 'guru123' && in_array($lowIn, ['guru', 'guru123'])) {
-            return true;
-        }
-        if ($lowSt === 'guru' && in_array($lowIn, ['guru', 'guru123'])) {
-            return true;
-        }
-        if ($lowSt === 'siswa123' && in_array($lowIn, ['siswa', 'siswa123'])) {
-            return true;
-        }
-        if ($lowSt === 'siswa' && in_array($lowIn, ['siswa', 'siswa123'])) {
-            return true;
-        }
-
-        // 3. MD5 match
+        // 2. MD5 match
         if (md5($trimmedInput) === $trimmedStored) {
             return true;
         }
@@ -116,12 +77,7 @@ class AuthController extends Controller
                     'user_id' => $siswa->id_siswa,
                     'user_type' => 'siswa',
                     'user_name' => $siswa->nm_siswa,
-                    'login' => true,
-                    'role' => 'siswa',
                     'id_user' => $siswa->id_siswa,
-                    'nama' => $siswa->nm_siswa,
-                    'nis' => $siswa->nisn,
-                    'id_rooms' => $siswa->id_rooms ?? null,
                 ]);
 
                 return redirect('/siswa/dashboard')->with('success', 'Selamat datang, '.$siswa->nm_siswa);
@@ -137,11 +93,7 @@ class AuthController extends Controller
                     'user_id' => $guru->id_guru,
                     'user_type' => 'guru',
                     'user_name' => $guru->nama_guru,
-                    'login' => true,
-                    'role' => 'guru',
                     'id_user' => $guru->id_guru,
-                    'nama' => $guru->nama_guru,
-                    'nip' => $guru->nip,
                 ]);
 
                 return redirect('/guru/dashboard')->with('success', 'Selamat datang, '.$guru->nama_guru);
@@ -156,10 +108,6 @@ class AuthController extends Controller
                 ->orWhereRaw('LOWER(nip) = ?', [$lowerUsername])
                 ->orWhereRaw('LOWER(nama_admin) = ?', [$lowerUsername])
                 ->first();
-
-            if (! $admin && in_array($lowerUsername, ['admin', 'administrator', 'admin utama'])) {
-                $admin = Admin::first();
-            }
         }
 
         if ($admin && $this->verifyPassword($password, $admin->password)) {
@@ -168,10 +116,7 @@ class AuthController extends Controller
                 'user_id' => $admin->id_admin,
                 'user_type' => 'admin',
                 'user_name' => $admin->nama_admin,
-                'login' => true,
-                'role' => 'admin',
                 'id_user' => $admin->id_admin,
-                'nama' => $admin->nama_admin,
             ]);
 
             return redirect('/admin/dashboard')->with('success', 'Selamat datang, '.$admin->nama_admin);
@@ -244,7 +189,7 @@ class AuthController extends Controller
 
         RateLimiter::hit($throttleKey, 900);
 
-        return back()->with('error', 'NISN / NIP / Username atau Password salah.');
+        return back()->with('error', 'NISN / NIP / Username atau Password salah.')->withInput();
     }
 
     public function logout()

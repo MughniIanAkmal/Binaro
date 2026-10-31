@@ -48,8 +48,11 @@
         </a>
     </nav>
     <div class="p-4 border-t border-white/10 text-xs">
-        <div class="flex items-center gap-2 mb-2 text-emerald-300">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> LMS Online v2.4
-        </div>
+        <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar?')">
+            @csrf
+            <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 text-rose-300 hover:bg-rose-500/20 rounded-lg text-xs transition">
+                <i class="fas fa-sign-out-alt"></i> Keluar
+            </button>
+        </form>
     </div>
 </aside>
