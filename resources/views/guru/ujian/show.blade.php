@@ -49,8 +49,20 @@
         </div>
 
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm">
-            <div class="text-[10px] font-bold text-slate-400 uppercase">Total Bobot Nilai</div>
-            <div class="text-lg font-bold text-[#13527D] mt-0.5">{{ $totalBobot }} <span class="text-xs font-normal text-slate-500">Poin</span></div>
+            <div class="flex items-center justify-between">
+                <div class="text-[10px] font-bold text-slate-400 uppercase">Total Bobot Nilai</div>
+                @if($totalBobot >= 100)
+                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">Limit 100 Poin</span>
+                @else
+                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-sky-100 text-sky-800">Sisa {{ 100 - $totalBobot }} Poin</span>
+                @endif
+            </div>
+            <div class="text-lg font-bold {{ $totalBobot >= 100 ? 'text-emerald-700' : 'text-[#13527D]' }} mt-0.5">
+                {{ $totalBobot }} <span class="text-xs font-semibold text-slate-400">/ 100 Poin</span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
+                <div class="h-full {{ $totalBobot >= 100 ? 'bg-emerald-600' : 'bg-[#13527D]' }}" style="width: {{ min(100, $totalBobot) }}%"></div>
+            </div>
         </div>
 
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm">
@@ -340,15 +352,48 @@
             <button onclick="closeModal('modal-tambah-soal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
         </div>
 
-        <form action="{{ route('guru.ujian.soal.store', $quiz->id_quiz) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <form action="{{ route('guru.ujian.soal.store', $quiz->id_quiz) }}" method="POST" enctype="multipart/form-data" id="form-tambah-soal" class="space-y-4">
             @csrf
+
+            <!-- Info Batas Bobot Soal -->
+            <div class="p-3 bg-gradient-to-r from-slate-50 to-sky-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-md bg-[#13527D] text-white flex items-center justify-center text-[11px] font-bold">
+                        <i class="fas fa-scale-balanced"></i>
+                    </span>
+                    <span class="text-slate-700">Total Bobot Saat Ini: <strong>{{ $totalBobot }} / 100 Poin</strong></span>
+                </div>
+                <div>
+                    @if($totalBobot >= 100)
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            Limit 100 Poin Tercapai
+                        </span>
+                    @else
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-200">
+                            Sisa: {{ 100 - $totalBobot }} Poin
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            @if($totalBobot >= 100)
+            <div class="p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 flex items-start gap-2">
+                <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5 text-sm shrink-0"></i>
+                <p>Total bobot ujian sudah mencapai <strong>100 Poin</strong>. Kurangi bobot soal yang sudah ada terlebih dahulu sebelum menambah butir soal baru.</p>
+            </div>
+            @endif
+
+            <div id="add-modal-bobot-alert" class="hidden p-3 bg-rose-50 border border-rose-300 rounded-xl text-xs text-rose-900 flex items-start gap-2">
+                <i class="fas fa-circle-exclamation text-rose-600 mt-0.5 text-sm shrink-0"></i>
+                <p id="add-modal-alert-text"></p>
+            </div>
 
             <!-- Bobot Nilai & Tingkat Kesulitan -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-700">Bobot Nilai:</span>
                     <div class="flex items-center gap-1.5">
-                        <input type="number" name="bobot_nilai" value="10" min="1" max="100" required class="w-16 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
+                        <input type="number" id="add-bobot-nilai" name="bobot_nilai" value="{{ min(10, max(1, 100 - $totalBobot)) }}" min="1" max="100" required oninput="handleModalAddBobot(this)" class="w-16 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
                         <span class="text-xs text-slate-500 font-semibold">Poin</span>
                     </div>
                 </div>
@@ -424,12 +469,29 @@
             @csrf
             @method('PUT')
 
+            <!-- Info Batas Bobot Soal Edit -->
+            <div id="edit-modal-bobot-info" class="p-3 bg-gradient-to-r from-slate-50 to-sky-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-md bg-amber-500 text-white flex items-center justify-center text-[11px] font-bold">
+                        <i class="fas fa-scale-balanced"></i>
+                    </span>
+                    <span class="text-slate-700">Total Akumulasi: <strong id="edit-modal-total-calc">{{ $totalBobot }}</strong> <strong>/ 100 Poin</strong></span>
+                </div>
+                <span id="edit-modal-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                    Maks. 100 Poin
+                </span>
+            </div>
+            <div id="edit-modal-bobot-alert" class="hidden p-3 bg-rose-50 border border-rose-300 rounded-xl text-xs text-rose-900 flex items-start gap-2">
+                <i class="fas fa-circle-exclamation text-rose-600 mt-0.5 text-base shrink-0"></i>
+                <p id="edit-modal-alert-text"></p>
+            </div>
+
             <!-- Bobot Nilai & Tingkat Kesulitan -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-700">Bobot Nilai:</span>
                     <div class="flex items-center gap-1.5">
-                        <input type="number" id="edit-bobot-nilai" name="bobot_nilai" min="1" max="100" required class="w-16 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
+                        <input type="number" id="edit-bobot-nilai" name="bobot_nilai" min="1" max="100" required oninput="handleModalEditBobot(this)" class="w-16 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
                         <span class="text-xs text-slate-500 font-semibold">Poin</span>
                     </div>
                 </div>
@@ -506,6 +568,9 @@
 </div>
 
 <script>
+const totalBobotUjian = {{ (int) $totalBobot }};
+let editingSoalBobotLama = 0;
+
 function switchTab(tabId) {
     document.getElementById('tab-soal').classList.add('hidden');
     document.getElementById('tab-peserta').classList.add('hidden');
@@ -522,17 +587,93 @@ function switchTab(tabId) {
 
 function openModal(id) {
     document.getElementById(id).classList.remove('hidden');
+    if (id === 'modal-tambah-soal') {
+        const input = document.getElementById('add-bobot-nilai');
+        if (input) handleModalAddBobot(input);
+    }
 }
 
 function closeModal(id) {
     document.getElementById(id).classList.add('hidden');
 }
 
+function handleModalAddBobot(input) {
+    try {
+        let val = parseFloat(input.value) || 0;
+        if (val < 0) { input.value = 0; val = 0; }
+        if (val > 100) { input.value = 100; val = 100; }
+        const newTotal = totalBobotUjian + val;
+        const alertBox = document.getElementById('add-modal-bobot-alert');
+        const alertText = document.getElementById('add-modal-alert-text');
+        if (newTotal > 100) {
+            const kelebihan = newTotal - 100;
+            throw new Error(`Total bobot ujian akan menjadi ${newTotal} poin (melebihi limit maksimal 100 poin sebesar ${kelebihan} poin).`);
+        } else {
+            if (alertBox) alertBox.classList.add('hidden');
+        }
+    } catch (err) {
+        const alertBox = document.getElementById('add-modal-bobot-alert');
+        const alertText = document.getElementById('add-modal-alert-text');
+        if (alertBox && alertText) {
+            alertText.textContent = err.message;
+            alertBox.classList.remove('hidden');
+        }
+    }
+}
+
+function handleModalEditBobot(input) {
+    try {
+        let val = parseFloat(input.value) || 0;
+        if (val < 0) { input.value = 0; val = 0; }
+        if (val > 100) { input.value = 100; val = 100; }
+        const otherTotal = Math.max(0, totalBobotUjian - editingSoalBobotLama);
+        const newTotal = otherTotal + val;
+
+        const totalCalc = document.getElementById('edit-modal-total-calc');
+        const statusBadge = document.getElementById('edit-modal-status-badge');
+        const alertBox = document.getElementById('edit-modal-bobot-alert');
+        const alertText = document.getElementById('edit-modal-alert-text');
+
+        if (totalCalc) totalCalc.textContent = newTotal;
+
+        if (newTotal > 100) {
+            const kelebihan = newTotal - 100;
+            if (statusBadge) {
+                statusBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200';
+                statusBadge.textContent = 'Melebihi Limit';
+            }
+            throw new Error(`Total bobot soal akan menjadi ${newTotal} poin (melebihi batas maksimal 100 poin sebesar ${kelebihan} poin).`);
+        } else if (newTotal === 100) {
+            if (statusBadge) {
+                statusBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200';
+                statusBadge.textContent = 'Limit 100 Poin Tercapai';
+            }
+            if (alertBox) alertBox.classList.add('hidden');
+        } else {
+            if (statusBadge) {
+                statusBadge.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700';
+                statusBadge.textContent = `Sisa ${100 - newTotal} Poin`;
+            }
+            if (alertBox) alertBox.classList.add('hidden');
+        }
+    } catch (err) {
+        const alertBox = document.getElementById('edit-modal-bobot-alert');
+        const alertText = document.getElementById('edit-modal-alert-text');
+        if (alertBox && alertText) {
+            alertText.textContent = err.message;
+            alertBox.classList.remove('hidden');
+        }
+    }
+}
+
 function editSoal(soal) {
     const form = document.getElementById('form-edit-soal');
     form.action = `{{ url('guru/ujian/' . $quiz->id_quiz . '/soal') }}/${soal.id_soal}`;
 
-    document.getElementById('edit-bobot-nilai').value = soal.bobot_nilai || 10;
+    editingSoalBobotLama = parseInt(soal.bobot_nilai) || 10;
+    const bobotInput = document.getElementById('edit-bobot-nilai');
+    bobotInput.value = editingSoalBobotLama;
+
     const kes = (soal.tingkat_kesulitan || 'sedang').toLowerCase();
     document.getElementById('edit-tingkat-kesulitan').value = (kes === 'susah' ? 'sulit' : kes);
     document.getElementById('edit-pertanyaan').value = soal.pertanyaan || '';
@@ -556,6 +697,7 @@ function editSoal(soal) {
         imgGambarLama.src = '';
     }
 
+    handleModalEditBobot(bobotInput);
     openModal('modal-edit-soal');
 }
 
@@ -573,5 +715,42 @@ function previewImage(input, previewId) {
         previewContainer.classList.add('hidden');
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const formTambah = document.getElementById('form-tambah-soal');
+    if (formTambah) {
+        formTambah.addEventListener('submit', function(e) {
+            try {
+                const input = document.getElementById('add-bobot-nilai');
+                const val = parseFloat(input ? input.value : 0) || 0;
+                if (totalBobotUjian + val > 100) {
+                    throw new Error(`Total bobot ujian (${totalBobotUjian + val} poin) melebihi batas maksimal 100 poin! Harap sesuaikan bobot soal.`);
+                }
+            } catch (err) {
+                e.preventDefault();
+                alert(err.message);
+                return false;
+            }
+        });
+    }
+
+    const formEdit = document.getElementById('form-edit-soal');
+    if (formEdit) {
+        formEdit.addEventListener('submit', function(e) {
+            try {
+                const input = document.getElementById('edit-bobot-nilai');
+                const val = parseFloat(input ? input.value : 0) || 0;
+                const otherTotal = Math.max(0, totalBobotUjian - editingSoalBobotLama);
+                if (otherTotal + val > 100) {
+                    throw new Error(`Total bobot ujian (${otherTotal + val} poin) melebihi batas maksimal 100 poin! Harap sesuaikan bobot soal.`);
+                }
+            } catch (err) {
+                e.preventDefault();
+                alert(err.message);
+                return false;
+            }
+        });
+    }
+});
 </script>
 @endsection

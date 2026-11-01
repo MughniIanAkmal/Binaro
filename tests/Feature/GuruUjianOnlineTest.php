@@ -592,4 +592,234 @@ class GuruUjianOnlineTest extends TestCase
         ]);
         $this->assertDatabaseHas('soal_quiz', ['id_soal' => $soal->id_soal]);
     }
+
+    public function test_form_create_and_edit_render_total_bobot_indicator_maximal_100_point()
+    {
+        $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
+
+        // 1. Create page renders the indicator and does not have difficulty level dropdown per question
+        $createRes = $this->withSession($session)->get(route('guru.ujian.create'));
+        $createRes->assertOk();
+        $createRes->assertSee('Indikator Total Bobot Soal');
+        $createRes->assertSee('100 Poin');
+        $createRes->assertDontSee('name="soal[${idx}][tingkat_kesulitan]"', false);
+
+        // 2. Create an exam to view edit page
+        $quiz = Quiz::create([
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Indikator Bobot',
+            'tingkat_level' => 'sedang',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
+        ]);
+        SoalQuiz::create([
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Pertanyaan awal tes',
+            'opsi_a' => 'A',
+            'opsi_b' => 'B',
+            'opsi_c' => 'C',
+            'opsi_d' => 'D',
+            'kunci_jawaban' => 'A',
+            'bobot_nilai' => 50,
+        ]);
+
+        // Edit page renders the indicator, questions, and does not have difficulty level dropdown per question
+        $editRes = $this->withSession($session)->get(route('guru.ujian.edit', $quiz->id_quiz));
+        $editRes->assertOk();
+        $editRes->assertSee('Indikator Total Bobot Soal');
+        $editRes->assertSee('100 Poin');
+        $editRes->assertSee('Daftar Soal Ujian, Gambar Pendukung & Bobot Nilai');
+        $editRes->assertDontSee('name="soal[${idx}][tingkat_kesulitan]"', false);
+    }
+
+    public function test_guru_cannot_create_ujian_when_total_bobot_exceeds_100_points()
+    {
+        $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
+
+        $payload = [
+            'judul_quiz' => 'Ujian Bobot Melebihi Batas',
+            'id_mapel' => $this->mapel->id_mapel,
+            'tingkat_level' => 'sedang',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
+            'soal' => [
+                [
+                    'pertanyaan' => 'Soal nomor satu',
+                    'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+                    'kunci_jawaban' => 'A',
+                    'bobot_nilai' => 60,
+                ],
+                [
+                    'pertanyaan' => 'Soal nomor dua',
+                    'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+                    'kunci_jawaban' => 'B',
+                    'bobot_nilai' => 50, // Total = 110 (> 100)
+                ],
+            ],
+        ];
+
+        $response = $this->withSession($session)->post(route('guru.ujian.store'), $payload);
+        $response->assertSessionHasErrors(['total_bobot']);
+        $this->assertDatabaseMissing('quiz', ['judul_quiz' => 'Ujian Bobot Melebihi Batas']);
+    }
+
+    public function test_guru_can_create_ujian_when_total_bobot_reaches_limit_100_points()
+    {
+        $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
+
+        $payload = [
+            'judul_quiz' => 'Ujian Bobot Pas Seratus',
+            'id_mapel' => $this->mapel->id_mapel,
+            'tingkat_level' => 'sedang',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
+            'soal' => [
+                [
+                    'pertanyaan' => 'Soal pertama pas seratus',
+                    'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+                    'kunci_jawaban' => 'A',
+                    'bobot_nilai' => 60,
+                ],
+                [
+                    'pertanyaan' => 'Soal kedua pas seratus',
+                    'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+                    'kunci_jawaban' => 'B',
+                    'bobot_nilai' => 40, // Total = 100 (tepat limit)
+                ],
+            ],
+        ];
+
+        $response = $this->withSession($session)->post(route('guru.ujian.store'), $payload);
+        $response->assertRedirect(route('guru.ujian.index'));
+
+        $quiz = Quiz::where('judul_quiz', 'Ujian Bobot Pas Seratus')->first();
+        $this->assertNotNull($quiz);
+        $this->assertEquals(100, $quiz->soal->sum('bobot_nilai'));
+    }
+
+    public function test_guru_cannot_add_soal_when_total_bobot_exceeds_100_points()
+    {
+        $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
+
+        $quiz = Quiz::create([
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Tes Tambah Soal Bobot',
+            'tingkat_level' => 'sedang',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
+        ]);
+        SoalQuiz::create([
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Soal yang sudah ada bernilai tinggi',
+            'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+            'kunci_jawaban' => 'A',
+            'bobot_nilai' => 80,
+        ]);
+
+        // Attempt to add a question with bobot 30 -> 80 + 30 = 110 > 100
+        $response = $this->withSession($session)->post(route('guru.ujian.soal.store', $quiz->id_quiz), [
+            'pertanyaan' => 'Soal ketiga yang melebihi batas',
+            'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+            'kunci_jawaban' => 'A',
+            'bobot_nilai' => 30,
+        ]);
+
+        $response->assertSessionHas('error');
+        $this->assertDatabaseMissing('soal_quiz', [
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Soal ketiga yang melebihi batas',
+        ]);
+
+        // Adding question within remaining limit (20) succeeds
+        $validResponse = $this->withSession($session)->post(route('guru.ujian.soal.store', $quiz->id_quiz), [
+            'pertanyaan' => 'Soal ketiga pas sisa kuota',
+            'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+            'kunci_jawaban' => 'A',
+            'bobot_nilai' => 20,
+        ]);
+        $validResponse->assertRedirect();
+        $this->assertEquals(100, $quiz->fresh()->soal->sum('bobot_nilai'));
+    }
+
+    public function test_guru_cannot_update_soal_when_total_bobot_exceeds_100_points()
+    {
+        $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
+
+        $quiz = Quiz::create([
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Tes Edit Soal Bobot',
+            'tingkat_level' => 'sedang',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
+        ]);
+        $soal1 = SoalQuiz::create([
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Soal kesatu',
+            'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+            'kunci_jawaban' => 'A',
+            'bobot_nilai' => 70,
+        ]);
+        $soal2 = SoalQuiz::create([
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => 'Soal kedua',
+            'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+            'kunci_jawaban' => 'B',
+            'bobot_nilai' => 30,
+        ]);
+
+        // Attempt updating soal2 from 30 to 40 (70 + 40 = 110 > 100) -> should be rejected
+        $response = $this->withSession($session)->put(route('guru.ujian.soal.update', [$quiz->id_quiz, $soal2->id_soal]), [
+            'pertanyaan' => 'Soal kedua dinaikkan bobotnya',
+            'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+            'kunci_jawaban' => 'B',
+            'bobot_nilai' => 40,
+        ]);
+
+        $response->assertSessionHas('error');
+        $soal2->refresh();
+        $this->assertEquals(30, $soal2->bobot_nilai);
+    }
+
+    public function test_guru_cannot_update_ujian_when_total_bobot_exceeds_100_points()
+    {
+        $session = ['user_type' => 'guru', 'user_id' => $this->guru->id_guru];
+
+        $quiz = Quiz::create([
+            'id_guru' => $this->guru->id_guru,
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_quiz' => 'Ujian Update Melebihi Bobot',
+            'tingkat_level' => 'sedang',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
+        ]);
+
+        $payload = [
+            'judul_quiz' => 'Ujian Update Melebihi Bobot',
+            'id_mapel' => $this->mapel->id_mapel,
+            'tingkat_level' => 'sedang',
+            'durasi_menit' => 60,
+            'target_tipe' => 'semua',
+            'soal' => [
+                [
+                    'pertanyaan' => 'Soal 1 update',
+                    'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+                    'kunci_jawaban' => 'A',
+                    'bobot_nilai' => 60,
+                ],
+                [
+                    'pertanyaan' => 'Soal 2 update',
+                    'opsi_a' => 'A', 'opsi_b' => 'B', 'opsi_c' => 'C', 'opsi_d' => 'D',
+                    'kunci_jawaban' => 'B',
+                    'bobot_nilai' => 50, // Total = 110 (> 100)
+                ],
+            ],
+        ];
+
+        $response = $this->withSession($session)->put(route('guru.ujian.update', $quiz->id_quiz), $payload);
+        $response->assertSessionHasErrors(['total_bobot']);
+    }
 }
+

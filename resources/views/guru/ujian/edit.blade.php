@@ -20,7 +20,17 @@
         </a>
     </div>
 
-    <form action="{{ route('guru.ujian.update', $quiz->id_quiz) }}" method="POST" class="space-y-6">
+    @if(session('error') || $errors->has('total_bobot'))
+    <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 flex items-start gap-3 shadow-xs">
+        <i class="fas fa-circle-exclamation text-rose-600 mt-0.5 text-base shrink-0"></i>
+        <div>
+            <strong class="font-bold block mb-0.5">Peringatan Validasi:</strong>
+            <p>{{ $errors->first('total_bobot') ?: session('error') }}</p>
+        </div>
+    </div>
+    @endif
+
+    <form action="{{ route('guru.ujian.update', $quiz->id_quiz) }}" method="POST" enctype="multipart/form-data" id="form-ujian" class="space-y-6">
         @csrf
         @method('PUT')
 
@@ -248,6 +258,85 @@
             </div>
         </div>
 
+        <!-- SECTION 3: Input Soal Ujian & Bobot Nilai -->
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2.5">
+                    <span class="w-7 h-7 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center font-bold text-xs"><i class="fas fa-list-check"></i></span>
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-800">Daftar Soal Ujian, Gambar Pendukung & Bobot Nilai</h2>
+                        <p class="text-[11px] text-slate-400">Sunting butir pertanyaan, bobot poin tiap soal, atau tambahkan butir soal baru.</p>
+                    </div>
+                </div>
+                <button type="button" onclick="addQuestionCard()" class="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl transition border border-emerald-200">
+                    <i class="fas fa-plus"></i> Tambah Soal Baru
+                </button>
+            </div>
+
+            <!-- INDIKATOR TOTAL BOBOT SOAL (MAKSIMAL 100 POINT) -->
+            <div id="bobot-indicator-card" class="p-4 rounded-2xl border transition-all duration-300 bg-gradient-to-r from-slate-50 to-sky-50/50 border-slate-200">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200/80">
+                    <div class="flex items-center gap-2.5">
+                        <div id="bobot-icon-badge" class="w-9 h-9 rounded-xl bg-[#13527D] text-white flex items-center justify-center text-sm shadow-xs transition shrink-0">
+                            <i class="fas fa-scale-balanced"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-xs font-bold text-slate-800">Indikator Total Bobot Soal</span>
+                                <span id="bobot-status-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                                    0 / 100 Poin
+                                </span>
+                            </div>
+                            <p class="text-[11px] text-slate-500 mt-0.5">Batas akumulasi bobot seluruh butir soal maksimal adalah <strong class="text-slate-700">100 Poin</strong>.</p>
+                        </div>
+                    </div>
+
+                    <!-- Metrik Bobot -->
+                    <div class="flex items-center gap-3 self-end sm:self-auto bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
+                        <div class="text-right">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Total Terkumpul</span>
+                            <span class="text-sm font-black text-slate-800" id="bobot-total-display">0 <span class="text-[10px] font-bold text-slate-400">/ 100</span></span>
+                        </div>
+                        <div class="h-6 w-px bg-slate-200"></div>
+                        <div class="text-right">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Sisa Kuota</span>
+                            <span class="text-sm font-black text-emerald-600" id="bobot-sisa-display">100 <span class="text-[10px] font-bold text-slate-400">Poin</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="pt-3 space-y-1.5">
+                    <div class="flex items-center justify-between text-[11px] font-bold">
+                        <span class="text-slate-600 flex items-center gap-1.5">
+                            <i class="fas fa-chart-pie text-slate-400 text-[10px]"></i>
+                            <span>Akumulasi Bobot Soal:</span>
+                        </span>
+                        <span id="bobot-percent-text" class="text-slate-700">0% dari 100 Poin</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-200/80 rounded-full overflow-hidden p-0.5 shadow-inner">
+                        <div id="bobot-progress-bar" class="h-full rounded-full transition-all duration-300 bg-[#13527D]" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Pesan / Alert Box (Limit 100 Point & Try-Catch Feedback) -->
+                <div id="bobot-alert-box" class="mt-3 hidden transition-all duration-300">
+                    <!-- Ditampilkan dinamis via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Wadah Kartu Soal -->
+            <div id="soal-container" class="space-y-4">
+                <!-- Diisi otomatis dari daftar soal ujian yang sudah ada -->
+            </div>
+
+            <div class="text-center pt-2">
+                <button type="button" onclick="addQuestionCard()" class="inline-flex items-center gap-2 px-4 py-2 border-2 border-dashed border-slate-300 hover:border-[#13527D] hover:text-[#13527D] text-slate-500 text-xs font-semibold rounded-xl transition">
+                    <i class="fas fa-plus-circle"></i> Tambah Satu Soal Lagi
+                </button>
+            </div>
+        </div>
+
         <!-- Submit Bar -->
         <div class="flex items-center justify-end gap-3 pt-2">
             <a href="{{ route('guru.ujian.show', $quiz->id_quiz) }}" class="px-5 py-2.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition shadow-sm">
@@ -262,6 +351,8 @@
 </div>
 
 <script>
+let questionCount = 0;
+
 function toggleTargetSiswa(isPilihan) {
     const panel = document.getElementById('panel-pilih-siswa');
     if (isPilihan) {
@@ -280,6 +371,299 @@ function checkClassSiswa(className) {
     const anyUnchecked = Array.from(cbs).some(cb => !cb.checked);
     cbs.forEach(cb => cb.checked = anyUnchecked);
 }
+
+function calculateTotalBobot() {
+    const inputs = document.querySelectorAll('.soal-bobot-input');
+    let total = 0;
+    inputs.forEach(input => {
+        let val = parseFloat(input.value);
+        if (isNaN(val) || val < 0) val = 0;
+        total += val;
+    });
+    return Math.round(total * 100) / 100;
+}
+
+function updateBobotIndicator(total) {
+    const indicatorCard = document.getElementById('bobot-indicator-card');
+    const iconBadge = document.getElementById('bobot-icon-badge');
+    const statusBadge = document.getElementById('bobot-status-badge');
+    const totalDisplay = document.getElementById('bobot-total-display');
+    const sisaDisplay = document.getElementById('bobot-sisa-display');
+    const percentText = document.getElementById('bobot-percent-text');
+    const progressBar = document.getElementById('bobot-progress-bar');
+    const alertBox = document.getElementById('bobot-alert-box');
+
+    if (!indicatorCard) return;
+
+    const sisa = Math.max(0, 100 - total);
+    const percent = Math.min(100, Math.max(0, Math.round((total / 100) * 100)));
+
+    totalDisplay.innerHTML = `${total} <span class="text-[10px] font-bold text-slate-400">/ 100</span>`;
+    sisaDisplay.innerHTML = `${sisa} <span class="text-[10px] font-bold text-slate-400">Poin</span>`;
+    percentText.textContent = `${percent}% dari 100 Poin`;
+    progressBar.style.width = `${percent}%`;
+
+    // Reset container style
+    indicatorCard.className = 'p-4 rounded-2xl border transition-all duration-300 ';
+    iconBadge.className = 'w-9 h-9 rounded-xl flex items-center justify-center text-sm shadow-xs transition shrink-0 ';
+    progressBar.className = 'h-full rounded-full transition-all duration-300 ';
+
+    if (total === 100) {
+        // LIMIT TERCAPAI 100 POINT
+        indicatorCard.className += 'bg-emerald-50/60 border-emerald-300 shadow-xs';
+        iconBadge.className += 'bg-emerald-600 text-white';
+        statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200';
+        statusBadge.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Limit 100 Poin Tercapai (Maksimal)';
+        sisaDisplay.className = 'text-sm font-black text-emerald-700';
+        progressBar.className += 'bg-emerald-600';
+
+        alertBox.className = 'mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-start gap-2.5';
+        alertBox.innerHTML = `
+            <i class="fas fa-circle-check text-emerald-600 mt-0.5 text-base shrink-0"></i>
+            <div>
+                <strong class="font-bold block mb-0.5">Limit 100 Poin Telah Tercapai!</strong>
+                <p class="text-emerald-700 leading-relaxed">Total bobot seluruh butir soal telah mencapai batas maksimal <strong>100 Poin</strong>. Distribusi bobot nilai sudah pas dan siap untuk diujikan ke siswa.</p>
+            </div>
+        `;
+        alertBox.classList.remove('hidden');
+    } else if (total > 100) {
+        // MELEBIHI BATAS LIMIT 100 POINT
+        const kelebihan = Math.round((total - 100) * 100) / 100;
+        indicatorCard.className += 'bg-rose-50/60 border-rose-300 shadow-xs';
+        iconBadge.className += 'bg-rose-600 text-white';
+        statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-100 text-rose-800 border border-rose-200';
+        statusBadge.innerHTML = `<i class="fas fa-triangle-exclamation mr-1"></i> Melebihi Limit (${total}/100)`;
+        sisaDisplay.className = 'text-sm font-black text-rose-600';
+        sisaDisplay.innerHTML = `-${kelebihan} <span class="text-[10px] font-bold text-rose-400">Poin (Lebih)</span>`;
+        progressBar.className += 'bg-rose-600';
+
+        alertBox.className = 'mt-3 p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800 flex items-start gap-2.5';
+        alertBox.innerHTML = `
+            <i class="fas fa-circle-exclamation text-rose-600 mt-0.5 text-base shrink-0"></i>
+            <div>
+                <strong class="font-bold block mb-0.5">Peringatan: Total Bobot Melebihi Batas Maksimal 100 Poin!</strong>
+                <p class="text-rose-700 leading-relaxed">Total bobot soal saat ini adalah <strong>${total} poin</strong>, melebihi limit maksimal 100 poin. Kurangi bobot soal sebanyak <strong>${kelebihan} poin</strong> sebelum menyimpan ujian.</p>
+            </div>
+        `;
+        alertBox.classList.remove('hidden');
+    } else {
+        // NORMAL / BELUM MENCAPAI 100 POINT
+        indicatorCard.className += 'bg-gradient-to-r from-slate-50 to-sky-50/50 border-slate-200';
+        iconBadge.className += 'bg-[#13527D] text-white';
+        statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700';
+        statusBadge.textContent = `${total} / 100 Poin`;
+        sisaDisplay.className = 'text-sm font-black text-emerald-600';
+        progressBar.className += 'bg-[#13527D]';
+
+        if (total > 0) {
+            alertBox.className = 'mt-3 p-2.5 bg-blue-50/70 border border-blue-200 rounded-xl text-[11px] text-blue-800 flex items-center justify-between gap-2';
+            alertBox.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-info-circle text-[#13527D]"></i>
+                    <span>Tersisa <strong>${sisa} Poin</strong> untuk mencapai bobot ideal 100 poin.</span>
+                </div>
+                <span class="text-[10px] font-semibold text-blue-600 bg-white px-2 py-0.5 rounded-md border border-blue-200">Maksimal 100 Poin</span>
+            `;
+            alertBox.classList.remove('hidden');
+        } else {
+            alertBox.classList.add('hidden');
+        }
+    }
+}
+
+function handleBobotChange(input) {
+    try {
+        let val = parseFloat(input.value);
+        if (isNaN(val) || val < 0) {
+            input.value = 0;
+            val = 0;
+        }
+
+        if (val > 100) {
+            input.value = 100;
+            throw new Error("Bobot untuk satu butir soal tidak boleh melebihi 100 poin. Nilai telah disesuaikan menjadi 100 poin.");
+        }
+
+        const total = calculateTotalBobot();
+        updateBobotIndicator(total);
+
+        if (total > 100) {
+            const kelebihan = Math.round((total - 100) * 100) / 100;
+            throw new Error(`Total akumulasi bobot soal (${total} poin) melebihi batas maksimal 100 poin! Harap kurangi bobot soal sebesar ${kelebihan} poin.`);
+        }
+    } catch (error) {
+        const alertBox = document.getElementById('bobot-alert-box');
+        if (alertBox) {
+            alertBox.className = 'mt-3 p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 flex items-start gap-2.5 animate-pulse';
+            alertBox.innerHTML = `
+                <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5 text-base shrink-0"></i>
+                <div>
+                    <strong class="font-bold block mb-0.5">Peringatan Validasi Bobot:</strong>
+                    <p class="text-amber-800 leading-relaxed">${error.message}</p>
+                </div>
+            `;
+            alertBox.classList.remove('hidden');
+        }
+    }
+}
+
+function addQuestionCard(defaultData = null) {
+    try {
+        const currentTotal = calculateTotalBobot();
+        if (currentTotal >= 100 && !defaultData) {
+            throw new Error("Total bobot soal sudah mencapai batas limit maksimal 100 poin! Anda tidak dapat menambah butir soal baru sebelum mengurangi bobot soal yang sudah ada.");
+        }
+
+        let defaultBobot = 10;
+        if (defaultData && typeof defaultData.bobot !== 'undefined') {
+            defaultBobot = defaultData.bobot;
+        } else {
+            const sisa = Math.max(0, 100 - currentTotal);
+            defaultBobot = Math.min(10, Math.max(1, sisa));
+        }
+
+        questionCount++;
+        const idx = questionCount - 1;
+        const container = document.getElementById('soal-container');
+
+        const card = document.createElement('div');
+        card.className = 'soal-card bg-slate-50/70 rounded-2xl p-5 border border-slate-200 space-y-4 transition';
+        card.id = `soal-card-${idx}`;
+
+        const idSoalInput = defaultData && defaultData.id_soal ? `<input type="hidden" name="soal[${idx}][id_soal]" value="${defaultData.id_soal}">` : '';
+
+        card.innerHTML = `
+            ${idSoalInput}
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-[#13527D] text-white flex items-center justify-center font-bold text-xs soal-number">${questionCount}</span>
+                    <span class="text-xs font-bold text-slate-800">Pertanyaan Soal</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+                    <div class="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 focus-within:border-[#13527D]">
+                        <label class="text-[11px] font-bold text-slate-600">Bobot:</label>
+                        <input type="number" name="soal[${idx}][bobot_nilai]" value="${defaultBobot}" min="1" max="100" oninput="handleBobotChange(this)" onchange="handleBobotChange(this)" class="w-14 px-1.5 py-0.5 text-xs font-bold text-center border border-slate-200 rounded focus:outline-none focus:border-[#13527D] soal-bobot-input">
+                        <span class="text-[10px] text-slate-400 font-semibold">Poin</span>
+                    </div>
+                    <button type="button" onclick="removeQuestionCard(${idx})" class="text-slate-400 hover:text-rose-600 text-xs transition p-1" title="Hapus Soal Ini">
+                        <i class="fas fa-trash-can"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1">Teks Pertanyaan <span class="text-rose-500">*</span></label>
+                <textarea name="soal[${idx}][pertanyaan]" rows="2" maxlength="2000" placeholder="Tuliskan pertanyaan soal (maksimal 2000 karakter)..." class="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D]">${defaultData ? defaultData.pertanyaan : ''}</textarea>
+            </div>
+
+            <!-- Gambar Pendukung Soal (Opsional) -->
+            <div class="bg-white p-3 rounded-xl border border-slate-200 space-y-2">
+                <label class="block text-[11px] font-bold text-slate-700 mb-1">
+                    <i class="far fa-image text-slate-400 mr-1"></i> Gambar Pendukung Soal <span class="text-slate-400 font-normal">(Opsional)</span>
+                </label>
+                ${defaultData && defaultData.gambar ? `
+                <div class="flex items-center gap-3 p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                    <img src="{{ asset('storage') }}/${defaultData.gambar}" alt="Gambar Saat Ini" class="max-h-16 rounded object-contain border">
+                    <label class="text-xs text-rose-600 font-semibold flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" name="soal[${idx}][hapus_gambar]" value="1" class="text-rose-600 rounded">
+                        <span>Hapus gambar lama</span>
+                    </label>
+                </div>
+                ` : ''}
+                <div class="flex items-center gap-3">
+                    <input type="file" name="soal[${idx}][gambar]" accept="image/png,image/jpeg,image/jpg,image/webp,image/gif" class="text-xs text-slate-500 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[11px] file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer" onchange="previewImage(this, 'preview-${idx}')">
+                </div>
+                <div id="preview-${idx}" class="mt-2 hidden">
+                    <img src="" alt="Preview Gambar" class="max-h-36 rounded-lg border border-slate-200 object-contain">
+                </div>
+            </div>
+
+            <!-- Pilihan Jawaban A, B, C, D dan Kunci Jawaban -->
+            <div class="space-y-2">
+                <label class="block text-[11px] font-bold text-slate-700">Pilihan Jawaban (Pilih Kunci Jawaban yang Benar):</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                    <!-- Opsi A -->
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-[#13527D]">
+                        <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                            <input type="radio" name="soal[${idx}][kunci_jawaban]" value="A" ${!defaultData || defaultData.kunci === 'A' ? 'checked' : ''} class="text-emerald-600 focus:ring-0">
+                            <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center justify-center">A</span>
+                        </label>
+                        <input type="text" name="soal[${idx}][opsi_a]" value="${defaultData && defaultData.opsi_a ? defaultData.opsi_a : ''}" maxlength="255" placeholder="Pilihan jawaban A" class="w-full text-xs border-0 focus:ring-0 p-0 text-slate-800 placeholder-slate-400">
+                    </div>
+
+                    <!-- Opsi B -->
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-[#13527D]">
+                        <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                            <input type="radio" name="soal[${idx}][kunci_jawaban]" value="B" ${defaultData && defaultData.kunci === 'B' ? 'checked' : ''} class="text-emerald-600 focus:ring-0">
+                            <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center justify-center">B</span>
+                        </label>
+                        <input type="text" name="soal[${idx}][opsi_b]" value="${defaultData && defaultData.opsi_b ? defaultData.opsi_b : ''}" maxlength="255" placeholder="Pilihan jawaban B" class="w-full text-xs border-0 focus:ring-0 p-0 text-slate-800 placeholder-slate-400">
+                    </div>
+
+                    <!-- Opsi C -->
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-[#13527D]">
+                        <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                            <input type="radio" name="soal[${idx}][kunci_jawaban]" value="C" ${defaultData && defaultData.kunci === 'C' ? 'checked' : ''} class="text-emerald-600 focus:ring-0">
+                            <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center justify-center">C</span>
+                        </label>
+                        <input type="text" name="soal[${idx}][opsi_c]" value="${defaultData && defaultData.opsi_c ? defaultData.opsi_c : ''}" maxlength="255" placeholder="Pilihan jawaban C" class="w-full text-xs border-0 focus:ring-0 p-0 text-slate-800 placeholder-slate-400">
+                    </div>
+
+                    <!-- Opsi D -->
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-[#13527D]">
+                        <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
+                            <input type="radio" name="soal[${idx}][kunci_jawaban]" value="D" ${defaultData && defaultData.kunci === 'D' ? 'checked' : ''} class="text-emerald-600 focus:ring-0">
+                            <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center justify-center">D</span>
+                        </label>
+                        <input type="text" name="soal[${idx}][opsi_d]" value="${defaultData && defaultData.opsi_d ? defaultData.opsi_d : ''}" maxlength="255" placeholder="Pilihan jawaban D" class="w-full text-xs border-0 focus:ring-0 p-0 text-slate-800 placeholder-slate-400">
+                    </div>
+                </div>
+                <p class="text-[10px] text-slate-400 italic">Centang radio button pada opsi huruf untuk menandai kunci jawaban yang benar.</p>
+            </div>
+        `;
+
+        container.appendChild(card);
+        reindexCards();
+        const newTotal = calculateTotalBobot();
+        updateBobotIndicator(newTotal);
+    } catch (error) {
+        const alertBox = document.getElementById('bobot-alert-box');
+        if (alertBox) {
+            alertBox.className = 'mt-3 p-3 bg-rose-50 border border-rose-300 rounded-xl text-xs text-rose-900 flex items-start gap-2.5';
+            alertBox.innerHTML = `
+                <i class="fas fa-ban text-rose-600 mt-0.5 text-base shrink-0"></i>
+                <div>
+                    <strong class="font-bold block mb-0.5">Tidak Dapat Menambah Soal:</strong>
+                    <p class="text-rose-800 leading-relaxed">${error.message}</p>
+                </div>
+            `;
+            alertBox.classList.remove('hidden');
+            alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        alert(error.message);
+    }
+}
+
+function removeQuestionCard(idx) {
+    const card = document.getElementById(`soal-card-${idx}`);
+    if (card) {
+        card.remove();
+        reindexCards();
+        const total = calculateTotalBobot();
+        updateBobotIndicator(total);
+    }
+}
+
+function reindexCards() {
+    const cards = document.querySelectorAll('.soal-card');
+    cards.forEach((c, i) => {
+        const num = c.querySelector('.soal-number');
+        if (num) num.textContent = i + 1;
+    });
+    const syncCount = document.getElementById('sync-card-count');
+    if (syncCount) syncCount.textContent = cards.length;
+}
+
 function calculateWaktuPerSoal() {
     const durasiInput = document.getElementById('input-durasi-menit');
     const soalInput = document.getElementById('calc-input-soal');
@@ -323,8 +707,64 @@ function calculateWaktuPerSoal() {
     }
 }
 
+function previewImage(input, previewId) {
+    const previewContainer = document.getElementById(previewId);
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = previewContainer.querySelector('img');
+            img.src = e.target.result;
+            previewContainer.classList.remove('hidden');
+        };
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        previewContainer.classList.add('hidden');
+    }
+}
+
+// Inisialisasi daftar soal yang sudah tersimpan pada ujian & proteksi form submit
 document.addEventListener('DOMContentLoaded', function() {
+    const existingSoal = @json($quiz->soal ?? []);
+    if (existingSoal && existingSoal.length > 0) {
+        existingSoal.forEach(s => {
+            addQuestionCard({
+                id_soal: s.id_soal,
+                pertanyaan: s.pertanyaan,
+                bobot: s.bobot_nilai,
+                gambar: s.gambar,
+                opsi_a: s.opsi_a,
+                opsi_b: s.opsi_b,
+                opsi_c: s.opsi_c,
+                opsi_d: s.opsi_d,
+                kunci: s.kunci_jawaban,
+            });
+        });
+    }
+
     calculateWaktuPerSoal();
+    const initialTotal = calculateTotalBobot();
+    updateBobotIndicator(initialTotal);
+
+    const formUjian = document.getElementById('form-ujian');
+    if (formUjian) {
+        formUjian.addEventListener('submit', function(e) {
+            try {
+                const total = calculateTotalBobot();
+                if (total > 100) {
+                    const kelebihan = Math.round((total - 100) * 100) / 100;
+                    throw new Error(`Gagal menyimpan perubahan: Total bobot soal (${total} poin) melebihi batas maksimal 100 poin! Harap kurangi bobot soal sebanyak ${kelebihan} poin.`);
+                }
+            } catch (error) {
+                e.preventDefault();
+                const indicatorCard = document.getElementById('bobot-indicator-card');
+                if (indicatorCard) {
+                    indicatorCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                alert(error.message);
+                return false;
+            }
+        });
+    }
 });
 </script>
 @endsection

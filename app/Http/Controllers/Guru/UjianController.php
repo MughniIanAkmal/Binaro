@@ -116,6 +116,21 @@ class UjianController extends Controller
             return back()->withInput()->withErrors(['judul_quiz' => $pesanDuplikat]);
         }
 
+        // Validasi total bobot soal maximal 100 poin
+        if ($request->has('soal') && is_array($request->soal)) {
+            $totalBobot = 0;
+            foreach ($request->soal as $item) {
+                if (!empty($item['pertanyaan'])) {
+                    $totalBobot += isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int) $item['bobot_nilai'] : 10;
+                }
+            }
+            if ($totalBobot > 100) {
+                return back()->withInput()->withErrors([
+                    'total_bobot' => "Total bobot soal ({$totalBobot} poin) melebihi batas maksimal 100 poin.",
+                ])->with('error', "Total bobot soal ({$totalBobot} poin) melebihi batas maksimal 100 poin. Silakan sesuaikan bobot soal.");
+            }
+        }
+
         DB::beginTransaction();
         try {
             $quiz = Quiz::create([
@@ -199,7 +214,7 @@ class UjianController extends Controller
      */
     public function edit($id)
     {
-        $quiz = $this->ownedQuiz($id, ['targetSiswa']);
+        $quiz = $this->ownedQuiz($id, ['targetSiswa', 'soal']);
         $mapels = $this->mapelAmpuan();
         // Pertahankan mapel ujian saat ini agar tetap bisa diedit
         // walau sudah tidak lagi termasuk ampuan guru.
@@ -247,6 +262,21 @@ class UjianController extends Controller
             return back()->withInput()->withErrors(['judul_quiz' => $pesanDuplikat]);
         }
 
+        // Validasi total bobot jika ada soal yang dikirim dari form
+        if ($request->has('soal') && is_array($request->soal)) {
+            $totalBobot = 0;
+            foreach ($request->soal as $item) {
+                if (!empty($item['pertanyaan'])) {
+                    $totalBobot += isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int) $item['bobot_nilai'] : 10;
+                }
+            }
+            if ($totalBobot > 100) {
+                return back()->withInput()->withErrors([
+                    'total_bobot' => "Total bobot soal ({$totalBobot} poin) melebihi batas maksimal 100 poin.",
+                ])->with('error', "Total bobot soal ({$totalBobot} poin) melebihi batas maksimal 100 poin. Silakan sesuaikan bobot soal.");
+            }
+        }
+
         DB::beginTransaction();
         try {
             $quiz->update([
@@ -263,6 +293,67 @@ class UjianController extends Controller
                 $quiz->targetSiswa()->sync($request->target_siswa ?? []);
             } else {
                 $quiz->targetSiswa()->detach();
+            }
+
+            // Sync / update soal jika ada di form edit
+            if ($request->has('soal') && is_array($request->soal)) {
+                $existingSoalIds = $quiz->soal()->pluck('id_soal')->toArray();
+                $keptSoalIds = [];
+
+                foreach ($request->soal as $index => $item) {
+                    if (empty($item['pertanyaan']) || empty($item['opsi_a']) || empty($item['opsi_b']) || empty($item['opsi_c']) || empty($item['opsi_d'])) {
+                        continue;
+                    }
+
+                    $idSoal = !empty($item['id_soal']) ? (int) $item['id_soal'] : null;
+                    $soal = $idSoal ? SoalQuiz::where('id_quiz', $quiz->id_quiz)->find($idSoal) : null;
+
+                    $gambarPath = $soal ? $soal->gambar : null;
+
+                    if ($request->hasFile("soal.{$index}.gambar")) {
+                        if ($gambarPath && Storage::disk('public')->exists($gambarPath)) {
+                            Storage::disk('public')->delete($gambarPath);
+                        }
+                        $gambarPath = $request->file("soal.{$index}.gambar")->store('soal_ujian', 'public');
+                    } elseif (!empty($item['hapus_gambar']) && $gambarPath) {
+                        if (Storage::disk('public')->exists($gambarPath)) {
+                            Storage::disk('public')->delete($gambarPath);
+                        }
+                        $gambarPath = null;
+                    }
+
+                    $soalData = [
+                        'pertanyaan' => trim($item['pertanyaan']),
+                        'gambar' => $gambarPath,
+                        'opsi_a' => trim($item['opsi_a']),
+                        'opsi_b' => trim($item['opsi_b']),
+                        'opsi_c' => trim($item['opsi_c']),
+                        'opsi_d' => trim($item['opsi_d']),
+                        'kunci_jawaban' => strtoupper($item['kunci_jawaban'] ?? 'A'),
+                        'bobot_nilai' => isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int) $item['bobot_nilai'] : 10,
+                        'tingkat_kesulitan' => $this->normalisasiKesulitan($item['tingkat_kesulitan'] ?? null, $request->tingkat_level ?? 'sedang'),
+                    ];
+
+                    if ($soal) {
+                        $soal->update($soalData);
+                        $keptSoalIds[] = $soal->id_soal;
+                    } else {
+                        $newSoal = SoalQuiz::create(array_merge($soalData, ['id_quiz' => $quiz->id_quiz]));
+                        $keptSoalIds[] = $newSoal->id_soal;
+                    }
+                }
+
+                // Hapus soal yang dihilangkan oleh guru dari daftar kartu
+                $deletedSoalIds = array_diff($existingSoalIds, $keptSoalIds);
+                if (!empty($deletedSoalIds)) {
+                    $soalsToDelete = SoalQuiz::where('id_quiz', $quiz->id_quiz)->whereIn('id_soal', $deletedSoalIds)->get();
+                    foreach ($soalsToDelete as $sDel) {
+                        if ($sDel->gambar && Storage::disk('public')->exists($sDel->gambar)) {
+                            Storage::disk('public')->delete($sDel->gambar);
+                        }
+                        $sDel->delete();
+                    }
+                }
             }
 
             DB::commit();
@@ -305,7 +396,15 @@ class UjianController extends Controller
      */
     public function storeSoal(SoalUjianRequest $request, $idQuiz)
     {
-        $quiz = $this->ownedQuiz($idQuiz);
+        $quiz = $this->ownedQuiz($idQuiz, ['soal']);
+
+        // Limit total bobot soal maximal 100 poin
+        $currentTotal = $quiz->soal->sum('bobot_nilai');
+        $bobotBaru = (int) $request->bobot_nilai;
+        if ($currentTotal + $bobotBaru > 100) {
+            $sisa = max(0, 100 - $currentTotal);
+            return back()->withInput()->with('error', "Total bobot soal melebihi batas maksimal 100 poin! Total bobot saat ini {$currentTotal} poin (sisa kuota: {$sisa} poin).");
+        }
 
         // Anti-duplikasi pertanyaan pada ujian yang sama
         $pertanyaanTrim = trim($request->pertanyaan);
@@ -345,6 +444,16 @@ class UjianController extends Controller
     {
         $this->ownedQuiz($idQuiz);
         $soal = SoalQuiz::where('id_quiz', $idQuiz)->findOrFail($idSoal);
+
+        // Limit total bobot soal maximal 100 poin
+        $currentTotalLain = SoalQuiz::where('id_quiz', $idQuiz)
+            ->where('id_soal', '!=', $idSoal)
+            ->sum('bobot_nilai');
+        $bobotBaru = (int) $request->bobot_nilai;
+        if ($currentTotalLain + $bobotBaru > 100) {
+            $sisa = max(0, 100 - $currentTotalLain);
+            return back()->withInput()->with('error', "Total bobot soal melebihi batas maksimal 100 poin! Total bobot soal lain {$currentTotalLain} poin (sisa kuota: {$sisa} poin).");
+        }
 
         // Anti-duplikasi pertanyaan pada ujian yang sama
         $pertanyaanTrim = trim($request->pertanyaan);
