@@ -629,7 +629,7 @@ class GuruUjianOnlineTest extends TestCase
         $editRes->assertOk();
         $editRes->assertSee('Indikator Total Bobot Soal');
         $editRes->assertSee('100 Poin');
-        $editRes->assertSee('Daftar Soal Ujian, Gambar Pendukung & Bobot Nilai');
+        $editRes->assertSee('Daftar Soal Ujian, Gambar Pendukung & Bobot Nilai', false);
         $editRes->assertDontSee('name="soal[${idx}][tingkat_kesulitan]"', false);
     }
 
