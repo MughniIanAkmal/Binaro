@@ -153,6 +153,68 @@ class RppController extends Controller
         ));
     }
 
+    /**
+     * Validasi Target Roster Jadwal & Hitung JP Otomatis (1 JP = 45 Menit)
+     *
+     * @return array [bool $valid, ?string $errorMessage, ?string $alokasiJp]
+     */
+    private function processJadwalAndJp(?string $targetJadwal): array
+    {
+        if (empty($targetJadwal)) {
+            return [true, null, null];
+        }
+
+        // Deteksi pola rentang jam, contoh: "09.00 - 08.00" atau "07:15 - 08:45"
+        if (preg_match('/(\d{1,2})[:.](\d{2})\s*[-–]\s*(\d{1,2})[:.](\d{2})/', $targetJadwal, $m)) {
+            $hMulai = (int) $m[1];
+            $mMulai = (int) $m[2];
+            $hSelesai = (int) $m[3];
+            $mSelesai = (int) $m[4];
+
+            if ($hMulai > 23 || $mMulai > 59 || $hSelesai > 23 || $mSelesai > 59) {
+                return [false, 'Format jam atau menit pada Target Roster Jadwal tidak valid (jam: 00-23, menit: 00-59).', null];
+            }
+
+            $totalMulai = ($hMulai * 60) + $mMulai;
+            $totalSelesai = ($hSelesai * 60) + $mSelesai;
+            $durasi = $totalSelesai - $totalMulai;
+
+            // 1. Cek jam pelajaran terbalik
+            if ($durasi <= 0) {
+                return [
+                    false,
+                    sprintf('Jam pelajaran terbalik! Jam mulai (%02d.%02d) tidak boleh lebih lambat atau sama dengan jam selesai (%02d.%02d).', $hMulai, $mMulai, $hSelesai, $mSelesai),
+                    null
+                ];
+            }
+
+            // 2. Cek durasi minimal (1 JP = 45 menit)
+            if ($durasi < 45) {
+                return [
+                    false,
+                    sprintf('Durasi pembelajaran pada jadwal (%d menit) terlalu singkat! Minimal 1 JP (45 menit).', $durasi),
+                    null
+                ];
+            }
+
+            // 3. Cek durasi maksimal (maksimal 4-5 JP / 225 menit untuk 1 modul ajar)
+            if ($durasi > 225) {
+                return [
+                    false,
+                    sprintf('Durasi pembelajaran pada jadwal (%d menit) terlalu panjang untuk satu modul ajar (maksimal 5 JP / 225 menit).', $durasi),
+                    null
+                ];
+            }
+
+            // 4. Hitung JP otomatis (1 JP = 45 menit)
+            $jp = max(1, (int) round($durasi / 45));
+
+            return [true, null, "{$jp} JP"];
+        }
+
+        return [true, null, null];
+    }
+
     public function store(Request $request)
     {
         if (session('user_type') === 'admin') {
@@ -168,6 +230,15 @@ class RppController extends Controller
         }
         $request->merge(['id_guru' => $idGuru]);
 
+        // Validasi Target Roster Jadwal & Hitung JP Otomatis (1 JP = 45 Menit)
+        [$validJadwal, $errorJadwal, $autoJp] = $this->processJadwalAndJp($request->input('target_jadwal'));
+        if (! $validJadwal) {
+            return back()->withInput()->withErrors(['target_jadwal' => $errorJadwal]);
+        }
+        if ($autoJp) {
+            $request->merge(['alokasi_waktu' => $autoJp]);
+        }
+
         $validated = $request->validate([
             'id_guru' => 'required|exists:guru,id_guru',
             'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
@@ -181,7 +252,7 @@ class RppController extends Controller
                 'regex:/^[a-zA-Z0-9\s]+$/u',
             ],
             'deskripsi' => ['nullable', 'string', 'max:500'],
-            'alokasi_waktu' => ['nullable', 'string', 'max:4'],
+            'alokasi_waktu' => ['nullable', 'string', 'max:15'],
             'fase' => ['nullable', 'string', 'max:20'],
             'modul_ke' => ['nullable', 'string', 'max:20', 'regex:/^[a-zA-Z0-9\s]+$/u'],
             'target_jadwal' => ['nullable', 'string', 'max:50'],
@@ -212,13 +283,17 @@ class RppController extends Controller
             'judul_rpp.regex' => 'Topik / Judul Modul Ajar hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
             'modul_ke.max' => 'Nomor Modul atau Bab maksimal 20 karakter.',
             'modul_ke.regex' => 'Nomor Modul atau Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
-            'alokasi_waktu.max' => 'Alokasi Waktu maksimal 4 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
+            'alokasi_waktu.max' => 'Alokasi Waktu maksimal 15 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
             'target_jadwal.max' => 'Target Roster Jadwal maksimal 50 karakter.',
             'ruang.max' => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
             'deskripsi.max' => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
             'file_rpp.mimes' => 'Format berkas RPP & Modul hanya boleh berupa dokumen PDF (.pdf) atau Word (.docx, .doc).',
             'file_rpp.max' => 'Ukuran berkas RPP & Modul maksimal 10MB.',
         ]);
+
+        if ($autoJp) {
+            $validated['alokasi_waktu'] = $autoJp;
+        }
 
         if ($request->hasFile('file_rpp')) {
             $validated['file_rpp'] = $request->file('file_rpp')->store('rpp_files', 'public');
@@ -279,6 +354,15 @@ class RppController extends Controller
             abort(404, 'RPP tidak ditemukan.');
         }
 
+        // Validasi Target Roster Jadwal & Hitung JP Otomatis (1 JP = 45 Menit)
+        [$validJadwal, $errorJadwal, $autoJp] = $this->processJadwalAndJp($request->input('target_jadwal'));
+        if (! $validJadwal) {
+            return back()->withInput()->withErrors(['target_jadwal' => $errorJadwal]);
+        }
+        if ($autoJp) {
+            $request->merge(['alokasi_waktu' => $autoJp]);
+        }
+
         $validated = $request->validate([
             'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
             'id_rooms' => 'nullable|exists:kelas,id_rooms',
@@ -291,7 +375,7 @@ class RppController extends Controller
                 'regex:/^[a-zA-Z0-9\s]+$/u',
             ],
             'deskripsi' => ['nullable', 'string', 'max:500'],
-            'alokasi_waktu' => ['nullable', 'string', 'max:4'],
+            'alokasi_waktu' => ['nullable', 'string', 'max:15'],
             'fase' => ['nullable', 'string', 'max:20'],
             'modul_ke' => ['nullable', 'string', 'max:20', 'regex:/^[a-zA-Z0-9\s]+$/u'],
             'target_jadwal' => ['nullable', 'string', 'max:50'],
@@ -322,13 +406,17 @@ class RppController extends Controller
             'judul_rpp.regex' => 'Topik / Judul Modul Ajar hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
             'modul_ke.max' => 'Nomor Modul atau Bab maksimal 20 karakter.',
             'modul_ke.regex' => 'Nomor Modul atau Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
-            'alokasi_waktu.max' => 'Alokasi Waktu maksimal 4 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
+            'alokasi_waktu.max' => 'Alokasi Waktu maksimal 15 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
             'target_jadwal.max' => 'Target Roster Jadwal maksimal 50 karakter.',
             'ruang.max' => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
             'deskripsi.max' => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
             'file_rpp.mimes' => 'Format berkas RPP & Modul hanya boleh berupa dokumen PDF (.pdf) atau Word (.docx, .doc).',
             'file_rpp.max' => 'Ukuran berkas RPP & Modul maksimal 10MB.',
         ]);
+
+        if ($autoJp) {
+            $validated['alokasi_waktu'] = $autoJp;
+        }
 
         if ($request->hasFile('file_rpp')) {
             if ($rpp->file_rpp) {

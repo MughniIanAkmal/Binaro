@@ -352,7 +352,7 @@
                         <p class="text-[11px] text-slate-500 font-medium mt-1 flex items-center gap-1.5 flex-wrap">
                             <span class="inline-flex items-center gap-1">
                                 <i class="fas fa-clock text-slate-400 text-[10px]"></i>
-                                <span>{{ $rpp->alokasi_waktu ?? '2 JP (2 x 35 Menit)' }}</span>
+                                <span>{{ $rpp->alokasi_waktu ?? '2 JP' }}</span>
                             </span>
                             <span>&bull;</span>
                             <span>{{ $rpp->guru->nama_guru ?? 'Ibu Sarah Wijaya, S.Pd.' }}</span>
