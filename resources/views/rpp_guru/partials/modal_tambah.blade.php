@@ -1,0 +1,293 @@
+<!-- ================= MODAL TAMBAH RPP ================= -->
+<div id="modal-tambah-rpp" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+        <!-- Header -->
+        <div class="bg-[#13527D] text-white p-5 flex items-center justify-between shrink-0">
+            <div>
+                <h3 class="text-base font-bold flex items-center gap-2">
+                    <i class="fas fa-file-circle-plus text-amber-300"></i> Buat Modul Ajar (RPP) Baru
+                </h3>
+                <p class="text-xs text-sky-100 mt-0.5">
+                    Kurikulum Merdeka &bull; {{ $guru->nama_guru ?? 'Guru Pengajar' }}
+                </p>
+            </div>
+            <button type="button" onclick="closeModalTambahRpp()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
+                <i class="fas fa-times text-sm"></i>
+            </button>
+        </div>
+
+        <!-- Form Body -->
+        <form id="form-tambah-rpp" action="{{ route('guru.rpp.store') }}" method="POST" enctype="multipart/form-data" class="p-6 overflow-y-auto flex-1 space-y-4">
+            @csrf
+            <input type="hidden" name="id_guru" value="{{ $guru->id_guru ?? 1 }}">
+            <input type="hidden" name="id_jadwal" id="tambah-id-jadwal" value="">
+
+            <!-- Pilihan Cepat dari Roster Jadwal Mengajar Guru -->
+            <div class="p-3.5 bg-sky-50/70 border border-sky-200 rounded-xl space-y-1.5">
+                <div class="flex items-center justify-between">
+                    <label class="block text-xs font-bold text-sky-950 flex items-center gap-1.5">
+                        <i class="fas fa-calendar-check text-[#13527D]"></i>
+                        <span>Pilih dari Roster Jadwal Guru (Otomatis Isi)</span>
+                    </label>
+                    <span class="text-[10px] text-sky-700 font-semibold bg-white px-2 py-0.5 rounded border border-sky-200">
+                        Sinkronisasi Roster
+                    </span>
+                </div>
+                <select id="tambah-select-roster" onchange="applyRosterToTambah(this)" class="w-full px-3 py-2 bg-white border border-sky-300 rounded-xl text-xs text-slate-800 font-medium focus:outline-none focus:border-[#13527D]">
+                    <option value="">-- Pilih Jadwal Mengajar Anda (Atau atur mandiri di bawah) --</option>
+                    @if(isset($jadwalList) && $jadwalList->count() > 0)
+                        @foreach($jadwalList as $j)
+                            <option value="{{ $j->id_jadwal }}"
+                                    data-hari="{{ $j->hari }}"
+                                    data-jam="{{ $j->jam }}"
+                                    data-mapel="{{ $j->id_mapel }}"
+                                    data-kelas="{{ $j->id_rooms }}"
+                                    data-ruang="{{ $j->kelas ? 'Ruang ' . $j->kelas->pararel : 'Ruang Kelas' }}">
+                                {{ $j->hari }}, {{ $j->jam }} WIB &bull; {{ $j->mataPelajaran->nama_mapel ?? 'Mata Pelajaran' }} ({{ $j->kelas->pararel ?? 'Kelas' }})
+                            </option>
+                        @endforeach
+                    @endif
+                </select>
+                <p class="text-[10px] text-sky-700">
+                    Memilih jadwal aktif di atas akan otomatis mengisi Mata Pelajaran, Kelas, Target Roster, dan menghitung JP secara otomatis.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Mapel -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran <span class="text-rose-500">*</span></label>
+                    <select name="id_mapel" id="tambah-id-mapel" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <option value="">-- Pilih Mata Pelajaran --</option>
+                        @foreach($mapelList as $mapel)
+                            <option value="{{ $mapel->id_mapel }}">{{ $mapel->nama_mapel }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Kelas -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kelas & Rombel</label>
+                    <select name="id_rooms" id="tambah-id-rooms" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        @foreach($kelasList as $kelas)
+                            <option value="{{ $kelas->id_rooms }}">{{ $kelas->pararel ?? 'Kelas ' . $kelas->id_rooms }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            <!-- Judul RPP -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Topik / Judul Modul Ajar <span class="text-rose-500">*</span></span>
+                    <span id="counter-tambah-judul" class="text-[10px] text-slate-400 font-normal">0/100</span>
+                </label>
+                <input type="text" name="judul_rpp" id="tambah-judul-rpp" required maxlength="100" placeholder="Contoh: Konsep Pecahan Senilai dan Membandingkan Pecahan"
+                       oninput="sanitizeAlphanumericOnly(this, 'counter-tambah-judul', 100)"
+                       class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                <p class="text-[10px] text-slate-400 mt-1">Maks. 100 karakter. Hanya huruf, angka, dan spasi (tanpa simbol).</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <!-- Fase -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Fase Pembelajaran</label>
+                    <input type="text" name="fase" id="tambah-fase" value="Fase B" placeholder="Fase B" maxlength="20"
+                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                </div>
+
+                <!-- Modul Ke -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Nomor Modul / Bab</span>
+                        <span id="counter-tambah-modul" class="text-[10px] text-slate-400 font-normal">0/20</span>
+                    </label>
+                    <input type="text" name="modul_ke" id="tambah-modul-ke" maxlength="20" placeholder="Contoh: Modul 28"
+                           oninput="sanitizeAlphanumericOnly(this, 'counter-tambah-modul', 20)"
+                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-400 mt-0.5">Maks. 20 karakter, tanpa simbol.</p>
+                </div>
+
+                <!-- Alokasi Waktu (Otomatis dari Roster Jadwal) -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Alokasi Waktu (JP)</span>
+                        <span id="tambah-badge-jp" class="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">
+                            1JP = 45 Menit (Auto)
+                        </span>
+                    </label>
+                    <input type="text" name="alokasi_waktu" id="tambah-alokasi-waktu" readonly placeholder="Otomatis dari jadwal"
+                           class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none cursor-not-allowed">
+                    <p class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
+                        <i class="fas fa-calculator text-emerald-600"></i>
+                        <span>Otomatis dihitung dari durasi jam Target Roster Jadwal.</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Target Roster Jadwal Builder & Picker -->
+            <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <label class="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <i class="fas fa-clock text-[#13527D]"></i>
+                        <span>Target Roster Jadwal Pelajaran <span class="text-rose-500">*</span></span>
+                    </label>
+                    <span class="text-[10px] font-semibold text-slate-600 bg-white px-2 py-0.5 rounded-full border border-slate-200">
+                        <i class="fas fa-school mr-1 text-[#13527D]"></i> Tutup Sekolah: <strong>12:00 WIB</strong>
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <!-- Hari -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Hari</label>
+                        <select id="tambah-hari" onchange="syncTambahJadwalFromPickers()" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <option value="">-- Pilih Hari --</option>
+                            @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $hari)
+                                <option value="{{ $hari }}">{{ $hari }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Jam Mulai -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jam Mulai</label>
+                        <input type="time" id="tambah-jam-mulai" step="300" oninput="syncTambahJadwalFromPickers()"
+                               class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    </div>
+
+                    <!-- Jam Selesai -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jam Selesai</label>
+                        <input type="time" id="tambah-jam-selesai" step="300" oninput="syncTambahJadwalFromPickers()"
+                               class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    </div>
+                </div>
+
+                <!-- Input Terformat untuk Database -->
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-600 mb-1 flex items-center justify-between">
+                        <span>Format Teks Jadwal (Tersimpan di Sistem):</span>
+                        <span id="counter-tambah-jadwal" class="text-[10px] text-slate-400 font-normal">0/50</span>
+                    </label>
+                    <input type="text" name="target_jadwal" id="tambah-target-jadwal" maxlength="50"
+                           placeholder="Contoh: Senin, 07.15 - 08.45 WIB"
+                           oninput="onTambahTargetJadwalManual(this)"
+                           class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-400 mt-0.5">
+                        *Otomatis terisi saat memilih Hari, Jam Mulai & Selesai di atas (atau dapat diedit langsung).
+                    </p>
+                </div>
+
+                <!-- Warning Box Kesalahan Jadwal (Jam Terbalik, Terlalu Singkat, dsb) -->
+                <div id="tambah-jadwal-error-box" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-start gap-2">
+                    <i class="fas fa-triangle-exclamation text-rose-500 text-sm mt-0.5 shrink-0"></i>
+                    <span id="tambah-jadwal-error-text">Jam pelajaran terbalik! Jam mulai tidak boleh lebih lambat atau sama dengan jam selesai.</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Ruang -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                        <span>Ruang / Lokasi Belajar</span>
+                        <span id="counter-tambah-ruang" class="text-[10px] text-slate-400 font-normal">0/50</span>
+                    </label>
+                    <input type="text" name="ruang" id="tambah-ruang" maxlength="50" placeholder="Ruang Kelas 4B"
+                           oninput="updateLengthCounter(this, 'counter-tambah-ruang', 50)"
+                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 50 karakter.</p>
+                </div>
+
+                <!-- Target Tanggal (Opsional) -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Target Tanggal Penerapan</label>
+                    <input type="text" name="target_tanggal" id="tambah-target-tanggal" placeholder="Contoh: Minggu ke-2 Semester 1" maxlength="50"
+                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-400 mt-0.5">Opsional (perkiraan minggu pembelajaran).</p>
+                </div>
+            </div>
+
+            <!-- Capaian Pembelajaran (TP) -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Capaian Pembelajaran (TP) & Deskripsi Ringkas</span>
+                    <span id="counter-tambah-deskripsi" class="text-[10px] text-slate-400 font-normal">0/500</span>
+                </label>
+                <textarea name="deskripsi" id="tambah-deskripsi" rows="3" maxlength="500" placeholder="Tuliskan tujuan pembelajaran yang dicapai peserta didik dalam aktivitas materi ini (maksimal 500 karakter)..."
+                          oninput="updateLengthCounter(this, 'counter-tambah-deskripsi', 500)"
+                          class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]"></textarea>
+                <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 500 karakter.</p>
+            </div>
+
+            <!-- Komponen Checklist Interaktif -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                <label class="block text-xs font-bold text-slate-800">Komponen & Fasilitas Modul Ajar:</label>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-[#13527D]">
+                        <input type="checkbox" name="tujuan" value="1" checked class="rounded text-[#13527D]">
+                        <span>Tujuan Belajar</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-[#13527D]">
+                        <input type="checkbox" name="video" value="1" checked class="rounded text-[#13527D]">
+                        <span>Video Animasi</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-[#13527D]">
+                        <input type="checkbox" name="soal_proyektor" value="1" checked class="rounded text-[#13527D]">
+                        <span>Soal Proyektor</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-[#13527D]">
+                        <input type="checkbox" name="lkpd" value="1" checked class="rounded text-[#13527D]">
+                        <span>LKPD Siap Cetak</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Tags Kustom -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Label / Tag Tambahan (Tanpa Simbol)</span>
+                    <span class="text-[10px] text-rose-500 font-semibold">Simbol Dilarang</span>
+                </label>
+                <input type="text" name="custom_tags" id="tambah-custom-tags" maxlength="150"
+                       placeholder="Tujuan Pembelajaran, Video Animasi Interaktif, LKPD Cetak"
+                       oninput="sanitizeTagsInput(this)"
+                       class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                <p class="text-[10px] text-slate-400 mt-1">Pisahkan antar label dengan koma. Hanya huruf dan angka, dilarang simbol.</p>
+            </div>
+
+            <!-- File Upload -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">
+                    Unggah Berkas Modul RPP <span class="text-slate-500 font-normal">(Hanya PDF / Word)</span>
+                </label>
+                <input type="file" name="file_rpp" id="tambah-file-rpp" accept=".pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
+                       onchange="validateRppFileInput(this)"
+                       class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-[#13527D] hover:file:bg-sky-100 cursor-pointer">
+                <p class="text-[10px] text-slate-400 mt-1">Format berkas yang didukung hanya: <strong>.pdf</strong>, <strong>.docx</strong>, atau <strong>.doc</strong> (Maks. 10MB).</p>
+            </div>
+
+            <!-- Info Status Supervisi -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5">
+                <i class="fas fa-circle-info text-amber-600 mt-0.5 text-xs"></i>
+                <div class="text-[11px] text-amber-900 leading-relaxed">
+                    <span class="font-bold">Alur Persetujuan Admin:</span> Setelah diajukan, RPP berstatus <strong>Menunggu Persetujuan Admin</strong> dan belum bisa langsung di-apply mengajar hingga di-accept/disetujui oleh Admin.
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2.5">
+                <button type="button" onclick="closeModalTambahRpp()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                    Batal
+                </button>
+                <button type="submit" id="btn-tambah-draft" name="action" value="draft" class="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
+                    Simpan Draf
+                </button>
+                <button type="submit" id="btn-tambah-publish" name="action" value="publish" class="px-5 py-2 text-xs font-bold text-white bg-[#13527D] hover:bg-[#0E3D5D] rounded-xl shadow-sm transition flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fas fa-paper-plane text-[10px]"></i> Ajukan ke Admin
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
