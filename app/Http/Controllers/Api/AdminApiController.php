@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Absen;
 use App\Models\Barcode;
 use App\Models\Siswa;
@@ -10,7 +9,7 @@ use App\Services\AbsensiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
-class AdminApiController extends Controller
+class AdminApiController extends ApiController
 {
     public function __construct(private AbsensiService $absensiService) {}
 
@@ -68,36 +67,29 @@ class AdminApiController extends Controller
 
         $data = $query->paginate(20);
 
-        return response()->json([
-            'success' => true,
+        return $this->success([
             'summary' => $summary,
             'data' => $data,
-        ]);
+        ], 'Rekap absensi berhasil dimuat');
     }
 
     // GET /api/admin/qr/regenerate/{siswa_id}
     public function regenerateQr(Request $request, $siswa_id)
     {
         $siswa = Siswa::find($siswa_id);
-        if (! $siswa) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Siswa tidak ditemukan',
-            ], 404);
+        if (!$siswa) {
+            return $this->error('Siswa tidak ditemukan', 404);
         }
 
         $barcode = Barcode::where('id_siswa', $siswa_id)->first();
 
         if ($barcode && $barcode->updated_at && $barcode->updated_at->isToday()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Batas maksimum regenerate barcode 1x per hari.',
-            ], 429);
+            return $this->error('Batas maksimum regenerate barcode 1x per hari.', 429);
         }
 
-        $newKode = 'BC-'.strtoupper(Str::random(8));
+        $newKode = 'BC-' . strtoupper(Str::random(8));
 
-        if (! $barcode) {
+        if (!$barcode) {
             $barcode = Barcode::create([
                 'id_siswa' => $siswa_id,
                 'kode_barcode' => $newKode,
@@ -109,10 +101,6 @@ class AdminApiController extends Controller
             ]);
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Barcode berhasil diperbarui',
-            'data' => $barcode,
-        ]);
+        return $this->success($barcode, 'Barcode berhasil diperbarui');
     }
 }

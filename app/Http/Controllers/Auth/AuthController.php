@@ -27,6 +27,11 @@ class AuthController extends Controller
             return true;
         }
 
+        // 1b. Toleransi seeder default: jika guru demo, izinkan guru123 dan guru1234
+        if (in_array($trimmedInput, ['guru123', 'guru1234']) && in_array($trimmedStored, ['guru123', 'guru1234'])) {
+            return true;
+        }
+
         // 2. MD5 match
         if (md5($trimmedInput) === $trimmedStored) {
             return true;
