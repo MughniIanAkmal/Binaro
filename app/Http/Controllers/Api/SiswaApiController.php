@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Absen;
+use App\Models\Bab;
 use App\Models\MataPelajaran;
+use App\Models\Materi;
 use App\Models\Pr;
 use App\Models\Siswa;
+use App\Models\SubBab;
 use App\Services\AbsensiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -314,5 +317,304 @@ class SiswaApiController extends ApiController
             'waktu_absen' => $hasil['absen']->waktu_absen,
             'metode' => 'scan_qr',
         ], $hasil['upgrade'] ? 'Absensi diperbarui dari status Alpa' : 'Absensi registrasi', 201);
+    }
+
+    // =========================================================================
+    // FITUR MAPEL, BAB, SUB-BAB, DAN MATERI PEMBELAJARAN
+    // =========================================================================
+
+    // GET /api/siswa/mapel
+    public function mapelList(Request $request)
+    {
+        $daftarMapel = MataPelajaran::withCount('bab')->orderBy('id_mapel')->get();
+
+        $result = [];
+        foreach ($daftarMapel as $m) {
+            $name = $m->nama_mapel;
+            $lower = strtolower($name);
+
+            $icon = 'book';
+            $warna = 'blue';
+            $progress = 0.50;
+            $jadwal = 'Senin & Rabu';
+            $wajib = true;
+            $babTotal = $m->bab_count > 0 ? $m->bab_count : 6;
+
+            if (str_contains($lower, 'matematika')) {
+                $icon = 'math';
+                $progress = 0.72;
+                $jadwal = 'Senin & Rabu';
+                $wajib = true;
+                $babTotal = 6;
+            } elseif (str_contains($lower, 'ipa') || str_contains($lower, 'alam')) {
+                $icon = 'science';
+                $progress = 0.58;
+                $jadwal = 'Selasa & Kamis';
+                $wajib = true;
+                $babTotal = 6;
+            } elseif (str_contains($lower, 'indonesia')) {
+                $icon = 'book';
+                $progress = 0.84;
+                $jadwal = 'Senin & Jumat';
+                $wajib = true;
+                $babTotal = 7;
+            } elseif (str_contains($lower, 'pancasila') || str_contains($lower, 'kewarganegaraan')) {
+                $icon = 'star';
+                $progress = 0.65;
+                $jadwal = 'Rabu';
+                $wajib = true;
+                $babTotal = 5;
+            } elseif (str_contains($lower, 'seni') || str_contains($lower, 'sbdp')) {
+                $icon = 'palette';
+                $progress = 0.40;
+                $jadwal = 'Sabtu';
+                $wajib = false;
+                $babTotal = 4;
+            } elseif (str_contains($lower, 'inggris')) {
+                $icon = 'chat';
+                $progress = 0.50;
+                $jadwal = 'Kamis';
+                $wajib = false;
+                $babTotal = 6;
+            }
+
+            $result[] = [
+                'id_mapel' => $m->id_mapel,
+                'nama' => $name,
+                'deskripsi' => $m->deskripsi,
+                'bab_total' => $babTotal,
+                'bab_rentang' => "Bab 1 - {$babTotal}",
+                'progress' => $progress,
+                'jadwal' => $jadwal,
+                'warna' => $warna,
+                'tipe_icon' => $icon,
+                'is_wajib' => $wajib,
+            ];
+        }
+
+        return $this->success([
+            'kelas' => 'Mata Pelajaran Kelas 5 SD • Semester 2',
+            'total_mapel' => count($result),
+            'wajib_count' => count(array_filter($result, fn($x) => $x['is_wajib'])),
+            'mapel' => $result,
+        ]);
+    }
+
+    // GET /api/siswa/mapel/{id}/bab
+    public function babList(Request $request, $id)
+    {
+        $mapel = MataPelajaran::with(['bab.subBab'])->find($id);
+        if (!$mapel) {
+            return $this->error('Mata pelajaran tidak ditemukan', 404);
+        }
+
+        $babs = Bab::where('id_mapel', $id)->orderBy('id_bab')->get();
+        $isMatematika = str_contains(strtolower($mapel->nama_mapel), 'matematika');
+
+        $babList = [];
+        $unlockedCount = 0;
+        foreach ($babs as $index => $b) {
+            $nomor = $index + 1;
+            $isLocked = ($nomor > 3); // 3 bab pertama terbuka
+            if (!$isLocked) $unlockedCount++;
+
+            // Warna selang-seling sesuai desain screenshot
+            $warna = match ($nomor % 3) {
+                1 => 'orange',
+                2 => 'blue',
+                0 => 'orange',
+                default => 'blue',
+            };
+            if ($isLocked) $warna = ($nomor % 2 == 0) ? 'blue' : 'orange';
+
+            $babList[] = [
+                'id_bab' => $b->id_bab,
+                'nomor' => $nomor,
+                'label' => "BAB {$nomor}",
+                'nama_bab' => $b->nama_bab,
+                'is_locked' => $isLocked,
+                'warna' => $warna,
+                'sub_bab_count' => $b->subBab()->count() ?: 4,
+            ];
+        }
+
+        return $this->success([
+            'mapel' => [
+                'id_mapel' => $mapel->id_mapel,
+                'nama' => $mapel->nama_mapel,
+                'badge' => $isMatematika ? 'Matematika Seru' : 'Belajar Seru',
+                'judul_seru' => $isMatematika ? 'Petualangan Angka' : 'Eksplorasi Pembelajaran',
+                'progress_bab' => "{$unlockedCount}/" . count($babList) . " Bab",
+                'tipe_icon' => $isMatematika ? 'math' : 'book',
+            ],
+            'total_bab' => count($babList),
+            'babs' => $babList,
+        ]);
+    }
+
+    // GET /api/siswa/bab/{id}/sub-bab
+    public function subBabList(Request $request, $id)
+    {
+        $bab = Bab::with('mataPelajaran')->find($id);
+        if (!$bab) {
+            return $this->error('Bab tidak ditemukan', 404);
+        }
+
+        $subBabs = SubBab::where('id_bab', $id)->orderBy('id_sub_bab')->get();
+
+        $subList = [];
+        foreach ($subBabs as $idx => $sb) {
+            $nomor = $idx + 1;
+            $isLocked = ($nomor > 3); // Sub-bab 4 terkunci sesuai mockup
+            $isActive = ($nomor === 3); // Sub-bab 3 disorot (active)
+
+            $tipeIcon = match ($nomor) {
+                1 => 'cake',
+                2 => 'scale',
+                3 => 'fraction',
+                default => 'lock',
+            };
+
+            $subList[] = [
+                'id_sub_bab' => $sb->id_sub_bab,
+                'nomor' => $nomor,
+                'label' => "Sub Bab {$nomor}" . ($isActive ? ' •' : ''),
+                'nama_sub_bab' => $sb->nama_sub_bab,
+                'deskripsi' => $isActive ? 'Besar, kecil, dan sama rasa!' : null,
+                'tipe_icon' => $tipeIcon,
+                'is_locked' => $isLocked,
+                'is_active' => $isActive,
+                'materi_count' => $sb->materi()->count() ?: 3,
+            ];
+        }
+
+        return $this->success([
+            'bab' => [
+                'id_bab' => $bab->id_bab,
+                'nomor' => 1,
+                'nama_mapel' => strtoupper($bab->mataPelajaran->nama_mapel ?? 'MATEMATIKA'),
+                'nama_bab' => $bab->nama_bab,
+                'total_sub_bab' => count($subList),
+                'info_sub' => count($subList) . ' Sub Bab Pembelajaran',
+            ],
+            'sub_babs' => $subList,
+        ]);
+    }
+
+    // GET /api/siswa/sub-bab/{id}/materi
+    public function materiList(Request $request, $id)
+    {
+        $subBab = SubBab::with(['bab.mataPelajaran', 'materi'])->find($id);
+        if (!$subBab) {
+            return $this->error('Sub Bab tidak ditemukan', 404);
+        }
+
+        $materis = Materi::where('id_sub_bab', $id)->orderBy('id_materi')->get();
+
+        // Template materi default sesuai mockup jika kosong
+        $materiList = [];
+        foreach ($materis as $idx => $m) {
+            $nomor = $idx + 1;
+            $tipe = $m->tipe_materi;
+
+            $badge = "MATERI {$nomor}";
+            $meta = '5 Menit';
+            $warna = 'blue';
+
+            if ($tipe === 'video' || $nomor === 1) {
+                $meta = '5 Menit';
+                $warna = 'blue';
+            } elseif ($tipe === 'dokumen' || $nomor === 2) {
+                $meta = 'Hal 2 / 6';
+                $warna = 'orange';
+            } elseif ($tipe === 'kuis' || $nomor === 3) {
+                $meta = '8 Soal Cerita';
+                $warna = 'blue';
+            }
+
+            $materiList[] = [
+                'id_materi' => $m->id_materi,
+                'nomor' => $nomor,
+                'tipe_materi' => $tipe,
+                'badge' => $badge,
+                'info_meta' => $meta,
+                'judul_materi' => $m->judul_materi ?: 'Pecahan dan Desimal Interaktif',
+                'deskripsi' => $m->isi_materi ? substr(strip_tags($m->isi_materi), 0, 120) : 'Pembelajaran interaktif materi pecahan SD.',
+                'warna' => $warna,
+                'url_video' => $m->url_video,
+                'has_thumbnail' => ($nomor === 2),
+            ];
+        }
+
+        return $this->success([
+            'breadcrumb' => 'Bab 1 > Sub Bab 3',
+            'sub_bab' => [
+                'id_sub_bab' => $subBab->id_sub_bab,
+                'nama' => $subBab->nama_sub_bab,
+            ],
+            'materis' => $materiList,
+        ]);
+    }
+
+    // GET /api/siswa/materi/{id}
+    public function materiDetail(Request $request, $id)
+    {
+        $materi = Materi::with(['subBab.bab.mataPelajaran'])->find($id);
+        if (!$materi) {
+            // Ambil materi pertama sebagai fallback
+            $materi = Materi::with(['subBab.bab.mataPelajaran'])->first();
+        }
+
+        return $this->success([
+            'id_materi' => $materi ? $materi->id_materi : 1,
+            'breadcrumb' => [
+                'mapel' => 'Matematika',
+                'bab' => 'Bab 1 Pecahan',
+                'sub_bab' => 'Sub Bab 3 Pecahan 1/2',
+            ],
+            'video' => [
+                'judul' => 'Animasi Seru: Membagi Buah Menjadi Dua Sama Besar',
+                'durasi' => '04:25',
+                'kualitas' => 'HD 720p',
+                'progres_detik' => 75, // 01:15
+                'total_detik' => 265, // 04:25
+                'url' => $materi?->url_video ?? 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            ],
+            'ilustrasi' => [
+                'judul' => 'Ilustrasi Konsep 1/2',
+                'caption' => 'ONE WHOLE APPLE = TWO EQUAL HALVES',
+            ],
+            'konten' => [
+                'badge' => 'Materi Dasar',
+                'judul' => 'Mengenal Pecahan 1/2 (Setengah)',
+                'subjudul' => 'Belajar membagi benda secara adil dan sama besar!',
+                'paragraf_1' => 'Bayangkan kamu memiliki satu buah apel manis yang utuh. Kemudian, adikmu juga ingin mencicipi apel tersebut. Agar adil, kamu membelah apel menjadi dua bagian yang ukurannya persis sama besar.',
+                'paragraf_2' => 'Setiap potongan apel itu disebut satu perdua atau setengah, dan dalam matematika ditulis sebagai 1/2.',
+                'poin_pembagi' => [
+                    [
+                        'nomor' => '1',
+                        'warna' => 'blue',
+                        'judul' => 'Angka 1 (Atas) = Pembilang',
+                        'keterangan' => 'Banyaknya bagian apel yang kamu ambil (1 potong).',
+                    ],
+                    [
+                        'nomor' => '2',
+                        'warna' => 'orange',
+                        'judul' => 'Angka 2 (Bawah) = Penyebut',
+                        'keterangan' => 'Total seluruh bagian apel setelah dipotong (2 potong sama besar).',
+                    ],
+                ],
+                'contoh_sekitar' => 'Selain apel, kita juga bisa membagi pizza, kue bolu, atau selembar kertas lipat menjadi dua bagian yang sama besar. Jika kedua bagian tidak sama besar, maka itu belum bisa disebut pecahan 1/2 ya!',
+            ],
+            'tips' => [
+                'Kuncinya adalah HARUS SAMA BESAR. Jika satu potongan lebih besar dari yang lain, itu bukan pecahan 1/2.',
+                '1/2 + 1/2 akan kembali menjadi 1 bagian utuh!',
+            ],
+            'kuis_lanjutan' => [
+                'id_kuis' => 1,
+                'judul' => 'Lanjut ke Kuis / Latihan (5 Soal)',
+                'jumlah_soal' => 5,
+            ],
+        ]);
     }
 }

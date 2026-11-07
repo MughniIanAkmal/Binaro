@@ -19,6 +19,13 @@ Route::get('/siswa/dashboard', [SiswaApiController::class, 'dashboard']);
 Route::get('/siswa/profile', [SiswaApiController::class, 'profile']);
 Route::post('/siswa/update-password', [SiswaApiController::class, 'updatePassword']);
 
+// Mobile Mapel & Materi Learning Routes
+Route::get('/siswa/mapel', [SiswaApiController::class, 'mapelList']);
+Route::get('/siswa/mapel/{id}/bab', [SiswaApiController::class, 'babList']);
+Route::get('/siswa/bab/{id}/sub-bab', [SiswaApiController::class, 'subBabList']);
+Route::get('/siswa/sub-bab/{id}/materi', [SiswaApiController::class, 'materiList']);
+Route::get('/siswa/materi/{id}', [SiswaApiController::class, 'materiDetail']);
+
 Route::middleware('auth:sanctum')->group(function () {
     // Siswa API
     Route::prefix('siswa')->group(function () {
