@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'login_page.dart';
+import 'page_transitions.dart';
 
 void main() {
   runApp(const BinaroApp());
@@ -17,6 +18,13 @@ class BinaroApp extends StatelessWidget {
         fontFamily: 'Roboto',
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1D5A86)),
         useMaterial3: true,
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: SmoothPageTransitionsBuilder(),
+            TargetPlatform.iOS: SmoothPageTransitionsBuilder(),
+            TargetPlatform.windows: SmoothPageTransitionsBuilder(),
+          },
+        ),
       ),
       home: const LoginPage(),
     );

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dashboard_page.dart';
+import 'page_transitions.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -55,7 +57,17 @@ class _LoginPageState extends State<LoginPage> {
         final userData = data['data']?['user'] ?? {};
         final namaSiswa = userData['nm_siswa'] ?? 'Siswa';
         _showSnackbar('Login Berhasil! Selamat datang, $namaSiswa');
-        _showSuccessDialog(userData);
+
+        if (!mounted) return;
+
+        // Navigasi langsung ke Landing / Dashboard Page dengan transisi halus
+        Navigator.pushReplacement(
+          context,
+          SmoothPageRoute(
+            page: DashboardPage(user: userData),
+            type: TransitionType.fadeThrough,
+          ),
+        );
       } else {
         final errorMsg =
             data['message'] ?? 'Login gagal. Periksa NISN & Password.';
@@ -70,46 +82,6 @@ class _LoginPageState extends State<LoginPage> {
         setState(() => _isLoading = false);
       }
     }
-  }
-
-  void _showSuccessDialog(Map<String, dynamic> user) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 28),
-            SizedBox(width: 8),
-            Text('Login Berhasil!', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Nama: ${user['nm_siswa'] ?? '-'}',
-                style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-            const SizedBox(height: 6),
-            Text('NISN: ${user['nisn'] ?? '-'}'),
-            const SizedBox(height: 6),
-            Text('Kelas: ${user['kelas'] ?? '-'}'),
-            const SizedBox(height: 6),
-            Text('Email: ${user['email'] ?? '-'}'),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1D5A86),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Text('Tutup', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showSnackbar(String message, {bool isError = false}) {

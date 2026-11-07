@@ -226,6 +226,26 @@
 
                 $checklist = $rpp->komponen_checklist ?? [];
                 $tags = $checklist['tags'] ?? [];
+
+                // 1 Ikon Tetap & Konsisten Berdasarkan Mata Pelajaran (Identitas Visual Dashboard):
+                if ($isMatematika) {
+                    $topikIcon = 'fas fa-calculator'; // Matematika: Kalkulator
+                } elseif ($isIpa) {
+                    $topikIcon = 'fas fa-flask'; // IPA: Tabung Lab Sains
+                } elseif ($isBindo) {
+                    $topikIcon = 'fas fa-book-open'; // Bahasa Indonesia: Buku Edukasi
+                } elseif ($isPancasila) {
+                    $topikIcon = 'fas fa-scale-balanced'; // Pendidikan Pancasila: Timbangan Norma, Aturan & Keadilan Sosial
+                } else {
+                    $topikIcon = 'fas fa-file-lines'; // Mapel Lainnya
+                }
+
+                // Label dinamis: Gunakan Nomor Modul jika ada, atau singkatan mapel resmi
+                if (!empty($rpp->modul_ke)) {
+                    $topikLabel = Str::limit(strtoupper($rpp->modul_ke), 9, '');
+                } else {
+                    $topikLabel = $isIpa ? 'IPA' : ($isMatematika ? 'MTK' : ($isBindo ? 'B.INDO' : ($isPancasila ? 'PPKN' : 'MODUL')));
+                }
             @endphp
 
             <div class="bg-white rounded-2xl border {{ $isPending ? 'border-amber-300 shadow-sm' : ($isApproved ? 'border-emerald-200/80 shadow-xs' : ($isRevision ? 'border-rose-300 shadow-sm' : 'border-slate-200/80 shadow-xs')) }} p-6 flex flex-col justify-between hover:shadow-md transition space-y-4 relative">
@@ -313,35 +333,15 @@
 
                 <!-- 3. Content Details: Thumbnail + Title & Teacher Meta -->
                 <div class="flex items-start gap-4">
-                    <!-- Thumbnail Box -->
-                    <div class="w-16 h-16 rounded-2xl overflow-hidden shrink-0 flex items-center justify-center border border-slate-200 shadow-xs
-                        {{ $isMatematika ? 'bg-amber-50 text-amber-600' : ($isIpa ? 'bg-emerald-50 text-emerald-600' : ($isBindo ? 'bg-sky-50 text-sky-600' : 'bg-indigo-50 text-indigo-600')) }}">
-                        @if($isMatematika)
-                            <div class="text-center p-1">
-                                <i class="fas fa-pizza-slice text-xl block mb-0.5"></i>
-                                <span class="text-[9px] font-black uppercase">Pecahan</span>
-                            </div>
-                        @elseif($isIpa)
-                            <div class="text-center p-1">
-                                <i class="fas fa-worm text-xl block mb-0.5"></i>
-                                <span class="text-[9px] font-black uppercase">Metamorf</span>
-                            </div>
-                        @elseif($isBindo)
-                            <div class="text-center p-1">
-                                <i class="fas fa-book-open-reader text-xl block mb-0.5"></i>
-                                <span class="text-[9px] font-black uppercase">Cerita</span>
-                            </div>
-                        @elseif($isPancasila)
-                            <div class="text-center p-1">
-                                <i class="fas fa-scale-balanced text-xl block mb-0.5"></i>
-                                <span class="text-[9px] font-black uppercase">{{ $rpp->modul_ke ?? 'Bab 4' }}</span>
-                            </div>
-                        @else
-                            <div class="text-center p-1">
-                                <i class="fas fa-file-lines text-xl block mb-0.5"></i>
-                                <span class="text-[9px] font-black uppercase">Modul</span>
-                            </div>
-                        @endif
+                    <!-- Thumbnail Box Cerdas (Dinamis Sesuai Topik Pembelajaran) -->
+                    <div class="w-16 h-16 rounded-2xl overflow-hidden shrink-0 flex items-center justify-center border border-slate-200 shadow-xs text-center p-1
+                        {{ $isMatematika ? 'bg-amber-50 text-amber-600' : ($isIpa ? 'bg-emerald-50 text-emerald-600' : ($isBindo ? 'bg-sky-50 text-sky-600' : ($isPancasila ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-600'))) }}">
+                        <div class="w-full">
+                            <i class="{{ $topikIcon }} text-xl block mb-0.5"></i>
+                            <span class="text-[9px] font-black uppercase tracking-tight block truncate max-w-[54px] mx-auto leading-none">
+                                {{ $topikLabel }}
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Title & Meta -->
@@ -428,7 +428,7 @@
                             <i class="fas fa-pen text-xs"></i>
                         </button>
 
-                        <a href="{{ route('guru.rpp.download', $rpp->id_rpp) }}" title="Cetak PDF / Unduh"
+                        <a href="{{ route('guru.rpp.download', $rpp->id_rpp) }}" target="_blank" title="Cetak PDF / Unduh"
                            class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition">
                             <i class="fas fa-print text-[11px] text-slate-400"></i>
                             <span>Cetak PDF</span>
