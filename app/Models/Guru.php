@@ -4,14 +4,18 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+use \Laravel\Sanctum\HasApiTokens;
+
 class Guru extends Authenticatable
 {
+    use HasApiTokens;
     protected $table = 'guru';
 
     protected $primaryKey = 'id_guru';
 
     public $timestamps = true;
 
+    protected $hidden = ['password'];
     protected $fillable = [
         'nip',
         'nama_guru',
