@@ -12,14 +12,16 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Public Authentication Routes
+// Public Authentication & Mobile Routes
 Route::post('/login', [AuthApiController::class, 'login']);
 Route::post('/logout', [AuthApiController::class, 'logout']);
+Route::get('/siswa/dashboard', [SiswaApiController::class, 'dashboard']);
+Route::get('/siswa/profile', [SiswaApiController::class, 'profile']);
+Route::post('/siswa/update-password', [SiswaApiController::class, 'updatePassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Siswa API
     Route::prefix('siswa')->group(function () {
-        Route::get('/profile', [SiswaApiController::class, 'profile']);
         Route::post('/profile', [SiswaApiController::class, 'updateProfile']);
         Route::get('/absensi-hari-ini', [SiswaApiController::class, 'todayAttendance']);
         Route::post('/absensi-scan', [SiswaApiController::class, 'selfScan']);
