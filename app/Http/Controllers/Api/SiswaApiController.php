@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Absen;
 use App\Models\Bab;
+use App\Models\HasilKuisSiswa;
 use App\Models\MataPelajaran;
 use App\Models\Materi;
 use App\Models\Pr;
+use App\Models\Quiz;
 use App\Models\Siswa;
+use App\Models\SoalQuiz;
 use App\Models\SubBab;
 use App\Services\AbsensiService;
 use Carbon\Carbon;
@@ -611,10 +614,118 @@ class SiswaApiController extends ApiController
                 '1/2 + 1/2 akan kembali menjadi 1 bagian utuh!',
             ],
             'kuis_lanjutan' => [
-                'id_kuis' => 1,
+                'id_kuis' => 11,
                 'judul' => 'Lanjut ke Kuis / Latihan (5 Soal)',
                 'jumlah_soal' => 5,
             ],
         ]);
+    }
+
+    // GET /api/siswa/quiz/{id?}
+    public function quizDetail(Request $request, $id = null)
+    {
+        $quiz = null;
+        if ($id) {
+            $quiz = Quiz::with('soal')->find($id);
+        }
+        if (!$quiz) {
+            $quiz = Quiz::where('judul_quiz', 'like', '%Pecahan Sederhana%')->with('soal')->first()
+                ?? Quiz::with('soal')->first();
+        }
+
+        if (!$quiz) {
+            return $this->error('Kuis tidak ditemukan', 404);
+        }
+
+        $soals = [];
+        foreach ($quiz->soal as $index => $s) {
+            $metaGambar = null;
+            if ($s->gambar) {
+                $metaGambar = json_decode($s->gambar, true);
+            }
+            $tips = $metaGambar['tips'] ?? 'Pilih jawaban yang paling tepat sesuai materi yang telah kamu pelajari.';
+            $ilustrasi = null;
+            if (isset($metaGambar['tipe']) && $metaGambar['tipe'] === 'semangka_4') {
+                $ilustrasi = [
+                    'tipe' => 'semangka',
+                    'total_bagian' => $metaGambar['total_bagian'] ?? 4,
+                    'bagian_diambil' => $metaGambar['bagian_diambil'] ?? 1,
+                    'caption' => $metaGambar['caption'] ?? '1 dari 4 potongan semangka diambil oleh Budi',
+                ];
+            }
+
+            $soals[] = [
+                'id_soal' => $s->id_soal,
+                'nomor' => $index + 1,
+                'pertanyaan' => $s->pertanyaan,
+                'ilustrasi' => $ilustrasi,
+                'opsi_a' => $s->opsi_a,
+                'opsi_b' => $s->opsi_b,
+                'opsi_c' => $s->opsi_c,
+                'opsi_d' => $s->opsi_d,
+                'kunci_jawaban' => $s->kunci_jawaban,
+                'tips' => $tips,
+            ];
+        }
+
+        return $this->success([
+            'id_quiz' => $quiz->id_quiz,
+            'judul_quiz' => $quiz->judul_quiz,
+            'sub_judul' => 'Bab 3',
+            'durasi_menit' => $quiz->durasi_menit ?? 15,
+            'durasi_detik' => ($quiz->durasi_menit ?? 15) * 60,
+            'countdown_display' => '12:44',
+            'total_soal' => count($soals),
+            'soal' => $soals,
+        ]);
+    }
+
+    // POST /api/siswa/quiz/{id}/submit
+    public function quizSubmit(Request $request, $id)
+    {
+        $quiz = Quiz::with('soal')->find($id);
+        if (!$quiz) {
+            return $this->error('Kuis tidak ditemukan', 404);
+        }
+
+        $jawaban = $request->input('jawaban', []); // misal: {"23": "B", "24": "A", ...}
+        $idSiswa = $request->input('id_siswa', 1);
+
+        $totalSoal = $quiz->soal->count();
+        $benar = 0;
+        $salah = 0;
+
+        foreach ($quiz->soal as $s) {
+            $jawab = strtoupper(trim($jawaban[$s->id_soal] ?? $jawaban[(string)$s->id_soal] ?? ''));
+            if ($jawab && $jawab === strtoupper(trim($s->kunci_jawaban))) {
+                $benar++;
+            } else {
+                $salah++;
+            }
+        }
+
+        $nilai = $totalSoal > 0 ? round(($benar / $totalSoal) * 100) : 0;
+        $bintang = ($nilai >= 80) ? 3 : (($nilai >= 60) ? 2 : 1);
+
+        // Simpan ke riwayat kuis
+        HasilKuisSiswa::create([
+            'id_quiz' => $quiz->id_quiz,
+            'id_siswa' => $idSiswa,
+            'jumlah_benar' => $benar,
+            'jumlah_salah' => $salah,
+            'nilai_akhir' => $nilai,
+            'waktu_menit' => $request->input('waktu_menit', 3),
+            'status_kirim' => 1,
+            'waktu_kirim' => Carbon::now(),
+        ]);
+
+        return $this->success([
+            'nilai_akhir' => $nilai,
+            'jumlah_benar' => $benar,
+            'jumlah_salah' => $salah,
+            'total_soal' => $totalSoal,
+            'bintang' => $bintang,
+            'pesan' => $nilai >= 80 ? 'Luar biasa! Kamu memahami konsep pecahan dengan sangat baik!' : 'Bagus! Terus berlatih agar semakin hebat!',
+        ], 'Kuis berhasil dikumpulkan!');
     }
 }

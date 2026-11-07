@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'kuis_page.dart';
 import 'page_transitions.dart';
 import 'profile_page.dart';
 
@@ -953,10 +954,11 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                 height: 48,
                 child: ElevatedButton(
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Menyiapkan Kuis Latihan 5 Soal...'),
-                        backgroundColor: Color(0xFF1D5A86),
+                    Navigator.push(
+                      context,
+                      SmoothPageRoute(
+                        page: KuisPage(user: widget.user, quizId: 11),
+                        type: TransitionType.sharedAxis,
                       ),
                     );
                   },

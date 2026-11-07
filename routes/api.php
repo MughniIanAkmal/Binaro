@@ -25,6 +25,8 @@ Route::get('/siswa/mapel/{id}/bab', [SiswaApiController::class, 'babList']);
 Route::get('/siswa/bab/{id}/sub-bab', [SiswaApiController::class, 'subBabList']);
 Route::get('/siswa/sub-bab/{id}/materi', [SiswaApiController::class, 'materiList']);
 Route::get('/siswa/materi/{id}', [SiswaApiController::class, 'materiDetail']);
+Route::get('/siswa/quiz/{id?}', [SiswaApiController::class, 'quizDetail']);
+Route::post('/siswa/quiz/{id}/submit', [SiswaApiController::class, 'quizSubmit']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Siswa API
