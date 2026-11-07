@@ -49,9 +49,20 @@
                         {{ $index + 1 }}
                     </span>
                     <div>
-                        <a href="{{ route('guru.materi.sub_bab', $subBab->id_sub_bab) }}" class="block group/link">
-                            <h3 class="text-sm font-bold text-slate-900 group-hover/link:text-[#13527D] group-hover/link:underline transition">{{ $subBab->nama_sub_bab }}</h3>
-                        </a>
+                        <div class="flex items-center gap-2">
+                            <a href="{{ route('guru.materi.sub_bab', $subBab->id_sub_bab) }}" class="block group/link">
+                                <h3 class="text-sm font-bold text-slate-900 group-hover/link:text-[#13527D] group-hover/link:underline transition">{{ $subBab->nama_sub_bab }}</h3>
+                            </a>
+                            @if($subBab->is_locked)
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200" title="Siswa tidak dapat mengakses sub-bab ini">
+                                    <i class="fas fa-lock text-[10px]"></i> Terkunci
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200" title="Siswa dapat mengakses sub-bab ini">
+                                    <i class="fas fa-lock-open text-[10px]"></i> Terbuka
+                                </span>
+                            @endif
+                        </div>
                         <div class="flex items-center gap-3 mt-1.5 text-xs text-slate-500">
                             <span class="flex items-center gap-1 font-semibold text-slate-700">
                                 <i class="fas fa-layer-group text-slate-400"></i> {{ $subBab->materi->count() }} Materi:
@@ -72,6 +83,21 @@
                 </div>
 
                 <div class="flex items-center gap-2 self-end sm:self-center">
+                    <!-- Tombol Kunci / Buka Akses Sub-Bab untuk Siswa -->
+                    <form action="{{ route('guru.materi.toggle-lock.sub-bab', $subBab->id_sub_bab) }}" method="POST" class="inline">
+                        @csrf
+                        @method('PATCH')
+                        @if($subBab->is_locked)
+                            <button type="submit" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5" title="Buka kunci agar siswa dapat mengakses sub-bab ini di aplikasi">
+                                <i class="fas fa-unlock-alt"></i> Buka Akses
+                            </button>
+                        @else
+                            <button type="submit" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5" title="Kunci sub-bab agar siswa belum bisa mengakses sub-bab ini di aplikasi">
+                                <i class="fas fa-lock"></i> Kunci Akses
+                            </button>
+                        @endif
+                    </form>
+
                     <button onclick="openModalAction('tambah', 'materi', { idMapel: {{ $bab->mataPelajaran->id_mapel }}, idBab: {{ $bab->id_bab }}, idSubBab: {{ $subBab->id_sub_bab }}, namaMapel: '{{ addslashes($bab->mataPelajaran->nama_mapel) }}', namaBab: '{{ addslashes($bab->nama_bab) }}', namaSubBab: '{{ addslashes($subBab->nama_sub_bab) }}', locked: true })" 
                             class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg transition flex items-center gap-1.5">
                         <i class="fas fa-plus"></i> Tambah Materi

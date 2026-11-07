@@ -14,6 +14,10 @@ class Bab extends Model
 
     public $timestamps = false;
 
+    protected $casts = [
+        'is_locked' => 'boolean',
+    ];
+
     public function mataPelajaran()
     {
         return $this->belongsTo(MataPelajaran::class, 'id_mapel', 'id_mapel');
