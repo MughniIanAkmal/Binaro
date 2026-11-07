@@ -310,7 +310,7 @@ Route::middleware([EnsureAuthenticated::class, EnsureRole::class.':admin,guru'])
 });
 
 // Rute publik untuk akses & download file materi PDF / media (kompatibel penuh Windows & mobile)
-Route::get('/storage/{path?}', function ($path = null, \Illuminate\Http\Request $request) {
+Route::get('/storage/{path?}', function (\Illuminate\Http\Request $request, $path = null) {
     if (!$path) {
         return redirect('/');
     }
