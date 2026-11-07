@@ -592,6 +592,67 @@ class UjianController extends Controller
             ->map(fn ($id) => (int) $id);
     }
 
+    /**
+     * Rilis / Tampilkan nilai ujian ke seluruh siswa yang sudah mengerjakan
+     */
+    public function rilisNilaiSemua(Request $request, $id)
+    {
+        $guru = $this->authenticatedGuru();
+        $quiz = $this->ownedQuiz($id);
+
+        $hasils = \App\Models\HasilKuisSiswa::where('id_quiz', $id)->get();
+        if ($hasils->isEmpty()) {
+            return back()->with('error', 'Belum ada siswa yang mengerjakan ujian ini.');
+        }
+
+        $terkirim = 0;
+        foreach ($hasils as $h) {
+            $pesan = "Hasil Ujian [{$quiz->judul_quiz}]: Nilai akhir Anda adalah " . number_format($h->nilai_akhir, 0) . ". ";
+            if ($h->catatan_guru) {
+                $pesan .= "Catatan: {$h->catatan_guru}";
+            }
+
+            \App\Models\Notifikasi::create([
+                'id_guru' => $guru->id_guru,
+                'id_siswa' => $h->id_siswa,
+                'id_pr' => null,
+                'pesan' => trim($pesan),
+                'status_baca' => false,
+            ]);
+
+            $h->update([
+                'status_kirim' => true,
+                'waktu_kirim' => now(),
+            ]);
+
+            $terkirim++;
+        }
+
+        return back()->with('success', "Berhasil merilis & menampilkan nilai ujian ke {$terkirim} siswa! Siswa kini dapat langsung melihat nilai di aplikasi.");
+    }
+
+    /**
+     * Toggle status tampilkan/sembunyikan nilai per siswa
+     */
+    public function toggleRilisNilai(Request $request, $idHasil)
+    {
+        $guru = $this->authenticatedGuru();
+        $hasil = \App\Models\HasilKuisSiswa::with('quiz')->findOrFail($idHasil);
+
+        if ($hasil->quiz && $hasil->quiz->id_guru != $guru->id_guru) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $newStatus = !$hasil->status_kirim;
+        $hasil->update([
+            'status_kirim' => $newStatus,
+            'waktu_kirim' => $newStatus ? now() : null,
+        ]);
+
+        $statusMsg = $newStatus ? 'berhasil ditampilkan ke siswa' : 'berhasil disembunyikan (siswa kembali menunggu nilai)';
+        return back()->with('success', "Nilai siswa {$statusMsg}.");
+    }
+
     private function ownedQuiz($id, array $relations = []): Quiz
     {
         return Quiz::where('id_guru', $this->authenticatedGuru()->id_guru)

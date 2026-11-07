@@ -26,6 +26,12 @@
             <a href="{{ route('guru.quiz.export', $selectedQuizId) }}" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-sm">
                 <i class="fas fa-file-export"></i> Export Rekap (.csv)
             </a>
+            <form action="{{ route('rekap_ujian.kirim_semua', $selectedQuizId) }}" method="POST" onsubmit="return confirm('Tampilkan nilai ujian ini ke seluruh siswa?')">
+                @csrf
+                <button type="submit" class="px-3 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fas fa-bullhorn"></i> Tampilkan Nilai ke Seluruh Siswa
+                </button>
+            </form>
             @endif
         </div>
     </div>
