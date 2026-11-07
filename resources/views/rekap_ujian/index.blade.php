@@ -20,9 +20,9 @@
     @if($selectedQuiz)
     <div class="hidden print:block mb-6 border-b-2 border-slate-900 pb-3">
         <div class="text-center space-y-0.5">
-            <h2 class="text-base font-black uppercase tracking-wider text-slate-900">PEMERINTAH KABUPATEN BANYUMAS</h2>
+            <h2 class="text-base font-black uppercase tracking-wider text-slate-900">PEMERINTAH KABUPATEN BONDOWOSO</h2>
             <h3 class="text-sm font-bold uppercase text-slate-800">DINAS PENDIDIKAN - SDN KALITAPEN 01</h3>
-            <p class="text-[10px] text-slate-600">Jl. Kalitapen No. 01, Kec. Purwojati, Kab. Banyumas &bull; Telp: (0281) 123456</p>
+            <p class="text-[10px] text-slate-600">Kecamatan Tapen, Kabupaten Bondowoso, Jawa Timur &bull; Pos: 68283</p>
         </div>
         <div class="mt-4 pt-2 border-t border-slate-300 flex items-center justify-between text-xs font-semibold text-slate-800">
             <div>
@@ -535,7 +535,7 @@
             <p class="text-[10px] text-slate-500">NIP. 19700101 199503 1 001</p>
         </div>
         <div class="text-center">
-            <p>Banyumas, {{ now()->translatedFormat('d F Y') }}</p>
+            <p>Bondowoso, {{ now()->translatedFormat('d F Y') }}</p>
             <p class="font-bold">Guru Pengampu</p>
             <div class="h-20"></div>
             <p class="font-bold underline">{{ session('user_name', 'Guru Mata Pelajaran') }}</p>

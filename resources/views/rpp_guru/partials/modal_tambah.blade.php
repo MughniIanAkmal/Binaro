@@ -22,37 +22,6 @@
             <input type="hidden" name="id_guru" value="{{ $guru->id_guru ?? 1 }}">
             <input type="hidden" name="id_jadwal" id="tambah-id-jadwal" value="">
 
-            <!-- Pilihan Cepat dari Roster Jadwal Mengajar Guru -->
-            <div class="p-3.5 bg-sky-50/70 border border-sky-200 rounded-xl space-y-1.5">
-                <div class="flex items-center justify-between">
-                    <label class="block text-xs font-bold text-sky-950 flex items-center gap-1.5">
-                        <i class="fas fa-calendar-check text-[#13527D]"></i>
-                        <span>Pilih dari Roster Jadwal Guru (Otomatis Isi)</span>
-                    </label>
-                    <span class="text-[10px] text-sky-700 font-semibold bg-white px-2 py-0.5 rounded border border-sky-200">
-                        Sinkronisasi Roster
-                    </span>
-                </div>
-                <select id="tambah-select-roster" onchange="applyRosterToTambah(this)" class="w-full px-3 py-2 bg-white border border-sky-300 rounded-xl text-xs text-slate-800 font-medium focus:outline-none focus:border-[#13527D]">
-                    <option value="">-- Pilih Jadwal Mengajar Anda (Atau atur mandiri di bawah) --</option>
-                    @if(isset($jadwalList) && $jadwalList->count() > 0)
-                        @foreach($jadwalList as $j)
-                            <option value="{{ $j->id_jadwal }}"
-                                    data-hari="{{ $j->hari }}"
-                                    data-jam="{{ $j->jam }}"
-                                    data-mapel="{{ $j->id_mapel }}"
-                                    data-kelas="{{ $j->id_rooms }}"
-                                    data-ruang="{{ $j->kelas ? 'Ruang ' . $j->kelas->pararel : 'Ruang Kelas' }}">
-                                {{ $j->hari }}, {{ $j->jam }} WIB &bull; {{ $j->mataPelajaran->nama_mapel ?? 'Mata Pelajaran' }} ({{ $j->kelas->pararel ?? 'Kelas' }})
-                            </option>
-                        @endforeach
-                    @endif
-                </select>
-                <p class="text-[10px] text-sky-700">
-                    Memilih jadwal aktif di atas akan otomatis mengisi Mata Pelajaran, Kelas, Target Roster, dan menghitung JP secara otomatis.
-                </p>
-            </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Mapel -->
                 <div>
@@ -67,7 +36,7 @@
 
                 <!-- Kelas -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Kelas & Rombel</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Kelas</label>
                     <select name="id_rooms" id="tambah-id-rooms" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
                         @foreach($kelasList as $kelas)
                             <option value="{{ $kelas->id_rooms }}">{{ $kelas->pararel ?? 'Kelas ' . $kelas->id_rooms }}</option>
@@ -88,39 +57,42 @@
                 <p class="text-[10px] text-slate-400 mt-1">Maks. 100 karakter. Hanya huruf, angka, dan spasi (tanpa simbol).</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
                 <!-- Fase -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Fase Pembelajaran</label>
+                    <label class="text-xs font-bold text-slate-700 mb-1.5 h-5 flex items-center justify-between">
+                        <span>Fase Pembelajaran</span>
+                    </label>
                     <input type="text" name="fase" id="tambah-fase" value="Fase B" placeholder="Fase B" maxlength="20"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <p class="text-[10px] text-slate-400 mt-1">Standar kelas 4: Fase B.</p>
                 </div>
 
                 <!-- Modul Ke -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <label class="text-xs font-bold text-slate-700 mb-1.5 h-5 flex items-center justify-between">
                         <span>Nomor Modul / Bab</span>
                         <span id="counter-tambah-modul" class="text-[10px] text-slate-400 font-normal">0/20</span>
                     </label>
                     <input type="text" name="modul_ke" id="tambah-modul-ke" maxlength="20" placeholder="Contoh: Modul 28"
                            oninput="sanitizeAlphanumericOnly(this, 'counter-tambah-modul', 20)"
                            class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
-                    <p class="text-[10px] text-slate-400 mt-0.5">Maks. 20 karakter, tanpa simbol.</p>
+                    <p class="text-[10px] text-slate-400 mt-1">Maks. 20 karakter, tanpa simbol.</p>
                 </div>
 
                 <!-- Alokasi Waktu (Otomatis dari Roster Jadwal) -->
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                        <span>Alokasi Waktu (JP)</span>
-                        <span id="tambah-badge-jp" class="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300">
-                            1JP = 45 Menit (Auto)
+                    <label class="text-xs font-bold text-slate-700 mb-1.5 h-5 flex items-center justify-between gap-1">
+                        <span class="whitespace-nowrap">Alokasi Waktu (JP)</span>
+                        <span id="tambah-badge-jp" class="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300 whitespace-nowrap">
+                            1JP = 45m
                         </span>
                     </label>
                     <input type="text" name="alokasi_waktu" id="tambah-alokasi-waktu" readonly placeholder="Otomatis dari jadwal"
                            class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none cursor-not-allowed">
-                    <p class="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
-                        <i class="fas fa-calculator text-emerald-600"></i>
-                        <span>Otomatis dihitung dari durasi jam Target Roster Jadwal.</span>
+                    <p id="tambah-note-jp" class="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+                        <i class="fas fa-calculator text-emerald-600 shrink-0"></i>
+                        <span class="truncate">Otomatis dari durasi jadwal.</span>
                     </p>
                 </div>
             </div>
@@ -137,7 +109,7 @@
                     </span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <!-- Hari -->
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-600 mb-1">Hari</label>
@@ -151,16 +123,24 @@
 
                     <!-- Jam Mulai -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jam Mulai</label>
-                        <input type="time" id="tambah-jam-mulai" step="300" oninput="syncTambahJadwalFromPickers()"
-                               class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jam Mulai <span class="font-normal text-slate-400">(24 jam)</span></label>
+                        <div class="relative">
+                            <input type="text" id="tambah-jam-mulai" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="07.00"
+                                   oninput="maskJamInput(this); syncTambahJadwalFromPickers()"
+                                   class="w-full pl-3 pr-12 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#13527D] pointer-events-none">WIB</span>
+                        </div>
                     </div>
 
                     <!-- Jam Selesai -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jam Selesai</label>
-                        <input type="time" id="tambah-jam-selesai" step="300" oninput="syncTambahJadwalFromPickers()"
-                               class="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jam Selesai <span class="font-normal text-slate-400">(24 jam)</span></label>
+                        <div class="relative">
+                            <input type="text" id="tambah-jam-selesai" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="08.30"
+                                   oninput="maskJamInput(this); syncTambahJadwalFromPickers()"
+                                   class="w-full pl-3 pr-12 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-[#13527D] pointer-events-none">WIB</span>
+                        </div>
                     </div>
                 </div>
 
@@ -212,12 +192,15 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
                     <span>Capaian Pembelajaran (TP) & Deskripsi Ringkas</span>
-                    <span id="counter-tambah-deskripsi" class="text-[10px] text-slate-400 font-normal">0/500</span>
+                    <div class="flex items-center gap-2">
+                        {{-- <span class="text-[10px] text-rose-500 font-semibold">Simbol Dilarang</span> --}}
+                        <span id="counter-tambah-deskripsi" class="text-[10px] text-slate-400 font-normal">0/500</span>
+                    </div>
                 </label>
                 <textarea name="deskripsi" id="tambah-deskripsi" rows="3" maxlength="500" placeholder="Tuliskan tujuan pembelajaran yang dicapai peserta didik dalam aktivitas materi ini (maksimal 500 karakter)..."
-                          oninput="updateLengthCounter(this, 'counter-tambah-deskripsi', 500)"
+                          oninput="sanitizeDeskripsiTp(this, 'counter-tambah-deskripsi', 500)"
                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]"></textarea>
-                <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 500 karakter.</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 500 karakter. Hanya huruf, angka, dan tanda baca kalimat (.,-;:()"/!?).</p>
             </div>
 
             <!-- Komponen Checklist Interaktif -->
@@ -247,7 +230,7 @@
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
                     <span>Label / Tag Tambahan (Tanpa Simbol)</span>
-                    <span class="text-[10px] text-rose-500 font-semibold">Simbol Dilarang</span>
+                    {{-- <span class="text-[10px] text-rose-500 font-semibold">Simbol Dilarang</span> --}}
                 </label>
                 <input type="text" name="custom_tags" id="tambah-custom-tags" maxlength="150"
                        placeholder="Tujuan Pembelajaran, Video Animasi Interaktif, LKPD Cetak"
