@@ -8,6 +8,35 @@
     }
 
     /**
+     * Mask input jam 24 jam: hanya angka, titik otomatis (0700 -> 07.00)
+     */
+    function maskJamInput(el) {
+        if (!el) return;
+        let digits = el.value.replace(/\D/g, '').slice(0, 4);
+        if (digits.length > 2) {
+            digits = digits.slice(0, 2) + '.' + digits.slice(2);
+        }
+        el.value = digits;
+    }
+
+    /**
+     * Cek apakah teks jam lengkap (HH.MM)
+     */
+    function isJamLengkap(val) {
+        return /^\d{2}[.:]\d{2}$/.test(val || '');
+    }
+
+    /**
+     * Helper untuk mengisi input jam WIB dengan format HH.MM
+     */
+    function setSelectTimeValue(inputEl, rawTime) {
+        if (!inputEl || !rawTime) return;
+        const parts = rawTime.replace('.', ':').split(':');
+        if (parts.length < 2) return;
+        inputEl.value = `${String(parts[0]).padStart(2, '0')}.${String(parts[1]).padStart(2, '0')}`;
+    }
+
+    /**
      * Hitung durasi, validasi aturan roster jadwal, dan konversi ke JP otomatis
      */
     function evaluateJadwalTimes(hMulai, mMulai, hSelesai, mSelesai) {
@@ -65,14 +94,33 @@
             };
         }
 
-        // 4. Cek Melebihi Jam Tutup Sekolah
+        // 4. Durasi wajib kelipatan 1 JP (45 menit) -> tidak boleh 07.00 - 10.09
+        if (durasi % MENIT_PER_JP !== 0) {
+            const jpBawah = Math.floor(durasi / MENIT_PER_JP);
+            const saran = [];
+            if (jpBawah >= 1) {
+                const t = totalMulai + (jpBawah * MENIT_PER_JP);
+                saran.push(`${formatTimeHM(Math.floor(t / 60) % 24, t % 60)} (${jpBawah} JP)`);
+            }
+            const tAtas = totalMulai + ((jpBawah + 1) * MENIT_PER_JP);
+            saran.push(`${formatTimeHM(Math.floor(tAtas / 60) % 24, tAtas % 60)} (${jpBawah + 1} JP)`);
+            return {
+                valid: false,
+                error: `Durasi ${durasi} menit tidak valid! Harus kelipatan ${MENIT_PER_JP} menit (1 JP). Dari jam mulai ${strMulai}, jam selesai yang sesuai: ${saran.join(' atau ')}.`,
+                warning: null,
+                durasi: durasi,
+                jp: null
+            };
+        }
+
+        // 5. Cek Melebihi Jam Tutup Sekolah
         let warning = null;
         if (totalSelesai > JAM_TUTUP_MAX_MINUTES) {
             warning = `Perhatian: Jam selesai (${strSelesai}) melewati jam tutup operasional sekolah (12.00 WIB).`;
         }
 
-        // 5. Hitung JP Otomatis (1 JP = 45 menit)
-        const jp = Math.max(1, Math.round(durasi / MENIT_PER_JP));
+        // 6. Hitung JP Otomatis (1 JP = 45 menit, pasti bulat)
+        const jp = durasi / MENIT_PER_JP;
 
         return {
             valid: true,
@@ -122,18 +170,20 @@
         const targetInput = document.getElementById('tambah-target-jadwal');
         const alokasiInput = document.getElementById('tambah-alokasi-waktu');
         const badgeJp = document.getElementById('tambah-badge-jp');
+        const noteJp = document.getElementById('tambah-note-jp');
         const errBox = document.getElementById('tambah-jadwal-error-box');
         const errText = document.getElementById('tambah-jadwal-error-text');
         const btnPublish = document.getElementById('btn-tambah-publish');
         const btnDraft = document.getElementById('btn-tambah-draft');
 
-        if (jamMulai && jamSelesai) {
-            const [hM, mM] = jamMulai.split(':').map(n => parseInt(n, 10));
-            const [hS, mS] = jamSelesai.split(':').map(n => parseInt(n, 10));
+        if (isJamLengkap(jamMulai) && isJamLengkap(jamSelesai)) {
+            const [hM, mM] = jamMulai.split(/[:.]/).map(n => parseInt(n, 10));
+            const [hS, mS] = jamSelesai.split(/[:.]/).map(n => parseInt(n, 10));
 
             // Format tampilan string: Hari, HH.MM - HH.MM WIB
             const strM = formatTimeHM(hM, mM);
             const strS = formatTimeHM(hS, mS);
+
             targetInput.value = `${hari ? hari + ', ' : ''}${strM} - ${strS} WIB`;
             updateLengthCounter(targetInput, 'counter-tambah-jadwal', 50);
 
@@ -144,8 +194,9 @@
                 errBox.classList.remove('hidden');
                 errBox.className = 'p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-start gap-2';
                 alokasiInput.value = 'Tidak Valid';
-                badgeJp.innerHTML = `<i class="fas fa-triangle-exclamation text-rose-600"></i> Jam Terbalik / Salah`;
-                badgeJp.className = 'text-[10px] text-rose-800 font-bold bg-rose-100 px-1.5 py-0.5 rounded border border-rose-300';
+                badgeJp.innerHTML = `<i class="fas fa-triangle-exclamation text-rose-600"></i> Salah`;
+                badgeJp.className = 'text-[10px] text-rose-800 font-bold bg-rose-100 px-1.5 py-0.5 rounded border border-rose-300 whitespace-nowrap';
+                if (noteJp) noteJp.innerHTML = `<i class="fas fa-circle-xmark text-rose-500 shrink-0"></i> <span class="text-rose-600 truncate">Perbaiki jam jadwal.</span>`;
                 if (btnPublish) btnPublish.disabled = true;
                 if (btnDraft) btnDraft.disabled = true;
                 return false;
@@ -161,8 +212,9 @@
             }
 
             alokasiInput.value = result.jpText;
-            badgeJp.innerHTML = `<i class="fas fa-check-circle text-emerald-600"></i> ${result.jpText} (${result.durasi} Menit &bull; 1 JP = 45 Menit)`;
-            badgeJp.className = 'text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300';
+            badgeJp.innerHTML = `<i class="fas fa-check-circle text-emerald-600"></i> 1JP = 45m`;
+            badgeJp.className = 'text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300 whitespace-nowrap';
+            if (noteJp) noteJp.innerHTML = `<i class="fas fa-calculator text-emerald-600 shrink-0"></i> <span class="truncate text-emerald-700 font-medium">Auto: ${result.jpText} (${result.durasi} Menit)</span>`;
             if (btnPublish) btnPublish.disabled = false;
             if (btnDraft) btnDraft.disabled = false;
             return true;
@@ -180,42 +232,13 @@
             if (parsed.hari) {
                 document.getElementById('tambah-hari').value = parsed.hari;
             }
-            document.getElementById('tambah-jam-mulai').value = parsed.rawMulai;
-            document.getElementById('tambah-jam-selesai').value = parsed.rawSelesai;
+            setSelectTimeValue(document.getElementById('tambah-jam-mulai'), parsed.rawMulai);
+            setSelectTimeValue(document.getElementById('tambah-jam-selesai'), parsed.rawSelesai);
             syncTambahJadwalFromPickers();
         }
     }
 
-    function applyRosterToTambah(selectEl) {
-        const opt = selectEl.options[selectEl.selectedIndex];
-        if (!opt || !opt.value) return;
 
-        document.getElementById('tambah-id-jadwal').value = opt.value;
-
-        const mapel = opt.getAttribute('data-mapel');
-        const kelas = opt.getAttribute('data-kelas');
-        const ruang = opt.getAttribute('data-ruang');
-        const hari = opt.getAttribute('data-hari');
-        const jam = opt.getAttribute('data-jam');
-
-        if (mapel) document.getElementById('tambah-id-mapel').value = mapel;
-        if (kelas) document.getElementById('tambah-id-rooms').value = kelas;
-        if (ruang) {
-            document.getElementById('tambah-ruang').value = ruang;
-            updateLengthCounter(document.getElementById('tambah-ruang'), 'counter-tambah-ruang', 50);
-        }
-
-        if (hari) document.getElementById('tambah-hari').value = hari;
-
-        if (jam) {
-            const parsed = parseJadwalText(jam);
-            if (parsed && !isNaN(parsed.hMulai)) {
-                document.getElementById('tambah-jam-mulai').value = parsed.rawMulai;
-                document.getElementById('tambah-jam-selesai').value = parsed.rawSelesai;
-            }
-        }
-        syncTambahJadwalFromPickers();
-    }
 
     /* ========================================================
        MODAL EDIT: SINKRONISASI JADWAL & PERHITUNGAN JP
@@ -227,17 +250,19 @@
         const targetInput = document.getElementById('edit-target-jadwal');
         const alokasiInput = document.getElementById('edit-alokasi-waktu');
         const badgeJp = document.getElementById('edit-badge-jp');
+        const noteJp = document.getElementById('edit-note-jp');
         const errBox = document.getElementById('edit-jadwal-error-box');
         const errText = document.getElementById('edit-jadwal-error-text');
         const btnPublish = document.getElementById('btn-edit-publish');
         const btnDraft = document.getElementById('btn-edit-draft');
 
-        if (jamMulai && jamSelesai) {
-            const [hM, mM] = jamMulai.split(':').map(n => parseInt(n, 10));
-            const [hS, mS] = jamSelesai.split(':').map(n => parseInt(n, 10));
+        if (isJamLengkap(jamMulai) && isJamLengkap(jamSelesai)) {
+            const [hM, mM] = jamMulai.split(/[:.]/).map(n => parseInt(n, 10));
+            const [hS, mS] = jamSelesai.split(/[:.]/).map(n => parseInt(n, 10));
 
             const strM = formatTimeHM(hM, mM);
             const strS = formatTimeHM(hS, mS);
+
             targetInput.value = `${hari ? hari + ', ' : ''}${strM} - ${strS} WIB`;
             updateLengthCounter(targetInput, 'counter-edit-jadwal', 50);
 
@@ -248,8 +273,9 @@
                 errBox.classList.remove('hidden');
                 errBox.className = 'p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-start gap-2';
                 alokasiInput.value = 'Tidak Valid';
-                badgeJp.innerHTML = `<i class="fas fa-triangle-exclamation text-rose-600"></i> Jam Terbalik / Salah`;
-                badgeJp.className = 'text-[10px] text-rose-800 font-bold bg-rose-100 px-1.5 py-0.5 rounded border border-rose-300';
+                badgeJp.innerHTML = `<i class="fas fa-triangle-exclamation text-rose-600"></i> Salah`;
+                badgeJp.className = 'text-[10px] text-rose-800 font-bold bg-rose-100 px-1.5 py-0.5 rounded border border-rose-300 whitespace-nowrap';
+                if (noteJp) noteJp.innerHTML = `<i class="fas fa-circle-xmark text-rose-500 shrink-0"></i> <span class="text-rose-600 truncate">Perbaiki jam jadwal.</span>`;
                 if (btnPublish) btnPublish.disabled = true;
                 if (btnDraft) btnDraft.disabled = true;
                 return false;
@@ -264,8 +290,9 @@
             }
 
             alokasiInput.value = result.jpText;
-            badgeJp.innerHTML = `<i class="fas fa-check-circle text-emerald-600"></i> ${result.jpText} (${result.durasi} Menit &bull; 1 JP = 45 Menit)`;
-            badgeJp.className = 'text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300';
+            badgeJp.innerHTML = `<i class="fas fa-check-circle text-emerald-600"></i> 1JP = 45m`;
+            badgeJp.className = 'text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300 whitespace-nowrap';
+            if (noteJp) noteJp.innerHTML = `<i class="fas fa-calculator text-emerald-600 shrink-0"></i> <span class="truncate text-emerald-700 font-medium">Auto: ${result.jpText} (${result.durasi} Menit)</span>`;
             if (btnPublish) btnPublish.disabled = false;
             if (btnDraft) btnDraft.disabled = false;
             return true;
@@ -283,42 +310,13 @@
             if (parsed.hari) {
                 document.getElementById('edit-hari').value = parsed.hari;
             }
-            document.getElementById('edit-jam-mulai').value = parsed.rawMulai;
-            document.getElementById('edit-jam-selesai').value = parsed.rawSelesai;
+            setSelectTimeValue(document.getElementById('edit-jam-mulai'), parsed.rawMulai);
+            setSelectTimeValue(document.getElementById('edit-jam-selesai'), parsed.rawSelesai);
             syncEditJadwalFromPickers();
         }
     }
 
-    function applyRosterToEdit(selectEl) {
-        const opt = selectEl.options[selectEl.selectedIndex];
-        if (!opt || !opt.value) return;
 
-        document.getElementById('edit-id-jadwal').value = opt.value;
-
-        const mapel = opt.getAttribute('data-mapel');
-        const kelas = opt.getAttribute('data-kelas');
-        const ruang = opt.getAttribute('data-ruang');
-        const hari = opt.getAttribute('data-hari');
-        const jam = opt.getAttribute('data-jam');
-
-        if (mapel) document.getElementById('edit-id-mapel').value = mapel;
-        if (kelas) document.getElementById('edit-id-rooms').value = kelas;
-        if (ruang) {
-            document.getElementById('edit-ruang').value = ruang;
-            updateLengthCounter(document.getElementById('edit-ruang'), 'counter-edit-ruang', 50);
-        }
-
-        if (hari) document.getElementById('edit-hari').value = hari;
-
-        if (jam) {
-            const parsed = parseJadwalText(jam);
-            if (parsed && !isNaN(parsed.hMulai)) {
-                document.getElementById('edit-jam-mulai').value = parsed.rawMulai;
-                document.getElementById('edit-jam-selesai').value = parsed.rawSelesai;
-            }
-        }
-        syncEditJadwalFromPickers();
-    }
 
     /* ========================================================
        FUNGSI SANITASI & VALIDASI UMUM
@@ -355,6 +353,16 @@
                 }
             }
         }
+    }
+
+    function sanitizeDeskripsiTp(el, counterId, maxLen) {
+        if (!el) return;
+        // Hanya huruf, angka, spasi, baris baru, dan tanda baca kalimat standar: . , - : ; ( ) " ' / ? !
+        const cleaned = el.value.replace(/[^a-zA-Z0-9\s.,\-:;()"'/?!\n\r]/g, '');
+        if (el.value !== cleaned) {
+            el.value = cleaned;
+        }
+        updateLengthCounter(el, counterId, maxLen);
     }
 
     function sanitizeTagsInput(el) {
@@ -404,10 +412,10 @@
                 document.getElementById('tambah-hari').value = 'Senin';
             }
             if (!document.getElementById('tambah-jam-mulai').value) {
-                document.getElementById('tambah-jam-mulai').value = '07:00';
+                document.getElementById('tambah-jam-mulai').value = '07.00';
             }
             if (!document.getElementById('tambah-jam-selesai').value) {
-                document.getElementById('tambah-jam-selesai').value = '08:30';
+                document.getElementById('tambah-jam-selesai').value = '08.30';
             }
             syncTambahJadwalFromPickers();
         }
@@ -437,8 +445,8 @@
             if (parsed) {
                 if (parsed.hari) document.getElementById('edit-hari').value = parsed.hari;
                 if (!isNaN(parsed.hMulai)) {
-                    document.getElementById('edit-jam-mulai').value = parsed.rawMulai;
-                    document.getElementById('edit-jam-selesai').value = parsed.rawSelesai;
+                    setSelectTimeValue(document.getElementById('edit-jam-mulai'), parsed.rawMulai);
+                    setSelectTimeValue(document.getElementById('edit-jam-selesai'), parsed.rawSelesai);
                     syncEditJadwalFromPickers();
                 } else {
                     document.getElementById('edit-alokasi-waktu').value = rpp.alokasi_waktu || '2 JP';
@@ -461,7 +469,7 @@
         sanitizeAlphanumericOnly(document.getElementById('edit-modul-ke'), 'counter-edit-modul', 20);
         updateLengthCounter(document.getElementById('edit-target-jadwal'), 'counter-edit-jadwal', 50);
         updateLengthCounter(document.getElementById('edit-ruang'), 'counter-edit-ruang', 50);
-        updateLengthCounter(document.getElementById('edit-deskripsi'), 'counter-edit-deskripsi', 500);
+        sanitizeDeskripsiTp(document.getElementById('edit-deskripsi'), 'counter-edit-deskripsi', 500);
 
         document.getElementById('modal-edit-rpp').classList.remove('hidden');
     }
@@ -510,8 +518,8 @@
 
             const dlBtn = document.getElementById('detail-download-btn-container');
             dlBtn.innerHTML = `
-                <a href="/guru/rpp/${data.id_rpp}/download" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
-                    <i class="fas fa-download"></i> Unduh Berkas RPP
+                <a href="/guru/rpp/${data.id_rpp}/download" target="_blank" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                    <i class="fas fa-print"></i> Cetak / Simpan PDF
                 </a>
             `;
 
@@ -527,39 +535,32 @@
         document.getElementById('modal-detail-rpp').classList.add('hidden');
     }
 
-    // Mencegah submit jika jam terbalik atau error
+    // Mencegah submit jika jam terbalik, tidak lengkap, atau error
     document.addEventListener('DOMContentLoaded', function () {
-        const formTambah = document.getElementById('form-tambah-rpp');
-        if (formTambah) {
-            formTambah.addEventListener('submit', function (e) {
-                const jmMulai = document.getElementById('tambah-jam-mulai').value;
-                const jmSelesai = document.getElementById('tambah-jam-selesai').value;
-                if (jmMulai && jmSelesai) {
-                    const valid = syncTambahJadwalFromPickers();
-                    if (!valid) {
-                        e.preventDefault();
-                        alert('Perbaiki kesalahan Target Roster Jadwal sebelum menyimpan!');
-                        document.getElementById('tambah-jam-mulai').focus();
-                    }
+        function bindValidasiJadwal(formId, prefix, syncFn) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            form.addEventListener('submit', function (e) {
+                const mulai = document.getElementById(`${prefix}-jam-mulai`);
+                const selesai = document.getElementById(`${prefix}-jam-selesai`);
+                if (!mulai.value && !selesai.value) return;
+
+                if (!isJamLengkap(mulai.value) || !isJamLengkap(selesai.value)) {
+                    e.preventDefault();
+                    alert('Format jam belum lengkap! Isi dengan format 24 jam, contoh: 07.00 dan 08.30.');
+                    (isJamLengkap(mulai.value) ? selesai : mulai).focus();
+                    return;
+                }
+                if (!syncFn()) {
+                    e.preventDefault();
+                    alert('Perbaiki kesalahan Target Roster Jadwal sebelum menyimpan!');
+                    mulai.focus();
                 }
             });
         }
 
-        const formEdit = document.getElementById('form-edit-rpp');
-        if (formEdit) {
-            formEdit.addEventListener('submit', function (e) {
-                const jmMulai = document.getElementById('edit-jam-mulai').value;
-                const jmSelesai = document.getElementById('edit-jam-selesai').value;
-                if (jmMulai && jmSelesai) {
-                    const valid = syncEditJadwalFromPickers();
-                    if (!valid) {
-                        e.preventDefault();
-                        alert('Perbaiki kesalahan Target Roster Jadwal sebelum menyimpan!');
-                        document.getElementById('edit-jam-mulai').focus();
-                    }
-                }
-            });
-        }
+        bindValidasiJadwal('form-tambah-rpp', 'tambah', syncTambahJadwalFromPickers);
+        bindValidasiJadwal('form-edit-rpp', 'edit', syncEditJadwalFromPickers);
     });
 
     // Close modals on clicking backdrop

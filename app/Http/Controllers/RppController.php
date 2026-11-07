@@ -206,8 +206,17 @@ class RppController extends Controller
                 ];
             }
 
-            // 4. Hitung JP otomatis (1 JP = 45 menit)
-            $jp = max(1, (int) round($durasi / 45));
+            // 4. Durasi wajib kelipatan 1 JP (45 menit)
+            if ($durasi % 45 !== 0) {
+                return [
+                    false,
+                    sprintf('Durasi pembelajaran (%d menit) harus kelipatan 45 menit (1 JP), misalnya 45, 90, 135, 180, atau 225 menit.', $durasi),
+                    null,
+                ];
+            }
+
+            // 5. Hitung JP otomatis (1 JP = 45 menit)
+            $jp = intdiv($durasi, 45);
 
             return [true, null, "{$jp} JP"];
         }
@@ -251,7 +260,12 @@ class RppController extends Controller
                 'max:100',
                 'regex:/^[a-zA-Z0-9\s]+$/u',
             ],
-            'deskripsi' => ['nullable', 'string', 'max:500'],
+            'deskripsi' => [
+                'nullable',
+                'string',
+                'max:500',
+                'regex:/^[\p{L}\p{N}\s.,\-:;()\"\'\/?!\r\n]+$/u',
+            ],
             'alokasi_waktu' => ['nullable', 'string', 'max:15'],
             'fase' => ['nullable', 'string', 'max:20'],
             'modul_ke' => ['nullable', 'string', 'max:20', 'regex:/^[a-zA-Z0-9\s]+$/u'],
@@ -287,6 +301,7 @@ class RppController extends Controller
             'target_jadwal.max' => 'Target Roster Jadwal maksimal 50 karakter.',
             'ruang.max' => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
             'deskripsi.max' => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
+            'deskripsi.regex' => 'Capaian Pembelajaran (TP) hanya boleh berisi huruf, angka, spasi, dan tanda baca kalimat (dilarang simbol aneh seperti #, $, %, ^, &, *).',
             'file_rpp.mimes' => 'Format berkas RPP & Modul hanya boleh berupa dokumen PDF (.pdf) atau Word (.docx, .doc).',
             'file_rpp.max' => 'Ukuran berkas RPP & Modul maksimal 10MB.',
         ]);
@@ -374,7 +389,12 @@ class RppController extends Controller
                 'max:100',
                 'regex:/^[a-zA-Z0-9\s]+$/u',
             ],
-            'deskripsi' => ['nullable', 'string', 'max:500'],
+            'deskripsi' => [
+                'nullable',
+                'string',
+                'max:500',
+                'regex:/^[\p{L}\p{N}\s.,\-:;()\"\'\/?!\r\n]+$/u',
+            ],
             'alokasi_waktu' => ['nullable', 'string', 'max:15'],
             'fase' => ['nullable', 'string', 'max:20'],
             'modul_ke' => ['nullable', 'string', 'max:20', 'regex:/^[a-zA-Z0-9\s]+$/u'],
@@ -410,6 +430,7 @@ class RppController extends Controller
             'target_jadwal.max' => 'Target Roster Jadwal maksimal 50 karakter.',
             'ruang.max' => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
             'deskripsi.max' => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
+            'deskripsi.regex' => 'Capaian Pembelajaran (TP) hanya boleh berisi huruf, angka, spasi, dan tanda baca kalimat (dilarang simbol aneh seperti #, $, %, ^, &, *).',
             'file_rpp.mimes' => 'Format berkas RPP & Modul hanya boleh berupa dokumen PDF (.pdf) atau Word (.docx, .doc).',
             'file_rpp.max' => 'Ukuran berkas RPP & Modul maksimal 10MB.',
         ]);
@@ -513,27 +534,7 @@ class RppController extends Controller
             return response()->download(storage_path('app/public/'.$rpp->file_rpp), basename($rpp->file_rpp));
         }
 
-        // Jika belum ada berkas upload fisik, buat dokumen ringkasan format text / docx siap cetak
-        $content = "RENCANA PELAKSANAAN PEMBELAJARAN (MODUL AJAR)\n";
-        $content .= "KURIKULUM MERDEKA - SDN KALITAPEN 01\n";
-        $content .= "=========================================================\n\n";
-        $content .= 'Topik / Judul: '.$rpp->judul_rpp."\n";
-        $content .= 'Fase & Modul: '.($rpp->fase ?? 'Fase B').' • '.($rpp->modul_ke ?? 'Modul #'.$rpp->id_rpp)."\n";
-        $content .= 'Mata Pelajaran: '.($rpp->mataPelajaran->nama_mapel ?? '-')."\n";
-        $content .= 'Kelas: '.($rpp->kelas->pararel ?? 'Kelas 4B')."\n";
-        $content .= 'Guru Pengajar: '.($rpp->guru->nama_guru ?? '-').' (NIP. '.($rpp->guru->nip ?? '-').")\n";
-        $content .= 'Alokasi Waktu: '.($rpp->alokasi_waktu ?? '2 JP')."\n";
-        $content .= 'Jadwal & Ruang: '.($rpp->target_jadwal ?? '-').' ('.($rpp->ruang ?? 'Ruang Kelas 4B').")\n\n";
-        $content .= "CAPAIAN PEMBELAJARAN (TP):\n";
-        $content .= ($rpp->deskripsi ?? 'Peserta didik memahami konsep pembelajaran secara komprehensif.')."\n\n";
-        $content .= 'STATUS SUPERVISI: '.strtoupper($rpp->status)."\n";
-        $content .= 'Dicetak pada: '.now()->format('d F Y H:i')." WIB\n";
-
-        $fileName = 'RPP_'.Str::slug($rpp->judul_rpp).'.txt';
-
-        return Response::make($content, 200, [
-            'Content-Type' => 'text/plain',
-            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
-        ]);
+        // Jika belum ada berkas upload fisik, buka dokumen resmi Modul Ajar siap cetak & simpan PDF
+        return view('rpp_guru.cetak', compact('rpp'));
     }
 }
