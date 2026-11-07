@@ -139,6 +139,27 @@
                             @if($ujian->deskripsi)
                                 <p class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{{ $ujian->deskripsi }}</p>
                             @endif
+                            @php
+                                $totalPeserta = $ujian->hasilSiswa->count();
+                                $menungguNilai = $ujian->hasilSiswa->where('status_kirim', false)->count();
+                            @endphp
+                            @if($totalPeserta > 0)
+                                <div class="mt-1 flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-[10px] text-slate-500 font-medium">
+                                        <i class="fas fa-users text-slate-400"></i> {{ $totalPeserta }} Siswa
+                                    </span>
+                                    <span class="text-slate-300">&bull;</span>
+                                    @if($menungguNilai > 0)
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800">
+                                            <i class="fas fa-clock text-[8px]"></i> {{ $menungguNilai }} Menunggu Nilai
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
+                                            <i class="fas fa-check text-[8px]"></i> Nilai Dirilis
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
                         </td>
                         <td class="py-3.5 px-4 font-medium text-slate-700">
                             {{ $ujian->mataPelajaran->nama_mapel ?? '-' }}
@@ -192,9 +213,20 @@
                             </span>
                         </td>
                         <td class="py-3.5 px-4 text-center">
-                            <div class="flex items-center justify-center gap-1.5">
-                                <a href="{{ route('guru.ujian.show', $ujian->id_quiz) }}" class="p-1.5 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold text-[11px] transition flex items-center gap-1" title="Lihat & Kelola Soal">
+                            <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                                @if($menungguNilai > 0)
+                                    <form action="{{ route('guru.ujian.rilis_nilai_semua', $ujian->id_quiz) }}" method="POST" onsubmit="return confirm('Tampilkan nilai ujian \'{{ $ujian->judul_quiz }}\' ke seluruh siswa sekarang?')">
+                                        @csrf
+                                        <button type="submit" class="p-1.5 px-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition flex items-center gap-1 shadow-xs" title="Tampilkan Nilai ke Seluruh Siswa">
+                                            <i class="fas fa-bullhorn text-[10px]"></i> Tampilkan Nilai
+                                        </button>
+                                    </form>
+                                @endif
+                                <a href="{{ route('guru.ujian.show', $ujian->id_quiz) }}" class="p-1.5 px-2.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#13527D] font-semibold text-[11px] transition flex items-center gap-1" title="Lihat & Kelola Soal">
                                     <i class="fas fa-eye"></i> Detail / Soal
+                                </a>
+                                <a href="{{ route('rekap_ujian.index', ['quiz_id' => $ujian->id_quiz]) }}" class="p-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Rekap Nilai Siswa">
+                                    <i class="fas fa-chart-line"></i>
                                 </a>
                                 <a href="{{ route('guru.ujian.edit', $ujian->id_quiz) }}" class="p-1.5 px-2 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 transition" title="Edit Ujian">
                                     <i class="fas fa-pen-to-square"></i>

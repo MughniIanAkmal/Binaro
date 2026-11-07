@@ -279,12 +279,46 @@
 
             <!-- Hasil Siswa Yang Mengerjakan -->
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-slate-100 flex items-center justify-between">
-                    <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fas fa-square-poll-vertical text-emerald-600"></i>
-                        Riwayat Pengerjaan Siswa ({{ $quiz->hasilSiswa->count() }})
-                    </h3>
+                @php
+                    $menungguCount = $quiz->hasilSiswa->where('status_kirim', false)->count();
+                    $terkirimCount = $quiz->hasilSiswa->where('status_kirim', true)->count();
+                @endphp
+                <div class="p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-gradient-to-r from-slate-50/70 to-white">
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fas fa-square-poll-vertical text-emerald-600"></i>
+                            Riwayat Pengerjaan Siswa ({{ $quiz->hasilSiswa->count() }})
+                        </h3>
+                        <p class="text-[11px] text-slate-500 mt-1 flex items-center gap-2 flex-wrap">
+                            <span class="inline-flex items-center gap-1 font-semibold text-emerald-700">
+                                <i class="fas fa-check-double text-[10px]"></i> {{ $terkirimCount }} Nilai Ditampilkan ke Siswa
+                            </span>
+                            @if($menungguCount > 0)
+                                <span class="text-slate-300">&bull;</span>
+                                <span class="inline-flex items-center gap-1 font-bold text-amber-600 animate-pulse">
+                                    <i class="fas fa-hourglass-half text-[10px]"></i> {{ $menungguCount }} Siswa Menunggu Nilai Dirilis
+                                </span>
+                            @endif
+                        </p>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap">
+                        @if($quiz->hasilSiswa->isNotEmpty())
+                        <form action="{{ route('guru.ujian.rilis_nilai_semua', $quiz->id_quiz) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin merilis & menampilkan nilai ujian ini ke SELURUH siswa yang telah mengerjakan? Siswa akan langsung melihat nilai di aplikasi mobile & portal.')">
+                            @csrf
+                            <button type="submit" class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition shadow-sm hover:shadow">
+                                <i class="fas fa-bullhorn"></i>
+                                <span>Tampilkan Nilai ke Seluruh Siswa</span>
+                            </button>
+                        </form>
+                        @endif
+                        <a href="{{ route('rekap_ujian.index', ['quiz_id' => $quiz->id_quiz]) }}" class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
+                            <i class="fas fa-chart-line text-[#13527D]"></i>
+                            <span>Rekap Lengkap</span>
+                        </a>
+                    </div>
                 </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-xs">
                         <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[10px]">
@@ -292,8 +326,10 @@
                                 <th class="py-3 px-4">Nama Siswa</th>
                                 <th class="py-3 px-4">Kelas</th>
                                 <th class="py-3 px-4 text-center">Skor Nilai</th>
-                                <th class="py-3 px-4 text-center">Status</th>
+                                <th class="py-3 px-4 text-center">Kelulusan</th>
+                                <th class="py-3 px-4 text-center">Status di Siswa</th>
                                 <th class="py-3 px-4 text-center">Waktu Submit</th>
+                                <th class="py-3 px-4 text-center">Aksi Rilis</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -301,20 +337,21 @@
                             <tr class="hover:bg-slate-50/60 transition">
                                 <td class="py-3 px-4 font-bold text-slate-800">
                                     {{ $hasil->siswa->nm_siswa ?? 'Siswa' }}
+                                    <div class="text-[10px] text-slate-400 font-mono font-normal">{{ $hasil->siswa->nisn ?? '-' }}</div>
                                 </td>
                                 <td class="py-3 px-4 text-slate-600">
                                     {{ $hasil->siswa->kelas->nama_kelas ?? '-' }}
                                 </td>
                                 <td class="py-3 px-4 text-center font-bold text-sm text-[#13527D]">
-                                    {{ $hasil->nilai_akhir ?? $hasil->skor_nilai ?? $hasil->nilai ?? 0 }}
+                                    {{ (int)($hasil->nilai_akhir ?? $hasil->skor_nilai ?? $hasil->nilai ?? 0) }}
                                 </td>
                                 <td class="py-3 px-4 text-center">
                                     @php
-                                        $skor = $hasil->nilai_akhir ?? $hasil->skor_nilai ?? $hasil->nilai ?? 0;
+                                        $skor = (float)($hasil->nilai_akhir ?? $hasil->skor_nilai ?? $hasil->nilai ?? 0);
                                     @endphp
                                     @if($skor >= 75)
                                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            Lulus
+                                            Lulus KKM
                                         </span>
                                     @else
                                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
@@ -322,13 +359,38 @@
                                         </span>
                                     @endif
                                 </td>
+                                <td class="py-3 px-4 text-center">
+                                    @if($hasil->status_kirim)
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            <i class="fas fa-check-circle text-[9px]"></i> Nilai Ditampilkan
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
+                                            <i class="fas fa-clock text-[9px]"></i> Menunggu Nilai
+                                        </span>
+                                    @endif
+                                </td>
                                 <td class="py-3 px-4 text-center text-slate-500 text-[11px]">
                                     {{ $hasil->created_at ? $hasil->created_at->format('d M Y H:i') : '-' }}
+                                </td>
+                                <td class="py-3 px-4 text-center">
+                                    <form action="{{ route('guru.ujian.toggle_rilis_nilai', $hasil->id_hasil) }}" method="POST" class="inline">
+                                        @csrf
+                                        @if($hasil->status_kirim)
+                                            <button type="submit" class="p-1 px-2.5 text-[10px] font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition" title="Sembunyikan nilai dari siswa ini">
+                                                <i class="fas fa-eye-slash mr-1"></i> Sembunyikan
+                                            </button>
+                                        @else
+                                            <button type="submit" class="p-1 px-2.5 text-[10px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition shadow-xs" title="Tampilkan nilai ke siswa ini">
+                                                <i class="fas fa-paper-plane mr-1"></i> Tampilkan Nilai
+                                            </button>
+                                        @endif
+                                    </form>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="py-8 text-center text-slate-400 italic">
+                                <td colspan="7" class="py-8 text-center text-slate-400 italic">
                                     Belum ada siswa yang menyelesaikan ujian online ini.
                                 </td>
                             </tr>
