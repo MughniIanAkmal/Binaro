@@ -54,31 +54,9 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
       }
     } catch (_) {}
 
-    // Fallback data
     if (mounted) {
       setState(() {
-        _data = {
-          'id_quiz': widget.quizId,
-          'kategori_badge': 'UJIAN TENGAH SEMESTER',
-          'judul_quiz': 'PTS Matematika Kelas 4B',
-          'guru': 'Ibu Sarah Wijaya, S.Pd.',
-          'ringkasan': {
-            'waktu_menit': 60,
-            'total_soal': 20,
-            'target_kkm': 75,
-            'koreksi': 'Otomatis',
-          },
-          'petunjuk_pengerjaan': [
-            {'nomor': 1, 'warna': 'blue', 'teks': 'Berdoa sebelum mulai.'},
-            {'nomor': 2, 'warna': 'orange', 'teks': 'Pilih salah satu jawaban A, B, C, atau D.'},
-            {'nomor': 3, 'warna': 'green', 'teks': 'Periksa kembali lalu kumpulkan.'},
-          ],
-          'tips_semangat': {
-            'judul': 'Tips Semangat Belajar',
-            'pesan': 'Tenang, teliti, dan jangan lupa berdoa ya!',
-          },
-          'footer': 'Ada kendala saat membuka soal? Beritahu guru pengawasmu',
-        };
+        _data = {};
         _isLoading = false;
       });
     }
@@ -148,7 +126,75 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
-          : SingleChildScrollView(
+          : _data.isEmpty
+              ? Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 68,
+                          height: 68,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEFF6FF),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.assignment_late_outlined,
+                            size: 34,
+                            color: Color(0xFF1D5A86),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Ujian Tidak Ditemukan',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Informasi jadwal petunjuk ujian ini belum tersedia atau sudah ditutup.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF64748B),
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1D5A86),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Kembali', style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -655,3 +701,4 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
     );
   }
 }
+

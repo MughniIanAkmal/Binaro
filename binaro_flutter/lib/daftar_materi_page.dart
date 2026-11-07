@@ -66,47 +66,11 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
     } catch (_) {}
 
     if (mounted) {
-      _applyFallback();
-      setState(() => _isLoading = false);
+      setState(() {
+        _materis = [];
+        _isLoading = false;
+      });
     }
-  }
-
-  void _applyFallback() {
-    _materis = [
-      {
-        'id_materi': 17,
-        'nomor': 1,
-        'tipe_materi': 'video',
-        'badge': 'MATERI 1',
-        'info_meta': '5 Menit',
-        'judul_materi': 'Serunya Membandingkan Pecahan (Video Animasi)',
-        'deskripsi': 'Video animasi seru memahami potongan pizza dan kue cokelat',
-        'warna': 'blue',
-        'has_thumbnail': false,
-      },
-      {
-        'id_materi': 18,
-        'nomor': 2,
-        'tipe_materi': 'dokumen',
-        'badge': 'MATERI 2',
-        'info_meta': 'Hal 2 / 6',
-        'judul_materi': 'Cerita Si Pizza Lebih Besar (Bacaan Bergambar)',
-        'deskripsi': 'Petualangan bergambar interaktif membandingkan nilai pecahan',
-        'warna': 'orange',
-        'has_thumbnail': true,
-      },
-      {
-        'id_materi': 19,
-        'nomor': 3,
-        'tipe_materi': 'kuis',
-        'badge': 'MATERI 3',
-        'info_meta': '8 Soal Cerita',
-        'judul_materi': 'Latihan & Kuis Bintang Mandiri',
-        'deskripsi': 'Latihan interaktif seru dengan kuis kilat untuk dapatkan 3 Bintang prestasi',
-        'warna': 'blue',
-        'has_thumbnail': false,
-      },
-    ];
   }
 
   @override
@@ -195,8 +159,64 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                   ),
                   const SizedBox(height: 14),
 
-                  // List of Material Cards (Sesuai Screenshot 4)
-                  ..._materis.map((m) => _buildMateriCard(m)),
+                  // List of Material Cards or Empty State
+                  if (_materis.isEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 68,
+                            height: 68,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEFF6FF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.menu_book_outlined,
+                              size: 34,
+                              color: Color(0xFF1D5A86),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Belum Ada Materi',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1E293B),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Guru belum mengunggah materi pembelajaran untuk sub bab ini. Silakan cek kembali nanti ya!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF64748B),
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ..._materis.map((m) => _buildMateriCard(m)),
 
                   const SizedBox(height: 24),
                 ],

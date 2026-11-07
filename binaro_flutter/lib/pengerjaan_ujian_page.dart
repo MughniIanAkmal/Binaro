@@ -25,19 +25,13 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
   static const String _baseUrl = 'http://192.168.18.9:8000/api';
 
   bool _isLoading = true;
-  String _examTitle = 'PTS Matematika';
-  int _totalSoal = 20;
-  int _currentIndex = 4; // Soal ke-5 (index 4) aktif sesuai screenshot
+  String _examTitle = 'Ujian Online';
+  int _totalSoal = 0;
+  int _currentIndex = 0;
   List<Map<String, dynamic>> _soalList = [];
 
   // Pilihan jawaban siswa: map dari id_soal atau index -> opsi terpilih ('A', 'B', 'C', 'D')
-  final Map<int, String> _selectedAnswers = {
-    0: 'A',
-    1: 'C',
-    2: 'C',
-    3: 'D',
-    4: 'B', // Soal 5 dipilih B (3/8 bagian) sesuai screenshot
-  };
+  final Map<int, String> _selectedAnswers = {};
 
   // Set nomor soal yang ditandai ragu-ragu
   final Set<int> _raguRaguSet = {};
@@ -101,7 +95,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
               _totalSoal = data['total_soal'] ?? list.length;
               _remainingSeconds = data['sisa_detik'] ?? _remainingSeconds;
               _soalList = list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
-              _currentIndex = data['default_index'] ?? 4;
+              _currentIndex = 0;
               _isLoading = false;
             });
             return;
@@ -110,59 +104,13 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
       }
     } catch (_) {}
 
-    // Fallback data
     if (mounted) {
       setState(() {
-        _soalList = _getFallbackExamQuestions();
-        _totalSoal = _soalList.length;
+        _soalList = [];
+        _totalSoal = 0;
         _isLoading = false;
       });
     }
-  }
-
-  List<Map<String, dynamic>> _getFallbackExamQuestions() {
-    return List.generate(20, (idx) {
-      final int no = idx + 1;
-      if (no == 5) {
-        return {
-          'id_soal': 34,
-          'nomor': 5,
-          'tag': 'Pecahan Sederhana',
-          'poin': 5,
-          'pertanyaan':
-              'Ibu memotong 1 buah semangka menjadi 8 bagian sama besar. Budi memakan 3 potong semangka. Berapakah bagian semangka yang dimakan Budi?',
-          'diagram': {
-            'tipe': 'pie_semangka_8',
-            'judul': 'DIAGRAM PECAHAN 8 POTONG',
-            'dimakan': 3,
-            'sisa': 5,
-            'total': 8,
-            'label_dimakan': 'Dimakan Budi (3)',
-            'label_sisa': 'Sisa Semangka (5)',
-          },
-          'foto': {'caption': 'Semangka dipotong 8'},
-          'opsi_a': '1/8 bagian',
-          'opsi_b': '3/8 bagian',
-          'opsi_c': '5/8 bagian',
-          'opsi_d': '8/3 bagian',
-          'kunci_jawaban': 'B',
-        };
-      }
-      return {
-        'id_soal': 30 + idx,
-        'nomor': no,
-        'tag': 'Matematika Dasar',
-        'poin': 5,
-        'pertanyaan': 'Soal nomor $no: Berapakah hasil perhitungan pecahan dasar kelas 4B berikut?',
-        'diagram': null,
-        'foto': null,
-        'opsi_a': '1/4 bagian',
-        'opsi_b': '2/4 bagian',
-        'opsi_c': '3/4 bagian',
-        'opsi_d': '4/4 bagian',
-        'kunci_jawaban': 'B',
-      };
-    });
   }
 
   Future<void> _submitExam({bool autoSubmit = false}) async {
@@ -258,7 +206,73 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
           : currentQuestion == null
-              ? const Center(child: Text('Data soal ujian tidak ditemukan.'))
+              ? Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 68,
+                          height: 68,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEFF6FF),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.assignment_late_outlined,
+                            size: 34,
+                            color: Color(0xFF1D5A86),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Soal Ujian Belum Tersedia',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Guru belum menginput butir soal untuk ujian ini. Silakan hubungi guru pengawasmu.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF64748B),
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1D5A86),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Kembali', style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               : SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   child: Column(
