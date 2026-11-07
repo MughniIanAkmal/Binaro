@@ -7,6 +7,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'login_page.dart';
 import 'mapel_page.dart';
 import 'page_transitions.dart';
+import 'ujian_page.dart';
 
 class ProfilePage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -1411,6 +1412,14 @@ class _ProfilePageState extends State<ProfilePage> {
       onTap: () {
         if (index == 0) {
           Navigator.pop(context); // Kembali ke Beranda / Dashboard
+        } else if (index == 1) {
+          Navigator.pushReplacement(
+            context,
+            SmoothPageRoute(
+              page: UjianPage(user: widget.user),
+              type: TransitionType.sharedAxis,
+            ),
+          );
         } else if (index == 2) {
           Navigator.pushReplacement(
             context,

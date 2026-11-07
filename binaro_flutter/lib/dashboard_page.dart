@@ -5,6 +5,7 @@ import 'daftar_bab_page.dart';
 import 'mapel_page.dart';
 import 'page_transitions.dart';
 import 'profile_page.dart';
+import 'ujian_page.dart';
 
 class DashboardPage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -823,7 +824,20 @@ class _DashboardPageState extends State<DashboardPage> {
     return InkWell(
       onTap: () {
         setState(() => _currentIndex = index);
-        if (index == 2) {
+        if (index == 1) {
+          // Buka Halaman Ujian Online
+          Navigator.push(
+            context,
+            SmoothPageRoute(
+              page: UjianPage(user: widget.user ?? _siswa),
+              type: TransitionType.sharedAxis,
+            ),
+          ).then((_) {
+            if (mounted) {
+              setState(() => _currentIndex = 0);
+            }
+          });
+        } else if (index == 2) {
           // Buka Halaman Daftar Mapel
           Navigator.push(
             context,

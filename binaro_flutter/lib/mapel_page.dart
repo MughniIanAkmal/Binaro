@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'daftar_bab_page.dart';
 import 'page_transitions.dart';
 import 'profile_page.dart';
+import 'ujian_page.dart';
 
 class MapelPage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -704,6 +705,14 @@ class _MapelPageState extends State<MapelPage> {
       onTap: () {
         if (index == 0) {
           Navigator.pop(context); // Kembali ke Beranda
+        } else if (index == 1) {
+          Navigator.pushReplacement(
+            context,
+            SmoothPageRoute(
+              page: UjianPage(user: widget.user),
+              type: TransitionType.sharedAxis,
+            ),
+          );
         } else if (index == 4) {
           Navigator.push(
             context,
