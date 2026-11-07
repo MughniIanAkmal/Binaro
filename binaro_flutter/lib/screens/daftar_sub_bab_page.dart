@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'daftar_materi_page.dart';
-import 'page_transitions.dart';
+import '../utils/constants.dart';
+import '../utils/page_transitions.dart';
 import 'profile_page.dart';
 
 class DaftarSubBabPage extends StatefulWidget {
@@ -25,31 +26,33 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
   bool _isLoading = true;
 
   Map<String, dynamic> _babHeader = {};
-  List<dynamic> _subBabs = [];
+  List<dynamic> _subBabList = [];
 
-  static const String _baseUrl = 'http://192.168.18.9:8000/api';
+  static const String _baseUrl = AppConstants.baseUrl;
 
   @override
   void initState() {
     super.initState();
+    final String mapelName = (widget.mapel['nama'] ?? widget.mapel['nama_mapel'] ?? 'Mata Pelajaran').toString().toUpperCase();
+    final String babName = widget.bab['nama_bab'] ?? widget.bab['nama'] ?? 'Bab Pembelajaran';
     _babHeader = {
       'nomor': widget.bab['nomor'] ?? 1,
-      'nama_mapel': (widget.mapel['nama'] ?? 'MATEMATIKA').toString().toUpperCase(),
-      'nama_bab': widget.bab['nama_bab'] ?? 'Pecahan & Desimal',
-      'info_sub': '4 Sub Bab Pembelajaran',
+      'nama_mapel': mapelName,
+      'nama_bab': babName,
+      'info_sub': 'Sub Bab Pembelajaran',
     };
     _fetchSubBabData();
   }
 
   Future<void> _fetchSubBabData() async {
-    final int idBab = widget.bab['id_bab'] ?? 10;
+    final int babId = widget.bab['id_bab'] ?? 10;
     try {
       final response = await http
           .get(
-            Uri.parse('$_baseUrl/siswa/bab/$idBab/sub-bab'),
+            Uri.parse('$_baseUrl/siswa/bab/$babId/sub-bab'),
             headers: {'Accept': 'application/json'},
           )
-          .timeout(const Duration(seconds: 8));
+          .timeout(AppConstants.timeoutDuration);
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
@@ -57,7 +60,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
           final data = result['data'];
           setState(() {
             _babHeader = data['bab'] ?? _babHeader;
-            _subBabs = data['sub_babs'] ?? [];
+            _subBabList = data['sub_babs'] ?? [];
             _isLoading = false;
           });
           return;
@@ -67,7 +70,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
 
     if (mounted) {
       setState(() {
-        _subBabs = [];
+        _subBabList = [];
         _isLoading = false;
       });
     }
@@ -146,89 +149,98 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 1. Banner Kartu Bab (Biru Tua)
-                  _buildTopBanner(),
+          : RefreshIndicator(
+              onRefresh: _fetchSubBabData,
+              color: const Color(0xFF1D5A86),
+              backgroundColor: Colors.white,
+              displacement: 28,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1. Banner Kartu Bab (Biru Tua)
+                    _buildTopBanner(),
 
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                  // 2. Judul "Pilih Sub Bab"
-                  const Text(
-                    'Pilih Sub Bab',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1E293B),
+                    // 2. Judul "Pilih Sub Bab"
+                    const Text(
+                      'Pilih Sub Bab',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E293B),
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 14),
+                    const SizedBox(height: 14),
 
-                  // 3. List Sub Bab atau Empty State
-                  if (_subBabs.isEmpty)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.02),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 68,
-                            height: 68,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEFF6FF),
-                              shape: BoxShape.circle,
+                    // 3. List Sub Bab atau Empty State
+                    if (_subBabList.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.02),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
                             ),
-                            child: const Icon(
-                              Icons.layers_clear_outlined,
-                              size: 34,
-                              color: Color(0xFF1D5A86),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 68,
+                              height: 68,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFEFF6FF),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.layers_clear_outlined,
+                                size: 34,
+                                color: Color(0xFF1D5A86),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Belum Ada Sub Bab',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF1E293B),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Belum Ada Sub Bab',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF1E293B),
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'Belum ada sub bab pembelajaran yang ditambahkan untuk bab ini.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF64748B),
-                              height: 1.4,
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Belum ada sub bab pembelajaran yang ditambahkan untuk bab ini.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF64748B),
+                                height: 1.4,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    ..._subBabs.map((subBab) => _buildSubBabCard(subBab)),
+                          ],
+                        ),
+                      )
+                    else
+                      ..._subBabList.map((subBab) => _buildSubBabCard(subBab)),
 
-                  const SizedBox(height: 24),
-                ],
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
     );
@@ -322,18 +334,22 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
   }
 
   // ---------------------------------------------------------------------------
-  // 3. SUB BAB CARD (Sesuai Screenshot 3)
+  // 3. SUB BAB CARD (Sesuai Desain Bab dengan Tombol Masuk/Buka)
   // ---------------------------------------------------------------------------
   Widget _buildSubBabCard(Map<String, dynamic> subBab) {
-    final String label = subBab['label'] ?? 'Sub Bab';
+    final int nomor = subBab['nomor'] ?? 1;
+    final String label = subBab['label'] ?? 'Sub Bab $nomor';
     final String namaSubBab = subBab['nama_sub_bab'] ?? 'Mengenal Bentuk Pecahan';
     final String? deskripsi = subBab['deskripsi'];
     final bool isLocked = subBab['is_locked'] == true;
     final bool isActive = subBab['is_active'] == true;
     final String tipeIcon = subBab['tipe_icon'] ?? 'fraction';
 
-    // Warna Card
+    // Warna Card & Tombol Buka
     final Color borderColor = isActive ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86);
+    final Color btnColor = isActive
+        ? const Color(0xFFF59E0B)
+        : (nomor % 2 == 1 ? const Color(0xFF1D5A86) : const Color(0xFFF59E0B));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -349,9 +365,12 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          Padding(
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isLocked ? null : () => _navigateToMateri(subBab),
+          borderRadius: BorderRadius.circular(18),
+          child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
@@ -411,47 +430,60 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                     ],
                   ),
                 ),
+                const SizedBox(width: 8),
+
+                // Tombol Buka / Masuk ATAU Ikon Gembok (Lock)
+                if (isLocked)
+                  const Padding(
+                    padding: EdgeInsets.only(right: 6),
+                    child: Icon(Icons.lock_outline_rounded, color: Color(0xFF94A3B8), size: 22),
+                  )
+                else
+                  InkWell(
+                    onTap: () => _navigateToMateri(subBab),
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                      decoration: BoxDecoration(
+                        color: btnColor,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Buka',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 2),
+                          Icon(Icons.chevron_right_rounded, color: Colors.white, size: 16),
+                        ],
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
 
-          // Jika Active, tampilkan Tombol "Buka Daftar Materi >" (Oranye Penuh)
-          if (isActive)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-              child: SizedBox(
-                width: double.infinity,
-                height: 46,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      SmoothPageRoute(
-                        page: DaftarMateriPage(
-                          subBab: subBab,
-                          bab: widget.bab,
-                          mapel: widget.mapel,
-                          user: widget.user,
-                        ),
-                        type: TransitionType.sharedAxis,
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.arrow_circle_right_rounded, size: 20),
-                  label: const Text(
-                    'Buka Daftar Materi',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF59E0B),
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  ),
-                ),
-              ),
-            ),
-        ],
+  void _navigateToMateri(Map<String, dynamic> subBab) {
+    Navigator.push(
+      context,
+      SmoothPageRoute(
+        page: DaftarMateriPage(
+          subBab: subBab,
+          bab: widget.bab,
+          mapel: widget.mapel,
+          user: widget.user,
+        ),
+        type: TransitionType.sharedAxis,
       ),
     );
   }

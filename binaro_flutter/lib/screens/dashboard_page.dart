@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'daftar_bab_page.dart';
 import 'mapel_page.dart';
-import 'page_transitions.dart';
+import '../utils/constants.dart';
+import '../utils/page_transitions.dart';
 import 'profile_page.dart';
 import 'ujian_page.dart';
 
@@ -22,12 +23,12 @@ class _DashboardPageState extends State<DashboardPage> {
 
   // Data state
   Map<String, dynamic> _siswa = {};
-  List<dynamic> _tugas = [];
+  List<dynamic> _tugasList = [];
   int _tugasTotal = 0;
-  List<dynamic> _mataPelajaran = [];
+  List<dynamic> _mapelList = [];
 
-  // URL API Laravel
-  static const String _baseUrl = 'http://192.168.18.9:8000/api';
+  // URL API Laravel dari AppConstants
+  static const String _baseUrl = AppConstants.baseUrl;
 
   @override
   void initState() {
@@ -42,14 +43,14 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> _fetchDashboardData() async {
-    final idSiswa = widget.user?['id_siswa'] ?? 7;
+    final int siswaId = widget.user?['id_siswa'] ?? AppConstants.defaultSiswaId;
     try {
       final response = await http
           .get(
-            Uri.parse('$_baseUrl/siswa/dashboard?id_siswa=$idSiswa'),
+            Uri.parse('$_baseUrl/siswa/dashboard?id_siswa=$siswaId'),
             headers: {'Accept': 'application/json'},
           )
-          .timeout(const Duration(seconds: 8));
+          .timeout(AppConstants.timeoutDuration);
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
@@ -57,87 +58,18 @@ class _DashboardPageState extends State<DashboardPage> {
           final data = result['data'];
           setState(() {
             _siswa = data['siswa'] ?? _siswa;
-            _tugas = data['tugas'] ?? [];
-            _tugasTotal = data['tugas_total'] ?? _tugas.length;
-            _mataPelajaran = data['mata_pelajaran'] ?? [];
+            _tugasList = data['tugas'] ?? [];
+            _tugasTotal = data['tugas_total'] ?? _tugasList.length;
+            _mapelList = data['mata_pelajaran'] ?? [];
             _isLoading = false;
           });
           return;
         }
       }
-    } catch (_) {
-      // Fallback fallback sample matching database if offline
-    }
+    } catch (_) {}
 
     if (mounted) {
-      _applyFallbackData();
       setState(() => _isLoading = false);
-    }
-  }
-
-  void _applyFallbackData() {
-    if (_tugas.isEmpty) {
-      _tugas = [
-        {
-          'mapel': 'IPA',
-          'judul': 'Pengamatan Tunas Kacang Hijau',
-          'deadline': 'Tenggat: Besok, 07.15 WIB',
-          'warna': 'blue',
-          'tipe_icon': 'science',
-        },
-        {
-          'mapel': 'BHS. INDONESIA',
-          'judul': 'Rangkuman Dongeng Kancil',
-          'deadline': 'Tenggat: Senin, 07.30 WIB',
-          'warna': 'orange',
-          'tipe_icon': 'book',
-        },
-        {
-          'mapel': 'MATEMATIKA',
-          'judul': 'Soal Cerita Pecahan 1/2 dan 1/4',
-          'deadline': 'Tenggat: Jumat, 10.00 WIB',
-          'warna': 'blue',
-          'tipe_icon': 'math',
-        },
-      ];
-      _tugasTotal = 5;
-    }
-
-    if (_mataPelajaran.isEmpty) {
-      _mataPelajaran = [
-        {
-          'nama': 'Matematika',
-          'badge': 'Bab 3',
-          'materi_info': '14 dari 20 Materi',
-          'progress': 0.70,
-          'warna': 'orange',
-          'tipe_icon': 'math',
-        },
-        {
-          'nama': 'IPA',
-          'badge': 'Bab 4',
-          'materi_info': '10 dari 16 Materi',
-          'progress': 0.62,
-          'warna': 'blue',
-          'tipe_icon': 'science',
-        },
-        {
-          'nama': 'Bhs. Indonesia',
-          'badge': 'Bab 2',
-          'materi_info': '12 dari 15 Materi',
-          'progress': 0.80,
-          'warna': 'blue',
-          'tipe_icon': 'book',
-        },
-        {
-          'nama': 'Pancasila',
-          'badge': 'Bab 2',
-          'materi_info': '8 dari 12 Materi',
-          'progress': 0.66,
-          'warna': 'orange',
-          'tipe_icon': 'shield',
-        },
-      ];
     }
   }
 
@@ -153,8 +85,12 @@ class _DashboardPageState extends State<DashboardPage> {
           : RefreshIndicator(
               onRefresh: _fetchDashboardData,
               color: const Color(0xFF1D5A86),
+              backgroundColor: Colors.white,
+              displacement: 28,
               child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -445,28 +381,48 @@ class _DashboardPageState extends State<DashboardPage> {
         const SizedBox(height: 12),
 
         // List Tugas Cards
-        ..._tugas.map((t) => _buildTugasCard(Map<String, dynamic>.from(t as Map))),
-
-        const SizedBox(height: 12),
-
-        // Link Lihat Semua Tugas
-        Center(
-          child: TextButton(
-            onPressed: () {},
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF1D5A86),
-              textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+        if (_tugasList.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
+            child: const Column(
               children: [
-                Text('Lihat Semua Tugas ($_tugasTotal)'),
-                const SizedBox(width: 4),
-                const Icon(Icons.arrow_forward_rounded, size: 16),
+                Icon(Icons.assignment_turned_in_outlined, size: 36, color: Color(0xFF16A34A)),
+                SizedBox(height: 8),
+                Text(
+                  'Tidak ada tugas atau PR aktif saat ini.',
+                  style: TextStyle(fontSize: 13, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                ),
               ],
             ),
+          )
+        else ...[
+          ..._tugasList.map((t) => _buildTugasCard(Map<String, dynamic>.from(t as Map))),
+          const SizedBox(height: 12),
+          // Link Lihat Semua Tugas
+          Center(
+            child: TextButton(
+              onPressed: () {},
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF1D5A86),
+                textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Lihat Semua Tugas ($_tugasTotal)'),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_forward_rounded, size: 16),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
@@ -647,21 +603,38 @@ class _DashboardPageState extends State<DashboardPage> {
         const SizedBox(height: 8),
 
         // Grid 2 Kolom
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _mataPelajaran.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.15,
+        if (_mapelList.isEmpty)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: const Center(
+              child: Text(
+                'Belum ada mata pelajaran yang tersedia.',
+                style: TextStyle(fontSize: 13, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+              ),
+            ),
+          )
+        else
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _mapelList.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.05,
+            ),
+            itemBuilder: (context, index) {
+              final m = Map<String, dynamic>.from(_mapelList[index] as Map);
+              return _buildMapelCard(m);
+            },
           ),
-          itemBuilder: (context, index) {
-            final m = Map<String, dynamic>.from(_mataPelajaran[index] as Map);
-            return _buildMapelCard(m);
-          },
-        ),
       ],
     );
   }
@@ -680,7 +653,8 @@ class _DashboardPageState extends State<DashboardPage> {
       iconData = Icons.shield_outlined;
     }
 
-    final double progress = (mapel['progress'] ?? 0.5).toDouble();
+    final double progress = (mapel['progress'] as num?)?.toDouble() ?? 0.0;
+    final int persen = (mapel['persen'] as num?)?.toInt() ?? (progress * 100).toInt();
 
     return InkWell(
       onTap: () {
@@ -768,14 +742,41 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
 
           // Progress Bar
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 6,
-              backgroundColor: badgeBg,
-              valueColor: AlwaysStoppedAnimation<Color>(accentColor),
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Progress Kuis',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                  Text(
+                    '$persen%',
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w800,
+                      color: accentColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 5,
+                  backgroundColor: badgeBg,
+                  valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -830,7 +831,7 @@ class _DashboardPageState extends State<DashboardPage> {
             context,
             SmoothPageRoute(
               page: UjianPage(user: widget.user ?? _siswa),
-              type: TransitionType.sharedAxis,
+              type: TransitionType.fadeThrough,
             ),
           ).then((_) {
             if (mounted) {
@@ -843,7 +844,7 @@ class _DashboardPageState extends State<DashboardPage> {
             context,
             SmoothPageRoute(
               page: MapelPage(user: widget.user ?? _siswa),
-              type: TransitionType.sharedAxis,
+              type: TransitionType.fadeThrough,
             ),
           ).then((_) {
             if (mounted) {
@@ -856,7 +857,7 @@ class _DashboardPageState extends State<DashboardPage> {
             context,
             SmoothPageRoute(
               page: ProfilePage(user: widget.user ?? _siswa),
-              type: TransitionType.sharedAxis,
+              type: TransitionType.fadeThrough,
             ),
           ).then((_) {
             if (mounted) {

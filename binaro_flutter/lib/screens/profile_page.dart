@@ -5,8 +5,10 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:qr_flutter/qr_flutter.dart';
 import 'login_page.dart';
+import 'dashboard_page.dart';
 import 'mapel_page.dart';
-import 'page_transitions.dart';
+import '../utils/constants.dart';
+import '../utils/page_transitions.dart';
 import 'ujian_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -27,15 +29,15 @@ class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic> _dataSekolah = {};
   String _versi = 'Sahabat Belajar v1.2.0-SD';
 
-  static const String _baseUrl = 'http://192.168.18.9:8000/api';
+  static const String _baseUrl = AppConstants.baseUrl;
 
   @override
   void initState() {
     super.initState();
     _siswa = {
-      'id_siswa': widget.user?['id_siswa'] ?? 7,
-      'nama': widget.user?['nm_siswa'] ?? widget.user?['nama'] ?? 'Budi Santoso',
-      'kelas': widget.user?['kelas'] ?? 'Kelas 4B • SDN Kalitapen 01',
+      'id_siswa': widget.user?['id_siswa'] ?? AppConstants.defaultSiswaId,
+      'nama': widget.user?['nm_siswa'] ?? widget.user?['nama'] ?? AppConstants.defaultSiswaNama,
+      'kelas': widget.user?['kelas'] ?? AppConstants.defaultSiswaKelas,
       'nisn': widget.user?['nisn'] ?? '0012345678',
       'barcode': 'BIN-0012345678-2RBTDA',
     };
@@ -43,14 +45,14 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> _fetchProfileData() async {
-    final idSiswa = _siswa['id_siswa'] ?? 7;
+    final int siswaId = _siswa['id_siswa'] ?? AppConstants.defaultSiswaId;
     try {
       final response = await http
           .get(
-            Uri.parse('$_baseUrl/siswa/profile?id_siswa=$idSiswa'),
+            Uri.parse('$_baseUrl/siswa/profile?id_siswa=$siswaId'),
             headers: {'Accept': 'application/json'},
           )
-          .timeout(const Duration(seconds: 8));
+          .timeout(AppConstants.timeoutDuration);
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
@@ -69,32 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } catch (_) {}
 
     if (mounted) {
-      _applyFallback();
       setState(() => _isLoading = false);
-    }
-  }
-
-  void _applyFallback() {
-    if (_rekap.isEmpty) {
-      _rekap = {
-        'bulan': 'Mei 2026',
-        'hadir': 18,
-        'izin': 1,
-        'sakit': 0,
-        'alpa': 0,
-        'hari_ini': {
-          'status': 'Sudah Hadir',
-          'keterangan': 'Tepat Waktu • 07.10 WIB',
-          'badge': '95% Rajin',
-        }
-      };
-    }
-    if (_dataSekolah.isEmpty) {
-      _dataSekolah = {
-        'wali': 'Ibu Endang Rahayu',
-        'no_absen': '08',
-        'tahun_ajaran': '2024/2025 (Genap)',
-      };
     }
   }
 
@@ -623,45 +600,54 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar: _buildAppBar(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Column(
-                children: [
-                  // 1. Header Profil Siswa (Avatar, Nama, NISN)
-                  _buildProfileHeader(),
+          : RefreshIndicator(
+              onRefresh: _fetchProfileData,
+              color: const Color(0xFF1D5A86),
+              backgroundColor: Colors.white,
+              displacement: 28,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                child: Column(
+                  children: [
+                    // 1. Header Profil Siswa (Avatar, Nama, NISN)
+                    _buildProfileHeader(),
 
-                  const SizedBox(height: 22),
+                    const SizedBox(height: 22),
 
-                  // 2. Rekap Absensi (Bulan Ini)
-                  _buildRekapAbsensiCard(),
+                    // 2. Rekap Absensi (Bulan Ini)
+                    _buildRekapAbsensiCard(),
 
-                  const SizedBox(height: 18),
+                    const SizedBox(height: 18),
 
-                  // 3. Kartu & Barcode Absensi (Dengan Tombol "Tunjukkan Barcode")
-                  _buildBarcodeCard(),
+                    // 3. Kartu & Barcode Absensi (Dengan Tombol "Tunjukkan Barcode")
+                    _buildBarcodeCard(),
 
-                  const SizedBox(height: 18),
+                    const SizedBox(height: 18),
 
-                  // 4. Data Sekolah & Siswa
-                  _buildDataSekolahCard(),
+                    // 4. Data Sekolah & Siswa
+                    _buildDataSekolahCard(),
 
-                  const SizedBox(height: 18),
+                    const SizedBox(height: 18),
 
-                  // 5. Ganti Kata Sandi (Dengan Tombol "Ubah Password")
-                  _buildGantiPasswordCard(),
+                    // 5. Ganti Kata Sandi (Dengan Tombol "Ubah Password")
+                    _buildGantiPasswordCard(),
 
-                  const SizedBox(height: 18),
+                    const SizedBox(height: 18),
 
-                  // 6. Tombol Keluar dari Akun
-                  _buildLogoutButton(),
+                    // 6. Tombol Keluar dari Akun
+                    _buildLogoutButton(),
 
-                  const SizedBox(height: 18),
+                    const SizedBox(height: 18),
 
-                  // 7. Versi Aplikasi
-                  _buildVersiCard(),
+                    // 7. Versi Aplikasi
+                    _buildVersiCard(),
 
-                  const SizedBox(height: 24),
-                ],
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
       bottomNavigationBar: _buildBottomNav(),
@@ -956,7 +942,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  _rekap['bulan'] ?? 'Mei 2026',
+                  _rekap['bulan'] ?? '-',
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -971,70 +957,72 @@ class _ProfilePageState extends State<ProfilePage> {
           // 4 Kotak Statistik (Hadir, Izin, Sakit, Alpa)
           Row(
             children: [
-              _buildStatBox('18', 'Hadir', const Color(0xFFD1FAE5), const Color(0xFF059669)),
+              _buildStatBox((_rekap['hadir'] ?? 0).toString(), 'Hadir', const Color(0xFFD1FAE5), const Color(0xFF059669)),
               const SizedBox(width: 8),
-              _buildStatBox('1', 'Izin', const Color(0xFFDBEAFE), const Color(0xFF2563EB)),
+              _buildStatBox((_rekap['izin'] ?? 0).toString(), 'Izin', const Color(0xFFDBEAFE), const Color(0xFF2563EB)),
               const SizedBox(width: 8),
-              _buildStatBox('0', 'Sakit', const Color(0xFFFEF3C7), const Color(0xFFD97706)),
+              _buildStatBox((_rekap['sakit'] ?? 0).toString(), 'Sakit', const Color(0xFFFEF3C7), const Color(0xFFD97706)),
               const SizedBox(width: 8),
-              _buildStatBox('0', 'Alpa', const Color(0xFFF1F5F9), const Color(0xFF64748B)),
+              _buildStatBox((_rekap['alpa'] ?? 0).toString(), 'Alpa', const Color(0xFFF1F5F9), const Color(0xFF64748B)),
             ],
           ),
 
           const SizedBox(height: 14),
 
           // Banner Status Hari Ini
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFECFDF5),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFA7F3D0)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Row(
-                  children: [
-                    Icon(Icons.check_circle_rounded, color: Color(0xFF059669), size: 20),
-                    SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hari Ini: Sudah Hadir',
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF065F46),
+          if (_rekap['hari_ini'] != null && _rekap['hari_ini'] is Map)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFECFDF5),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFFA7F3D0)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.check_circle_rounded, color: Color(0xFF059669), size: 20),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Hari Ini: ${_rekap['hari_ini']['status'] ?? 'Hadir'}',
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w700,
+                              color: Color(0xFF065F46),
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Tepat Waktu • 07.10 WIB',
-                          style: TextStyle(fontSize: 11, color: Color(0xFF047857)),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
+                          Text(
+                            _rekap['hari_ini']['keterangan'] ?? '-',
+                            style: const TextStyle(fontSize: 11, color: Color(0xFF047857)),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  child: const Text(
-                    '95% Rajin',
-                    style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF059669),
+                  if (_rekap['hari_ini']['badge'] != null && _rekap['hari_ini']['badge'].toString().isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _rekap['hari_ini']['badge'].toString(),
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFF059669),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
 
           const SizedBox(height: 12),
 
@@ -1133,19 +1121,19 @@ class _ProfilePageState extends State<ProfilePage> {
           _buildInfoRow(
             icon: Icons.people_outline_rounded,
             title: 'Nama Wali / Orang Tua',
-            value: _dataSekolah['wali'] ?? 'Ibu Endang Rahayu',
+            value: _dataSekolah['wali'] ?? '-',
           ),
           const Divider(height: 20, color: Color(0xFFF1F5F9)),
           _buildInfoRow(
             icon: Icons.tag_rounded,
             title: 'Nomor Absen',
-            value: _dataSekolah['no_absen'] ?? '08',
+            value: _dataSekolah['no_absen'] ?? '-',
           ),
           const Divider(height: 20, color: Color(0xFFF1F5F9)),
           _buildInfoRow(
             icon: Icons.event_note_rounded,
             title: 'Tahun Ajaran',
-            value: _dataSekolah['tahun_ajaran'] ?? '2024/2025 (Genap)',
+            value: _dataSekolah['tahun_ajaran'] ?? '-',
             isLink: true,
           ),
         ],
@@ -1411,13 +1399,23 @@ class _ProfilePageState extends State<ProfilePage> {
     return InkWell(
       onTap: () {
         if (index == 0) {
-          Navigator.pop(context); // Kembali ke Beranda / Dashboard
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushReplacement(
+              context,
+              SmoothPageRoute(
+                page: DashboardPage(user: widget.user),
+                type: TransitionType.fadeThrough,
+              ),
+            );
+          }
         } else if (index == 1) {
           Navigator.pushReplacement(
             context,
             SmoothPageRoute(
               page: UjianPage(user: widget.user),
-              type: TransitionType.sharedAxis,
+              type: TransitionType.fadeThrough,
             ),
           );
         } else if (index == 2) {
@@ -1425,7 +1423,7 @@ class _ProfilePageState extends State<ProfilePage> {
             context,
             SmoothPageRoute(
               page: MapelPage(user: widget.user),
-              type: TransitionType.sharedAxis,
+              type: TransitionType.fadeThrough,
             ),
           );
         }

@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'daftar_sub_bab_page.dart';
-import 'page_transitions.dart';
+import '../utils/constants.dart';
+import '../utils/page_transitions.dart';
 import 'profile_page.dart';
 
 class DaftarBabPage extends StatefulWidget {
@@ -19,33 +20,34 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
   bool _isLoading = true;
 
   Map<String, dynamic> _headerMapel = {};
-  List<dynamic> _babs = [];
+  List<dynamic> _babList = [];
   int _totalBab = 6;
 
-  static const String _baseUrl = 'http://192.168.18.9:8000/api';
+  static const String _baseUrl = AppConstants.baseUrl;
 
   @override
   void initState() {
     super.initState();
+    final String mapelName = widget.mapel['nama'] ?? widget.mapel['nama_mapel'] ?? 'Mata Pelajaran';
     _headerMapel = {
-      'nama': widget.mapel['nama'] ?? 'Matematika',
-      'badge': 'Matematika Seru',
-      'judul_seru': 'Petualangan Angka',
-      'progress_bab': '3/6 Bab',
-      'tipe_icon': widget.mapel['tipe_icon'] ?? 'math',
+      'nama': mapelName,
+      'badge': '$mapelName Seru',
+      'judul_seru': 'Eksplorasi Pembelajaran',
+      'progress_bab': '- Bab',
+      'tipe_icon': widget.mapel['tipe_icon'] ?? 'book',
     };
     _fetchBabData();
   }
 
   Future<void> _fetchBabData() async {
-    final int idMapel = widget.mapel['id_mapel'] ?? 17;
+    final int mapelId = widget.mapel['id_mapel'] ?? 3;
     try {
       final response = await http
           .get(
-            Uri.parse('$_baseUrl/siswa/mapel/$idMapel/bab'),
+            Uri.parse('$_baseUrl/siswa/mapel/$mapelId/bab'),
             headers: {'Accept': 'application/json'},
           )
-          .timeout(const Duration(seconds: 8));
+          .timeout(AppConstants.timeoutDuration);
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
@@ -53,8 +55,8 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
           final data = result['data'];
           setState(() {
             _headerMapel = data['mapel'] ?? _headerMapel;
-            _totalBab = data['total_bab'] ?? 6;
-            _babs = data['babs'] ?? [];
+            _totalBab = data['total_bab'] ?? (_babList.length);
+            _babList = data['babs'] ?? [];
             _isLoading = false;
           });
           return;
@@ -64,7 +66,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
 
     if (mounted) {
       setState(() {
-        _babs = [];
+        _babList = [];
         _isLoading = false;
       });
     }
@@ -77,82 +79,91 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
       appBar: _buildAppBar(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 1. Header Card (Petualangan Angka, 3/6 Bab)
-                  _buildHeaderCard(),
+          : RefreshIndicator(
+              onRefresh: _fetchBabData,
+              color: const Color(0xFF1D5A86),
+              backgroundColor: Colors.white,
+              displacement: 28,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1. Header Card (Petualangan Angka, 3/6 Bab)
+                    _buildHeaderCard(),
 
-                  const SizedBox(height: 18),
+                    const SizedBox(height: 18),
 
-                  // 2. Chip "Semua Bab (6)"
-                  _buildFilterChip(),
+                    // 2. Chip "Semua Bab (6)"
+                    _buildFilterChip(),
 
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  // 3. List of Bab Cards atau Empty State
-                  if (_babs.isEmpty)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.02),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            width: 68,
-                            height: 68,
-                            decoration: const BoxDecoration(
-                              color: Color(0xFFEFF6FF),
-                              shape: BoxShape.circle,
+                    // 3. List of Bab Cards atau Empty State
+                    if (_babList.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.02),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
                             ),
-                            child: const Icon(
-                              Icons.menu_book_outlined,
-                              size: 34,
-                              color: Color(0xFF1D5A86),
+                          ],
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 68,
+                              height: 68,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFEFF6FF),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.menu_book_outlined,
+                                size: 34,
+                                color: Color(0xFF1D5A86),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Belum Ada Bab',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF1E293B),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Belum Ada Bab',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF1E293B),
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 6),
-                          const Text(
-                            'Guru belum mengunggah bab pembelajaran untuk mata pelajaran ini.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Color(0xFF64748B),
-                              height: 1.4,
+                            const SizedBox(height: 6),
+                            const Text(
+                              'Guru belum mengunggah bab pembelajaran untuk mata pelajaran ini.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Color(0xFF64748B),
+                                height: 1.4,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    ..._babs.map((bab) => _buildBabCard(bab)),
+                          ],
+                        ),
+                      )
+                    else
+                      ..._babList.map((bab) => _buildBabCard(bab)),
 
-                  const SizedBox(height: 24),
-                ],
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
     );
