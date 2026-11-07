@@ -28,6 +28,13 @@ Route::get('/siswa/materi/{id}', [SiswaApiController::class, 'materiDetail']);
 Route::get('/siswa/quiz/{id?}', [SiswaApiController::class, 'quizDetail']);
 Route::post('/siswa/quiz/{id}/submit', [SiswaApiController::class, 'quizSubmit']);
 
+// Mobile Ujian Online Routes
+Route::get('/siswa/ujian', [SiswaApiController::class, 'ujianIndex']);
+Route::get('/siswa/ujian/{id}/petunjuk', [SiswaApiController::class, 'ujianPetunjuk']);
+Route::get('/siswa/ujian/{id}/play', [SiswaApiController::class, 'ujianPlay']);
+Route::post('/siswa/ujian/{id}/submit', [SiswaApiController::class, 'ujianSubmit']);
+Route::get('/siswa/ujian/{id}/result', [SiswaApiController::class, 'ujianResult']);
+
 Route::middleware('auth:sanctum')->group(function () {
     // Siswa API
     Route::prefix('siswa')->group(function () {

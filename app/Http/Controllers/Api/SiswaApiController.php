@@ -728,4 +728,289 @@ class SiswaApiController extends ApiController
             'pesan' => $nilai >= 80 ? 'Luar biasa! Kamu memahami konsep pecahan dengan sangat baik!' : 'Bagus! Terus berlatih agar semakin hebat!',
         ], 'Kuis berhasil dikumpulkan!');
     }
+
+    // =========================================================================
+    // FITUR UJIAN ONLINE RESMI (DAFTAR, PETUNJUK, PENGERJAAN, SUBMIT, HASIL)
+    // =========================================================================
+
+    // GET /api/siswa/ujian
+    public function ujianIndex(Request $request)
+    {
+        $siswaId = $request->query('id_siswa', 1);
+
+        // Ujian Tersedia (Screenshot 1)
+        $ujianTersedia = [
+            [
+                'id_quiz' => 12,
+                'judul_quiz' => 'Penilaian Tengah Semester: Matematika Kelas 4B',
+                'mapel' => 'Matematika',
+                'guru' => 'Ibu Sarah Wijaya, S.Pd.',
+                'durasi_menit' => 60,
+                'total_soal' => 20,
+                'tipe_soal' => 'Pilihan Ganda',
+                'badge_mapel' => 'Matematika',
+                'badge_status' => 'Bisa Dikerjakan',
+                'badge_jadwal' => 'Hari Ini',
+                'is_bisa_dikerjakan' => true,
+                'keterangan_tombol' => 'Mulai Ujian',
+            ],
+            [
+                'id_quiz' => 13,
+                'judul_quiz' => 'Kuis Harian: IPAS – Daur Hidup Hewan',
+                'sub_judul' => 'Materi Metamorfosis Sempurna & Tidak Sempurna',
+                'mapel' => 'IPAS',
+                'guru' => 'Bapak Rahmat Hidayat, M.Pd.',
+                'durasi_menit' => 45,
+                'total_soal' => 15,
+                'tipe_soal' => 'Kuis',
+                'badge_mapel' => 'IPAS',
+                'badge_status' => 'Belum Dimulai',
+                'badge_jadwal' => 'Besok, 09.00 WIB',
+                'is_bisa_dikerjakan' => false,
+                'keterangan_tombol' => 'Dibuka Besok Jam 09.00',
+            ],
+        ];
+
+        // Ujian Selesai
+        $ujianSelesai = [
+            [
+                'id_quiz' => 14,
+                'id_hasil' => 8,
+                'judul_quiz' => 'Ulangan Harian Puisi A',
+                'mapel' => 'Bahasa Indonesia',
+                'tanggal' => '12 Mei',
+                'keterangan' => 'Sangat Memuaskan!',
+                'nilai' => 95,
+                'badge_nilai' => '95 – Hebat!',
+            ],
+            [
+                'id_quiz' => 15,
+                'id_hasil' => 9,
+                'judul_quiz' => 'Penilaian Harian: Tata Surya',
+                'mapel' => 'IPAS',
+                'tanggal' => '5 Mei',
+                'keterangan' => 'Lulus KKM',
+                'nilai' => 88,
+                'badge_nilai' => '88 – Bagus!',
+            ],
+            [
+                'id_quiz' => 16,
+                'id_hasil' => 10,
+                'judul_quiz' => 'Kuis Pancasila & Norma',
+                'mapel' => 'PPKn',
+                'tanggal' => '28 April',
+                'keterangan' => 'Lulus KKM',
+                'nilai' => 85,
+                'badge_nilai' => '85 – Bagus!',
+            ],
+        ];
+
+        return $this->success([
+            'banner' => [
+                'judul' => 'Penilaian Semester Siswa',
+                'subjudul' => 'Baca soal dengan teliti dan jangan lupa berdoa ya!',
+            ],
+            'tersedia_count' => count($ujianTersedia),
+            'selesai_count' => count($ujianSelesai),
+            'ujian_tersedia' => $ujianTersedia,
+            'ujian_selesai' => $ujianSelesai,
+            'nilai_terakhir' => [
+                'id_quiz' => 14,
+                'mapel' => 'Bahasa Indonesia',
+                'judul' => 'Ulangan Harian Puisi A',
+                'tanggal' => '12 Mei • Sangat Memuaskan!',
+                'nilai' => 95,
+                'badge' => '95 – Hebat!',
+            ],
+            'tips' => 'Kerjakan soal yang mudah dulu ya, agar waktumu cukup dan nilaimu maksimal!',
+        ]);
+    }
+
+    // GET /api/siswa/ujian/{id}/petunjuk
+    public function ujianPetunjuk(Request $request, $id)
+    {
+        $quiz = Quiz::with('guru')->find($id);
+
+        return $this->success([
+            'id_quiz' => (int) $id,
+            'kategori_badge' => 'UJIAN TENGAH SEMESTER',
+            'judul_quiz' => $quiz?->judul_quiz ?? 'PTS Matematika Kelas 4B',
+            'guru' => $quiz?->guru?->nama_guru ?? 'Ibu Sarah Wijaya, S.Pd.',
+            'ringkasan' => [
+                'waktu_menit' => $quiz?->durasi_menit ?? 60,
+                'total_soal' => 20,
+                'target_kkm' => 75,
+                'koreksi' => 'Otomatis',
+            ],
+            'petunjuk_pengerjaan' => [
+                ['nomor' => 1, 'warna' => 'blue', 'teks' => 'Berdoa sebelum mulai.'],
+                ['nomor' => 2, 'warna' => 'orange', 'teks' => 'Pilih salah satu jawaban A, B, C, atau D.'],
+                ['nomor' => 3, 'warna' => 'green', 'teks' => 'Periksa kembali lalu kumpulkan.'],
+            ],
+            'tips_semangat' => [
+                'judul' => 'Tips Semangat Belajar',
+                'pesan' => 'Tenang, teliti, dan jangan lupa berdoa ya!',
+            ],
+            'footer' => 'Ada kendala saat membuka soal? Beritahu guru pengawasmu',
+        ]);
+    }
+
+    // GET /api/siswa/ujian/{id}/play
+    public function ujianPlay(Request $request, $id)
+    {
+        $quiz = Quiz::with('soal')->find($id);
+        if (!$quiz) {
+            $quiz = Quiz::where('judul_quiz', 'like', '%PTS%')->with('soal')->first() ?? Quiz::first();
+        }
+
+        $soals = [];
+        if ($quiz && $quiz->soal) {
+            foreach ($quiz->soal as $index => $s) {
+                $meta = [];
+                if ($s->gambar) {
+                    $meta = json_decode($s->gambar, true) ?: [];
+                }
+
+                $nomor = $index + 1;
+                $diagram = null;
+                $foto = null;
+
+                // Format khusus Soal nomor 5 (Semangka) sesuai screenshot
+                if ($nomor === 5 || isset($meta['diagram'])) {
+                    $diagram = [
+                        'tipe' => 'pie_semangka_8',
+                        'judul' => 'DIAGRAM PECAHAN 8 POTONG',
+                        'dimakan' => 3,
+                        'sisa' => 5,
+                        'total' => 8,
+                        'label_dimakan' => 'Dimakan Budi (3)',
+                        'label_sisa' => 'Sisa Semangka (5)',
+                    ];
+                    $foto = [
+                        'caption' => 'Semangka dipotong 8',
+                    ];
+                }
+
+                $soals[] = [
+                    'id_soal' => $s->id_soal,
+                    'nomor' => $nomor,
+                    'tag' => $meta['tag'] ?? 'Pecahan Sederhana',
+                    'poin' => $meta['poin'] ?? 5,
+                    'pertanyaan' => $s->pertanyaan,
+                    'diagram' => $diagram,
+                    'foto' => $foto,
+                    'opsi_a' => $s->opsi_a,
+                    'opsi_b' => $s->opsi_b,
+                    'opsi_c' => $s->opsi_c,
+                    'opsi_d' => $s->opsi_d,
+                    'kunci_jawaban' => $s->kunci_jawaban,
+                ];
+            }
+        }
+
+        return $this->success([
+            'id_quiz' => (int) $id,
+            'judul_quiz' => 'PTS Matematika',
+            'durasi_menit' => $quiz?->durasi_menit ?? 60,
+            'durasi_detik' => ($quiz?->durasi_menit ?? 60) * 60,
+            'countdown_display' => '48:14',
+            'sisa_detik' => 2894, // 48 menit 14 detik sesuai screenshot
+            'total_soal' => count($soals),
+            'default_index' => 4, // Soal ke-5 (index 4) aktif sesuai screenshot
+            'soal' => $soals,
+        ]);
+    }
+
+    // POST /api/siswa/ujian/{id}/submit
+    public function ujianSubmit(Request $request, $id)
+    {
+        $quiz = Quiz::with('soal')->find($id);
+        $jawaban = $request->input('jawaban', []); // map: {"id_soal": "B"}
+        $idSiswa = $request->input('id_siswa', 1);
+
+        $totalSoal = $quiz ? $quiz->soal->count() : 20;
+        $benar = 0;
+        $salah = 0;
+
+        if ($quiz && $quiz->soal->isNotEmpty()) {
+            foreach ($quiz->soal as $s) {
+                $jawab = strtoupper(trim($jawaban[$s->id_soal] ?? $jawaban[(string)$s->id_soal] ?? ''));
+                if ($jawab && $jawab === strtoupper(trim($s->kunci_jawaban))) {
+                    $benar++;
+                } else {
+                    $salah++;
+                }
+            }
+        } else {
+            $benar = 18;
+            $salah = 2;
+        }
+
+        $nilai = $totalSoal > 0 ? round(($benar / $totalSoal) * 100) : 90;
+        $waktuMenit = $request->input('waktu_menit', 38);
+
+        // Simpan / update hasil ujian
+        HasilKuisSiswa::updateOrCreate(
+            [
+                'id_quiz' => (int) $id,
+                'id_siswa' => $idSiswa,
+            ],
+            [
+                'jumlah_benar' => $benar,
+                'jumlah_salah' => $salah,
+                'nilai_akhir' => $nilai,
+                'waktu_menit' => $waktuMenit,
+                'status_kirim' => 1,
+                'catatan_guru' => 'Bagus sekali pemahaman materi pecahannya, pertahankan ya Budi!',
+                'waktu_kirim' => Carbon::now(),
+            ]
+        );
+
+        return $this->success([
+            'id_quiz' => (int) $id,
+            'nilai_akhir' => $nilai,
+            'jumlah_benar' => $benar,
+            'jumlah_salah' => $salah,
+            'durasi_menit' => $waktuMenit,
+            'is_lulus_kkm' => ($nilai >= 75),
+            'target_kkm' => 75,
+        ], 'Ujian berhasil dikumpulkan tepat waktu!');
+    }
+
+    // GET /api/siswa/ujian/{id}/result
+    public function ujianResult(Request $request, $id)
+    {
+        $quiz = Quiz::with('guru')->find($id);
+        $siswaId = $request->query('id_siswa', 1);
+        $siswa = Siswa::find($siswaId);
+
+        $hasil = HasilKuisSiswa::where('id_quiz', $id)
+            ->where('id_siswa', $siswaId)
+            ->latest('id_hasil')
+            ->first();
+
+        $nilai = $hasil ? (int) $hasil->nilai_akhir : 90;
+        $benar = $hasil ? $hasil->jumlah_benar : 18;
+        $salah = $hasil ? $hasil->jumlah_salah : 2;
+        $waktu = $hasil ? ($hasil->waktu_menit ?? 38) : 38;
+
+        return $this->success([
+            'id_quiz' => (int) $id,
+            'nama_siswa' => $siswa?->nama_siswa ?? 'Budi Santoso',
+            'pesan_banner' => 'Ujian telah selesai dikumpulkan tepat waktu!',
+            'target_kkm' => 75,
+            'is_lulus_kkm' => ($nilai >= 75),
+            'label_kkm' => 'LULUS KKM (Target: 75)',
+            'nilai_akhir' => $nilai,
+            'status_teks' => $nilai >= 85 ? 'Sangat Baik & Membanggakan' : ($nilai >= 75 ? 'Lulus & Memuaskan' : 'Perlu Remedial'),
+            'jumlah_benar' => $benar,
+            'jumlah_salah' => $salah,
+            'durasi_menit' => $waktu,
+            'mapel' => [
+                'nama' => 'PTS Matematika Kelas 4B',
+                'guru' => $quiz?->guru?->nama_guru ?? 'Ibu Sarah Wijaya, S.Pd.',
+                'catatan_guru' => $hasil?->catatan_guru ?? 'Bagus sekali pemahaman materi pecahannya, pertahankan ya Budi!',
+            ],
+        ]);
+    }
 }
