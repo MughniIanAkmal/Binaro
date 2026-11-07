@@ -23,61 +23,78 @@ class SiswaApiController extends ApiController
 {
     public function __construct(private AbsensiService $absensiService) {}
 
-    // GET /api/siswa/dashboard (secured – uses token, falls back to first student if unauthenticated)
+    /**
+     * Resolve ID Siswa dari token user, request, session, atau default first siswa
+     */
+    protected function resolveSiswaId(Request $request): ?int
+    {
+        $user = $request->user();
+        if ($user && isset($user->id_siswa)) {
+            return (int) $user->id_siswa;
+        }
+
+        $id = $request->input('id_siswa')
+            ?? $request->query('id_siswa')
+            ?? $request->query('id')
+            ?? Session::get('siswa_id')
+            ?? Session::get('user_id');
+
+        if ($id) {
+            return (int) $id;
+        }
+
+        $first = Siswa::first();
+        return $first?->id_siswa;
+    }
+
+    // GET /api/siswa/dashboard
     public function dashboard(Request $request)
     {
-        // Prefer authenticated user; otherwise use first record as a graceful fallback.
-        $siswa = $request->user() ?: Siswa::with(['kelas', 'mataPelajaran'])->first();
+        $siswaId = $this->resolveSiswaId($request);
 
-        // Guard against null (should not happen in production when auth middleware is applied).
-        $siswa = $siswa ? Siswa::with(['kelas', 'mataPelajaran'])->find($siswa->id_siswa) : null;
+        $siswa = null;
+        if ($siswaId) {
+            $siswa = Siswa::with(['kelas', 'mataPelajaran'])->find($siswaId);
+        }
+        if (!$siswa) {
+            $siswa = Siswa::with(['kelas', 'mataPelajaran'])->first();
+        }
 
         $nama = $siswa ? $siswa->nm_siswa : 'Budi Santoso';
         $kelas = ($siswa && $siswa->kelas) ? $siswa->kelas->pararel : 'Kelas 5';
         $sekolah = 'SDN Kalitapen 01';
 
-        // 1. Mata Pelajaran dengan Bab & Materi
+        // 1. Mata Pelajaran dengan Bab & Materi Real dari Database
         $daftarMapel = MataPelajaran::withCount('bab')->orderBy('id_mapel')->get();
         $mapelList = [];
-        foreach ($daftarMapel as $m) {
+        foreach ($daftarMapel as $i => $m) {
             $mapelName = $m->nama_mapel;
             $lower = strtolower($mapelName);
 
-            $badge = 'Bab ' . ($m->bab_count > 0 ? $m->bab_count : 2);
-            $materiTotal = 16;
-            $materiSelesai = 10;
-            $progress = 0.62;
-            $warna = 'blue';
+            $babCount = $m->bab_count > 0 ? $m->bab_count : 1;
+            $badge = "Bab {$babCount}";
+
+            $materiCount = Materi::whereHas('subBab.bab', fn($q) => $q->where('id_mapel', $m->id_mapel))->count();
+            $materiInfo = $materiCount > 0 ? "{$materiCount} Materi Pembelajaran" : "Belum Ada Materi";
+            
+            // Hitung progress riil kuis bab terbuka
+            $progData = $this->calculateMapelProgress($m->id_mapel, $siswaId);
+            $progress = $progData['progress'];
+            $warna = ($i % 2 == 1) ? 'orange' : 'blue';
             $tipe = 'shield';
 
             if (str_contains($lower, 'matematika')) {
                 $tipe = 'math';
                 $warna = 'orange';
-                $badge = 'Bab 3';
-                $materiTotal = 20;
-                $materiSelesai = 14;
-                $progress = 0.70;
             } elseif (str_contains($lower, 'ipa') || str_contains($lower, 'alam')) {
                 $tipe = 'science';
                 $warna = 'blue';
-                $badge = 'Bab 4';
-                $materiTotal = 16;
-                $materiSelesai = 10;
-                $progress = 0.62;
             } elseif (str_contains($lower, 'indonesia')) {
                 $tipe = 'book';
                 $warna = 'blue';
-                $badge = 'Bab 2';
-                $materiTotal = 15;
-                $materiSelesai = 12;
-                $progress = 0.80;
             } elseif (str_contains($lower, 'pancasila')) {
                 $tipe = 'shield';
                 $warna = 'orange';
-                $badge = 'Bab 2';
-                $materiTotal = 12;
-                $materiSelesai = 8;
-                $progress = 0.66;
             }
 
             $displayNama = match (true) {
@@ -92,8 +109,10 @@ class SiswaApiController extends ApiController
                 'id_mapel' => $m->id_mapel,
                 'nama' => $displayNama,
                 'badge' => $badge,
-                'materi_info' => "{$materiSelesai} dari {$materiTotal} Materi",
+                'materi_info' => $materiInfo,
                 'progress' => $progress,
+                'persen' => $progData['persen'],
+                'progress_text' => $progData['progress_text'],
                 'warna' => $warna,
                 'tipe_icon' => $tipe,
             ];
@@ -105,13 +124,13 @@ class SiswaApiController extends ApiController
         $tugas = [];
 
         foreach ($prList as $i => $pr) {
-            $deadline = 'Besok, 07.15 WIB';
-            if ($i == 1) $deadline = 'Senin, 07.30 WIB';
-            if ($i == 2) $deadline = 'Jumat, 10.00 WIB';
+            $deadline = $pr->tgl_tenggat
+                ? \Carbon\Carbon::parse($pr->tgl_tenggat)->translatedFormat('l, d M H.i') . ' WIB'
+                : 'Tenggat belum ditentukan';
 
             $mapelName = strtoupper($pr->mataPelajaran->nama_mapel ?? 'UMUM');
-            if (str_contains(strtolower($mapelName), 'indonesia')) $mapelName = 'BHS. INDONESIA';
-            if (str_contains(strtolower($mapelName), 'ilmu pengetahuan')) $mapelName = 'IPA';
+            if (str_contains(strtolower($mapelName), 'INDONESIA')) $mapelName = 'BHS. INDONESIA';
+            if (str_contains(strtolower($mapelName), 'ILMU PENGETAHUAN')) $mapelName = 'IPA';
 
             $tugas[] = [
                 'id_pr' => $pr->id_pr,
@@ -129,8 +148,9 @@ class SiswaApiController extends ApiController
 
         return $this->success([
             'siswa' => [
-                'id_siswa' => $siswa?->id_siswa ?? 7,
+                'id_siswa' => $siswa?->id_siswa ?? 1,
                 'nama' => $nama,
+                'nm_siswa' => $nama,
                 'kelas' => $kelas . ' • ' . $sekolah,
                 'foto_profil' => $siswa?->foto_profil,
             ],
@@ -140,53 +160,45 @@ class SiswaApiController extends ApiController
                 ['title' => 'Jadwal', 'icon' => 'calendar', 'color' => 'blue'],
             ],
             'tugas' => $tugas,
-            'tugas_total' => $tugasTotal > 0 ? $tugasTotal : 5,
+            'tugas_total' => $tugasTotal,
             'mata_pelajaran' => $mapelList,
-        ]);
+        ], 'Dashboard berhasil dimuat');
     }
 
     // GET /api/siswa/profile
     public function profile(Request $request)
     {
-<<<<<<< HEAD
-        $siswa = $request->user()->load(['barcode', 'kelas', 'absens' => function ($query) {
-            $query->orderByDesc('tanggal')->orderByDesc('waktu_absen');
-        }]);
-=======
-        $siswaId = $request->query('id') ?? $request->query('id_siswa');
+        $siswaId = $this->resolveSiswaId($request);
 
+        $siswa = null;
         if ($siswaId) {
             $siswa = Siswa::with(['barcode', 'kelas', 'absens' => function ($query) {
                 $query->orderByDesc('tanggal')->orderByDesc('waktu_absen');
             }])->find($siswaId);
-        } else {
-            $userId = Session::get('user_id');
-            if ($userId) {
-                $siswa = Siswa::with(['barcode', 'kelas', 'absens' => function ($query) {
-                    $query->orderByDesc('tanggal')->orderByDesc('waktu_absen');
-                }])->find($userId);
-            } else {
-                $siswa = Siswa::with(['barcode', 'kelas'])->first();
-            }
         }
 
-        if (! $siswa) {
+        if (!$siswa) {
+            $siswa = Siswa::with(['barcode', 'kelas'])->first();
+        }
+
+        if (!$siswa) {
             return $this->error('Siswa tidak ditemukan', 404);
         }
->>>>>>> d24be01895fd93fd48a6153e54dc17ca946455b0
 
         $barcodeCode = $siswa->barcode?->kode_barcode ?? ('SISWA-' . $siswa->nisn);
 
         // Hitung absensi bulan ini
-        $hadir = $siswa->absens->where('status', 'Hadir')->count();
-        $izin = $siswa->absens->where('status', 'Izin')->count();
-        $sakit = $siswa->absens->where('status', 'Sakit')->count();
-        $alpa = $siswa->absens->where('status', 'Alpa')->count();
+        $hadir = $siswa->absens ? $siswa->absens->where('status', 'Hadir')->count() : 0;
+        $izin = $siswa->absens ? $siswa->absens->where('status', 'Izin')->count() : 0;
+        $sakit = $siswa->absens ? $siswa->absens->where('status', 'Sakit')->count() : 0;
+        $alpa = $siswa->absens ? $siswa->absens->where('status', 'Alpa')->count() : 0;
 
         return $this->success([
             'siswa' => [
                 'id_siswa' => $siswa->id_siswa,
                 'nama' => $siswa->nm_siswa,
+                'nm_siswa' => $siswa->nm_siswa,
+                'nama_siswa' => $siswa->nm_siswa,
                 'kelas' => $siswa->nama_kelas . ' • SDN Kalitapen 01',
                 'nisn' => $siswa->nisn,
                 'email' => $siswa->email,
@@ -212,13 +224,13 @@ class SiswaApiController extends ApiController
                 'tahun_ajaran' => '2024/2025 (Genap)',
             ],
             'versi' => 'Sahabat Belajar v1.2.0-SD',
-        ]);
+        ], 'Data profil siswa berhasil dimuat');
     }
 
     // POST /api/siswa/update-password
     public function updatePassword(Request $request)
     {
-        $siswaId = $request->input('id_siswa') ?? $request->query('id_siswa') ?? Session::get('user_id');
+        $siswaId = $this->resolveSiswaId($request);
         $siswa = Siswa::find($siswaId);
         if (!$siswa) {
             return $this->error('Siswa tidak ditemukan', 404);
@@ -230,7 +242,6 @@ class SiswaApiController extends ApiController
             'konfirmasi_password' => 'required|string|same:password_baru',
         ]);
 
-        // Verifikasi kecocokan password lama
         $stored = $siswa->password;
         $input = trim($request->input('password_lama'));
         $match = ($input === $stored) || (md5($input) === $stored) || (Hash::check($input, $stored));
@@ -248,18 +259,27 @@ class SiswaApiController extends ApiController
     // POST /api/siswa/profile
     public function updateProfile(Request $request)
     {
-        $userId = $request->user()->id_siswa;
+        $userId = $this->resolveSiswaId($request);
+        if (!$userId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
 
         $siswa = Siswa::find($userId);
-        if (! $siswa) {
+        if (!$siswa) {
             return $this->error('Siswa tidak ditemukan', 404);
         }
 
         $data = $request->validate([
             'nm_siswa' => 'sometimes|string|max:255',
+            'nama' => 'sometimes|string|max:255',
             'no_hp' => 'sometimes|string|max:20',
-            'foto_profil' => 'sometimes|url',
+            'email' => 'sometimes|email|max:100',
+            'foto_profil' => 'sometimes|nullable|string',
         ]);
+
+        if (isset($data['nama']) && !isset($data['nm_siswa'])) {
+            $data['nm_siswa'] = $data['nama'];
+        }
 
         $siswa->update($data);
 
@@ -269,49 +289,69 @@ class SiswaApiController extends ApiController
     // GET /api/siswa/absensi-hari-ini
     public function todayAttendance(Request $request)
     {
-        $userId = $request->user()->id_siswa;
+        $userId = $this->resolveSiswaId($request);
+        if (!$userId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
 
+        $today = now()->toDateString();
         $absen = Absen::where('id_siswa', $userId)
-            ->whereDate('tanggal', now()->toDateString())
+            ->where('tanggal', $today)
             ->first();
 
-        return $this->success($absen);
+        return $this->success([
+            'tanggal' => $today,
+            'status' => $absen ? $absen->status : 'Belum Hadir',
+            'keterangan' => $absen ? ($absen->keterangan ?? 'Tepat Waktu') : 'Belum melakukan absensi hari ini',
+            'waktu_absen' => $absen?->waktu_absen,
+            'metode' => $absen?->metode,
+            'detail' => $absen,
+        ], 'Data absensi hari ini berhasil dimuat');
     }
 
     // POST /api/siswa/absensi-scan
     public function selfScan(Request $request)
     {
-        $data = $request->validate([
-            'id_barcode' => 'required|exists:barcode,id_barcode',
-        ]);
-
-        $userId = $request->user()->id_siswa;
-
-
-        $barcode = DB::table('barcode')
-            ->where('id_barcode', $data['id_barcode'])
-            ->first();
-
-        if (! $barcode || $barcode->id_siswa != $userId) {
-            return $this->error('QR tidak valid', 404);
+        $userId = $this->resolveSiswaId($request);
+        if (!$userId) {
+            return $this->error('User tidak terautentikasi', 401);
         }
 
-        $hasil = $this->absensiService->catatScan($barcode->kode_barcode, null, 'scan_qr');
+        $kode = null;
+        if ($request->filled('kode_barcode')) {
+            $kode = $request->input('kode_barcode');
+        } elseif ($request->filled('id_barcode')) {
+            $bc = DB::table('barcode')->where('id_barcode', $request->input('id_barcode'))->first();
+            $kode = $bc?->kode_barcode;
+        } else {
+            $bc = DB::table('barcode')->where('id_siswa', $userId)->first();
+            $kode = $bc?->kode_barcode;
+        }
+
+        if (!$kode) {
+            return $this->error('Barcode tidak valid atau belum terdaftar', 404);
+        }
+
+        $hasil = $this->absensiService->catatScan($kode, null, 'scan_qr');
 
         if ($hasil['hasil'] === 'duplikat') {
             return $this->error($hasil['message'], 409);
         }
 
+        if ($hasil['hasil'] === 'tidak_dikenal') {
+            return $this->error('QR Barcode tidak dikenali oleh sistem', 404);
+        }
+
         $siswa = Siswa::find($userId);
 
         return $this->success([
-            'siswa' => $siswa->nm_siswa,
-            'nisn' => $siswa->nisn,
+            'siswa' => $siswa?->nm_siswa ?? 'Siswa',
+            'nisn' => $siswa?->nisn,
             'status' => 'Hadir',
-            'keterangan' => $hasil['keterangan'],
+            'keterangan' => $hasil['keterangan'] ?? 'Hadir Tepat Waktu',
             'waktu_absen' => $hasil['absen']->waktu_absen,
             'metode' => 'scan_qr',
-        ], $hasil['upgrade'] ? 'Absensi diperbarui dari status Alpa' : 'Absensi registrasi', 201);
+        ], $hasil['upgrade'] ? 'Absensi diperbarui dari status Alpa' : 'Absensi registrasi berhasil', 201);
     }
 
     // =========================================================================
@@ -321,6 +361,7 @@ class SiswaApiController extends ApiController
     // GET /api/siswa/mapel
     public function mapelList(Request $request)
     {
+        $siswaId = $this->resolveSiswaId($request) ?? 1;
         $daftarMapel = MataPelajaran::withCount('bab')->orderBy('id_mapel')->get();
 
         $result = [];
@@ -330,47 +371,39 @@ class SiswaApiController extends ApiController
 
             $icon = 'book';
             $warna = 'blue';
-            $progress = 0.50;
             $jadwal = 'Senin & Rabu';
             $wajib = true;
-            $babTotal = $m->bab_count > 0 ? $m->bab_count : 6;
+            $babTotal = $m->bab_count;
+            $babRentang = $babTotal > 0 ? "Bab 1 - {$babTotal}" : "Belum Ada Bab";
+
+            // Hitung progress riil berdasarkan kuis di bab yang terbuka
+            $progData = $this->calculateMapelProgress($m->id_mapel, $siswaId);
+            $progress = $progData['progress'];
 
             if (str_contains($lower, 'matematika')) {
                 $icon = 'math';
-                $progress = 0.72;
                 $jadwal = 'Senin & Rabu';
                 $wajib = true;
-                $babTotal = 6;
             } elseif (str_contains($lower, 'ipa') || str_contains($lower, 'alam')) {
                 $icon = 'science';
-                $progress = 0.58;
                 $jadwal = 'Selasa & Kamis';
                 $wajib = true;
-                $babTotal = 6;
             } elseif (str_contains($lower, 'indonesia')) {
                 $icon = 'book';
-                $progress = 0.84;
                 $jadwal = 'Senin & Jumat';
                 $wajib = true;
-                $babTotal = 7;
             } elseif (str_contains($lower, 'pancasila') || str_contains($lower, 'kewarganegaraan')) {
                 $icon = 'star';
-                $progress = 0.65;
                 $jadwal = 'Rabu';
                 $wajib = true;
-                $babTotal = 5;
             } elseif (str_contains($lower, 'seni') || str_contains($lower, 'sbdp')) {
                 $icon = 'palette';
-                $progress = 0.40;
                 $jadwal = 'Sabtu';
                 $wajib = false;
-                $babTotal = 4;
             } elseif (str_contains($lower, 'inggris')) {
                 $icon = 'chat';
-                $progress = 0.50;
                 $jadwal = 'Kamis';
                 $wajib = false;
-                $babTotal = 6;
             }
 
             $result[] = [
@@ -378,8 +411,12 @@ class SiswaApiController extends ApiController
                 'nama' => $name,
                 'deskripsi' => $m->deskripsi,
                 'bab_total' => $babTotal,
-                'bab_rentang' => "Bab 1 - {$babTotal}",
+                'bab_rentang' => $babRentang,
                 'progress' => $progress,
+                'persen' => $progData['persen'],
+                'progress_text' => $progData['progress_text'],
+                'bab_unlocked' => $progData['bab_unlocked'],
+                'bab_selesai' => $progData['bab_selesai'],
                 'jadwal' => $jadwal,
                 'warna' => $warna,
                 'tipe_icon' => $icon,
@@ -392,7 +429,7 @@ class SiswaApiController extends ApiController
             'total_mapel' => count($result),
             'wajib_count' => count(array_filter($result, fn($x) => $x['is_wajib'])),
             'mapel' => $result,
-        ]);
+        ], 'Daftar mata pelajaran berhasil dimuat');
     }
 
     // GET /api/siswa/mapel/{id}/bab
@@ -400,20 +437,24 @@ class SiswaApiController extends ApiController
     {
         $mapel = MataPelajaran::with(['bab.subBab'])->find($id);
         if (!$mapel) {
+            $mapel = MataPelajaran::with(['bab.subBab'])->whereHas('bab')->first()
+                ?? MataPelajaran::first();
+        }
+
+        if (!$mapel) {
             return $this->error('Mata pelajaran tidak ditemukan', 404);
         }
 
-        $babs = Bab::where('id_mapel', $id)->orderBy('id_bab')->get();
+        $babs = Bab::where('id_mapel', $mapel->id_mapel)->orderBy('id_bab')->get();
         $isMatematika = str_contains(strtolower($mapel->nama_mapel), 'matematika');
 
         $babList = [];
         $unlockedCount = 0;
         foreach ($babs as $index => $b) {
             $nomor = $index + 1;
-            $isLocked = ($nomor > 3); // 3 bab pertama terbuka
+            $isLocked = (bool) ($b->is_locked ?? false);
             if (!$isLocked) $unlockedCount++;
 
-            // Warna selang-seling sesuai desain screenshot
             $warna = match ($nomor % 3) {
                 1 => 'orange',
                 2 => 'blue',
@@ -444,7 +485,7 @@ class SiswaApiController extends ApiController
             ],
             'total_bab' => count($babList),
             'babs' => $babList,
-        ]);
+        ], 'Daftar bab berhasil dimuat');
     }
 
     // GET /api/siswa/bab/{id}/sub-bab
@@ -452,16 +493,21 @@ class SiswaApiController extends ApiController
     {
         $bab = Bab::with('mataPelajaran')->find($id);
         if (!$bab) {
+            $bab = Bab::with('mataPelajaran')->whereHas('subBab')->first()
+                ?? Bab::with('mataPelajaran')->first();
+        }
+
+        if (!$bab) {
             return $this->error('Bab tidak ditemukan', 404);
         }
 
-        $subBabs = SubBab::where('id_bab', $id)->orderBy('id_sub_bab')->get();
+        $subBabs = SubBab::where('id_bab', $bab->id_bab)->orderBy('id_sub_bab')->get();
 
         $subList = [];
         foreach ($subBabs as $idx => $sb) {
             $nomor = $idx + 1;
-            $isLocked = ($nomor > 3); // Sub-bab 4 terkunci sesuai mockup
-            $isActive = ($nomor === 3); // Sub-bab 3 disorot (active)
+            $isLocked = (bool) ($sb->is_locked ?? false);
+            $isActive = !$isLocked;
 
             $tipeIcon = match ($nomor) {
                 1 => 'cake',
@@ -493,7 +539,7 @@ class SiswaApiController extends ApiController
                 'info_sub' => count($subList) . ' Sub Bab Pembelajaran',
             ],
             'sub_babs' => $subList,
-        ]);
+        ], 'Daftar sub bab berhasil dimuat');
     }
 
     // GET /api/siswa/sub-bab/{id}/materi
@@ -501,25 +547,40 @@ class SiswaApiController extends ApiController
     {
         $subBab = SubBab::with(['bab.mataPelajaran'])->find($id);
         if (!$subBab) {
+            $subBab = SubBab::with(['bab.mataPelajaran'])->whereHas('materi')->first()
+                ?? SubBab::with(['bab.mataPelajaran'])->first();
+        }
+
+        if (!$subBab) {
             return $this->error('Sub Bab tidak ditemukan', 404);
         }
 
-        $materis = Materi::where('id_sub_bab', $id)->orderBy('id_materi')->get();
+        $materis = Materi::where('id_sub_bab', $subBab->id_sub_bab)->orderBy('id_materi')->get();
 
         $materiList = [];
         foreach ($materis as $idx => $m) {
             $nomor = $idx + 1;
             $tipe = $m->tipe_materi ?: 'dokumen';
 
+            $deskripsi = $m->isi_materi ? substr(strip_tags($m->isi_materi), 0, 140) : null;
+            if (!$deskripsi) {
+                $deskripsi = match ($tipe) {
+                    'kuis' => 'Silakan kerjakan quiz untuk menguji pemahaman materi ini.',
+                    'video' => 'Tonton video penjelasan materi pembelajaran interaktif ini.',
+                    default => 'Pelajari dokumen rangkuman materi pembelajaran ini.',
+                };
+            }
+
             $materiList[] = [
                 'id_materi' => $m->id_materi,
                 'nomor' => $nomor,
                 'tipe_materi' => $tipe,
-                'badge' => "MATERI {$nomor}",
-                'info_meta' => $tipe === 'video' ? 'Video Belajar' : ($tipe === 'kuis' ? 'Kuis Mandiri' : 'Dokumen Bacaan'),
+                'id_quiz' => $m->id_quiz,
+                'badge' => $tipe === 'kuis' ? "KUIS {$nomor}" : "MATERI {$nomor}",
+                'info_meta' => $tipe === 'video' ? 'Video Belajar' : ($tipe === 'kuis' ? 'Kuis Interaktif' : 'Dokumen PDF'),
                 'judul_materi' => $m->judul_materi ?: 'Materi Pembelajaran',
-                'deskripsi' => $m->isi_materi ? substr(strip_tags($m->isi_materi), 0, 140) : 'Silakan buka materi untuk mempelajari topik ini.',
-                'warna' => ($nomor % 2 == 0) ? 'orange' : 'blue',
+                'deskripsi' => $deskripsi,
+                'warna' => $tipe === 'kuis' ? 'orange' : (($nomor % 2 == 0) ? 'orange' : 'blue'),
                 'url_video' => $m->url_video,
                 'has_thumbnail' => !empty($m->file_pdf),
             ];
@@ -535,13 +596,14 @@ class SiswaApiController extends ApiController
                 'nama' => $subBab->nama_sub_bab,
             ],
             'materis' => $materiList,
-        ]);
+        ], 'Daftar materi berhasil dimuat');
     }
 
     // GET /api/siswa/materi/{id}
     public function materiDetail(Request $request, $id)
     {
         $materi = Materi::with(['subBab.bab.mataPelajaran'])->find($id);
+
         if (!$materi) {
             return $this->error('Materi belum diunggah atau tidak ditemukan di database', 404);
         }
@@ -550,39 +612,42 @@ class SiswaApiController extends ApiController
         $bab = $subBab?->bab;
         $mapel = $bab?->mataPelajaran;
 
+        $hasVideo = !empty($materi->url_video);
+        $hasPdf = !empty($materi->file_pdf);
+        $hasText = !empty(trim(strip_tags((string)$materi->isi_materi)));
+
+        $storageUrl = $request->root() . '/storage/' . $materi->file_pdf;
+        $downloadUrl = $request->root() . '/storage/' . $materi->file_pdf . '?download=1';
+
         return $this->success([
             'id_materi' => $materi->id_materi,
+            'tipe_materi' => $materi->tipe_materi ?: ($hasPdf ? 'dokumen' : ($hasVideo ? 'video' : 'teks')),
+            'judul_materi' => $materi->judul_materi,
+            'id_quiz' => $materi->id_quiz,
             'breadcrumb' => [
                 'mapel' => $mapel?->nama_mapel ?? 'Mata Pelajaran',
                 'bab' => $bab?->nama_bab ?? 'Bab',
                 'sub_bab' => $subBab?->nama_sub_bab ?? 'Sub Bab',
             ],
-            'video' => [
+            'video' => $hasVideo ? [
                 'judul' => $materi->judul_materi,
-                'durasi' => '05:00',
-                'kualitas' => 'HD 720p',
-                'progres_detik' => 0,
-                'total_detik' => 300,
-                'url' => $materi->url_video ?? 'https://www.youtube.com',
-            ],
-            'konten' => [
-                'badge' => 'Materi Pembelajaran',
+                'url' => $materi->url_video,
+            ] : null,
+            'pdf' => $hasPdf ? [
+                'file_pdf' => basename($materi->file_pdf),
+                'url' => $storageUrl,
+                'download_url' => $downloadUrl,
+            ] : null,
+            'konten' => $hasText ? [
                 'judul' => $materi->judul_materi,
-                'subjudul' => 'Pelajari materi berikut dengan seksama!',
-                'paragraf_1' => strip_tags($materi->isi_materi ?: 'Belum ada konten tertulis untuk materi ini.'),
-                'paragraf_2' => '',
-                'poin_pembagi' => [],
-                'contoh_sekitar' => '',
-            ],
-            'tips' => [
-                'Baca materi dengan teliti sebelum mengerjakan kuis atau latihan!',
-            ],
+                'isi' => $materi->isi_materi,
+            ] : null,
             'kuis_lanjutan' => $materi->id_quiz ? [
                 'id_quiz' => $materi->id_quiz,
                 'judul' => 'Lanjut ke Kuis / Latihan',
-                'jumlah_soal' => Quiz::find($materi->id_quiz)?->soal()->count() ?? 5,
+                'jumlah_soal' => Quiz::find($materi->id_quiz)?->soal()->count() ?? 0,
             ] : null,
-        ]);
+        ], 'Detail materi berhasil dimuat');
     }
 
     // GET /api/siswa/quiz/{id?}
@@ -631,7 +696,7 @@ class SiswaApiController extends ApiController
             'countdown_display' => sprintf('%02d:00', $quiz->durasi_menit ?? 15),
             'total_soal' => count($soals),
             'soal' => $soals,
-        ]);
+        ], 'Data kuis berhasil dimuat');
     }
 
     // POST /api/siswa/quiz/{id}/submit
@@ -642,8 +707,8 @@ class SiswaApiController extends ApiController
             return $this->error('Kuis tidak ditemukan', 404);
         }
 
-        $jawaban = $request->input('jawaban', []); // misal: {"23": "B", "24": "A", ...}
-        $idSiswa = $request->input('id_siswa', 1);
+        $jawaban = $request->input('jawaban', []);
+        $idSiswa = $this->resolveSiswaId($request) ?? 1;
 
         $totalSoal = $quiz->soal->count();
         $benar = 0;
@@ -661,17 +726,20 @@ class SiswaApiController extends ApiController
         $nilai = $totalSoal > 0 ? round(($benar / $totalSoal) * 100) : 0;
         $bintang = ($nilai >= 80) ? 3 : (($nilai >= 60) ? 2 : 1);
 
-        // Simpan ke riwayat kuis
-        HasilKuisSiswa::create([
-            'id_quiz' => $quiz->id_quiz,
-            'id_siswa' => $idSiswa,
-            'jumlah_benar' => $benar,
-            'jumlah_salah' => $salah,
-            'nilai_akhir' => $nilai,
-            'waktu_menit' => $request->input('waktu_menit', 3),
-            'status_kirim' => 1,
-            'waktu_kirim' => Carbon::now(),
-        ]);
+        HasilKuisSiswa::updateOrCreate(
+            [
+                'id_quiz' => $quiz->id_quiz,
+                'id_siswa' => $idSiswa,
+            ],
+            [
+                'jumlah_benar' => $benar,
+                'jumlah_salah' => $salah,
+                'nilai_akhir' => $nilai,
+                'waktu_menit' => $request->input('waktu_menit', 3),
+                'status_kirim' => 1,
+                'waktu_kirim' => Carbon::now(),
+            ]
+        );
 
         return $this->success([
             'nilai_akhir' => $nilai,
@@ -684,16 +752,14 @@ class SiswaApiController extends ApiController
     }
 
     // =========================================================================
-    // FITUR UJIAN ONLINE RESMI (DAFTAR, PETUNJUK, PENGERJAAN, SUBMIT, HASIL)
-    // 100% DINAMIS SESUAI DATABASE (Quiz WHERE id_sub_bab IS NULL)
+    // FITUR UJIAN ONLINE RESMI
     // =========================================================================
 
     // GET /api/siswa/ujian
     public function ujianIndex(Request $request)
     {
-        $siswaId = $request->query('id_siswa', 1);
+        $siswaId = $this->resolveSiswaId($request);
 
-        // Ambil seluruh ujian resmi dari database
         $allQuizzes = Quiz::whereNull('id_sub_bab')
             ->with([
                 'mataPelajaran',
@@ -715,7 +781,6 @@ class SiswaApiController extends ApiController
             $soalCount = $q->soal->count();
 
             if (!$hasil) {
-                // Belum dikerjakan -> Masuk Tersedia
                 $ujianTersedia[] = [
                     'id_quiz' => $q->id_quiz,
                     'judul_quiz' => $q->judul_quiz,
@@ -732,7 +797,7 @@ class SiswaApiController extends ApiController
                     'keterangan_tombol' => ($soalCount > 0 ? 'Mulai Ujian' : 'Belum Ada Soal'),
                 ];
             } else {
-                // Sudah dikerjakan -> Masuk Selesai
+                $isPublished = (bool) ($hasil->status_kirim ?? false);
                 $nilai = (int) $hasil->nilai_akhir;
                 $ujianSelesai[] = [
                     'id_quiz' => $q->id_quiz,
@@ -740,14 +805,14 @@ class SiswaApiController extends ApiController
                     'judul_quiz' => $q->judul_quiz,
                     'mapel' => $mapelNama,
                     'tanggal' => $hasil->created_at?->format('d M') ?? 'Baru saja',
-                    'keterangan' => $hasil->status_kirim ? 'Selesai' : 'Terkumpul (Menunggu Nilai)',
-                    'nilai' => $nilai,
-                    'badge_nilai' => $hasil->status_kirim ? "★ {$nilai} – Selesai" : 'Menunggu Nilai',
+                    'is_published' => $isPublished,
+                    'keterangan' => $isPublished ? 'Selesai' : 'Terkumpul (Menunggu Nilai)',
+                    'nilai' => $isPublished ? $nilai : null,
+                    'badge_nilai' => $isPublished ? "★ {$nilai}" : 'Menunggu Nilai',
                 ];
             }
         }
 
-        // Nilai Ujian Terakhir (hanya yang sudah berstatus_kirim)
         $latestHasil = HasilKuisSiswa::with(['quiz.mataPelajaran'])
             ->whereHas('quiz', function ($q) {
                 $q->whereNull('id_sub_bab');
@@ -781,7 +846,7 @@ class SiswaApiController extends ApiController
             'ujian_selesai' => $ujianSelesai,
             'nilai_terakhir' => $nilaiTerakhirData,
             'tips' => 'Kerjakan soal yang mudah dulu ya, agar waktumu cukup dan nilaimu maksimal!',
-        ]);
+        ], 'Daftar ujian berhasil dimuat');
     }
 
     // GET /api/siswa/ujian/{id}/petunjuk
@@ -789,11 +854,15 @@ class SiswaApiController extends ApiController
     {
         $quiz = Quiz::with(['guru', 'mataPelajaran', 'soal'])->find($id);
         if (!$quiz) {
+            $quiz = Quiz::whereNull('id_sub_bab')->with(['guru', 'mataPelajaran', 'soal'])->first();
+        }
+
+        if (!$quiz) {
             return $this->error('Ujian tidak ditemukan di database', 404);
         }
 
         return $this->success([
-            'id_quiz' => (int) $id,
+            'id_quiz' => (int) $quiz->id_quiz,
             'kategori_badge' => strtoupper($quiz->tingkat_level ?? 'Ujian Online'),
             'judul_quiz' => $quiz->judul_quiz,
             'guru' => $quiz->guru?->nama_guru ?? 'Guru Pengampu',
@@ -813,13 +882,17 @@ class SiswaApiController extends ApiController
                 'pesan' => 'Tenang, teliti, dan jangan lupa berdoa ya!',
             ],
             'footer' => 'Ada kendala saat membuka soal? Beritahu guru pengawasmu',
-        ]);
+        ], 'Petunjuk ujian berhasil dimuat');
     }
 
     // GET /api/siswa/ujian/{id}/play
     public function ujianPlay(Request $request, $id)
     {
         $quiz = Quiz::with(['mataPelajaran', 'soal'])->find($id);
+        if (!$quiz) {
+            $quiz = Quiz::whereNull('id_sub_bab')->with(['mataPelajaran', 'soal'])->first();
+        }
+
         if (!$quiz) {
             return $this->error('Ujian tidak ditemukan di database', 404);
         }
@@ -852,7 +925,7 @@ class SiswaApiController extends ApiController
 
         $durasiMenit = $quiz->durasi_menit ?? 60;
         return $this->success([
-            'id_quiz' => (int) $id,
+            'id_quiz' => (int) $quiz->id_quiz,
             'judul_quiz' => $quiz->judul_quiz,
             'durasi_menit' => $durasiMenit,
             'durasi_detik' => $durasiMenit * 60,
@@ -861,7 +934,7 @@ class SiswaApiController extends ApiController
             'total_soal' => count($soals),
             'default_index' => 0,
             'soal' => $soals,
-        ]);
+        ], 'Soal ujian berhasil dimuat');
     }
 
     // POST /api/siswa/ujian/{id}/submit
@@ -869,11 +942,15 @@ class SiswaApiController extends ApiController
     {
         $quiz = Quiz::with('soal')->find($id);
         if (!$quiz) {
+            $quiz = Quiz::whereNull('id_sub_bab')->with('soal')->first();
+        }
+
+        if (!$quiz) {
             return $this->error('Ujian tidak ditemukan di database', 404);
         }
 
-        $jawaban = $request->input('jawaban', []); // map: {"id_soal": "B"}
-        $idSiswa = $request->input('id_siswa', 1);
+        $jawaban = $request->input('jawaban', []);
+        $idSiswa = $this->resolveSiswaId($request) ?? 1;
 
         $totalSoal = $quiz->soal->count();
         $benar = 0;
@@ -891,10 +968,9 @@ class SiswaApiController extends ApiController
         $nilai = $totalSoal > 0 ? round(($benar / $totalSoal) * 100) : 0;
         $waktuMenit = $request->input('waktu_menit', 10);
 
-        // Simpan / update hasil ujian
         HasilKuisSiswa::updateOrCreate(
             [
-                'id_quiz' => (int) $id,
+                'id_quiz' => (int) $quiz->id_quiz,
                 'id_siswa' => $idSiswa,
             ],
             [
@@ -902,48 +978,89 @@ class SiswaApiController extends ApiController
                 'jumlah_salah' => $salah,
                 'nilai_akhir' => $nilai,
                 'waktu_menit' => $waktuMenit,
-                'status_kirim' => 1,
+                'status_kirim' => 0, // Nilai disembunyikan sampai guru menekan "Tampilkan Nilai ke Seluruh Siswa"
                 'catatan_guru' => $nilai >= 75 ? 'Hasil ujian sangat baik, pertahankan!' : 'Perlu belajar lebih giat lagi.',
-                'waktu_kirim' => Carbon::now(),
+                'waktu_kirim' => null,
             ]
         );
 
         return $this->success([
-            'id_quiz' => (int) $id,
-            'nilai_akhir' => $nilai,
-            'jumlah_benar' => $benar,
-            'jumlah_salah' => $salah,
+            'id_quiz' => (int) $quiz->id_quiz,
+            'is_published' => false,
+            'status_publikasi' => 'Menunggu Pengumuman Nilai dari Guru',
+            'pesan_banner' => 'Ujian Berhasil Dikumpulkan!',
+            'sub_pesan' => 'Jawabanmu telah tersimpan dengan aman. Nilai dan rincian benar/salah akan muncul setelah diumumkan oleh guru.',
             'durasi_menit' => $waktuMenit,
-            'is_lulus_kkm' => ($nilai >= 75),
             'target_kkm' => 75,
-        ], 'Ujian berhasil dikumpulkan tepat waktu!');
+        ], 'Ujian berhasil dikumpulkan! Menunggu pengumuman nilai dari guru.');
     }
 
     // GET /api/siswa/ujian/{id}/result
     public function ujianResult(Request $request, $id)
     {
         $quiz = Quiz::with(['guru', 'mataPelajaran'])->find($id);
-        $siswaId = $request->query('id_siswa', 1);
+        if (!$quiz) {
+            $quiz = Quiz::whereNull('id_sub_bab')->with(['guru', 'mataPelajaran'])->first();
+        }
+
+        $siswaId = $this->resolveSiswaId($request) ?? 1;
         $siswa = Siswa::find($siswaId);
 
-        $hasil = HasilKuisSiswa::where('id_quiz', $id)
-            ->where('id_siswa', $siswaId)
-            ->latest('id_hasil')
-            ->first();
+        $hasil = null;
+        if ($quiz) {
+            $hasil = HasilKuisSiswa::where('id_quiz', $quiz->id_quiz)
+                ->where('id_siswa', $siswaId)
+                ->latest('id_hasil')
+                ->first();
+        }
+
+        if (!$hasil) {
+            $hasil = HasilKuisSiswa::where('id_siswa', $siswaId)->latest('id_hasil')->first();
+        }
 
         if (!$hasil) {
             return $this->error('Hasil ujian belum ditemukan untuk siswa ini', 404);
         }
 
-        $nilai = (int) $hasil->nilai_akhir;
-        $benar = $hasil->jumlah_benar;
-        $salah = $hasil->jumlah_salah;
+        $isPublished = (bool) ($hasil->status_kirim ?? false);
         $waktu = $hasil->waktu_menit ?? 10;
 
+        // Jika nilai belum dikirim / dirilis oleh guru ke seluruh siswa
+        if (!$isPublished) {
+            return $this->success([
+                'id_quiz' => (int) ($quiz?->id_quiz ?? $hasil->id_quiz),
+                'nama_siswa' => $siswa?->nm_siswa ?? 'Siswa',
+                'is_published' => false,
+                'status_publikasi' => 'Menunggu Pengumuman Nilai dari Guru',
+                'pesan_banner' => 'Ujian Selesai Dikumpulkan!',
+                'sub_pesan' => 'Jawabanmu telah tersimpan rapi di sistem. Nilai dan rincian benar/salah akan muncul secara otomatis segera setelah guru mengumumkan nilai ke seluruh siswa.',
+                'durasi_menit' => $waktu,
+                'nilai_akhir' => null,
+                'jumlah_benar' => null,
+                'jumlah_salah' => null,
+                'is_lulus_kkm' => null,
+                'label_kkm' => 'Menunggu Pengumuman',
+                'status_teks' => 'Menunggu Nilai dari Guru',
+                'mapel' => [
+                    'nama' => $quiz?->judul_quiz ?? 'Ujian Online',
+                    'guru' => $quiz?->guru?->nama_guru ?? 'Guru Pengampu',
+                    'catatan_guru' => 'Nilai ujian sedang dalam proses verifikasi oleh bapak/ibu guru pengampu.',
+                ],
+            ], 'Ujian telah dikumpulkan, nilai menunggu pengumuman dari guru');
+        }
+
+        // Jika guru sudah merilis / mengirimkan nilai ke seluruh siswa
+        $nilai = (int) $hasil->nilai_akhir;
+        $benar = (int) $hasil->jumlah_benar;
+        $salah = (int) $hasil->jumlah_salah;
+
         return $this->success([
-            'id_quiz' => (int) $id,
-            'nama_siswa' => $siswa?->nama_siswa ?? 'Siswa',
-            'pesan_banner' => 'Ujian telah selesai dikumpulkan!',
+            'id_quiz' => (int) ($quiz?->id_quiz ?? $hasil->id_quiz),
+            'nama_siswa' => $siswa?->nm_siswa ?? 'Siswa',
+            'is_published' => true,
+            'status_publikasi' => 'Nilai Resmi Diumumkan',
+            'pesan_banner' => 'Nilai Ujian Telah Diumumkan!',
+            'sub_pesan' => 'Berikut adalah hasil skor resmi dari bapak/ibu guru pengampu.',
             'target_kkm' => 75,
             'is_lulus_kkm' => ($nilai >= 75),
             'label_kkm' => ($nilai >= 75) ? 'LULUS KKM (Target: 75)' : 'BELUM LULUS (Target: 75)',
@@ -957,6 +1074,75 @@ class SiswaApiController extends ApiController
                 'guru' => $quiz?->guru?->nama_guru ?? 'Guru Pengampu',
                 'catatan_guru' => $hasil->catatan_guru ?? 'Tetap semangat dalam belajar!',
             ],
-        ]);
+        ], 'Hasil ujian berhasil dimuat');
+    }
+
+    /**
+     * Hitung progress kuis siswa per mata pelajaran berdasarkan bab yang terbuka (unlocked).
+     * Aturan:
+     * - Jika ada 1 bab terbuka & siswa sudah menyelesaikan 1 kuis di bab tersebut => 1/1 = 100% (1.0)
+     * - Jika ada 2 bab terbuka & siswa baru menyelesaikan kuis di bab 1 => 1/2 = 50% (0.5)
+     */
+    private function calculateMapelProgress(int $idMapel, int $idSiswa): array
+    {
+        // 1. Ambil seluruh bab yang terbuka (unlocked) pada mapel ini
+        $unlockedBabs = Bab::where('id_mapel', $idMapel)
+            ->where('is_locked', false)
+            ->get();
+
+        $totalUnlocked = $unlockedBabs->count();
+        if ($totalUnlocked === 0) {
+            return [
+                'progress' => 0.0,
+                'persen' => 0,
+                'bab_selesai' => 0,
+                'bab_unlocked' => 0,
+                'progress_text' => '0/0 Bab (0%)',
+            ];
+        }
+
+        $completedBabCount = 0;
+        foreach ($unlockedBabs as $bab) {
+            $subBabIds = $bab->subBab()->pluck('id_sub_bab');
+            if ($subBabIds->isEmpty()) {
+                continue;
+            }
+
+            // Quiz bisa terhubung langsung ke sub-bab atau melalui materi kuis
+            $materiIds = Materi::whereIn('id_sub_bab', $subBabIds)->pluck('id_materi');
+            $quizIdsFromSubBab = Quiz::whereIn('id_sub_bab', $subBabIds)->pluck('id_quiz');
+            $quizIdsFromMateriField = Quiz::whereIn('id_materi', $materiIds)->pluck('id_quiz');
+            $quizIdsFromMateri = Materi::whereIn('id_sub_bab', $subBabIds)
+                ->whereNotNull('id_quiz')
+                ->pluck('id_quiz');
+
+            $allQuizIds = $quizIdsFromSubBab
+                ->merge($quizIdsFromMateriField)
+                ->merge($quizIdsFromMateri)
+                ->unique()
+                ->filter()
+                ->values();
+
+            if ($allQuizIds->isNotEmpty()) {
+                $hasCompleted = HasilKuisSiswa::whereIn('id_quiz', $allQuizIds)
+                    ->where('id_siswa', $idSiswa)
+                    ->exists();
+
+                if ($hasCompleted) {
+                    $completedBabCount++;
+                }
+            }
+        }
+
+        $progressRatio = min(1.0, max(0.0, round($completedBabCount / $totalUnlocked, 2)));
+        $persen = (int) round($progressRatio * 100);
+
+        return [
+            'progress' => $progressRatio,
+            'persen' => $persen,
+            'bab_selesai' => $completedBabCount,
+            'bab_unlocked' => $totalUnlocked,
+            'progress_text' => "{$completedBabCount}/{$totalUnlocked} Bab ({$persen}%)",
+        ];
     }
 }
