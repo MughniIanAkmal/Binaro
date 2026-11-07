@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AdminApiController;
+use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\GuruApiController;
 use App\Http\Controllers\Api\SiswaApiController;
 use Illuminate\Support\Facades\Route;
@@ -10,6 +11,10 @@ use Illuminate\Support\Facades\Route;
 | API Routes
 |--------------------------------------------------------------------------
 */
+
+// Public Authentication Routes
+Route::post('/login', [AuthApiController::class, 'login']);
+Route::post('/logout', [AuthApiController::class, 'logout']);
 
 Route::middleware('auth:sanctum')->group(function () {
     // Siswa API
