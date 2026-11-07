@@ -86,6 +86,22 @@ class AbsensiService
             $barcode = Barcode::with('siswa.kelas')->where('kode_barcode', $m[1])->first();
         }
 
+        // Toleransi deteksi via NISN jika kode tidak cocok dengan kode_barcode
+        if (! $barcode) {
+            $cleanNisn = preg_replace('/[^0-9]/', '', $kode);
+            $siswaMatch = null;
+            if (!empty($cleanNisn)) {
+                $siswaMatch = Siswa::where('nisn', $cleanNisn)->orWhere('nisn', $kode)->first();
+            }
+            if ($siswaMatch) {
+                $barcode = Barcode::firstOrCreate(
+                    ['id_siswa' => $siswaMatch->id_siswa],
+                    ['kode_barcode' => 'BIN-' . $siswaMatch->nisn . '-' . strtoupper(substr(md5((string)$siswaMatch->id_siswa), 0, 6))]
+                );
+                $barcode->load('siswa.kelas');
+            }
+        }
+
         if (! $barcode || ! $barcode->siswa) {
             return [
                 'hasil' => 'tidak_dikenal',

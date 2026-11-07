@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public Authentication & Mobile Routes
 Route::post('/login', [AuthApiController::class, 'login']);
+Route::post('/logout', [AuthApiController::class, 'logout']);
 
 // Mobile Dashboard & Profile (public, but will use token if present)
 Route::get('/siswa/dashboard', [SiswaApiController::class, 'dashboard']);
@@ -36,15 +37,16 @@ Route::get('/siswa/ujian/{id}/play', [SiswaApiController::class, 'ujianPlay']);
 Route::post('/siswa/ujian/{id}/submit', [SiswaApiController::class, 'ujianSubmit']);
 Route::get('/siswa/ujian/{id}/result', [SiswaApiController::class, 'ujianResult']);
 
+// Authenticated Routes (Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthApiController::class, 'logout']);
-
+    // Siswa API (Authenticated)
     Route::prefix('siswa')->group(function () {
         Route::post('/profile', [SiswaApiController::class, 'updateProfile']);
         Route::get('/absensi-hari-ini', [SiswaApiController::class, 'todayAttendance']);
         Route::post('/absensi-scan', [SiswaApiController::class, 'selfScan']);
     });
 
+    // Guru API (Authenticated)
     Route::prefix('guru')->group(function () {
         Route::get('/profile', [GuruApiController::class, 'profile']);
         Route::post('/profile', [GuruApiController::class, 'updateProfile']);
@@ -57,6 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/absen-massal', [GuruApiController::class, 'massAttendance']);
     });
 
+    // Admin API (Authenticated)
     Route::prefix('admin')->group(function () {
         Route::get('/absensi/rekap', [AdminApiController::class, 'rekapAbsensi']);
         Route::get('/qr/regenerate/{siswa_id}', [AdminApiController::class, 'regenerateQr']);
