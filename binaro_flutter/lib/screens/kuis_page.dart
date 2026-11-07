@@ -4,7 +4,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'profile_page.dart';
-import 'page_transitions.dart';
+import '../utils/constants.dart';
+import '../utils/page_transitions.dart';
 
 class KuisPage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -21,10 +22,10 @@ class KuisPage extends StatefulWidget {
 }
 
 class _KuisPageState extends State<KuisPage> {
-  static const String _baseUrl = 'http://192.168.18.9:8000/api';
+  static const String _baseUrl = AppConstants.baseUrl;
 
   bool _isLoading = true;
-  String _quizTitle = 'Kuis Pecahan Sederhana - Bab 3';
+  String _quizTitle = 'Kuis Siswa';
   int _totalSoal = 0;
   int _currentIndex = 0;
   List<Map<String, dynamic>> _soalList = [];

@@ -12,6 +12,15 @@ dependencies:
   http: ^1.2.0
   cupertino_icons: ^1.0.8
   qr_flutter: ^4.1.0
+  url_launcher: ^6.3.3
+  youtube_player_flutter: ^10.0.1
+  webview_flutter_platform_interface: ^2.15.1
+  webview_flutter_android: 4.12.1
+  syncfusion_flutter_pdfviewer: ^35.1.43
+
+dependency_overrides:
+  url_launcher_android: 6.3.28
+  webview_flutter_android: 4.10.13
 
 dev_dependencies:
   flutter_test:

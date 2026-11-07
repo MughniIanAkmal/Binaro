@@ -4,7 +4,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'hasil_ujian_page.dart';
-import 'page_transitions.dart';
+import '../utils/constants.dart';
+import '../utils/page_transitions.dart';
 import 'profile_page.dart';
 
 class PengerjaanUjianPage extends StatefulWidget {
@@ -22,7 +23,7 @@ class PengerjaanUjianPage extends StatefulWidget {
 }
 
 class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
-  static const String _baseUrl = 'http://192.168.18.9:8000/api';
+  static const String _baseUrl = AppConstants.baseUrl;
 
   bool _isLoading = true;
   String _examTitle = 'Ujian Online';
@@ -36,9 +37,9 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
   // Set nomor soal yang ditandai ragu-ragu
   final Set<int> _raguRaguSet = {};
 
-  // Countdown timer: 48:14 (2894 detik) sesuai screenshot
+  // Countdown timer (detik)
   Timer? _timer;
-  int _remainingSeconds = 2894;
+  int _remainingSeconds = 3600;
   bool _isSubmitting = false;
 
   @override
@@ -81,7 +82,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
     try {
       final response = await http
           .get(Uri.parse('$_baseUrl/siswa/ujian/${widget.quizId}/play'))
-          .timeout(const Duration(seconds: 8));
+          .timeout(AppConstants.timeoutDuration);
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);

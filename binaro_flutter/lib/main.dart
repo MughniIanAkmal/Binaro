@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
-import 'login_page.dart';
-import 'page_transitions.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
+import 'screens/login_page.dart';
+import 'utils/constants.dart';
+import 'utils/page_transitions.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Inisialisasi platform WebView untuk Android
+  try {
+    AndroidWebViewPlatform.registerWith();
+  } catch (_) {
+    try {
+      WebViewPlatform.instance ??= AndroidWebViewPlatform();
+    } catch (_) {}
+  }
+
   runApp(const BinaroApp());
 }
 
@@ -12,11 +26,11 @@ class BinaroApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Binaro - SDN Kalitapen 1',
+      title: '${AppConstants.appName} - ${AppConstants.appSubtitle}',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         fontFamily: 'Roboto',
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF1D5A86)),
+        colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
         useMaterial3: true,
         pageTransitionsTheme: const PageTransitionsTheme(
           builders: {
@@ -30,4 +44,3 @@ class BinaroApp extends StatelessWidget {
     );
   }
 }
-
