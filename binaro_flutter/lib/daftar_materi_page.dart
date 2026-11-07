@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'detail_materi_page.dart';
+import 'kuis_page.dart';
 import 'page_transitions.dart';
 import 'profile_page.dart';
 
@@ -406,19 +407,32 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
             height: 44,
             child: ElevatedButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  SmoothPageRoute(
-                    page: DetailMateriPage(
-                      materi: materi,
-                      subBab: widget.subBab,
-                      bab: widget.bab,
-                      mapel: widget.mapel,
-                      user: widget.user,
+                final String tipe = (materi['tipe_materi'] ?? '').toString().toLowerCase();
+                final bool isKuis = tipe == 'kuis' || (materi['badge'] ?? '').toString().contains('3');
+
+                if (isKuis) {
+                  Navigator.push(
+                    context,
+                    SmoothPageRoute(
+                      page: KuisPage(user: widget.user, quizId: 11),
+                      type: TransitionType.sharedAxis,
                     ),
-                    type: TransitionType.sharedAxis,
-                  ),
-                );
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    SmoothPageRoute(
+                      page: DetailMateriPage(
+                        materi: materi,
+                        subBab: widget.subBab,
+                        bab: widget.bab,
+                        mapel: widget.mapel,
+                        user: widget.user,
+                      ),
+                      type: TransitionType.sharedAxis,
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: isOrange ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86),
