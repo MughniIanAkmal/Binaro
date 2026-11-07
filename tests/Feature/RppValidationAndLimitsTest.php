@@ -108,18 +108,27 @@ class RppValidationAndLimitsTest extends TestCase
         $resValid->assertSessionHas('success');
     }
 
-    public function test_alokasi_waktu_limit_4_chars()
+    public function test_alokasi_waktu_limit_15_chars()
     {
-        // 1. Melebihi 4 karakter (misal: "2 JP (90m)") -> ditolak
+        // 1. Melebihi 15 karakter (misal: "500 Menit Pertemuan") -> ditolak
         $resLong = $this->withSession($this->session)->post(route('guru.rpp.store'), [
             'id_mapel' => $this->mapel->id_mapel,
             'judul_rpp' => 'Judul Sah Alokasi Waktu',
-            'alokasi_waktu' => '2 JP (70m)',
+            'alokasi_waktu' => '500 Menit Pertemuan',
             'action' => 'draft',
         ]);
         $resLong->assertSessionHasErrors(['alokasi_waktu']);
 
-        // 2. 4 karakter atau kurang (misal: "2 JP", "4 JP") -> diterima
+        // 2. Tepat 15 karakter (misal: "2 JP (70 menit)") -> diterima
+        $resBoundary = $this->withSession($this->session)->post(route('guru.rpp.store'), [
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_rpp' => 'Judul Sah Alokasi Waktu 1',
+            'alokasi_waktu' => '2 JP (70 menit)',
+            'action' => 'draft',
+        ]);
+        $resBoundary->assertSessionHas('success');
+
+        // 3. Singkat (misal: "2 JP", "4 JP") -> diterima
         $resValid = $this->withSession($this->session)->post(route('guru.rpp.store'), [
             'id_mapel' => $this->mapel->id_mapel,
             'judul_rpp' => 'Judul Sah Alokasi Waktu 2',
@@ -127,6 +136,46 @@ class RppValidationAndLimitsTest extends TestCase
             'action' => 'draft',
         ]);
         $resValid->assertSessionHas('success');
+    }
+
+    public function test_auto_jp_from_target_jadwal_and_duration_limits()
+    {
+        // 1. JP dihitung otomatis dari rentang jadwal (90 menit = 2 JP)
+        $resAuto = $this->withSession($this->session)->post(route('guru.rpp.store'), [
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_rpp' => 'Judul Sah Auto JP',
+            'target_jadwal' => 'Senin 07.00 - 08.30 WIB',
+            'action' => 'draft',
+        ]);
+        $resAuto->assertSessionHas('success');
+        $this->assertSame('2 JP', Rpp::where('judul_rpp', 'Judul Sah Auto JP')->value('alokasi_waktu'));
+
+        // 2. Jam pelajaran terbalik -> ditolak
+        $resReversed = $this->withSession($this->session)->post(route('guru.rpp.store'), [
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_rpp' => 'Judul Sah Auto JP Terbalik',
+            'target_jadwal' => 'Senin 09.30 - 08.00 WIB',
+            'action' => 'draft',
+        ]);
+        $resReversed->assertSessionHasErrors(['target_jadwal']);
+
+        // 3. Durasi kurang dari 1 JP (45 menit) -> ditolak
+        $resShort = $this->withSession($this->session)->post(route('guru.rpp.store'), [
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_rpp' => 'Judul Sah Auto JP Singkat',
+            'target_jadwal' => 'Senin 07.00 - 07.20 WIB',
+            'action' => 'draft',
+        ]);
+        $resShort->assertSessionHasErrors(['target_jadwal']);
+
+        // 4. Durasi lebih dari 5 JP (225 menit) -> ditolak
+        $resLong = $this->withSession($this->session)->post(route('guru.rpp.store'), [
+            'id_mapel' => $this->mapel->id_mapel,
+            'judul_rpp' => 'Judul Sah Auto JP Panjang',
+            'target_jadwal' => 'Senin 07.00 - 13.00 WIB',
+            'action' => 'draft',
+        ]);
+        $resLong->assertSessionHasErrors(['target_jadwal']);
     }
 
     public function test_target_jadwal_ruang_deskripsi_limits()
@@ -201,11 +250,11 @@ class RppValidationAndLimitsTest extends TestCase
         ]);
         $resSymbol->assertSessionHasErrors(['judul_rpp']);
 
-        // Update dengan alokasi waktu > 4 karakter
+        // Update dengan alokasi waktu > 15 karakter
         $resWaktu = $this->withSession($this->session)->put(route('guru.rpp.update', $rpp->id_rpp), [
             'id_mapel' => $this->mapel->id_mapel,
             'judul_rpp' => 'Judul Update Sah',
-            'alokasi_waktu' => '500 Menit',
+            'alokasi_waktu' => '500 Menit Pertemuan',
             'action' => 'draft',
         ]);
         $resWaktu->assertSessionHasErrors(['alokasi_waktu']);

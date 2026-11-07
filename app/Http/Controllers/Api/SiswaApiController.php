@@ -16,26 +16,9 @@ class SiswaApiController extends ApiController
     // GET /api/siswa/profile
     public function profile(Request $request)
     {
-        $siswaId = $request->query('id');
-
-        if ($siswaId) {
-            $siswa = Siswa::with(['barcode', 'kelas', 'absens' => function ($query) {
-                $query->orderByDesc('tanggal')->orderByDesc('waktu_absen');
-            }])->find($siswaId);
-        } else {
-            $userId = Session::get('user_id');
-            if (! $userId) {
-                return $this->error('User tidak terautentikasi', 401);
-            }
-
-            $siswa = Siswa::with(['barcode', 'kelas', 'absens' => function ($query) {
-                $query->orderByDesc('tanggal')->orderByDesc('waktu_absen');
-            }])->find($userId);
-        }
-
-        if (! $siswa) {
-            return $this->error('Siswa tidak ditemukan', 404);
-        }
+        $siswa = $request->user()->load(['barcode', 'kelas', 'absens' => function ($query) {
+            $query->orderByDesc('tanggal')->orderByDesc('waktu_absen');
+        }]);
 
         return $this->success($siswa);
     }
@@ -43,10 +26,7 @@ class SiswaApiController extends ApiController
     // POST /api/siswa/profile
     public function updateProfile(Request $request)
     {
-        $userId = Session::get('user_id');
-        if (! $userId) {
-            return $this->error('User tidak terautentikasi', 401);
-        }
+        $userId = $request->user()->id_siswa;
 
         $siswa = Siswa::find($userId);
         if (! $siswa) {
@@ -67,14 +47,10 @@ class SiswaApiController extends ApiController
     // GET /api/siswa/absensi-hari-ini
     public function todayAttendance(Request $request)
     {
-        $userId = Session::get('user_id');
-        if (! $userId) {
-            return $this->error('User tidak terautentikasi', 401);
-        }
+        $userId = $request->user()->id_siswa;
 
-        $today = now()->toDateString();
         $absen = Absen::where('id_siswa', $userId)
-            ->where('tanggal', $today)
+            ->whereDate('tanggal', now()->toDateString())
             ->first();
 
         return $this->success($absen);
@@ -87,10 +63,8 @@ class SiswaApiController extends ApiController
             'id_barcode' => 'required|exists:barcode,id_barcode',
         ]);
 
-        $userId = Session::get('user_id');
-        if (! $userId) {
-            return $this->error('User tidak terautentikasi', 401);
-        }
+        $userId = $request->user()->id_siswa;
+
 
         $barcode = DB::table('barcode')
             ->where('id_barcode', $data['id_barcode'])

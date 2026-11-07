@@ -13,6 +13,17 @@ use Illuminate\Support\Str;
 class AuthApiController extends ApiController
 {
     /**
+     * Upgrade legacy password (plain or MD5) to bcrypt after successful login.
+     */
+    private function upgradeLegacyPassword($user, string $plainPassword): void
+    {
+        $stored = (string) ($user->password ?? '');
+        if (! str_starts_with($stored, '$2y$') && ! str_starts_with($stored, '$2a$') && ! str_starts_with($stored, '$argon2')) {
+            $user->update(['password' => Hash::make($plainPassword)]);
+        }
+    }
+
+    /**
      * Memverifikasi kecocokan password (mendukung Bcrypt, MD5, dan plain text)
      */
     private function verifyPassword(string $inputPassword, ?string $storedPassword): bool
@@ -20,31 +31,26 @@ class AuthApiController extends ApiController
         if ($storedPassword === null || $storedPassword === '') {
             return false;
         }
-
         $trimmedInput = trim($inputPassword);
         $trimmedStored = trim($storedPassword);
-
-        // 1. Plain text match
+        // plain text
         if ($trimmedInput === $trimmedStored) {
             return true;
         }
-
-        // 2. MD5 match
+        // md5
         if (md5($trimmedInput) === $trimmedStored) {
             return true;
         }
-
-        // 3. Hash check (Bcrypt / Argon)
+        // bcrypt/argon
         if (str_starts_with($trimmedStored, '$2y$') || str_starts_with($trimmedStored, '$2a$') || str_starts_with($trimmedStored, '$argon2')) {
             try {
                 if (Hash::check($trimmedInput, $trimmedStored)) {
                     return true;
                 }
             } catch (\Throwable $e) {
-                // Abaikan error format hash
+                // ignore
             }
         }
-
         return false;
     }
 
@@ -59,40 +65,31 @@ class AuthApiController extends ApiController
             'password' => 'required|string',
             'nama_lengkap' => 'nullable|string',
         ]);
-
         $nisn = trim($validated['nisn']);
         $password = trim($validated['password']);
-        $namaLengkap = isset($validated['nama_lengkap']) ? trim($validated['nama_lengkap']) : null;
+        $namaLengkap = $validated['nama_lengkap'] ?? null;
 
-        // Rate limiting untuk keamanan brute force
         $throttleKey = Str::transliterate($nisn . '|' . $request->ip());
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
             return $this->error("Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.", 429);
         }
 
-        // 1. Cari data Siswa berdasarkan NISN / Username
         $siswa = Siswa::with('kelas')
             ->where('nisn', $nisn)
             ->orWhere('username', $nisn)
             ->first();
-
         if ($siswa && $this->verifyPassword($password, $siswa->password)) {
-            // Jika user mengisi nama lengkap, pastikan cocok atau mirip (opsional, toleran)
             if (!empty($namaLengkap)) {
                 $dbName = strtolower(trim($siswa->nm_siswa));
                 $inputName = strtolower($namaLengkap);
-                // Cek kesamaan jika nama diisi
                 if (!str_contains($dbName, $inputName) && !str_contains($inputName, $dbName)) {
                     return $this->error('Nama lengkap tidak sesuai dengan data NISN terdaftar.', 401);
                 }
             }
-
             RateLimiter::clear($throttleKey);
-
-            // Buat token sederhana / Sanctum jika tersedia
-            $token = bin2hex(random_bytes(32));
-
+            $this->upgradeLegacyPassword($siswa, $password);
+            $token = $siswa->createToken('binaro-app')->plainTextToken;
             return $this->success([
                 'token' => $token,
                 'role' => 'siswa',
@@ -104,16 +101,15 @@ class AuthApiController extends ApiController
                     'no_hp' => $siswa->no_hp,
                     'kelas' => $siswa->nama_kelas,
                     'foto_profil' => $siswa->foto_profil,
-                ]
-            ], 'Login berhasil! Selamat datang, ' . $siswa->nm_siswa);
+                ],
+            ], "Login berhasil! Selamat datang, {$siswa->nm_siswa}");
         }
 
-        // 2. Fallback cek Guru (jika NIP dimasukkan di kolom NISN)
         $guru = Guru::where('nip', $nisn)->orWhere('username', $nisn)->first();
         if ($guru && $this->verifyPassword($password, $guru->password)) {
             RateLimiter::clear($throttleKey);
-            $token = bin2hex(random_bytes(32));
-
+            $this->upgradeLegacyPassword($guru, $password);
+            $token = $guru->createToken('binaro-app')->plainTextToken;
             return $this->success([
                 'token' => $token,
                 'role' => 'guru',
@@ -122,12 +118,10 @@ class AuthApiController extends ApiController
                     'nip' => $guru->nip,
                     'nama_guru' => $guru->nama_guru,
                     'email' => $guru->email,
-                ]
-            ], 'Login guru berhasil! Selamat datang, ' . $guru->nama_guru);
+                ],
+            ], "Login guru berhasil! Selamat datang, {$guru->nama_guru}");
         }
-
         RateLimiter::hit($throttleKey, 60);
-
         return $this->error('NISN atau Password salah.', 401);
     }
 
@@ -136,7 +130,14 @@ class AuthApiController extends ApiController
      */
     public function logout(Request $request)
     {
+        // Logout: hapus token aktif saja
+        $user = $request->user();
+        if ($user && method_exists($user, 'currentAccessToken')) {
+            $token = $user->currentAccessToken();
+            if ($token) {
+                $token->delete();
+            }
+        }
         return $this->success(null, 'Berhasil logout');
     }
 }
-

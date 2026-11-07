@@ -12,12 +12,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-// Public Authentication Routes
 Route::post('/login', [AuthApiController::class, 'login']);
-Route::post('/logout', [AuthApiController::class, 'logout']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Siswa API
+    Route::post('/logout', [AuthApiController::class, 'logout']);
+
     Route::prefix('siswa')->group(function () {
         Route::get('/profile', [SiswaApiController::class, 'profile']);
         Route::post('/profile', [SiswaApiController::class, 'updateProfile']);
@@ -25,7 +24,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/absensi-scan', [SiswaApiController::class, 'selfScan']);
     });
 
-    // Guru API
     Route::prefix('guru')->group(function () {
         Route::get('/profile', [GuruApiController::class, 'profile']);
         Route::post('/profile', [GuruApiController::class, 'updateProfile']);
@@ -38,7 +36,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/absen-massal', [GuruApiController::class, 'massAttendance']);
     });
 
-    // Admin API
     Route::prefix('admin')->group(function () {
         Route::get('/absensi/rekap', [AdminApiController::class, 'rekapAbsensi']);
         Route::get('/qr/regenerate/{siswa_id}', [AdminApiController::class, 'regenerateQr']);
