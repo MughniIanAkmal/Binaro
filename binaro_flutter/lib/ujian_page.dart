@@ -31,8 +31,8 @@ class _UjianPageState extends State<UjianPage> {
     'judul': 'Penilaian Semester Siswa',
     'subjudul': 'Baca soal dengan teliti dan jangan lupa berdoa ya!',
   };
-  int _tersediaCount = 2;
-  int _selesaiCount = 3;
+  int _tersediaCount = 0;
+  int _selesaiCount = 0;
   List<Map<String, dynamic>> _ujianTersedia = [];
   List<Map<String, dynamic>> _ujianSelesai = [];
   Map<String, dynamic>? _nilaiTerakhir;
@@ -60,8 +60,8 @@ class _UjianPageState extends State<UjianPage> {
           if (mounted) {
             setState(() {
               _banner = Map<String, dynamic>.from(data['banner'] ?? _banner);
-              _tersediaCount = data['tersedia_count'] ?? 2;
-              _selesaiCount = data['selesai_count'] ?? 3;
+              _tersediaCount = data['tersedia_count'] ?? 0;
+              _selesaiCount = data['selesai_count'] ?? 0;
               _ujianTersedia = (data['ujian_tersedia'] as List? ?? [])
                   .map((e) => Map<String, dynamic>.from(e as Map))
                   .toList();
@@ -70,6 +70,8 @@ class _UjianPageState extends State<UjianPage> {
                   .toList();
               if (data['nilai_terakhir'] != null) {
                 _nilaiTerakhir = Map<String, dynamic>.from(data['nilai_terakhir'] as Map);
+              } else {
+                _nilaiTerakhir = null;
               }
               _tips = data['tips'] ?? _tips;
               _isLoading = false;
@@ -80,91 +82,11 @@ class _UjianPageState extends State<UjianPage> {
       }
     } catch (_) {}
 
-    // Fallback data
     if (mounted) {
       setState(() {
-        _ujianTersedia = _getFallbackTersedia();
-        _ujianSelesai = _getFallbackSelesai();
-        _nilaiTerakhir = {
-          'id_quiz': 14,
-          'mapel': 'Bahasa Indonesia',
-          'judul': 'Ulangan Harian Puisi A',
-          'tanggal': '12 Mei • Sangat Memuaskan!',
-          'nilai': 95,
-          'badge': '95 – Hebat!',
-        };
         _isLoading = false;
       });
     }
-  }
-
-  List<Map<String, dynamic>> _getFallbackTersedia() {
-    return [
-      {
-        'id_quiz': 12,
-        'judul_quiz': 'Penilaian Tengah Semester: Matematika Kelas 4B',
-        'mapel': 'Matematika',
-        'guru': 'Ibu Sarah Wijaya, S.Pd.',
-        'durasi_menit': 60,
-        'total_soal': 20,
-        'tipe_soal': 'Pilihan Ganda',
-        'badge_mapel': 'Matematika',
-        'badge_status': 'Bisa Dikerjakan',
-        'badge_jadwal': 'Hari Ini',
-        'is_bisa_dikerjakan': true,
-        'keterangan_tombol': 'Mulai Ujian',
-      },
-      {
-        'id_quiz': 13,
-        'judul_quiz': 'Kuis Harian: IPAS – Daur Hidup Hewan',
-        'sub_judul': 'Materi Metamorfosis Sempurna & Tidak Sempurna',
-        'mapel': 'IPAS',
-        'guru': 'Bapak Rahmat Hidayat, M.Pd.',
-        'durasi_menit': 45,
-        'total_soal': 15,
-        'tipe_soal': 'Kuis',
-        'badge_mapel': 'IPAS',
-        'badge_status': 'Belum Dimulai',
-        'badge_jadwal': 'Besok, 09.00 WIB',
-        'is_bisa_dikerjakan': false,
-        'keterangan_tombol': 'Dibuka Besok Jam 09.00',
-      },
-    ];
-  }
-
-  List<Map<String, dynamic>> _getFallbackSelesai() {
-    return [
-      {
-        'id_quiz': 14,
-        'id_hasil': 8,
-        'judul_quiz': 'Ulangan Harian Puisi A',
-        'mapel': 'Bahasa Indonesia',
-        'tanggal': '12 Mei',
-        'keterangan': 'Sangat Memuaskan!',
-        'nilai': 95,
-        'badge_nilai': '95 – Hebat!',
-      },
-      {
-        'id_quiz': 15,
-        'id_hasil': 9,
-        'judul_quiz': 'Penilaian Harian: Tata Surya',
-        'mapel': 'IPAS',
-        'tanggal': '5 Mei',
-        'keterangan': 'Lulus KKM',
-        'nilai': 88,
-        'badge_nilai': '88 – Bagus!',
-      },
-      {
-        'id_quiz': 16,
-        'id_hasil': 10,
-        'judul_quiz': 'Kuis Pancasila & Norma',
-        'mapel': 'PPKn',
-        'tanggal': '28 April',
-        'keterangan': 'Lulus KKM',
-        'nilai': 85,
-        'badge_nilai': '85 – Bagus!',
-      },
-    ];
   }
 
   @override
@@ -282,15 +204,31 @@ class _UjianPageState extends State<UjianPage> {
 
                   // 3. DAFTAR KARTU UJIAN
                   if (_activeTab == 0) ...[
-                    ..._ujianTersedia.map((exam) => _buildTersediaCard(exam)),
+                    if (_ujianTersedia.isEmpty)
+                      _buildEmptyState(
+                        icon: Icons.assignment_outlined,
+                        title: 'Belum Ada Ujian Tersedia',
+                        subtitle: 'Guru belum mengunggah jadwal ujian online untuk kelasmu saat ini.',
+                      )
+                    else
+                      ..._ujianTersedia.map((exam) => _buildTersediaCard(exam)),
                   ] else ...[
-                    ..._ujianSelesai.map((exam) => _buildSelesaiCard(exam)),
+                    if (_ujianSelesai.isEmpty)
+                      _buildEmptyState(
+                        icon: Icons.history_toggle_off_rounded,
+                        title: 'Belum Ada Ujian Selesai',
+                        subtitle: 'Kamu belum memiliki riwayat ujian online yang telah selesai dikerjakan.',
+                      )
+                    else
+                      ..._ujianSelesai.map((exam) => _buildSelesaiCard(exam)),
                   ],
                   const SizedBox(height: 20),
 
                   // 4. SECTION NILAI UJIAN TERAKHIR
-                  _buildNilaiTerakhirSection(),
-                  const SizedBox(height: 16),
+                  if (_nilaiTerakhir != null) ...[
+                    _buildNilaiTerakhirSection(),
+                    const SizedBox(height: 16),
+                  ],
 
                   // 5. KARTU TIPS MENGERJAKAN UJIAN
                   _buildTipsCard(),
@@ -831,19 +769,75 @@ class _UjianPageState extends State<UjianPage> {
   }
 
   // ---------------------------------------------------------------------------
+  // 3C. EMPTY STATE WIDGET
+  // ---------------------------------------------------------------------------
+  Widget _buildEmptyState({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: const BoxDecoration(
+              color: Color(0xFFEFF6FF),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 32, color: const Color(0xFF1D5A86)),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF1E293B),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 6),
+          Text(
+            subtitle,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 12.5,
+              color: Color(0xFF64748B),
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // 4. SECTION NILAI UJIAN TERAKHIR
   // ---------------------------------------------------------------------------
   Widget _buildNilaiTerakhirSection() {
-    final Map<String, dynamic> item = _nilaiTerakhir ?? {
-      'id_quiz': 14,
-      'mapel': 'Bahasa Indonesia',
-      'judul': 'Ulangan Harian Puisi A',
-      'tanggal': '12 Mei • Sangat Memuaskan!',
-      'nilai': 95,
-      'badge': '95 – Hebat!',
-    };
+    if (_nilaiTerakhir == null) {
+      return const SizedBox.shrink();
+    }
 
-    final int idQuiz = item['id_quiz'] ?? 14;
+    final Map<String, dynamic> item = _nilaiTerakhir!;
+    final int idQuiz = item['id_quiz'] ?? 0;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

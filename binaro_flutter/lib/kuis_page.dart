@@ -25,20 +25,16 @@ class _KuisPageState extends State<KuisPage> {
 
   bool _isLoading = true;
   String _quizTitle = 'Kuis Pecahan Sederhana - Bab 3';
-  int _totalSoal = 5;
-  int _currentIndex = 2; // Default ke soal 3 seperti di screenshot
+  int _totalSoal = 0;
+  int _currentIndex = 0;
   List<Map<String, dynamic>> _soalList = [];
 
   // Pilihan jawaban siswa: map dari index soal -> opsi yang dipilih ('A', 'B', 'C', 'D')
-  final Map<int, String> _selectedAnswers = {
-    0: 'C', // Soal 1 sudah dijawab
-    1: 'A', // Soal 2 sudah dijawab
-    2: 'B', // Soal 3 dipilih B (1/4 bagian) seperti di screenshot
-  };
+  final Map<int, String> _selectedAnswers = {};
 
   // Timer countdown
   Timer? _countdownTimer;
-  int _remainingSeconds = 764; // 12 menit 44 detik (12:44) seperti di screenshot
+  int _remainingSeconds = 900;
   bool _isSubmitting = false;
 
   @override
@@ -77,11 +73,13 @@ class _KuisPageState extends State<KuisPage> {
 
   Future<void> _fetchQuizData() async {
     setState(() => _isLoading = true);
-    final quizId = widget.quizId ?? 11;
+    final String url = widget.quizId != null
+        ? '$_baseUrl/siswa/quiz/${widget.quizId}'
+        : '$_baseUrl/siswa/quiz';
 
     try {
       final response = await http
-          .get(Uri.parse('$_baseUrl/siswa/quiz/$quizId'))
+          .get(Uri.parse(url))
           .timeout(const Duration(seconds: 8));
 
       if (response.statusCode == 200) {
@@ -97,6 +95,8 @@ class _KuisPageState extends State<KuisPage> {
               _soalList = soals
                   .map((e) => Map<String, dynamic>.from(e as Map))
                   .toList();
+              _currentIndex = 0;
+              _remainingSeconds = data['durasi_detik'] ?? 900;
               _isLoading = false;
             });
             return;
@@ -105,89 +105,13 @@ class _KuisPageState extends State<KuisPage> {
       }
     } catch (_) {}
 
-    // Fallback data jika server offline
     if (mounted) {
       setState(() {
-        _soalList = _getFallbackQuestions();
-        _totalSoal = _soalList.length;
+        _soalList = [];
+        _totalSoal = 0;
         _isLoading = false;
       });
     }
-  }
-
-  List<Map<String, dynamic>> _getFallbackQuestions() {
-    return [
-      {
-        'id_soal': 1,
-        'nomor': 1,
-        'pertanyaan':
-            'Siti memiliki 1 buah kue tart. Ia membaginya menjadi 2 bagian yang sama besar untuk dirinya dan adiknya. Berapa bagian yang didapat Siti?',
-        'ilustrasi': null,
-        'opsi_a': '1/4 bagian',
-        'opsi_b': '1/3 bagian',
-        'opsi_c': '1/2 bagian',
-        'opsi_d': '2/3 bagian',
-        'kunci_jawaban': 'C',
-        'tips': 'Karena kue dibagi 2 sama rata, setiap orang mendapat setengah (1/2).'
-      },
-      {
-        'id_soal': 2,
-        'nomor': 2,
-        'pertanyaan':
-            'Sebuah pizza lezat dipotong menjadi 8 potongan sama besar. Edo memakan 3 potongan pizza tersebut. Berapa bagian pizza yang dimakan Edo?',
-        'ilustrasi': null,
-        'opsi_a': '3/8 bagian',
-        'opsi_b': '1/8 bagian',
-        'opsi_c': '5/8 bagian',
-        'opsi_d': '3/4 bagian',
-        'kunci_jawaban': 'A',
-        'tips': 'Jumlah potongan yang dimakan adalah pembilang (angka atas), dan total semua potongan adalah penyebut.'
-      },
-      {
-        'id_soal': 3,
-        'nomor': 3,
-        'pertanyaan':
-            'Ibu memotong sebuah semangka menjadi 4 bagian yang sama besar. Budi memakan 1 bagian. Berapa bagian semangka yang dimakan Budi?',
-        'ilustrasi': {
-          'tipe': 'semangka',
-          'total_bagian': 4,
-          'bagian_diambil': 1,
-          'caption': '1 dari 4 potongan semangka diambil oleh Budi',
-        },
-        'opsi_a': '1/2 bagian',
-        'opsi_b': '1/4 bagian',
-        'opsi_c': '2/4 bagian',
-        'opsi_d': '3/4 bagian',
-        'kunci_jawaban': 'B',
-        'tips': 'Hitung total semua potongan semangka sebagai penyebut (angka bawah) ya!'
-      },
-      {
-        'id_soal': 4,
-        'nomor': 4,
-        'pertanyaan':
-            'Pecahan 2/4 jika disederhanakan dengan membagi pembilang dan penyebut dengan angka 2 bernilai sama dengan...',
-        'ilustrasi': null,
-        'opsi_a': '1/3 bagian',
-        'opsi_b': '1/2 bagian',
-        'opsi_c': '3/4 bagian',
-        'opsi_d': '2/3 bagian',
-        'kunci_jawaban': 'B',
-        'tips': 'Bagi pembilang (2:2 = 1) dan bagi penyebut (4:2 = 2).'
-      },
-      {
-        'id_soal': 5,
-        'nomor': 5,
-        'pertanyaan':
-            'Di antara pilihan pecahan berikut, manakah pecahan yang nilainya paling besar?',
-        'ilustrasi': null,
-        'opsi_a': '1/8 bagian',
-        'opsi_b': '1/4 bagian',
-        'opsi_c': '1/2 bagian',
-        'opsi_d': '1/6 bagian',
-        'kunci_jawaban': 'C',
-        'tips': 'Semakin kecil angka penyebut (bawah), semakin besar potongan kuenya!'
-      },
-    ];
   }
 
   Future<void> _submitQuiz({bool autoSubmit = false}) async {
@@ -441,7 +365,62 @@ class _KuisPageState extends State<KuisPage> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
           : currentQuestion == null
-              ? const Center(child: Text('Data soal kuis belum tersedia.'))
+              ? Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 68,
+                          height: 68,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEFF6FF),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.quiz_outlined,
+                            size: 34,
+                            color: Color(0xFF1D5A86),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Kuis Belum Tersedia',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Guru belum mengunggah butir soal kuis untuk materi ini.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF64748B),
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
               : SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   child: Column(

@@ -66,54 +66,11 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
     } catch (_) {}
 
     if (mounted) {
-      _applyFallback();
-      setState(() => _isLoading = false);
+      setState(() {
+        _subBabs = [];
+        _isLoading = false;
+      });
     }
-  }
-
-  void _applyFallback() {
-    _subBabs = [
-      {
-        'id_sub_bab': 10,
-        'nomor': 1,
-        'label': 'Sub Bab 1',
-        'nama_sub_bab': 'Mengenal Bentuk Pecahan',
-        'deskripsi': null,
-        'tipe_icon': 'cake',
-        'is_locked': false,
-        'is_active': false,
-      },
-      {
-        'id_sub_bab': 11,
-        'nomor': 2,
-        'label': 'Sub Bab 2',
-        'nama_sub_bab': 'Pecahan Senilai',
-        'deskripsi': null,
-        'tipe_icon': 'scale',
-        'is_locked': false,
-        'is_active': false,
-      },
-      {
-        'id_sub_bab': 12,
-        'nomor': 3,
-        'label': 'Sub Bab 3 •',
-        'nama_sub_bab': 'Membandingkan Pecahan',
-        'deskripsi': 'Besar, kecil, dan sama rasa!',
-        'tipe_icon': 'fraction',
-        'is_locked': false,
-        'is_active': true,
-      },
-      {
-        'id_sub_bab': 13,
-        'nomor': 4,
-        'label': 'Sub Bab 4',
-        'nama_sub_bab': 'Pecahan Desimal Sederhana',
-        'deskripsi': null,
-        'tipe_icon': 'lock',
-        'is_locked': true,
-        'is_active': false,
-      },
-    ];
   }
 
   @override
@@ -211,8 +168,64 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
 
                   const SizedBox(height: 14),
 
-                  // 3. List Sub Bab (Sesuai Screenshot 3)
-                  ..._subBabs.map((subBab) => _buildSubBabCard(subBab)),
+                  // 3. List Sub Bab atau Empty State
+                  if (_subBabs.isEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 68,
+                            height: 68,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEFF6FF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.layers_clear_outlined,
+                              size: 34,
+                              color: Color(0xFF1D5A86),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Belum Ada Sub Bab',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1E293B),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Belum ada sub bab pembelajaran yang ditambahkan untuk bab ini.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF64748B),
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ..._subBabs.map((subBab) => _buildSubBabCard(subBab)),
 
                   const SizedBox(height: 24),
                 ],

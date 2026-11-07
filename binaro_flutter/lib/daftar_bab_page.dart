@@ -63,62 +63,11 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
     } catch (_) {}
 
     if (mounted) {
-      _applyFallback();
-      setState(() => _isLoading = false);
+      setState(() {
+        _babs = [];
+        _isLoading = false;
+      });
     }
-  }
-
-  void _applyFallback() {
-    _babs = [
-      {
-        'id_bab': 10,
-        'nomor': 1,
-        'label': 'BAB 1',
-        'nama_bab': 'Pecahan & Desimal',
-        'is_locked': false,
-        'warna': 'orange',
-      },
-      {
-        'id_bab': 11,
-        'nomor': 2,
-        'label': 'BAB 2',
-        'nama_bab': 'Bilangan Bulat',
-        'is_locked': false,
-        'warna': 'blue',
-      },
-      {
-        'id_bab': 12,
-        'nomor': 3,
-        'label': 'BAB 3',
-        'nama_bab': 'Kelipatan & Faktor',
-        'is_locked': false,
-        'warna': 'orange',
-      },
-      {
-        'id_bab': 13,
-        'nomor': 4,
-        'label': 'BAB 4',
-        'nama_bab': 'Panjang & Berat',
-        'is_locked': true,
-        'warna': 'blue',
-      },
-      {
-        'id_bab': 14,
-        'nomor': 5,
-        'label': 'BAB 5',
-        'nama_bab': 'Bangun Datar',
-        'is_locked': true,
-        'warna': 'orange',
-      },
-      {
-        'id_bab': 15,
-        'nomor': 6,
-        'label': 'BAB 6',
-        'nama_bab': 'Diagram Data',
-        'is_locked': true,
-        'warna': 'blue',
-      },
-    ];
   }
 
   @override
@@ -143,8 +92,64 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
 
                   const SizedBox(height: 16),
 
-                  // 3. List of Bab Cards (1 s/d 6)
-                  ..._babs.map((bab) => _buildBabCard(bab)),
+                  // 3. List of Bab Cards atau Empty State
+                  if (_babs.isEmpty)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.02),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 68,
+                            height: 68,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFEFF6FF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.menu_book_outlined,
+                              size: 34,
+                              color: Color(0xFF1D5A86),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Belum Ada Bab',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF1E293B),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 6),
+                          const Text(
+                            'Guru belum mengunggah bab pembelajaran untuk mata pelajaran ini.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF64748B),
+                              height: 1.4,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    ..._babs.map((bab) => _buildBabCard(bab)),
 
                   const SizedBox(height: 24),
                 ],

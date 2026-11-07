@@ -62,62 +62,11 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
     } catch (_) {}
 
     if (mounted) {
-      _applyFallback();
-      setState(() => _isLoading = false);
+      setState(() {
+        _detail = {};
+        _isLoading = false;
+      });
     }
-  }
-
-  void _applyFallback() {
-    _detail = {
-      'breadcrumb': {
-        'mapel': 'Matematika',
-        'bab': 'Bab 1 Pecahan',
-        'sub_bab': 'Sub Bab 3 Pecahan 1/2',
-      },
-      'video': {
-        'judul': 'Animasi Seru: Membagi Buah Menjadi Dua Sama Besar',
-        'durasi': '04:25',
-        'kualitas': 'HD 720p',
-        'progres_detik': 75,
-        'total_detik': 265,
-      },
-      'ilustrasi': {
-        'judul': 'Ilustrasi Konsep 1/2',
-        'caption': 'ONE WHOLE APPLE = TWO EQUAL HALVES',
-      },
-      'konten': {
-        'badge': 'Materi Dasar',
-        'judul': 'Mengenal Pecahan 1/2 (Setengah)',
-        'subjudul': 'Belajar membagi benda secara adil dan sama besar!',
-        'paragraf_1':
-            'Bayangkan kamu memiliki satu buah apel manis yang utuh. Kemudian, adikmu juga ingin mencicipi apel tersebut. Agar adil, kamu membelah apel menjadi dua bagian yang ukurannya persis sama besar.',
-        'paragraf_2':
-            'Setiap potongan apel itu disebut satu perdua atau setengah, dan dalam matematika ditulis sebagai 1/2.',
-        'poin_pembagi': [
-          {
-            'nomor': '1',
-            'warna': 'blue',
-            'judul': 'Angka 1 (Atas) = Pembilang',
-            'keterangan': 'Banyaknya bagian apel yang kamu ambil (1 potong).',
-          },
-          {
-            'nomor': '2',
-            'warna': 'orange',
-            'judul': 'Angka 2 (Bawah) = Penyebut',
-            'keterangan': 'Total seluruh bagian apel setelah dipotong (2 potong sama besar).',
-          },
-        ],
-        'contoh_sekitar':
-            'Selain apel, kita juga bisa membagi pizza, kue bolu, atau selembar kertas lipat menjadi dua bagian yang sama besar. Jika kedua bagian tidak sama besar, maka itu belum bisa disebut pecahan 1/2 ya!',
-      },
-      'tips': [
-        'Kuncinya adalah HARUS SAMA BESAR. Jika satu potongan lebih besar dari yang lain, itu bukan pecahan 1/2.',
-        '1/2 + 1/2 akan kembali menjadi 1 bagian utuh!',
-      ],
-      'kuis_lanjutan': {
-        'judul': 'Lanjut ke Kuis / Latihan (5 Soal)',
-      },
-    };
   }
 
   @override
@@ -191,7 +140,75 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
-          : Column(
+          : _detail.isEmpty
+              ? Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 68,
+                          height: 68,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFEFF6FF),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.menu_book_outlined,
+                            size: 34,
+                            color: Color(0xFF1D5A86),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Materi Belum Tersedia',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1E293B),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Konten materi pembelajaran ini belum diunggah oleh guru pengampu.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Color(0xFF64748B),
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1D5A86),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Kembali', style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : Column(
               children: [
                 Expanded(
                   child: SingleChildScrollView(
