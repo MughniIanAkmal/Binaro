@@ -4,7 +4,8 @@ import 'package:http/http.dart' as http;
 import 'dashboard_page.dart';
 import 'hasil_ujian_page.dart';
 import 'mapel_page.dart';
-import 'page_transitions.dart';
+import '../utils/constants.dart';
+import '../utils/page_transitions.dart';
 import 'petunjuk_ujian_page.dart';
 import 'profile_page.dart';
 
@@ -21,7 +22,7 @@ class UjianPage extends StatefulWidget {
 }
 
 class _UjianPageState extends State<UjianPage> {
-  static const String _baseUrl = 'http://192.168.18.9:8000/api';
+  static const String _baseUrl = AppConstants.baseUrl;
 
   bool _isLoading = true;
   int _activeTab = 0; // 0 = Tersedia, 1 = Selesai
@@ -33,8 +34,8 @@ class _UjianPageState extends State<UjianPage> {
   };
   int _tersediaCount = 0;
   int _selesaiCount = 0;
-  List<Map<String, dynamic>> _ujianTersedia = [];
-  List<Map<String, dynamic>> _ujianSelesai = [];
+  List<Map<String, dynamic>> _ujianTersediaList = [];
+  List<Map<String, dynamic>> _ujianSelesaiList = [];
   Map<String, dynamic>? _nilaiTerakhir;
   String _tips = 'Kerjakan soal yang mudah dulu ya, agar waktumu cukup dan nilaimu maksimal!';
 
@@ -46,12 +47,12 @@ class _UjianPageState extends State<UjianPage> {
 
   Future<void> _fetchUjianData() async {
     setState(() => _isLoading = true);
-    final int siswaId = widget.user?['id_siswa'] ?? 1;
+    final int siswaId = widget.user?['id_siswa'] ?? AppConstants.defaultSiswaId;
 
     try {
       final response = await http
           .get(Uri.parse('$_baseUrl/siswa/ujian?id_siswa=$siswaId'))
-          .timeout(const Duration(seconds: 8));
+          .timeout(AppConstants.timeoutDuration);
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
@@ -62,10 +63,10 @@ class _UjianPageState extends State<UjianPage> {
               _banner = Map<String, dynamic>.from(data['banner'] ?? _banner);
               _tersediaCount = data['tersedia_count'] ?? 0;
               _selesaiCount = data['selesai_count'] ?? 0;
-              _ujianTersedia = (data['ujian_tersedia'] as List? ?? [])
+              _ujianTersediaList = (data['ujian_tersedia'] as List? ?? [])
                   .map((e) => Map<String, dynamic>.from(e as Map))
                   .toList();
-              _ujianSelesai = (data['ujian_selesai'] as List? ?? [])
+              _ujianSelesaiList = (data['ujian_selesai'] as List? ?? [])
                   .map((e) => Map<String, dynamic>.from(e as Map))
                   .toList();
               if (data['nilai_terakhir'] != null) {
@@ -189,51 +190,73 @@ class _UjianPageState extends State<UjianPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
-          : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 1. BANNER PENILAIAN SEMESTER SISWA
-                  _buildTopBanner(),
-                  const SizedBox(height: 16),
-
-                  // 2. TOGGLE FILTER [Tersedia (2)]  [Selesai (3)]
-                  _buildTabToggle(),
-                  const SizedBox(height: 16),
-
-                  // 3. DAFTAR KARTU UJIAN
-                  if (_activeTab == 0) ...[
-                    if (_ujianTersedia.isEmpty)
-                      _buildEmptyState(
-                        icon: Icons.assignment_outlined,
-                        title: 'Belum Ada Ujian Tersedia',
-                        subtitle: 'Guru belum mengunggah jadwal ujian online untuk kelasmu saat ini.',
-                      )
-                    else
-                      ..._ujianTersedia.map((exam) => _buildTersediaCard(exam)),
-                  ] else ...[
-                    if (_ujianSelesai.isEmpty)
-                      _buildEmptyState(
-                        icon: Icons.history_toggle_off_rounded,
-                        title: 'Belum Ada Ujian Selesai',
-                        subtitle: 'Kamu belum memiliki riwayat ujian online yang telah selesai dikerjakan.',
-                      )
-                    else
-                      ..._ujianSelesai.map((exam) => _buildSelesaiCard(exam)),
-                  ],
-                  const SizedBox(height: 20),
-
-                  // 4. SECTION NILAI UJIAN TERAKHIR
-                  if (_nilaiTerakhir != null) ...[
-                    _buildNilaiTerakhirSection(),
+          : RefreshIndicator(
+              onRefresh: _fetchUjianData,
+              color: const Color(0xFF1D5A86),
+              backgroundColor: Colors.white,
+              displacement: 28,
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // 1. BANNER PENILAIAN SEMESTER SISWA
+                    _buildTopBanner(),
                     const SizedBox(height: 16),
-                  ],
 
-                  // 5. KARTU TIPS MENGERJAKAN UJIAN
-                  _buildTipsCard(),
-                  const SizedBox(height: 24),
-                ],
+                    // 2. TOGGLE FILTER [Tersedia (2)]  [Selesai (3)]
+                    _buildTabToggle(),
+                    const SizedBox(height: 16),
+
+                    // 3. DAFTAR KARTU UJIAN (Dengan Animasi Transisi Halus)
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 280),
+                      switchInCurve: Curves.easeOutCubic,
+                      switchOutCurve: Curves.easeInCubic,
+                      child: KeyedSubtree(
+                        key: ValueKey<int>(_activeTab),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_activeTab == 0) ...[
+                              if (_ujianTersediaList.isEmpty)
+                                _buildEmptyState(
+                                  icon: Icons.assignment_outlined,
+                                  title: 'Belum Ada Ujian Tersedia',
+                                  subtitle: 'Guru belum mengunggah jadwal ujian online untuk kelasmu saat ini.',
+                                )
+                              else
+                                ..._ujianTersediaList.map((exam) => _buildTersediaCard(exam)),
+                            ] else ...[
+                              if (_ujianSelesaiList.isEmpty)
+                                _buildEmptyState(
+                                  icon: Icons.history_toggle_off_rounded,
+                                  title: 'Belum Ada Ujian Selesai',
+                                  subtitle: 'Kamu belum memiliki riwayat ujian online yang telah selesai dikerjakan.',
+                                )
+                              else
+                                ..._ujianSelesaiList.map((exam) => _buildSelesaiCard(exam)),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // 4. SECTION NILAI UJIAN TERAKHIR
+                    if (_nilaiTerakhir != null) ...[
+                      _buildNilaiTerakhirSection(),
+                      const SizedBox(height: 16),
+                    ],
+
+                    // 5. KARTU TIPS MENGERJAKAN UJIAN
+                    _buildTipsCard(),
+                    const SizedBox(height: 24),
+                  ],
+                ),
               ),
             ),
       bottomNavigationBar: _buildBottomNav(),
@@ -319,7 +342,9 @@ class _UjianPageState extends State<UjianPage> {
               onTap: () {
                 setState(() => _activeTab = 0);
               },
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 240),
+                curve: Curves.easeInOut,
                 padding: const EdgeInsets.symmetric(vertical: 9),
                 decoration: BoxDecoration(
                   color: _activeTab == 0 ? Colors.white : Colors.transparent,
@@ -363,7 +388,9 @@ class _UjianPageState extends State<UjianPage> {
               onTap: () {
                 setState(() => _activeTab = 1);
               },
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 240),
+                curve: Curves.easeInOut,
                 padding: const EdgeInsets.symmetric(vertical: 9),
                 decoration: BoxDecoration(
                   color: _activeTab == 1 ? Colors.white : Colors.transparent,
@@ -442,12 +469,15 @@ class _UjianPageState extends State<UjianPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Row Badges
-          Row(
+          // Row Badges (Wrap agar tidak pernah overflow di layar HP manapun)
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               // Badge Mapel
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                 decoration: BoxDecoration(
                   color: isMatematika ? const Color(0xFFEFF6FF) : const Color(0xFFECFDF5),
                   borderRadius: BorderRadius.circular(6),
@@ -472,11 +502,10 @@ class _UjianPageState extends State<UjianPage> {
                   ],
                 ),
               ),
-              const SizedBox(width: 6),
 
               // Badge Status (Bisa Dikerjakan / Belum Dimulai)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                 decoration: BoxDecoration(
                   color: canStart ? const Color(0xFFDCFCE7) : const Color(0xFFF1F5F9),
                   borderRadius: BorderRadius.circular(6),
@@ -499,11 +528,10 @@ class _UjianPageState extends State<UjianPage> {
                   ],
                 ),
               ),
-              const SizedBox(width: 6),
 
               // Badge Jadwal (Hari Ini / Besok)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                 decoration: BoxDecoration(
                   color: canStart ? const Color(0xFFFFFBEB) : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(6),
@@ -573,30 +601,41 @@ class _UjianPageState extends State<UjianPage> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: const Color(0xFFE2E8F0)),
             ),
-            child: Row(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                const Icon(Icons.access_time_rounded, size: 14, color: Color(0xFF64748B)),
-                const SizedBox(width: 4),
-                Text(
-                  '$durasi Menit',
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF475569),
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.access_time_rounded, size: 14, color: Color(0xFF64748B)),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$durasi Menit',
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF475569),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
                 const Text('•', style: TextStyle(color: Color(0xFFCBD5E1))),
-                const SizedBox(width: 10),
-                const Icon(Icons.format_list_bulleted_rounded, size: 14, color: Color(0xFF64748B)),
-                const SizedBox(width: 4),
-                Text(
-                  '$totalSoal Soal $tipeSoal',
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF475569),
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.format_list_bulleted_rounded, size: 14, color: Color(0xFF64748B)),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$totalSoal Soal $tipeSoal',
+                      style: const TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF475569),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -677,8 +716,13 @@ class _UjianPageState extends State<UjianPage> {
     final String mapel = exam['mapel'] ?? '';
     final String tanggal = exam['tanggal'] ?? '';
     final String keterangan = exam['keterangan'] ?? 'Selesai';
-    final int nilai = exam['nilai'] ?? 90;
-    final String badgeNilai = exam['badge_nilai'] ?? '$nilai';
+    final bool isPublished = exam['is_published'] == true;
+    final int? nilai = exam['nilai'];
+    final String badgeNilai = isPublished ? '★ ${nilai ?? 0}' : 'Menunggu Nilai';
+    final Color badgeBgColor = isPublished ? const Color(0xFFF59E0B) : const Color(0xFFEFF6FF);
+    final Color badgeTextColor = isPublished ? Colors.white : const Color(0xFF1D5A86);
+    final IconData badgeIcon = isPublished ? Icons.star_rounded : Icons.hourglass_top_rounded;
+    final Border? badgeBorder = isPublished ? null : Border.all(color: const Color(0xFFBFDBFE));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -741,22 +785,23 @@ class _UjianPageState extends State<UjianPage> {
             },
             borderRadius: BorderRadius.circular(12),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
               decoration: BoxDecoration(
-                color: const Color(0xFFF59E0B),
+                color: badgeBgColor,
                 borderRadius: BorderRadius.circular(12),
+                border: badgeBorder,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.star_rounded, color: Colors.white, size: 16),
+                  Icon(badgeIcon, color: badgeTextColor, size: 14),
                   const SizedBox(width: 4),
                   Text(
                     badgeNilai,
-                    style: const TextStyle(
-                      fontSize: 12,
+                    style: TextStyle(
+                      fontSize: 11.5,
                       fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                      color: badgeTextColor,
                     ),
                   ),
                 ],
@@ -1066,7 +1111,7 @@ class _UjianPageState extends State<UjianPage> {
             context,
             SmoothPageRoute(
               page: DashboardPage(user: widget.user),
-              type: TransitionType.sharedAxis,
+              type: TransitionType.fadeThrough,
             ),
           );
         } else if (index == 2) {
@@ -1075,7 +1120,7 @@ class _UjianPageState extends State<UjianPage> {
             context,
             SmoothPageRoute(
               page: MapelPage(user: widget.user),
-              type: TransitionType.sharedAxis,
+              type: TransitionType.fadeThrough,
             ),
           );
         } else if (index == 4) {
@@ -1084,7 +1129,7 @@ class _UjianPageState extends State<UjianPage> {
             context,
             SmoothPageRoute(
               page: ProfilePage(user: widget.user),
-              type: TransitionType.sharedAxis,
+              type: TransitionType.fadeThrough,
             ),
           );
         }

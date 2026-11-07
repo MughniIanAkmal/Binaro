@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'daftar_bab_page.dart';
-import 'page_transitions.dart';
+import '../utils/constants.dart';
+import '../utils/page_transitions.dart';
+import 'dashboard_page.dart';
 import 'profile_page.dart';
 import 'ujian_page.dart';
 
@@ -25,7 +27,7 @@ class _MapelPageState extends State<MapelPage> {
   int _totalMapel = 6;
   int _wajibCount = 4;
 
-  static const String _baseUrl = 'http://192.168.18.9:8000/api';
+  static const String _baseUrl = AppConstants.baseUrl;
 
   @override
   void initState() {
@@ -40,7 +42,7 @@ class _MapelPageState extends State<MapelPage> {
             Uri.parse('$_baseUrl/siswa/mapel'),
             headers: {'Accept': 'application/json'},
           )
-          .timeout(const Duration(seconds: 8));
+          .timeout(AppConstants.timeoutDuration);
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
@@ -48,8 +50,8 @@ class _MapelPageState extends State<MapelPage> {
           final data = result['data'];
           setState(() {
             _kelasInfo = data['kelas'] ?? _kelasInfo;
-            _totalMapel = data['total_mapel'] ?? 6;
-            _wajibCount = data['wajib_count'] ?? 4;
+            _totalMapel = data['total_mapel'] ?? 0;
+            _wajibCount = data['wajib_count'] ?? 0;
             _mapelList = data['mapel'] ?? [];
             _isLoading = false;
           });
@@ -58,82 +60,9 @@ class _MapelPageState extends State<MapelPage> {
       }
     } catch (_) {}
 
-    // Fallback jika offline
     if (mounted) {
-      _applyFallback();
       setState(() => _isLoading = false);
     }
-  }
-
-  void _applyFallback() {
-    _mapelList = [
-      {
-        'id_mapel': 17,
-        'nama': 'Matematika',
-        'bab_total': 6,
-        'bab_rentang': 'Bab 1 - 6',
-        'progress': 0.72,
-        'jadwal': 'Senin & Rabu',
-        'warna': 'blue',
-        'tipe_icon': 'math',
-        'is_wajib': true,
-      },
-      {
-        'id_mapel': 18,
-        'nama': 'Ilmu Pengetahuan Alam (IPA)',
-        'bab_total': 6,
-        'bab_rentang': 'Bab 1 - 6',
-        'progress': 0.58,
-        'jadwal': 'Selasa & Kamis',
-        'warna': 'blue',
-        'tipe_icon': 'science',
-        'is_wajib': true,
-      },
-      {
-        'id_mapel': 3,
-        'nama': 'Bahasa Indonesia',
-        'bab_total': 7,
-        'bab_rentang': 'Bab 1 - 7',
-        'progress': 0.84,
-        'jadwal': 'Senin & Jumat',
-        'warna': 'blue',
-        'tipe_icon': 'book',
-        'is_wajib': true,
-      },
-      {
-        'id_mapel': 21,
-        'nama': 'Pendidikan Pancasila & Kewarganegaraan',
-        'bab_total': 5,
-        'bab_rentang': 'Bab 1 - 5',
-        'progress': 0.65,
-        'jadwal': 'Rabu',
-        'warna': 'blue',
-        'tipe_icon': 'star',
-        'is_wajib': true,
-      },
-      {
-        'id_mapel': 23,
-        'nama': 'Seni Budaya & Prakarya (SBdP)',
-        'bab_total': 4,
-        'bab_rentang': 'Bab 1 - 4',
-        'progress': 0.40,
-        'jadwal': 'Sabtu',
-        'warna': 'blue',
-        'tipe_icon': 'palette',
-        'is_wajib': false,
-      },
-      {
-        'id_mapel': 24,
-        'nama': 'Bahasa Inggris',
-        'bab_total': 6,
-        'bab_rentang': 'Bab 1 - 6',
-        'progress': 0.50,
-        'jadwal': 'Kamis',
-        'warna': 'blue',
-        'tipe_icon': 'chat',
-        'is_wajib': false,
-      },
-    ];
   }
 
   List<dynamic> get _filteredMapelList {
@@ -158,8 +87,12 @@ class _MapelPageState extends State<MapelPage> {
           : RefreshIndicator(
               onRefresh: _fetchMapelData,
               color: const Color(0xFF1D5A86),
+              backgroundColor: Colors.white,
+              displacement: 28,
               child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,7 +113,32 @@ class _MapelPageState extends State<MapelPage> {
                     const SizedBox(height: 18),
 
                     // List Kartu Mapel
-                    ..._filteredMapelList.map((mapel) => _buildMapelCard(mapel)),
+                    if (_filteredMapelList.isEmpty)
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.search_off_rounded, size: 44, color: Color(0xFF94A3B8)),
+                            const SizedBox(height: 10),
+                            Text(
+                              _searchQuery.isNotEmpty
+                                  ? 'Tidak ada mata pelajaran yang cocok dengan "$_searchQuery"'
+                                  : 'Belum ada data mata pelajaran.',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      ..._filteredMapelList.map((mapel) => _buildMapelCard(mapel)),
 
                     const SizedBox(height: 16),
 
@@ -446,7 +404,9 @@ class _MapelPageState extends State<MapelPage> {
   Widget _buildMapelCard(Map<String, dynamic> mapel) {
     final String nama = mapel['nama'] ?? 'Mata Pelajaran';
     final String babRentang = mapel['bab_rentang'] ?? 'Bab 1 - 6';
-    final double progress = (mapel['progress'] as num?)?.toDouble() ?? 0.6;
+    final double progress = (mapel['progress'] as num?)?.toDouble() ?? 0.0;
+    final int persen = (mapel['persen'] as num?)?.toInt() ?? (progress * 100).toInt();
+    final String progressText = mapel['progress_text'] ?? '$persen% Selesai';
     final String jadwal = mapel['jadwal'] ?? 'Senin & Rabu';
     final String tipeIcon = mapel['tipe_icon'] ?? 'book';
 
@@ -510,7 +470,30 @@ class _MapelPageState extends State<MapelPage> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
+                // Progress Kuis Info & Persentase
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Progress Kuis: $progressText',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white70,
+                      ),
+                    ),
+                    Text(
+                      '$persen%',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFFFBBF24),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
                 // Progress Bar (Oranye di atas putih)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(10),
@@ -704,21 +687,31 @@ class _MapelPageState extends State<MapelPage> {
     return InkWell(
       onTap: () {
         if (index == 0) {
-          Navigator.pop(context); // Kembali ke Beranda
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            Navigator.pushReplacement(
+              context,
+              SmoothPageRoute(
+                page: DashboardPage(user: widget.user),
+                type: TransitionType.fadeThrough,
+              ),
+            );
+          }
         } else if (index == 1) {
           Navigator.pushReplacement(
             context,
             SmoothPageRoute(
               page: UjianPage(user: widget.user),
-              type: TransitionType.sharedAxis,
+              type: TransitionType.fadeThrough,
             ),
           );
         } else if (index == 4) {
-          Navigator.push(
+          Navigator.pushReplacement(
             context,
             SmoothPageRoute(
               page: ProfilePage(user: widget.user),
-              type: TransitionType.sharedAxis,
+              type: TransitionType.fadeThrough,
             ),
           );
         }

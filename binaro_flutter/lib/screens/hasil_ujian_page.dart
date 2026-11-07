@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'profile_page.dart';
-import 'page_transitions.dart';
+import '../utils/constants.dart';
+import '../utils/page_transitions.dart';
 
 class HasilUjianPage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -19,10 +20,10 @@ class HasilUjianPage extends StatefulWidget {
 }
 
 class _HasilUjianPageState extends State<HasilUjianPage> {
-  static const String _baseUrl = 'http://192.168.18.9:8000/api';
+  static const String _baseUrl = AppConstants.baseUrl;
 
   bool _isLoading = true;
-  Map<String, dynamic> _data = {};
+  Map<String, dynamic> _resultData = {};
 
   @override
   void initState() {
@@ -32,19 +33,19 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
 
   Future<void> _fetchResult() async {
     setState(() => _isLoading = true);
-    final int siswaId = widget.user?['id_siswa'] ?? 1;
+    final int siswaId = widget.user?['id_siswa'] ?? AppConstants.defaultSiswaId;
 
     try {
       final response = await http
           .get(Uri.parse('$_baseUrl/siswa/ujian/${widget.quizId}/result?id_siswa=$siswaId'))
-          .timeout(const Duration(seconds: 8));
+          .timeout(AppConstants.timeoutDuration);
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
         if (decoded['success'] == true && decoded['data'] != null) {
           if (mounted) {
             setState(() {
-              _data = Map<String, dynamic>.from(decoded['data'] as Map);
+              _resultData = Map<String, dynamic>.from(decoded['data'] as Map);
               _isLoading = false;
             });
             return;
@@ -55,7 +56,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
 
     if (mounted) {
       setState(() {
-        _data = {};
+        _resultData = {};
         _isLoading = false;
       });
     }
@@ -63,19 +64,20 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
 
   @override
   Widget build(BuildContext context) {
-    final String namaSiswa = _data['nama_siswa'] ?? widget.user?['nama_siswa'] ?? 'Budi Santoso';
-    final int nilai = (_data['nilai_akhir'] ?? 90) as int;
-    final int benar = (_data['jumlah_benar'] ?? 18) as int;
-    final int salah = (_data['jumlah_salah'] ?? 2) as int;
-    final int menit = (_data['durasi_menit'] ?? 38) as int;
-    final String statusTeks = _data['status_teks'] ?? 'Sangat Baik & Membanggakan';
-    final String labelKkm = _data['label_kkm'] ?? 'LULUS KKM (Target: 75)';
-    final Map<String, dynamic> mapel = _data['mapel'] != null && _data['mapel'] is Map
-        ? Map<String, dynamic>.from(_data['mapel'] as Map)
+    final bool isPublished = _resultData['is_published'] == true;
+    final String namaSiswa = _resultData['nama_siswa'] ?? widget.user?['nama_siswa'] ?? widget.user?['nm_siswa'] ?? 'Siswa';
+    final int nilai = (_resultData['nilai_akhir'] ?? 0) as int;
+    final int benar = (_resultData['jumlah_benar'] ?? 0) as int;
+    final int salah = (_resultData['jumlah_salah'] ?? 0) as int;
+    final int menit = (_resultData['durasi_menit'] ?? 0) as int;
+    final String statusTeks = _resultData['status_teks'] ?? (nilai >= 75 ? 'Lulus KKM' : 'Perlu Remedial');
+    final String labelKkm = _resultData['label_kkm'] ?? (nilai >= 75 ? 'LULUS KKM (Target: 75)' : 'BELUM LULUS (Target: 75)');
+    final Map<String, dynamic> mapel = _resultData['mapel'] != null && _resultData['mapel'] is Map
+        ? Map<String, dynamic>.from(_resultData['mapel'] as Map)
         : {
-            'nama': 'PTS Matematika Kelas 4B',
-            'guru': 'Ibu Sarah Wijaya, S.Pd.',
-            'catatan_guru': 'Bagus sekali pemahaman materi pecahannya, pertahankan ya Budi!',
+            'nama': 'Ujian Online',
+            'guru': '-',
+            'catatan_guru': 'Tetap semangat dalam belajar!',
           };
 
     return Scaffold(
@@ -124,7 +126,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
-          : _data.isEmpty
+          : _resultData.isEmpty
               ? Center(
                   child: Container(
                     margin: const EdgeInsets.all(24),
@@ -192,61 +194,252 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                     ),
                   ),
                 )
-              : SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-              child: Column(
-                children: [
-                  // 1. BANNER HEBAT
-                  _buildSuccessBanner(namaSiswa),
-                  const SizedBox(height: 16),
+              : RefreshIndicator(
+                  onRefresh: _fetchResult,
+                  color: const Color(0xFF1D5A86),
+                  backgroundColor: Colors.white,
+                  displacement: 28,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                    child: !isPublished
+                        ? _buildMenungguPengumumanView(namaSiswa, menit, mapel)
+                        : Column(
+                            children: [
+                              // 1. BANNER HEBAT
+                              _buildSuccessBanner(namaSiswa),
+                              const SizedBox(height: 16),
 
-                  // 2. KARTU DONUT NILAI (90 DARI 100)
-                  _buildScoreDonutCard(nilai, labelKkm, statusTeks),
-                  const SizedBox(height: 16),
+                              // 2. KARTU DONUT NILAI (90 DARI 100)
+                              _buildScoreDonutCard(nilai, labelKkm, statusTeks),
+                              const SizedBox(height: 16),
 
-                  // 3. 3 KARTU STATISTIK (18 BENAR, 2 SALAH, 38' MENIT)
-                  _buildStatsRow(benar, salah, menit),
-                  const SizedBox(height: 16),
+                              // 3. 3 KARTU STATISTIK (18 BENAR, 2 SALAH, 38' MENIT)
+                              _buildStatsRow(benar, salah, menit),
+                              const SizedBox(height: 16),
 
-                  // 4. KARTU MATA PELAJARAN & CATATAN GURU
-                  _buildTeacherFeedbackCard(mapel),
-                  const SizedBox(height: 24),
+                              // 4. KARTU MATA PELAJARAN & CATATAN GURU
+                              _buildTeacherFeedbackCard(mapel),
+                              const SizedBox(height: 24),
 
-                  // 5. TOMBOL KEMBALI KE DAFTAR UJIAN
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Kembali ke daftar ujian
-                        Navigator.pop(context);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1D5A86),
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.arrow_back_rounded, color: Colors.white, size: 18),
-                          SizedBox(width: 8),
-                          Text(
-                            'Kembali ke Daftar Ujian',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.white,
-                            ),
+                              // 5. TOMBOL KEMBALI KE DAFTAR UJIAN
+                              SizedBox(
+                                width: double.infinity,
+                                height: 48,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1D5A86),
+                                    elevation: 0,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                  ),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.arrow_back_rounded, color: Colors.white, size: 18),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Kembali ke Daftar Ujian',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                            ],
                           ),
-                        ],
+                  ),
+                ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // VIEW MENUNGGU PENGUMUMAN DARI GURU (NILAI BELUM DIRILIS)
+  // ---------------------------------------------------------------------------
+  Widget _buildMenungguPengumumanView(String namaSiswa, int menit, Map<String, dynamic> mapel) {
+    return Column(
+      children: [
+        // 1. Banner Menunggu Nilai
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFF6FF),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: const Color(0xFFDBEAFE)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFDBEAFE),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text('⏳', style: TextStyle(fontSize: 22)),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Ujian Selesai, $namaSiswa!',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: Color(0xFF1E293B),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
+                    const SizedBox(height: 2),
+                    const Text(
+                      'Jawabanmu telah tersimpan rapi di sistem.',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: Color(0xFF64748B),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 2. Kartu Status "Menunggu Pengumuman Nilai oleh Guru"
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(color: const Color(0xFFE2E8F0)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Container(
+                width: 72,
+                height: 72,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFFFBEB),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.hourglass_top_rounded,
+                  size: 38,
+                  color: Color(0xFFD97706),
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Nilai Belum Diumumkan',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF1E293B),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 10),
+                child: Text(
+                  'Bapak/Ibu guru akan mengumumkan nilai dan rincian benar/salah secara serentak ke seluruh siswa setelah ujian selesai diperiksa.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: Color(0xFF64748B),
+                    height: 1.45,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFBFDBFE)),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.info_outline_rounded, size: 14, color: Color(0xFF1D5A86)),
+                    SizedBox(width: 6),
+                    Text(
+                      'Status: Menunggu Pengumuman Guru',
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF1D5A86),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // 3. Ringkasan Pelaksanaan Ujian
+        _buildTeacherFeedbackCard(mapel),
+        const SizedBox(height: 20),
+
+        // 4. Tombol Cek Pengumuman Nilai
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: ElevatedButton.icon(
+            onPressed: _fetchResult,
+            icon: const Icon(Icons.refresh_rounded, size: 18, color: Colors.white),
+            label: const Text(
+              'Cek Pengumuman Nilai Sekarang',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
             ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1D5A86),
+              elevation: 0,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 10),
+
+        // 5. Tombol Kembali ke Daftar Ujian
+        SizedBox(
+          width: double.infinity,
+          height: 46,
+          child: OutlinedButton(
+            onPressed: () => Navigator.pop(context),
+            style: OutlinedButton.styleFrom(
+              side: const BorderSide(color: Color(0xFFCBD5E1)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            child: const Text(
+              'Kembali ke Daftar Ujian',
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF475569)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
     );
   }
 
