@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:qr_flutter/qr_flutter.dart';
 import 'login_page.dart';
+import 'mapel_page.dart';
 import 'page_transitions.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -1410,6 +1411,14 @@ class _ProfilePageState extends State<ProfilePage> {
       onTap: () {
         if (index == 0) {
           Navigator.pop(context); // Kembali ke Beranda / Dashboard
+        } else if (index == 2) {
+          Navigator.pushReplacement(
+            context,
+            SmoothPageRoute(
+              page: MapelPage(user: widget.user),
+              type: TransitionType.sharedAxis,
+            ),
+          );
         }
       },
       borderRadius: BorderRadius.circular(16),

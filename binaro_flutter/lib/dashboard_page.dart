@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'daftar_bab_page.dart';
+import 'mapel_page.dart';
 import 'page_transitions.dart';
 import 'profile_page.dart';
 
@@ -348,7 +350,15 @@ class _DashboardPageState extends State<DashboardPage> {
                 title: 'Mapel',
                 icon: Icons.menu_book_rounded,
                 color: const Color(0xFF1D5A86),
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    SmoothPageRoute(
+                      page: MapelPage(user: widget.user ?? _siswa),
+                      type: TransitionType.sharedAxis,
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 12),
@@ -613,7 +623,15 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
             ),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  SmoothPageRoute(
+                    page: MapelPage(user: widget.user ?? _siswa),
+                    type: TransitionType.sharedAxis,
+                  ),
+                );
+              },
               child: const Text(
                 'Semua',
                 style: TextStyle(
@@ -663,8 +681,19 @@ class _DashboardPageState extends State<DashboardPage> {
 
     final double progress = (mapel['progress'] ?? 0.5).toDouble();
 
-    return Container(
-      padding: const EdgeInsets.all(14),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          SmoothPageRoute(
+            page: DaftarBabPage(mapel: mapel, user: widget.user ?? _siswa),
+            type: TransitionType.sharedAxis,
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(18),
+      child: Container(
+        padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
@@ -749,6 +778,7 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
         ],
       ),
+    ),
     );
   }
 
@@ -793,7 +823,20 @@ class _DashboardPageState extends State<DashboardPage> {
     return InkWell(
       onTap: () {
         setState(() => _currentIndex = index);
-        if (index == 4) {
+        if (index == 2) {
+          // Buka Halaman Daftar Mapel
+          Navigator.push(
+            context,
+            SmoothPageRoute(
+              page: MapelPage(user: widget.user ?? _siswa),
+              type: TransitionType.sharedAxis,
+            ),
+          ).then((_) {
+            if (mounted) {
+              setState(() => _currentIndex = 0);
+            }
+          });
+        } else if (index == 4) {
           // Buka Halaman Profil Siswa dengan transisi halus
           Navigator.push(
             context,
