@@ -129,6 +129,8 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             Route::delete('/{id}', [MateriController::class, 'destroyMateri'])->name('destroy');
             Route::delete('/bab/{id}', [MateriController::class, 'destroyBab'])->name('destroy.bab');
             Route::delete('/sub-bab/{id}', [MateriController::class, 'destroySubBab'])->name('destroy.sub-bab');
+            Route::patch('/bab/{id}/toggle-lock', [MateriController::class, 'toggleBabLock'])->name('toggle-lock.bab');
+            Route::patch('/sub-bab/{id}/toggle-lock', [MateriController::class, 'toggleSubBabLock'])->name('toggle-lock.sub-bab');
         });
 
         // Cascading Dropdown API Helpers for Modal Action (PRD 4.2)
@@ -167,6 +169,9 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             Route::post('/{idQuiz}/soal', [UjianController::class, 'storeSoal'])->name('soal.store');
             Route::put('/{idQuiz}/soal/{idSoal}', [UjianController::class, 'updateSoal'])->name('soal.update');
             Route::delete('/{idQuiz}/soal/{idSoal}', [UjianController::class, 'destroySoal'])->name('soal.destroy');
+            // Rilis / Tampilkan Nilai Ujian ke Siswa
+            Route::post('/{id}/rilis-nilai', [UjianController::class, 'rilisNilaiSemua'])->name('rilis_nilai_semua');
+            Route::post('/hasil/{idHasil}/toggle-rilis', [UjianController::class, 'toggleRilisNilai'])->name('toggle_rilis_nilai');
         });
 
         // Kelola Notifikasi PR (CRUD + Kirim Notifikasi ke Siswa)
@@ -303,3 +308,21 @@ Route::middleware([EnsureAuthenticated::class, EnsureRole::class.':admin,guru'])
     Route::post('/scan', [AbsenScanController::class, 'store'])->name('scan');
     Route::post('/izin', [AbsenScanController::class, 'storeIzin'])->name('izin');
 });
+
+// Rute publik untuk akses & download file materi PDF / media (kompatibel penuh Windows & mobile)
+Route::get('/storage/{path?}', function ($path = null, \Illuminate\Http\Request $request) {
+    if (!$path) {
+        return redirect('/');
+    }
+    $filePath = storage_path('app/public/' . $path);
+    if (!file_exists($filePath) || is_dir($filePath)) {
+        abort(404, 'File tidak ditemukan');
+    }
+    if ($request->query('download') == '1') {
+        return response()->download($filePath);
+    }
+    return response()->file($filePath, [
+        'Access-Control-Allow-Origin' => '*',
+        'Access-Control-Allow-Methods' => 'GET, OPTIONS',
+    ]);
+})->where('path', '.*');

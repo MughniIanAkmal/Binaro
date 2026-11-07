@@ -297,6 +297,26 @@ class MateriController extends Controller
         return back()->with('success', 'Bab berhasil dihapus.');
     }
 
+    public function toggleBabLock($id)
+    {
+        $bab = Bab::findOrFail($id);
+        $bab->is_locked = !$bab->is_locked;
+        $bab->save();
+
+        $statusText = $bab->is_locked ? 'dikunci (siswa tidak dapat mengakses)' : 'dibuka kuncinya (siswa dapat mengakses)';
+        return back()->with('success', "Bab \"{$bab->nama_bab}\" berhasil {$statusText}.");
+    }
+
+    public function toggleSubBabLock($id)
+    {
+        $subBab = SubBab::findOrFail($id);
+        $subBab->is_locked = !$subBab->is_locked;
+        $subBab->save();
+
+        $statusText = $subBab->is_locked ? 'dikunci' : 'dibuka kuncinya';
+        return back()->with('success', "Sub-Bab \"{$subBab->nama_sub_bab}\" berhasil {$statusText}.");
+    }
+
     public function destroySubBab($id)
     {
         SubBab::findOrFail($id)->delete();
