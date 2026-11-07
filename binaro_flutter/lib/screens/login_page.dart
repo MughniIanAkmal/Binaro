@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dashboard_page.dart';
-import 'page_transitions.dart';
+import '../utils/constants.dart';
+import '../utils/page_transitions.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,8 +20,8 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   bool _obscurePassword = true;
 
-  // PENGATURAN URL API LARAVEL:
-  static const String _apiUrl = 'http://192.168.18.9:8000/api/login';
+  // Endpoint login terpusat dari AppConstants
+  static const String _apiUrl = '${AppConstants.baseUrl}/login';
 
   Future<void> _handleLogin() async {
     final nama = _namaController.text.trim();
@@ -89,7 +90,7 @@ class _LoginPageState extends State<LoginPage> {
       SnackBar(
         content: Text(message),
         backgroundColor:
-            isError ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
+            isError ? AppColors.error : AppColors.success,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
@@ -279,10 +280,9 @@ class _LoginPageState extends State<LoginPage> {
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _handleLogin,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF1D5A86),
+                              backgroundColor: AppColors.primary,
                               foregroundColor: Colors.white,
-                              disabledBackgroundColor: const Color(0xFF1D5A86)
-                                  .withValues(alpha: 0.6),
+                              disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),

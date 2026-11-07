@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'pengerjaan_ujian_page.dart';
-import 'page_transitions.dart';
+import '../utils/constants.dart';
+import '../utils/page_transitions.dart';
 import 'profile_page.dart';
 
 class PetunjukUjianPage extends StatefulWidget {
@@ -20,11 +21,11 @@ class PetunjukUjianPage extends StatefulWidget {
 }
 
 class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
-  static const String _baseUrl = 'http://192.168.18.9:8000/api';
+  static const String _baseUrl = AppConstants.baseUrl;
 
   bool _isLoading = true;
   bool _isReady = false; // Checkbox "Saya sudah siap ujian!"
-  Map<String, dynamic> _data = {};
+  Map<String, dynamic> _petunjukData = {};
 
   @override
   void initState() {
@@ -38,14 +39,14 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
     try {
       final response = await http
           .get(Uri.parse('$_baseUrl/siswa/ujian/${widget.quizId}/petunjuk'))
-          .timeout(const Duration(seconds: 8));
+          .timeout(AppConstants.timeoutDuration);
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
         if (decoded['success'] == true && decoded['data'] != null) {
           if (mounted) {
             setState(() {
-              _data = Map<String, dynamic>.from(decoded['data'] as Map);
+              _petunjukData = Map<String, dynamic>.from(decoded['data'] as Map);
               _isLoading = false;
             });
             return;
@@ -56,7 +57,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
 
     if (mounted) {
       setState(() {
-        _data = {};
+        _petunjukData = {};
         _isLoading = false;
       });
     }
@@ -64,21 +65,21 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
 
   @override
   Widget build(BuildContext context) {
-    final String kategori = _data['kategori_badge'] ?? 'UJIAN TENGAH SEMESTER';
-    final String judul = _data['judul_quiz'] ?? 'PTS Matematika Kelas 4B';
-    final String guru = _data['guru'] ?? 'Ibu Sarah Wijaya, S.Pd.';
-    final Map<String, dynamic> ringkasan = _data['ringkasan'] != null && _data['ringkasan'] is Map
-        ? Map<String, dynamic>.from(_data['ringkasan'] as Map)
-        : {'waktu_menit': 60, 'total_soal': 20, 'target_kkm': 75, 'koreksi': 'Otomatis'};
+    final String kategori = _petunjukData['kategori_badge'] ?? 'UJIAN ONLINE';
+    final String judul = _petunjukData['judul_quiz'] ?? 'Ujian Online Siswa';
+    final String guru = _petunjukData['guru'] ?? '-';
+    final Map<String, dynamic> ringkasan = _petunjukData['ringkasan'] != null && _petunjukData['ringkasan'] is Map
+        ? Map<String, dynamic>.from(_petunjukData['ringkasan'] as Map)
+        : {'waktu_menit': 60, 'total_soal': 0, 'target_kkm': 75, 'koreksi': 'Otomatis'};
 
-    final List<dynamic> petunjuk = _data['petunjuk_pengerjaan'] ?? [
+    final List<dynamic> petunjuk = _petunjukData['petunjuk_pengerjaan'] ?? [
       {'nomor': 1, 'warna': 'blue', 'teks': 'Berdoa sebelum mulai.'},
       {'nomor': 2, 'warna': 'orange', 'teks': 'Pilih salah satu jawaban A, B, C, atau D.'},
       {'nomor': 3, 'warna': 'green', 'teks': 'Periksa kembali lalu kumpulkan.'},
     ];
 
-    final String tipsPesan = _data['tips_semangat']?['pesan'] ?? 'Tenang, teliti, dan jangan lupa berdoa ya!';
-    final String footer = _data['footer'] ?? 'Ada kendala saat membuka soal? Beritahu guru pengawasmu';
+    final String tipsPesan = _petunjukData['tips_semangat']?['pesan'] ?? 'Tenang, teliti, dan jangan lupa berdoa ya!';
+    final String footer = _petunjukData['footer'] ?? 'Ada kendala saat membuka soal? Beritahu guru pengawasmu';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -126,7 +127,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
-          : _data.isEmpty
+          : _petunjukData.isEmpty
               ? Center(
                   child: Container(
                     margin: const EdgeInsets.all(24),
