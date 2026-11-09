@@ -4,191 +4,215 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Portal Guru - Binaro SD' }}</title>
+    <title>{{ $title ?? 'Portal Pengajar - Binaro' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Instrument Sans', sans-serif; background-color: #F8FAFC; }
-        .sidebar-bg { background-color: #13527D; }
-        .active-item { background-color: #1E5D88; color: #ffffff; font-weight: 700; }
+        :root {
+            --binaro-navy: #0E3A5C;
+            --binaro-navy-soft: #17557F;
+            --binaro-line: #E6EBF2;
+            --binaro-canvas: #F5F7FB;
+        }
+        body { font-family: 'Plus Jakarta Sans', 'Instrument Sans', sans-serif; background-color: var(--binaro-canvas); }
+        .nav-item { transition: background-color .15s ease, color .15s ease; }
+        .nav-item-active { background-color: var(--binaro-navy); color: #fff; font-weight: 700; box-shadow: 0 6px 14px -8px rgba(14, 58, 92, .8); }
+        .nav-item-active i { color: #fff !important; }
+        .card { background: #fff; border: 1px solid var(--binaro-line); border-radius: 1rem; }
+        .hero-gradient { background: linear-gradient(115deg, #0E3A5C 0%, #14496F 55%, #1A5C88 100%); }
+        .scroll-thin::-webkit-scrollbar { width: 6px; }
+        .scroll-thin::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
     </style>
 </head>
-<body class="text-slate-800 flex min-h-screen bg-slate-50">
+<body class="text-slate-800 min-h-screen">
 
-    <!-- Sidebar 64 (256px) Fixed Left -->
-    <aside class="w-64 sidebar-bg text-white flex flex-col fixed h-screen z-20 shadow-xl">
-        <div class="p-5 border-b border-white/10">
+@php
+    $navGuru = $guru ?? null;
+    $navNama = $navGuru->nama_guru ?? session('user_name', 'Guru Binaro');
+    $navInisial = strtoupper(substr(trim($navNama), 0, 2));
+    $navPeran = 'Guru';
+    $navSemester = (int) now()->month >= 7 ? 'GANJIL' : 'GENAP';
+    $navTahun = (int) now()->month >= 7
+        ? now()->year.'/'.(now()->year + 1)
+        : (now()->year - 1).'/'.now()->year;
+
+    // Jumlah sesi hari ini: dipakai dashboard dari controller, halaman lain hitung sendiri.
+    if (isset($sesiHariIni)) {
+        $navSesiHariIni = $sesiHariIni->count();
+    } elseif ($navGuru) {
+        $navSesiHariIni = \App\Models\JadwalMataPelajaran::where('id_guru', $navGuru->id_guru)
+            ->whereRaw('LOWER(TRIM(hari)) = ?', [strtolower(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'][now()->dayOfWeekIso - 1])])
+            ->count();
+    } else {
+        $navSesiHariIni = 0;
+    }
+
+    $menuUtama = [
+        ['label' => 'Beranda Guru', 'icon' => 'fa-house', 'route' => 'guru.dashboard', 'aktif' => request()->routeIs('guru.dashboard')],
+        ['label' => 'Presensi Siswa', 'icon' => 'fa-clipboard-check', 'route' => 'guru.absensi.rekap', 'aktif' => request()->routeIs('guru.absensi.*') || request()->routeIs('guru.absen.*')],
+        ['label' => 'RPP & Modul', 'icon' => 'fa-file-lines', 'route' => 'guru.rpp.index', 'aktif' => request()->routeIs('guru.rpp.*') || request()->routeIs('rpp.*') || request()->routeIs('rpp_guru.*')],
+        ['label' => 'Tugas & Kuis', 'icon' => 'fa-pen-to-square', 'route' => 'guru.ujian.index', 'aktif' => request()->routeIs('guru.ujian.*') || request()->routeIs('guru.quiz.*')],
+        ['label' => 'Buku Nilai', 'icon' => 'fa-chart-simple', 'route' => 'rekap_nilai.index', 'aktif' => request()->routeIs('rekap_nilai.*') || request()->routeIs('rekap_ujian.*')],
+    ];
+
+    $judulHalaman = match (true) {
+        request()->routeIs('guru.dashboard') => ['Dashboard Pengajar', 'Ruang Kelas & Penilaian'],
+        request()->routeIs('guru.jadwal.*') => ['Akademik', 'Jadwal Mengajar'],
+        request()->routeIs('guru.mapel.*') => ['Akademik', 'Mata Pelajaran'],
+        request()->routeIs('guru.bab.*') => ['Akademik', 'Daftar Bab'],
+        request()->routeIs('guru.sub_bab.*') => ['Akademik', 'Sub-Bab'],
+        request()->routeIs('guru.materi.*') => ['Akademik', 'Kelola Materi'],
+        request()->routeIs('guru.notifikasi_pr.*') => ['Akademik', 'Notifikasi PR'],
+        request()->routeIs('guru.absensi.*', 'guru.absen.*') => ['Utama', 'Presensi Siswa'],
+        request()->routeIs('guru.rpp.*', 'rpp.*', 'rpp_guru.*') => ['Utama', 'RPP & Modul Ajar'],
+        request()->routeIs('guru.ujian.*', 'guru.quiz.*') => ['Utama', 'Tugas & Kuis'],
+        request()->routeIs('rekap_nilai.*', 'rekap_ujian.*') => ['Utama', 'Buku Nilai'],
+        default => ['Halaman', 'Portal Pengajar'],
+    };
+
+    $menuAkademik = [
+        ['label' => 'Jadwal Mengajar', 'icon' => 'fa-calendar-days', 'route' => 'guru.jadwal.index', 'aktif' => request()->routeIs('guru.jadwal.*')],
+        ['label' => 'Mata Pelajaran', 'icon' => 'fa-book-bookmark', 'route' => 'guru.mapel.browse', 'aktif' => request()->routeIs('guru.mapel.*') || request()->routeIs('guru.bab.*') || request()->routeIs('guru.sub_bab.*')],
+        ['label' => 'Kelola Materi', 'icon' => 'fa-layer-group', 'route' => 'guru.materi.index', 'aktif' => request()->routeIs('guru.materi.*')],
+        ['label' => 'Notifikasi PR', 'icon' => 'fa-bell', 'route' => 'guru.notifikasi_pr.index', 'aktif' => request()->routeIs('guru.notifikasi_pr.*')],
+    ];
+@endphp
+
+<div class="flex min-h-screen">
+
+    {{-- ================= SIDEBAR ================= --}}
+    <aside class="w-[268px] shrink-0 bg-white border-r border-[#E6EBF2] fixed inset-y-0 left-0 z-30 flex flex-col">
+        {{-- Brand --}}
+        <div class="px-5 pt-6 pb-5">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-white text-[#13527D] rounded-xl flex items-center justify-center font-black text-lg shadow-sm">BN</div>
-                <div>
-                    <h1 class="font-bold text-sm leading-tight tracking-wide">PORTAL GURU SD</h1>
-                    <p class="text-[10px] text-white/70">SDN Kalitapen 01</p>
+                <div class="w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm" style="background: var(--binaro-navy);">
+                    <i class="fas fa-graduation-cap text-white text-lg"></i>
+                </div>
+                <div class="leading-tight">
+                    <div class="text-[17px] font-extrabold tracking-tight text-slate-900">BINARO</div>
+                    <div class="text-[9.5px] font-bold tracking-[0.16em] text-slate-400 uppercase">Portal Pengajar</div>
                 </div>
             </div>
         </div>
 
-        <!-- Sidebar Navigation: Hanya Mata Pelajaran & Kelola Materi -->
-        <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto">
-            <!-- 0. Menu Beranda (Dashboard Awal Guru) -->
-            <a href="{{ route('guru.dashboard') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.dashboard') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
-                <i class="fas fa-home w-4 text-sky-300"></i> Beranda
-            </a>
-
-            <!-- 1. Menu Mata Pelajaran (Hierarki: Grid Mapel -> Bab -> Sub-Bab -> Materi) -->
-            <a href="{{ route('guru.mapel.browse') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.mapel.*') || request()->routeIs('guru.bab.*') || request()->routeIs('guru.sub_bab.*') || request()->routeIs('guru.materi.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
-                <i class="fas fa-book-bookmark w-4 text-amber-300"></i> Mata Pelajaran
-            </a>
-
-            <!-- 2. Menu Kelola Materi (Dropdown Modal: Tambah & Edit) -->
-            <div class="relative">
-                <button type="button" onclick="document.getElementById('submenu-tambah-materi').classList.toggle('hidden'); document.getElementById('arrow-tambah-materi').classList.toggle('rotate-180');"
-                        class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs text-white/80 hover:bg-white/10 transition">
-                    <span class="flex items-center gap-3">
-                        <i class="fas fa-layer-group w-4 text-emerald-300"></i> Kelola Materi
-                    </span>
-                    <i id="arrow-tambah-materi" class="fas fa-chevron-down text-[10px] transition-transform duration-200"></i>
-                </button>
-                <div id="submenu-tambah-materi" class="mt-1 pl-4 space-y-1">
-                    <button type="button" onclick="openModalAction('tambah')" class="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-white/90 hover:bg-white/15 transition font-medium">
-                        <i class="fas fa-plus text-[10px] text-emerald-400"></i> Tambah Materi / Bab
-                    </button>
-                    <button type="button" onclick="openModalAction('edit')" class="w-full text-left flex items-center gap-2.5 px-3 py-2 rounded-lg text-[11px] text-white/90 hover:bg-white/15 transition font-medium">
-                        <i class="fas fa-pen-to-square text-[10px] text-amber-300"></i> Edit Materi Eksisting
-                    </button>
-                </div>
+        <nav class="flex-1 overflow-y-auto scroll-thin px-3 pb-4">
+            <div class="px-3 pt-2 pb-2 text-[10px] font-extrabold tracking-[0.14em] text-slate-400 uppercase">Utama</div>
+            <div class="space-y-1">
+                @foreach($menuUtama as $menu)
+                    <a href="{{ route($menu['route']) }}"
+                       class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] {{ $menu['aktif'] ? 'nav-item-active' : 'text-slate-600 hover:bg-slate-50' }}">
+                        <i class="fas {{ $menu['icon'] }} w-4 text-center text-[13px] {{ $menu['aktif'] ? '' : 'text-slate-400' }}"></i>
+                        <span>{{ $menu['label'] }}</span>
+                    </a>
+                @endforeach
             </div>
 
-            <!-- 3. Menu Rekap Absensi Siswa -->
-            <a href="{{ route('guru.absensi.rekap') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.absensi.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
-                <i class="fas fa-chart-pie w-4 text-sky-300"></i> Rekap Absensi
-            </a>
-
-            <!-- 3a. Menu Jadwal Mengajar (Senin–Sabtu) -->
-            <a href="{{ route('guru.jadwal.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.jadwal.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
-                <i class="fas fa-calendar-days w-4 text-sky-300"></i> Jadwal Mengajar
-            </a>
-
-            <!-- 3b. Menu Scan Absensi (QR) -->
-            <a href="{{ route('guru.absen.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.absen.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
-                <i class="fas fa-qrcode w-4 text-emerald-300"></i> Scan Absensi
-            </a>
-
-            <!-- 4. Menu Kelola Notifikasi PR -->
-            <a href="{{ route('guru.notifikasi_pr.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.notifikasi_pr.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
-                <i class="fas fa-bell w-4 text-amber-300"></i> Notifikasi PR
-            </a>
-
-            <!-- 4b. Menu Ujian Online (CRUD Ujian & Soal) -->
-            <a href="{{ route('guru.ujian.index') }}"
-               class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.ujian.*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
-                <i class="fas fa-file-circle-question w-4 text-emerald-300"></i> Ujian Online
-            </a>
-
-            <!-- 5. Menu RPP & Modul Ajar (Kurikulum Merdeka) -->
-            <a href="{{ route('guru.rpp.index') }}"
-               class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.rpp.*') || request()->is('rpp-guru*') || (request()->routeIs('rpp.*') && session('user_type') === 'guru') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
-                <span class="flex items-center gap-3">
-                    <i class="fas fa-file-signature w-4 text-amber-300"></i> RPP & Modul Ajar
-                </span>
-            </a>
-
-            <!-- 6. Menu Rekap Nilai -->
-            <a href="{{ route('rekap_nilai.index') }}"
-               class="flex items-center justify-between px-3 py-2.5 rounded-xl text-xs {{ request()->routeIs('rekap_nilai.*') || request()->is('rekap-nilai*') || request()->routeIs('rekap_ujian.*') || request()->is('rekap-ujian*') ? 'active-item shadow-sm' : 'text-white/80 hover:bg-white/10' }}">
-                <span class="flex items-center gap-3">
-                    <i class="fas fa-chart-bar w-4 text-sky-300"></i> Rekap Nilai
-                </span>
-            </a>
+            <div class="px-3 pt-6 pb-2 text-[10px] font-extrabold tracking-[0.14em] text-slate-400 uppercase">Akademik</div>
+            <div class="space-y-1">
+                @foreach($menuAkademik as $menu)
+                    <a href="{{ route($menu['route']) }}"
+                       class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] {{ $menu['aktif'] ? 'nav-item-active' : 'text-slate-600 hover:bg-slate-50' }}">
+                        <i class="fas {{ $menu['icon'] }} w-4 text-center text-[13px] {{ $menu['aktif'] ? '' : 'text-slate-400' }}"></i>
+                        <span>{{ $menu['label'] }}</span>
+                    </a>
+                @endforeach
+            </div>
         </nav>
 
-        <div class="p-4 border-t border-white/10 text-xs">
-            <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar?')">
+        {{-- Semester card --}}
+        <div class="p-3">
+            <div class="rounded-2xl border border-[#E6EBF2] bg-[#FAFBFD] px-4 py-3.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span class="text-[10px] font-extrabold tracking-[0.1em] text-slate-500 uppercase">Semester {{ $navSemester }}</span>
+                </div>
+                <div class="mt-1 text-[12px] font-bold text-slate-800">TA {{ $navTahun }}</div>
+                <div class="mt-0.5 text-[11px] text-slate-400">{{ $navSesiHariIni }} Sesi Terjadwal Hari Ini</div>
+            </div>
+
+            <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar?')" class="mt-2">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-2 px-3 py-2 text-rose-300 hover:bg-rose-500/20 rounded-lg text-xs transition">
-                    <i class="fas fa-sign-out-alt"></i> Keluar
+                <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition">
+                    <i class="fas fa-arrow-right-from-bracket w-4 text-center text-[12px]"></i> Keluar
                 </button>
             </form>
         </div>
     </aside>
 
-    <!-- Main Content Area -->
-    <main class="flex-1 ml-64 flex flex-col min-w-0">
-        <!-- Top Header -->
-        <header class="bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center sticky top-0 z-30 shadow-sm">
-            <div>
-                <div class="text-[11px] font-semibold text-slate-500">
-                    SDN Kalitapen 01 &bull; Portal Guru
-                </div>
-                <h2 class="text-base font-bold text-slate-900">Binaro Learning & Assessment</h2>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="bg-[#13527D]/10 text-[#13527D] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide">
-                    Tahun Ajaran Aktif
-                </span>
-                <div class="flex items-center gap-2 pl-3 border-l border-slate-200">
-                    <div class="text-right">
-                        <div class="text-xs font-bold text-slate-900">{{ $guru->nama_guru ?? session('user_name', 'Guru Binaro') }}</div>
-                        <div class="text-[10px] text-slate-500">NIP: {{ session('user_identifier', '198501012010012001') }}</div>
+    {{-- ================= MAIN ================= --}}
+    <div class="flex-1 ml-[268px] flex flex-col min-w-0">
+
+        {{-- Header --}}
+        <header class="bg-white border-b border-[#E6EBF2] sticky top-0 z-20">
+            <div class="px-7 py-4 flex items-center justify-between gap-4 flex-wrap">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-400">
+                        <span>Halaman</span>
+                        <i class="fas fa-chevron-right text-[8px]"></i>
+                        <span class="text-slate-500">@yield('breadcrumb', $judulHalaman[0])</span>
                     </div>
-                    <div class="w-9 h-9 rounded-xl bg-[#13527D] text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                        {{ strtoupper(substr($guru->nama_guru ?? session('user_name', 'GB'), 0, 2)) }}
+                    <h1 class="text-[19px] font-extrabold text-slate-900 tracking-tight mt-0.5 truncate">@yield('page_title', $judulHalaman[1])</h1>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    @yield('header_actions')
+                    <div class="flex items-center gap-2.5 pl-3 ml-1 border-l border-[#E6EBF2]">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-extrabold" style="background: var(--binaro-navy);">
+                            {{ $navInisial }}
+                        </div>
+                        <div class="leading-tight hidden sm:block">
+                            <div class="text-[12px] font-bold text-slate-900 max-w-[180px] truncate">{{ $navNama }}</div>
+                            <div class="text-[10.5px] text-slate-400">{{ $navPeran }}</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- Flash Alerts -->
-        @if(session('success'))
-        <div class="mx-8 mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-2.5">
-                <i class="fas fa-check-circle text-emerald-600 text-base"></i>
-                <span class="font-medium">{{ session('success') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700"><i class="fas fa-times"></i></button>
-        </div>
-        @endif
+        {{-- Flash --}}
+        <div class="px-7">
+            @if(session('success'))
+                <div class="mt-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fas fa-circle-check text-emerald-600"></i>
+                        <span class="font-semibold">{{ session('success') }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700"><i class="fas fa-xmark"></i></button>
+                </div>
+            @endif
 
-        @if(session('error'))
-        <div class="mx-8 mt-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-2.5">
-                <i class="fas fa-circle-exclamation text-rose-600 text-base"></i>
-                <span class="font-medium">{{ session('error') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700"><i class="fas fa-times"></i></button>
-        </div>
-        @endif
+            @if(session('error'))
+                <div class="mt-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fas fa-circle-exclamation text-rose-600"></i>
+                        <span class="font-semibold">{{ session('error') }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700"><i class="fas fa-xmark"></i></button>
+                </div>
+            @endif
 
-        @if(isset($errors) && $errors->any())
-        <div class="mx-8 mt-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs shadow-sm">
-            <div class="font-bold mb-1.5 flex items-center gap-2 text-rose-700">
-                <i class="fas fa-triangle-exclamation"></i>
-                <span>Terjadi Kesalahan Input:</span>
-            </div>
-            <ul class="list-disc list-inside space-y-1 pl-1 text-slate-700">
-                @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+            @if(isset($errors) && $errors->any())
+                <div class="mt-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                    <div class="font-bold mb-1.5 flex items-center gap-2"><i class="fas fa-triangle-exclamation"></i> Terjadi kesalahan input:</div>
+                    <ul class="list-disc list-inside space-y-1 text-slate-700">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
         </div>
-        @endif
 
-        <!-- Page Content -->
-        <div class="p-8 space-y-6 flex-1">
+        <main class="flex-1 px-7 py-6">
             @yield('content')
-        </div>
-    </main>
+        </main>
+    </div>
+</div>
 
-    <!-- Include Pop-Up Modal Action PRD 4.2 -->
-    @include('guru.materi.modal_action')
+@include('guru.materi.modal_action')
 
 </body>
 </html>
