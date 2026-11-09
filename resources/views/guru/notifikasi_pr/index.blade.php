@@ -1,30 +1,17 @@
 @extends('layouts.guru')
 
+@section('page_title', 'Notifikasi PR')
+
+@section('header_actions')
+    <a href="{{ route('guru.notifikasi_pr.create') }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+       style="background: var(--binaro-navy);">
+        <i class="fas fa-plus text-[11px]"></i> Tambah PR Baru
+    </a>
+@endsection
+
 @section('content')
-<div class="space-y-6">
-
-    <!-- Header & Action Bar -->
-    <div class="bg-gradient-to-r from-[#0E385D] to-[#165B96] rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div class="space-y-1">
-            <div class="flex items-center gap-2">
-                <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    <i class="fas fa-bell mr-1"></i> Notifikasi Akademik
-                </span>
-                <span class="text-xs text-sky-200">SDN Kalitapen 01</span>
-            </div>
-            <h1 class="text-xl md:text-2xl font-black tracking-tight">Kelola Notifikasi Pekerjaan Rumah (PR)</h1>
-            <p class="text-xs text-sky-100 max-w-xl">
-                Tambah tugas PR, atur tenggat waktu, dan kirimkan notifikasi pengingat langsung ke akun portal siswa.
-            </p>
-        </div>
-        <div class="flex flex-wrap items-center gap-2.5">
-            <a href="{{ route('guru.notifikasi_pr.create') }}" class="px-4 py-2.5 bg-white text-[#13527D] hover:bg-slate-100 font-extrabold text-xs rounded-xl shadow transition flex items-center gap-2">
-                <i class="fas fa-plus text-xs"></i> Tambah PR Baru
-            </a>
-        </div>
-    </div>
-
-
+<div class="space-y-5">
 
     <!-- 4 KPI Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

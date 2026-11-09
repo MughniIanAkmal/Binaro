@@ -1,5 +1,15 @@
 @extends('layouts.guru')
 
+@section('page_title', 'Scan Absen Siswa')
+@section('page_subtitle', 'Arahkan QR kartu siswa ke kamera. Jika QR tidak terbaca, ketik kodenya secara manual.')
+
+@section('header_actions')
+    <a href="{{ route('guru.absensi.rekap') }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+        <i class="fas fa-chart-pie text-[11px]"></i> Rekap Absensi
+    </a>
+@endsection
+
 @section('content')
 <style>
     /* Orientasi preview diatur dinamis via JS (fungsi terapkanCermin):
@@ -21,7 +31,7 @@
     @keyframes scanLaser { 0%, 100% { top: 16px; } 50% { top: calc(100% - 18px); } }
 </style>
 
-<div class="space-y-6 max-w-3xl mx-auto">
+<div class="space-y-5 max-w-3xl mx-auto">
     @include('guru.absen._summary')
     @include('guru.absen._camera')
     @include('guru.absen._forms')

@@ -1,8 +1,32 @@
 @extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
 
+@if(session('user_type') === 'guru')
+    @section('page_title', 'Presensi Siswa')
+    @section('page_subtitle', 'Monitoring dan rekapitulasi kehadiran harian seluruh rombel.')
+
+    @section('header_actions')
+        @if (in_array(session('user_type'), ['guru', 'admin'], true))
+            <form action="{{ route('absensi.scan-qr') }}" method="POST" class="flex gap-2">
+                @csrf
+                <input type="text" name="kode_barcode" placeholder="Scan Barcode / Input ID..." required
+                       class="px-4 h-10 text-[12px] font-bold text-slate-700 border border-[#E6EBF2] rounded-xl bg-white focus:outline-none focus:border-[#17557F]">
+                <button type="submit" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">
+                    <i class="fas fa-qrcode text-[11px]"></i> Scan QR
+                </button>
+            </form>
+        @endif
+        <button onclick="openSettingsModal()"
+                class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+                style="background: var(--binaro-navy);">
+            <i class="fas fa-clock text-[11px]"></i> Pengaturan Waktu
+        </button>
+    @endsection
+@endif
+
 @section('content')
-<div class="p-8 space-y-6">
-    <!-- Breadcrumb & Header -->
+<div class="space-y-5">
+    @if(session('user_type') !== 'guru')
+    <!-- Breadcrumb & Header (panel admin) -->
     <div class="flex justify-between items-start">
         <div>
             <div class="flex items-center gap-2 text-[11px] font-semibold mb-1">
@@ -15,7 +39,6 @@
             <p class="text-xs text-slate-500">Monitoring dan rekapitulasi kehadiran harian seluruh rombel kelas SDN Kalitapen 01.</p>
         </div>
         <div class="flex items-center gap-2">
-            <!-- Form Scan QR Cepat -->
             @if (in_array(session('user_type'), ['guru', 'admin'], true))
                 <form action="{{ route('absensi.scan-qr') }}" method="POST" class="flex gap-2">
                     @csrf
@@ -30,16 +53,10 @@
             <a href="{{ route('admin.absensi.settings') }}" class="bg-[#13527D] hover:bg-[#0E3D5D] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm transition">
                 <i class="fas fa-clock text-xs"></i> Pengaturan Jam Absen
             </a>
-            @else
-            <button onclick="openSettingsModal()" class="bg-[#13527D] hover:bg-[#0E3D5D] text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-sm transition">
-                <i class="fas fa-clock text-xs"></i> Pengaturan Waktu
-            </button>
             @endif
-            <button class="hidden bg-[#0F2C59] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-slate-900 flex items-center gap-2 shadow-sm">
-                <i class="fas fa-lock text-xs"></i> Kunci & Kirim ke Dapodik
-            </button>
         </div>
     </div>
+    @endif
 
     <!-- 4 KPI Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">

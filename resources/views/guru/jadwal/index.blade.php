@@ -1,8 +1,14 @@
 @extends('layouts.guru')
 
+@section('header_actions')
+    <button type="button" onclick="window.print()"
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition print:hidden">
+        <i class="fas fa-print text-[11px]"></i> Cetak Jadwal
+    </button>
+@endsection
+
 @section('content')
-<div class="p-8 space-y-6 pb-12">
-    @include('guru.jadwal._header')
+<div class="space-y-5 pb-6">
     @include('guru.jadwal._summary')
     @include('guru.jadwal._day_tabs')
     @include('guru.jadwal._schedule_list')

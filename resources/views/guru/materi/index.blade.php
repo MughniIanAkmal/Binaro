@@ -1,28 +1,22 @@
 @extends('layouts.guru')
 
+@section('page_title', 'Kelola Materi')
+
+@section('header_actions')
+    <form method="GET" action="{{ route('guru.materi.index') }}" class="flex items-center gap-2">
+        <select name="mapel_id" onchange="this.form.submit()" class="px-4 h-10 bg-white border border-[#E6EBF2] rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-[#17557F]">
+            <option value="">-- Pilih Mata Pelajaran --</option>
+            @foreach($mapels as $mapel)
+                <option value="{{ $mapel->id_mapel }}" {{ $selectedMapelId == $mapel->id_mapel ? 'selected' : '' }}>
+                    {{ $mapel->nama_mapel }}
+                </option>
+            @endforeach
+        </select>
+    </form>
+@endsection
+
 @section('content')
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h1 class="text-xl font-bold text-slate-900">Manajemen Materi Pembelajaran</h1>
-            <p class="text-xs text-slate-500">Kelola Bab, Sub-Bab, dan Tipe Konten (Video, PDF, Kuis)</p>
-        </div>
-
-        <!-- Filter Mapel -->
-        <form method="GET" action="{{ route('guru.materi.index') }}" class="flex items-center gap-2">
-            <select name="mapel_id" onchange="this.form.submit()" class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:border-[#13527D]">
-                <option value="">-- Pilih Mata Pelajaran --</option>
-                @foreach($mapels as $mapel)
-                    <option value="{{ $mapel->id_mapel }}" {{ $selectedMapelId == $mapel->id_mapel ? 'selected' : '' }}>
-                        {{ $mapel->nama_mapel }}
-                    </option>
-                @endforeach
-            </select>
-        </form>
-    </div>
-
-
+<div class="space-y-5">
     @if(!$selectedMapelId)
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center">
         <i class="fas fa-book-open text-slate-300 text-3xl mb-2"></i>

@@ -1,44 +1,30 @@
 @extends('layouts.guru')
 
+@section('page_title', 'Daftar Sub-Bab')
+@section('page_subtitle', $bab->mataPelajaran->nama_mapel.' · '.$bab->nama_bab)
+
+@section('breadcrumb_trail')
+    <a href="{{ route('guru.mapel.browse') }}" class="hover:text-slate-600 transition">Mata Pelajaran</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <a href="{{ route('guru.bab.index', $bab->mataPelajaran->id_mapel) }}" class="hover:text-slate-600 transition">{{ $bab->mataPelajaran->nama_mapel }}</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <span class="text-slate-500">{{ $bab->nama_bab }}</span>
+@endsection
+
+@section('header_actions')
+    <a href="{{ route('guru.bab.index', $bab->mataPelajaran->id_mapel) }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+        <i class="fas fa-arrow-left text-[11px]"></i> Kembali ke Bab
+    </a>
+    <button onclick="openModalAction('tambah', 'sub_bab', { idMapel: {{ $bab->mataPelajaran->id_mapel }}, idBab: {{ $bab->id_bab }}, namaMapel: '{{ addslashes($bab->mataPelajaran->nama_mapel) }}', namaBab: '{{ addslashes($bab->nama_bab) }}', locked: true })"
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+            style="background: var(--binaro-navy);">
+        <i class="fas fa-plus text-[11px]"></i> Tambah Sub-Bab
+    </button>
+@endsection
+
 @section('content')
-<div class="space-y-6">
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-xs text-slate-500 font-medium flex-wrap">
-        <a href="{{ route('guru.mapel.browse') }}" class="hover:text-[#13527D] transition">Mata Pelajaran</a>
-        <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
-        <a href="{{ route('guru.bab.index', $bab->mataPelajaran->id_mapel) }}" class="hover:text-[#13527D] transition">
-            {{ $bab->mataPelajaran->nama_mapel }}
-        </a>
-        <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
-        <span class="text-slate-800 font-bold">{{ $bab->nama_bab }}</span>
-    </div>
-
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-        <div>
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center text-lg font-bold">
-                    <i class="fas fa-folder"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold text-slate-900">{{ $bab->nama_bab }}</h1>
-                    <p class="text-xs text-slate-500">Mata Pelajaran: {{ $bab->mataPelajaran->nama_mapel }} &bull; Daftar Sub-Bab</p>
-                </div>
-            </div>
-        </div>
-        <div class="flex items-center gap-2">
-            <a href="{{ route('guru.bab.index', $bab->mataPelajaran->id_mapel) }}" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
-                <i class="fas fa-arrow-left"></i> Kembali ke Bab
-            </a>
-            {{-- Tombol Tambah Sub-Bab --}}
-            <button onclick="openModalAction('tambah', 'sub_bab', { idMapel: {{ $bab->mataPelajaran->id_mapel }}, idBab: {{ $bab->id_bab }}, namaMapel: '{{ addslashes($bab->mataPelajaran->nama_mapel) }}', namaBab: '{{ addslashes($bab->nama_bab) }}', locked: true })" 
-                    class="px-3.5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-xl shadow-sm transition flex items-center gap-2">
-                <i class="fas fa-plus"></i> Tambah Sub-Bab
-            </button>   
-        </div>
-    </div>
-
-
+<div class="space-y-5">
     <!-- Daftar Sub-Bab List -->
     <div class="space-y-4">
         @forelse($bab->subBab as $index => $subBab)

@@ -1,21 +1,22 @@
 @extends('layouts.guru')
 
+@section('page_title', 'Perbarui Data Tugas PR')
+
+@section('breadcrumb_trail')
+    <a href="{{ route('guru.notifikasi_pr.index') }}" class="hover:text-slate-600 transition">Notifikasi PR</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <span class="text-slate-500">Edit PR</span>
+@endsection
+
+@section('header_actions')
+    <a href="{{ route('guru.notifikasi_pr.index') }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+        <i class="fas fa-arrow-left text-[11px]"></i> Kembali
+    </a>
+@endsection
+
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6">
-
-    <!-- Breadcrumb & Title -->
-    <div>
-        <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
-            <a href="{{ route('guru.notifikasi_pr.index') }}" class="hover:text-[#13527D] font-medium flex items-center gap-1">
-                <i class="fas fa-arrow-left text-[10px]"></i> Kelola Notifikasi PR
-            </a>
-            <span>&bull;</span>
-            <span class="text-slate-800 font-bold">Edit PR</span>
-        </div>
-        <h1 class="text-xl font-bold text-slate-900">Perbarui Data Tugas PR</h1>
-        <p class="text-xs text-slate-500">Ubah judul, tenggat, instruksi, atau kirimkan notifikasi pembaruan ke siswa.</p>
-    </div>
-
+<div class="max-w-4xl mx-auto space-y-5">
     <!-- Error Validation Alert -->
     @if($errors->any())
     <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl space-y-1">

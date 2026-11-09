@@ -1,27 +1,15 @@
 @extends('layouts.guru')
 
+@section('header_actions')
+    <a href="{{ route('guru.ujian.create') }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+       style="background: var(--binaro-navy);">
+        <i class="fas fa-plus text-[11px]"></i> Buat Ujian Baru
+    </a>
+@endsection
+
 @section('content')
-<div class="p-8 space-y-6">
-    <!-- Top Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                <span>Portal Guru</span>
-                <span>/</span>
-                <span class="text-[#13527D] font-semibold">Ujian Online</span>
-            </div>
-            <h1 class="text-xl font-bold text-slate-900">Kelola Ujian Online</h1>
-            <p class="text-xs text-slate-500">Buat ujian online baru, susun bank soal dengan bobot nilai, serta tentukan target siswa & tingkat kesulitan.</p>
-        </div>
-
-        <div class="flex items-center gap-2">
-            <a href="{{ route('guru.ujian.create') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-xl transition shadow-sm hover:shadow">
-                <i class="fas fa-plus"></i>
-                <span>Buat Ujian Baru</span>
-            </a>
-        </div>
-    </div>
-
+<div class="space-y-5">
     <!-- Statistik Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
