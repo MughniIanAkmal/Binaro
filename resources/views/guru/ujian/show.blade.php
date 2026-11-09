@@ -1,46 +1,38 @@
 @extends('layouts.guru')
 
+@section('page_title', $quiz->judul_quiz)
+
+@section('breadcrumb_trail')
+    <a href="{{ route('guru.ujian.index') }}" class="hover:text-slate-600 transition">Tugas & Ujian</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <span class="text-slate-500">Detail & Bank Soal</span>
+@endsection
+
+@section('page_subtitle')
+    {{ $quiz->mataPelajaran->nama_mapel ?? 'Semua Mapel' }} · Durasi: {{ $quiz->durasi_menit ?? 60 }} Menit · Dibuat oleh: {{ $quiz->guru->nama_guru ?? 'Guru' }}
+@endsection
+
+@section('header_actions')
+    @if($quiz->tingkat_level === 'mudah')
+        <span class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">Level Mudah</span>
+    @elseif($quiz->tingkat_level === 'sedang')
+        <span class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">Level Sedang</span>
+    @elseif($quiz->tingkat_level === 'susah')
+        <span class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap">Level Susah (HOTS)</span>
+    @endif
+    <a href="{{ route('guru.ujian.edit', $quiz->id_quiz) }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 transition">
+        <i class="fas fa-pen-to-square text-[11px]"></i> Edit Ujian
+    </a>
+    <button onclick="openModal('modal-tambah-soal')"
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+            style="background: var(--binaro-navy);">
+        <i class="fas fa-plus text-[11px]"></i> Tambah Soal
+    </button>
+@endsection
+
 @section('content')
-<div class="p-8 space-y-6 pb-12">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                <a href="{{ route('guru.ujian.index') }}" class="hover:text-[#13527D] transition">Ujian Online</a>
-                <span>/</span>
-                <span class="text-[#13527D] font-semibold">Detail & Bank Soal</span>
-            </div>
-            <div class="flex items-center gap-3">
-                <h1 class="text-xl font-bold text-slate-900">{{ $quiz->judul_quiz }}</h1>
-                @if($quiz->tingkat_level === 'mudah')
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        🟢 Level Mudah
-                    </span>
-                @elseif($quiz->tingkat_level === 'sedang')
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                        🟡 Level Sedang
-                    </span>
-                @elseif($quiz->tingkat_level === 'susah')
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                        🔴 Level Susah (HOTS)
-                    </span>
-                @endif
-            </div>
-            <p class="text-xs text-slate-500 mt-0.5">
-                {{ $quiz->mataPelajaran->nama_mapel ?? 'Semua Mapel' }} &bull; Durasi: {{ $quiz->durasi_menit ?? 60 }} Menit &bull; Dibuat oleh: {{ $quiz->guru->nama_guru ?? 'Guru' }}
-            </p>
-        </div>
-
-        <div class="flex items-center gap-2">
-            <a href="{{ route('guru.ujian.edit', $quiz->id_quiz) }}" class="px-3.5 py-2 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition shadow-sm flex items-center gap-1.5">
-                <i class="fas fa-pen-to-square"></i> Edit Ujian
-            </a>
-            <button onclick="openModal('modal-tambah-soal')" class="px-3.5 py-2 text-xs font-semibold text-white bg-[#13527D] hover:bg-[#0E3D5D] rounded-xl transition shadow-sm flex items-center gap-1.5">
-                <i class="fas fa-plus"></i> Tambah Soal
-            </button>
-        </div>
-    </div>
-
+<div class="space-y-5 pb-6">
     <!-- Info Banner Grid -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm">

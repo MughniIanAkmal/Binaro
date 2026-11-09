@@ -1,30 +1,28 @@
 @extends('layouts.guru')
 
+@section('page_title', 'Bank Soal')
+@section('page_subtitle', $quiz->judul_quiz.' · '.($quiz->subBab?->bab?->mataPelajaran?->nama_mapel ?? 'Mata Pelajaran').' · '.($quiz->subBab?->nama_sub_bab ?? 'Kuis'))
+
+@section('breadcrumb_trail')
+    <a href="{{ route('guru.materi.index') }}" class="hover:text-slate-600 transition">Kelola Materi</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <span class="text-slate-500">Bank Soal</span>
+@endsection
+
+@section('header_actions')
+    <button onclick="openModal('modal-import-soal')"
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">
+        <i class="fas fa-file-excel text-[11px]"></i> Import Excel / CSV
+    </button>
+    <button onclick="openModal('modal-add-soal')"
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+            style="background: var(--binaro-navy);">
+        <i class="fas fa-plus text-[11px]"></i> Tambah Soal
+    </button>
+@endsection
+
 @section('content')
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <a href="{{ route('guru.materi.index') }}" class="text-xs text-[#13527D] hover:underline flex items-center gap-1 font-medium mb-1">
-                <i class="fas fa-arrow-left text-[10px]"></i> Kembali ke Materi
-            </a>
-            <h1 class="text-xl font-bold text-slate-900">Bank Soal: {{ $quiz->judul_quiz }}</h1>
-            <p class="text-xs text-slate-500">
-                {{ $quiz->subBab?->bab?->mataPelajaran?->nama_mapel }} &bull; {{ $quiz->subBab?->nama_sub_bab }}
-            </p>
-        </div>
-
-        <div class="flex items-center gap-2">
-            <button onclick="openModal('modal-import-soal')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-sm">
-                <i class="fas fa-file-excel"></i> Import Excel / CSV
-            </button>
-            <button onclick="openModal('modal-add-soal')" class="px-3 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-sm">
-                <i class="fas fa-plus"></i> Tambah Soal Manual
-            </button>
-        </div>
-    </div>
-
-
+<div class="space-y-5">
     <!-- Question List -->
     <div class="space-y-3">
         @forelse($quiz->soal as $idx => $soal)

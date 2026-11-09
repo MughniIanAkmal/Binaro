@@ -1,27 +1,27 @@
 @extends('layouts.guru')
 
+@section('page_title', 'Rincian PR & Riwayat Siswa')
+
+@section('breadcrumb_trail')
+    <a href="{{ route('guru.notifikasi_pr.index') }}" class="hover:text-slate-600 transition">Notifikasi PR</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <span class="text-slate-500">Detail Tugas</span>
+@endsection
+
+@section('header_actions')
+    <a href="{{ route('guru.notifikasi_pr.index') }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+        <i class="fas fa-arrow-left text-[11px]"></i> Kembali
+    </a>
+    <a href="{{ route('guru.notifikasi_pr.edit', $pr->id_pr) }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+       style="background: var(--binaro-navy);">
+        <i class="fas fa-pen-to-square text-[11px]"></i> Edit PR
+    </a>
+@endsection
+
 @section('content')
-<div class="max-w-5xl mx-auto space-y-6">
-
-    <!-- Breadcrumb & Top Bar -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                <a href="{{ route('guru.notifikasi_pr.index') }}" class="hover:text-[#13527D] font-medium flex items-center gap-1">
-                    <i class="fas fa-arrow-left text-[10px]"></i> Kelola Notifikasi PR
-                </a>
-                <span>&bull;</span>
-                <span class="text-slate-800 font-bold">Detail Tugas</span>
-            </div>
-            <h1 class="text-xl font-bold text-slate-900">Rincian PR & Riwayat Siswa Penerima</h1>
-        </div>
-        <div class="flex items-center gap-2">
-            <a href="{{ route('guru.notifikasi_pr.edit', $pr->id_pr) }}" class="px-3.5 py-2 bg-sky-50 hover:bg-sky-100 text-[#13527D] font-bold text-xs rounded-xl transition flex items-center gap-1.5 border border-sky-100">
-                <i class="fas fa-pen-to-square text-xs"></i> Edit PR
-            </a>
-        </div>
-    </div>
-
+<div class="max-w-5xl mx-auto space-y-5">
 
     <!-- Card 1: Banner Rincian Tugas PR -->
     <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">

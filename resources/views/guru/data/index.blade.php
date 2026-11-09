@@ -1,8 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.guru')
 
 @section('content')
 <div class="p-8 space-y-6">
-    <!-- Header -->
     <div class="flex justify-between items-start flex-wrap gap-4">
         <div>
             <div class="flex items-center gap-2 text-[11px] font-semibold mb-1 text-slate-400">
@@ -12,16 +11,15 @@
             <p class="text-xs text-slate-500">Daftar akun pendidik dan staf pengajar SDN Kalitapen 01.</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('guru.create') }}" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+            <a href="{{ route('guru.data.create') }}" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1.5">
                 <i class="fas fa-plus"></i> Tambah Guru
             </a>
         </div>
     </div>
 
-    <!-- Table Card -->
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="p-4 border-b border-slate-200 flex justify-between items-center flex-wrap gap-3">
-            <form action="{{ route('guru.index') }}" method="GET" class="flex gap-2 items-center">
+            <form action="{{ route('guru.data.index') }}" method="GET" class="flex gap-2 items-center">
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                     <input type="text" name="search" value="{{ request('search', request('q')) }}" placeholder="Cari nama, NIP, email..."
@@ -31,7 +29,7 @@
                     Cari
                 </button>
                 @if(request('search') || request('q'))
-                    <a href="{{ route('guru.index') }}" class="text-xs text-rose-600 hover:underline">Reset</a>
+                    <a href="{{ route('guru.data.index') }}" class="text-xs text-rose-600 hover:underline">Reset</a>
                 @endif
             </form>
             <div class="text-xs text-slate-500">
@@ -67,10 +65,10 @@
                         <td class="p-3.5 font-mono text-slate-600">{{ $item->username ?? '-' }}</td>
                         <td class="p-3.5 text-center">
                             <div class="inline-flex gap-1.5">
-                                <a href="{{ route('guru.edit', $item->id_guru) }}" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs font-semibold transition">
+                                <a href="{{ route('guru.data.edit', $item->id_guru) }}" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs font-semibold transition">
                                     <i class="fas fa-edit mr-1"></i>Edit
                                 </a>
-                                <form action="{{ route('guru.destroy', $item->id_guru) }}" method="POST" class="inline"
+                                <form action="{{ route('guru.data.destroy', $item->id_guru) }}" method="POST" class="inline"
                                       onsubmit="return confirm('Apakah Anda yakin ingin menghapus data guru ini?')">
                                     @csrf
                                     @method('DELETE')

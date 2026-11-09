@@ -1,25 +1,24 @@
 @extends('layouts.guru')
 
-@section('content')
-<div class="p-8 space-y-6 pb-12">
-    <!-- Header -->
-    <div class="flex items-center justify-between">
-        <div>
-            <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                <a href="{{ route('guru.ujian.index') }}" class="hover:text-[#13527D] transition">Ujian Online</a>
-                <span>/</span>
-                <a href="{{ route('guru.ujian.show', $quiz->id_quiz) }}" class="hover:text-[#13527D] transition">{{ $quiz->judul_quiz }}</a>
-                <span>/</span>
-                <span class="text-[#13527D] font-semibold">Edit Ujian</span>
-            </div>
-            <h1 class="text-xl font-bold text-slate-900">Sunting Pengaturan Ujian</h1>
-            <p class="text-xs text-slate-500">Ubah konfigurasi ujian, tingkatan level, durasi, dan target peserta ujian.</p>
-        </div>
-        <a href="{{ route('guru.ujian.show', $quiz->id_quiz) }}" class="px-3.5 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition shadow-sm flex items-center gap-1.5">
-            <i class="fas fa-arrow-left"></i> Edit Soal
-        </a>
-    </div>
+@section('page_title', 'Sunting Pengaturan Ujian')
 
+@section('breadcrumb_trail')
+    <a href="{{ route('guru.ujian.index') }}" class="hover:text-slate-600 transition">Tugas & Ujian</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <a href="{{ route('guru.ujian.show', $quiz->id_quiz) }}" class="hover:text-slate-600 transition">{{ $quiz->judul_quiz }}</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <span class="text-slate-500">Edit Ujian</span>
+@endsection
+
+@section('header_actions')
+    <a href="{{ route('guru.ujian.show', $quiz->id_quiz) }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+        <i class="fas fa-arrow-left text-[11px]"></i> Edit Soal
+    </a>
+@endsection
+
+@section('content')
+<div class="space-y-5 pb-6">
     @if(session('error') || $errors->has('total_bobot'))
     <div class="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 flex items-start gap-3 shadow-xs">
         <i class="fas fa-circle-exclamation text-rose-600 mt-0.5 text-base shrink-0"></i>

@@ -1,22 +1,33 @@
 @extends(session('user_type') === 'admin' ? 'layouts.app' : 'layouts.guru')
 
+@if(session('user_type') !== 'admin')
+    @section('page_title', 'Rekapitulasi Absensi')
+    @section('page_subtitle', 'Laporan presensi harian siswa terintegrasi QR Code & form manual guru.')
+
+    @section('header_actions')
+        <button onclick="window.print()"
+                class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">
+            <i class="fas fa-file-excel text-[11px]"></i> Export Excel
+        </button>
+        <button onclick="window.print()"
+                class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+                style="background: var(--binaro-navy);">
+            <i class="fas fa-file-pdf text-[11px]"></i> Export PDF
+        </button>
+    @endsection
+@endif
+
 @section('content')
-<div class="p-8 space-y-6">
-    <!-- Header Title & Action Buttons -->
+<div class="space-y-5">
+    @if(session('user_type') === 'admin')
+    <!-- Header (panel admin) -->
     <div class="flex justify-between items-start flex-wrap gap-4">
         <div>
             <div class="flex items-center gap-2 text-[11px] font-semibold mb-1">
-                @if(session('user_type') === 'guru')
-                <span class="bg-sky-100 text-[#13527D] px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
-                    <i class="fas fa-chalkboard-user text-[9px]"></i> Portal Guru
-                </span>
-                <span class="text-slate-400">Portal Guru &gt; Rekapitulasi Absensi</span>
-                @else
                 <span class="bg-blue-100 text-blue-800 px-2.5 py-0.5 rounded-full flex items-center gap-1">
                     <i class="fas fa-shield-alt text-[9px]"></i> Panel Administrator
                 </span>
                 <span class="text-slate-400">Dashboard &gt; Rekapitulasi Absensi</span>
-                @endif
             </div>
             <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Rekapitulasi Absensi Siswa</h2>
             <p class="text-xs text-slate-500">Laporan presensi harian siswa SDN Kalitapen 01 terintegrasi QR Code & Form Manual Guru.</p>
@@ -30,6 +41,7 @@
             </button>
         </div>
     </div>
+    @endif
 
     <!-- 5 KPI Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">

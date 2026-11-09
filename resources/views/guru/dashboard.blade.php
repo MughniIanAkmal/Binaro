@@ -5,12 +5,12 @@
 
 @section('header_actions')
     <a href="{{ route('guru.absen.index') }}"
-       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
        style="background: var(--binaro-navy);">
         <i class="fas fa-qrcode text-[11px]"></i> Buka Presensi QR
     </a>
     <a href="{{ route('guru.ujian.create') }}"
-       class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
         <i class="fas fa-plus text-[11px]"></i> Buat Tugas Baru
     </a>
 @endsection

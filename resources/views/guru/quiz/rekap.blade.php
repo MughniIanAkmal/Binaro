@@ -1,41 +1,38 @@
 @extends('layouts.guru')
 
+@section('page_title', 'Rekap Nilai Kuis')
+@section('page_subtitle', 'Pantau hasil pengerjaan kuis siswa.')
+
+@section('header_actions')
+    <form method="GET" action="{{ route('guru.quiz.rekap') }}" class="flex items-center gap-2">
+        <select name="quiz_id" onchange="this.form.submit()" class="px-4 h-10 bg-white border border-[#E6EBF2] rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-[#17557F]">
+            <option value="">-- Pilih Kuis --</option>
+            @foreach($quizzes as $q)
+                <option value="{{ $q->id_quiz }}" {{ $selectedQuizId == $q->id_quiz ? 'selected' : '' }}>
+                    {{ $q->judul_quiz }} ({{ $q->subBab?->bab?->mataPelajaran?->nama_mapel ?? '-' }})
+                </option>
+            @endforeach
+        </select>
+    </form>
+
+    @if($selectedQuizId && $hasils->isNotEmpty())
+        <a href="{{ route('guru.quiz.export', $selectedQuizId) }}"
+           class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">
+            <i class="fas fa-file-export text-[11px]"></i> Export CSV
+        </a>
+        <form action="{{ route('rekap_ujian.kirim_semua', $selectedQuizId) }}" method="POST" onsubmit="return confirm('Tampilkan nilai ujian ini ke seluruh siswa?')">
+            @csrf
+            <button type="submit"
+                    class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+                    style="background: var(--binaro-navy);">
+                <i class="fas fa-bullhorn text-[11px]"></i> Tampilkan Nilai
+            </button>
+        </form>
+    @endif
+@endsection
+
 @section('content')
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h1 class="text-xl font-bold text-slate-900">Rekap Nilai Kuis Siswa</h1>
-            <p class="text-xs text-slate-500">Pantau hasil pengerjaan kuis siswa SDN Kalitapen 01</p>
-        </div>
-
-        <div class="flex items-center gap-2">
-            <!-- Filter Kuis -->
-            <form method="GET" action="{{ route('guru.quiz.rekap') }}" class="flex items-center gap-2">
-                <select name="quiz_id" onchange="this.form.submit()" class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:border-[#13527D]">
-                    <option value="">-- Pilih Kuis --</option>
-                    @foreach($quizzes as $q)
-                        <option value="{{ $q->id_quiz }}" {{ $selectedQuizId == $q->id_quiz ? 'selected' : '' }}>
-                            {{ $q->judul_quiz }} ({{ $q->subBab?->bab?->mataPelajaran?->nama_mapel ?? '-' }})
-                        </option>
-                    @endforeach
-                </select>
-            </form>
-
-            @if($selectedQuizId && $hasils->isNotEmpty())
-            <a href="{{ route('guru.quiz.export', $selectedQuizId) }}" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-sm">
-                <i class="fas fa-file-export"></i> Export Rekap (.csv)
-            </a>
-            <form action="{{ route('rekap_ujian.kirim_semua', $selectedQuizId) }}" method="POST" onsubmit="return confirm('Tampilkan nilai ujian ini ke seluruh siswa?')">
-                @csrf
-                <button type="submit" class="px-3 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-lg transition flex items-center gap-1.5 shadow-sm">
-                    <i class="fas fa-bullhorn"></i> Tampilkan Nilai ke Seluruh Siswa
-                </button>
-            </form>
-            @endif
-        </div>
-    </div>
-
+<div class="space-y-5">
     @if(!$selectedQuizId)
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center text-xs text-slate-400">
         Silakan pilih Kuis di atas untuk melihat daftar nilai siswa.

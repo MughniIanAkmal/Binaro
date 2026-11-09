@@ -1,21 +1,67 @@
 @extends('layouts.guru')
 
-@section('content')
 @php
     $isQuiz = !empty($selectedQuiz?->id_sub_bab);
     $isUjian = empty($selectedQuiz?->id_sub_bab);
 @endphp
-<div class="p-8 space-y-6">
 
-    {{-- ===== BREADCRUMB ===== --}}
-    <nav class="flex items-center gap-2 text-[11px] text-slate-400 font-medium print:hidden">
-        <i class="fas fa-home text-slate-300"></i>
-        <span class="text-slate-300">/</span>
-        <span class="text-slate-500">Penilaian Siswa</span>
-        <span class="text-slate-300">/</span>
-        <span class="text-[#13527D] font-semibold">Rekap Nilai {{ $selectedQuiz ? ($isQuiz ? 'Kuis' : 'Ujian') : '' }}</span>
-    </nav>
+@section('page_title', 'Rekap Nilai')
 
+@section('breadcrumb_trail')
+    <span>Penilaian Siswa</span>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <span class="text-slate-500">Rekap Nilai {{ $selectedQuiz ? ($isQuiz ? 'Kuis' : 'Ujian') : '' }}</span>
+@endsection
+
+@section('page_subtitle')
+    @if($selectedQuiz)
+        {{ $selectedQuiz->judul_quiz }} · {{ $selectedQuiz->mataPelajaran?->nama_mapel ?? ($selectedQuiz->subBab?->bab?->mataPelajaran?->nama_mapel ?? '-') }} · Durasi {{ $selectedQuiz->durasi_menit ?? ($selectedQuiz->durasi ?? '60') }} menit
+    @else
+        Pilih kuis atau ujian untuk melihat rekap nilai dan statistik siswa.
+    @endif
+@endsection
+
+@section('header_actions')
+    <form method="GET" action="{{ route('rekap_nilai.index') }}" class="flex items-center gap-2 print:hidden">
+        <select name="quiz_id" onchange="this.form.submit()"
+            class="px-4 h-10 bg-white border border-[#E6EBF2] rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-[#17557F]">
+            <option value="">-- Pilih Rekap Nilai --</option>
+            @foreach($quizzes as $q)
+            @php
+                $tipeLabel = !empty($q->id_sub_bab) ? 'Kuis' : 'Ujian';
+                $mapelLabel = $q->mataPelajaran?->nama_mapel ?? ($q->subBab?->bab?->mataPelajaran?->nama_mapel ?? '-');
+            @endphp
+            <option value="{{ $q->id_quiz }}" {{ $selectedQuizId == $q->id_quiz ? 'selected' : '' }}>
+                [{{ $tipeLabel }}] {{ $q->judul_quiz }} ({{ $mapelLabel }})
+            </option>
+            @endforeach
+        </select>
+    </form>
+
+    @if($selectedQuizId && $hasils->isNotEmpty())
+        <button type="button" onclick="window.print()"
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition print:hidden">
+            <i class="fas fa-print text-[11px]"></i> {{ $isQuiz ? 'Cetak Daftar Nilai' : 'Cetak Rekap' }}
+        </button>
+        <a href="{{ route('guru.quiz.export', $selectedQuizId) }}"
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition print:hidden">
+            <i class="fas fa-file-excel text-[11px]"></i> Unduh Excel
+        </a>
+        @if($isUjian)
+        <form method="POST" action="{{ route('rekap_ujian.kirim_semua', $selectedQuizId) }}" class="inline print:hidden" onsubmit="return confirm('Kirimkan nilai ujian ini ke seluruh siswa?')">
+            @csrf
+            <button type="submit"
+                class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+                style="background: var(--binaro-navy);">
+                <i class="fas fa-paper-plane text-[11px]"></i> Kirim Nilai
+            </button>
+        </form>
+        @endif
+    @endif
+@endsection
+
+@section('content')
+<div class="space-y-5">
     {{-- ===== PRINT LETTERHEAD (KOP RESMI SDN KALITAPEN 01) ===== --}}
     @if($selectedQuiz)
     <div class="hidden print:block mb-6 border-b-2 border-slate-900 pb-3">
@@ -39,103 +85,6 @@
     @endif
 
     {{-- ===== PAGE HEADER ===== --}}
-    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 print:hidden">
-        <div>
-            @if($selectedQuiz)
-            <div class="flex items-center gap-2 mb-1.5">
-                @if($isQuiz)
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-200 flex items-center gap-1.5">
-                    <i class="fas fa-book-open text-[9px]"></i> Kuis Materi Pembelajaran
-                </span>
-                @else
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
-                    <i class="fas fa-graduation-cap text-[9px]"></i> Ujian Online CBT Resmi
-                </span>
-                @endif
-            </div>
-            @endif
-            <h1 class="text-xl font-black text-slate-900 leading-tight">
-                Rekap Nilai:
-                <span class="text-[#13527D]">
-                    {{ $selectedQuiz?->judul_quiz ?? 'Pilih Kuis atau Ujian' }}
-                </span>
-            </h1>
-            <div class="flex flex-wrap items-center gap-4 mt-2 text-[11px] text-slate-500">
-                @if($selectedQuiz)
-                <span class="flex items-center gap-1.5">
-                    <i class="fas fa-calendar-days text-slate-400"></i>
-                    {{ $selectedQuiz->created_at?->format('d M Y') ?? '-' }}
-                </span>
-                <span class="flex items-center gap-1.5 font-semibold text-slate-700">
-                    <i class="fas fa-stopwatch text-[#13527D]"></i>
-                    Durasi Waktu Ujian: {{ $selectedQuiz->durasi_menit ?? ($selectedQuiz->durasi ?? '60') }} menit
-                </span>
-                <span class="flex items-center gap-1.5">
-                    <i class="fas fa-chalkboard-teacher text-slate-400"></i>
-                    {{ session('user_name', 'Guru Pengampu') }}
-                </span>
-                <span class="flex items-center gap-1.5">
-                    <i class="fas fa-book text-slate-400"></i>
-                    {{ $selectedQuiz->mataPelajaran?->nama_mapel ?? ($selectedQuiz->subBab?->bab?->mataPelajaran?->nama_mapel ?? '-') }}
-                </span>
-                @else
-                <span class="italic text-slate-400">Silakan pilih kuis atau ujian terlebih dahulu</span>
-                @endif
-            </div>
-        </div>
-
-        {{-- Right Controls --}}
-        <div class="flex flex-wrap items-center gap-2">
-            {{-- Pilih Kuis / Ujian Dropdown --}}
-            <form method="GET" action="{{ route('rekap_nilai.index') }}" class="flex items-center gap-2">
-                <select name="quiz_id" onchange="this.form.submit()"
-                    class="px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:outline-none focus:border-[#13527D] shadow-sm">
-                    <option value="">-- Pilih Rekap Nilai --</option>
-                    @foreach($quizzes as $q)
-                    @php
-                        $tipeLabel = !empty($q->id_sub_bab) ? 'Kuis' : 'Ujian';
-                        $mapelLabel = $q->mataPelajaran?->nama_mapel ?? ($q->subBab?->bab?->mataPelajaran?->nama_mapel ?? '-');
-                    @endphp
-                    <option value="{{ $q->id_quiz }}" {{ $selectedQuizId == $q->id_quiz ? 'selected' : '' }}>
-                        [{{ $tipeLabel }}] {{ $q->judul_quiz }} ({{ $mapelLabel }})
-                    </option>
-                    @endforeach
-                </select>
-            </form>
-
-            @if($selectedQuizId && $hasils->isNotEmpty())
-                @if($isQuiz)
-                {{-- KUIS: HANYA DAPAT MELIHAT DAN MENCETAK DAFTAR NILAI --}}
-                <button type="button" onclick="window.print()"
-                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition shadow-sm">
-                    <i class="fas fa-print"></i> Cetak Daftar Nilai
-                </button>
-                <a href="{{ route('guru.quiz.export', $selectedQuizId) }}"
-                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition shadow-sm">
-                    <i class="fas fa-file-excel"></i> Unduh Excel
-                </a>
-                @else
-                {{-- UJIAN: CETAK REKAP NILAI, UNDUH EXCEL, DAN KIRIM NILAI KE SEMUA SISWA --}}
-                <button type="button" onclick="window.print()"
-                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition shadow-sm">
-                    <i class="fas fa-print"></i> Cetak Rekap Nilai
-                </button>
-                <a href="{{ route('guru.quiz.export', $selectedQuizId) }}"
-                    class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg transition shadow-sm">
-                    <i class="fas fa-file-excel"></i> Unduh Excel
-                </a>
-                <form method="POST" action="{{ route('rekap_ujian.kirim_semua', $selectedQuizId) }}" class="inline" onsubmit="return confirm('Kirimkan nilai ujian ini ke seluruh siswa?')">
-                    @csrf
-                    <button type="submit"
-                        class="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#13527D] hover:bg-[#0e4064] text-white text-xs font-semibold rounded-lg transition shadow-sm">
-                        <i class="fas fa-paper-plane"></i> Kirim Nilai ke Semua Siswa
-                    </button>
-                </form>
-                @endif
-            @endif
-        </div>
-    </div>
-
     {{-- ===== NO QUIZ SELECTED EMPTY STATE ===== --}}
     @if(!$selectedQuizId)
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-center gap-4 print:hidden">

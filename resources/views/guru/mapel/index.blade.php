@@ -1,17 +1,14 @@
 @extends('layouts.guru')
 
+@section('header_actions')
+    <a href="{{ route('guru.materi.index') }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+        <i class="fas fa-layer-group text-[11px]"></i> Kelola Materi
+    </a>
+@endsection
+
 @section('content')
-<div class="space-y-6">
-    <!-- Header -->
-    <div>
-        <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-            E-Learning &bull; SDN Kalitapen 01
-        </div>
-        <h1 class="text-xl font-bold text-slate-900">Mata Pelajaran & Materi Belajar</h1>
-        <p class="text-xs text-slate-500 mt-0.5">Pilih mata pelajaran untuk menjelajahi hierarki Bab, Sub-Bab, dan Materi Pembelajaran.</p>
-    </div>
-
-
+<div class="space-y-5">
     <!-- Grid Card Mata Pelajaran -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         @forelse($mapels as $mapel)

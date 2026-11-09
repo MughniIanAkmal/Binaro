@@ -1,39 +1,21 @@
 @extends('layouts.guru')
 
+@section('page_title', 'RPP & Modul Ajar')
+
+@section('header_actions')
+    <button type="button" onclick="openModalTambahRpp()"
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+            style="background: var(--binaro-navy);">
+        <i class="fas fa-plus text-[11px]"></i> Buat Modul Ajar
+    </button>
+    <button type="button" onclick="window.print()"
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition print:hidden">
+        <i class="fas fa-print text-[11px]"></i> Cetak Rekap
+    </button>
+@endsection
+
 @section('content')
-<div class="p-8 space-y-6 pb-12">
-
-    <!-- Top Bar / Breadcrumb & Header Title -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <!-- Breadcrumb -->
-            <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-1">
-                <span>Portal Guru</span>
-                <i class="fas fa-chevron-right text-[9px] text-slate-300"></i>
-                <span class="text-[#13527D] font-bold">RPP & Modul Ajar</span>
-            </div>
-            <h1 class="text-2xl font-black text-slate-900 tracking-tight">
-                Rencana Pelaksanaan Pembelajaran (RPP / Modul Ajar)
-            </h1>
-            <p class="text-xs text-slate-500 mt-1 max-w-2xl leading-relaxed">
-                Panduan mengajar terpadu kurikulum merdeka terintegrasi jadwal kelas & materi interaktif proyektor SD Merdeka 01.
-            </p>
-        </div>
-
-        <!-- Quick Action Buttons -->
-        <div class="flex items-center gap-2.5 flex-wrap shrink-0">
-            <button type="button" onclick="openModalTambahRpp()"
-                    class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-2">
-                <i class="fas fa-plus"></i>
-                <span>Buat Modul Ajar Baru</span>
-            </button>
-            <button type="button" onclick="window.print()"
-                    class="px-3.5 py-2.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-2">
-                <i class="fas fa-print text-slate-400"></i>
-                <span>Cetak Rekap</span>
-            </button>
-        </div>
-    </div>
+<div class="space-y-5 pb-6">
 
     <!-- 4 KPI / Stat Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

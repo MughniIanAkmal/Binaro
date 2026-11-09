@@ -1,8 +1,34 @@
 @extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
 
+@if(session('user_type') === 'guru')
+    @section('page_title', 'Detail Modul Ajar')
+    @section('page_subtitle', ($rpp->judul_rpp ?? $rpp->judul).' · Kelengkapan silabus & dokumen')
+
+    @section('breadcrumb_trail')
+        <a href="{{ route('guru.rpp.index') }}" class="hover:text-slate-600 transition">RPP & Modul Ajar</a>
+        <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+        <span class="text-slate-500">Detail</span>
+    @endsection
+
+    @section('header_actions')
+        <a href="{{ route('guru.rpp.index') }}"
+           class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+            <i class="fas fa-arrow-left text-[11px]"></i> Kembali
+        </a>
+        @if($rpp->file_rpp)
+            <a href="{{ route('rpp.download', $rpp->id_rpp) }}"
+               class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+               style="background: var(--binaro-navy);">
+                <i class="fas fa-download text-[11px]"></i> Unduh Berkas
+            </a>
+        @endif
+    @endsection
+@endif
+
 @section('content')
-<div class="space-y-6">
-    <!-- Header Title & Back Button -->
+<div class="space-y-5">
+    @if(session('user_type') !== 'guru')
+    <!-- Header Title & Back Button (panel admin) -->
     <div class="flex justify-between items-start flex-wrap gap-4">
         <div>
             <div class="text-[11px] font-semibold text-slate-400 mb-1">
@@ -22,6 +48,7 @@
             @endif
         </div>
     </div>
+    @endif
 
     <!-- Main Detail Card -->
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm p-6 space-y-6 text-xs">

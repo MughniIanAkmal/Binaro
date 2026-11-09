@@ -35,12 +35,12 @@ class GuruController extends Controller
                 ->orWhere('email', 'like', "%{$search}%");
         })->latest('id_guru')->paginate(10)->withQueryString();
 
-        return view('guru.index', compact('guru', 'search'));
+        return view('guru.data.index', compact('guru', 'search'));
     }
 
     public function create()
     {
-        return view('guru.create');
+        return view('guru.data.create');
     }
 
     public function store(Request $request)
@@ -84,12 +84,12 @@ class GuruController extends Controller
 
         Guru::create($data);
 
-        return redirect()->route('guru.index')->with('success', 'Data guru berhasil ditambahkan.');
+        return redirect()->route('guru.data.index')->with('success', 'Data guru berhasil ditambahkan.');
     }
 
     public function edit(Guru $guru)
     {
-        return view('guru.edit', compact('guru'));
+        return view('guru.data.edit', compact('guru'));
     }
 
     public function update(Request $request, Guru $guru)
@@ -136,14 +136,14 @@ class GuruController extends Controller
 
         $guru->update($data);
 
-        return redirect()->route('guru.index')->with('success', 'Data guru berhasil diperbarui.');
+        return redirect()->route('guru.data.index')->with('success', 'Data guru berhasil diperbarui.');
     }
 
     public function destroy(Guru $guru)
     {
         $guru->delete();
 
-        return redirect()->route('guru.index')->with('success', 'Data guru berhasil dihapus.');
+        return redirect()->route('guru.data.index')->with('success', 'Data guru berhasil dihapus.');
     }
 
     /**

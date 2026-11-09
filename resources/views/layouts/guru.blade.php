@@ -58,19 +58,27 @@
         ['label' => 'Buku Nilai', 'icon' => 'fa-chart-simple', 'route' => 'rekap_nilai.index', 'aktif' => request()->routeIs('rekap_nilai.*') || request()->routeIs('rekap_ujian.*')],
     ];
 
+    // [0] = label breadcrumb, [1] = judul halaman, [2] = subjudul
     $judulHalaman = match (true) {
-        request()->routeIs('guru.dashboard') => ['Dashboard Pengajar', 'Ruang Kelas & Penilaian'],
-        request()->routeIs('guru.jadwal.*') => ['Akademik', 'Jadwal Mengajar'],
-        request()->routeIs('guru.mapel.*') => ['Akademik', 'Mata Pelajaran'],
-        request()->routeIs('guru.bab.*') => ['Akademik', 'Daftar Bab'],
-        request()->routeIs('guru.sub_bab.*') => ['Akademik', 'Sub-Bab'],
-        request()->routeIs('guru.materi.*') => ['Akademik', 'Kelola Materi'],
-        request()->routeIs('guru.notifikasi_pr.*') => ['Akademik', 'Notifikasi PR'],
-        request()->routeIs('guru.absensi.*', 'guru.absen.*') => ['Utama', 'Presensi Siswa'],
-        request()->routeIs('guru.rpp.*', 'rpp.*', 'rpp_guru.*') => ['Utama', 'RPP & Modul Ajar'],
-        request()->routeIs('guru.ujian.*', 'guru.quiz.*') => ['Utama', 'Tugas & Kuis'],
-        request()->routeIs('rekap_nilai.*', 'rekap_ujian.*') => ['Utama', 'Buku Nilai'],
-        default => ['Halaman', 'Portal Pengajar'],
+        request()->routeIs('guru.dashboard') => ['Dashboard Pengajar', 'Ruang Kelas & Penilaian', 'Ringkasan sesi mengajar, presensi, dan penilaian hari ini.'],
+        request()->routeIs('guru.jadwal.*') => ['Akademik', 'Jadwal Mengajar', 'Daftar sesi mengajar Senin sampai Sabtu beserta jam dan ruang kelas.'],
+        request()->routeIs('guru.mapel.*') => ['Akademik', 'Mata Pelajaran', 'Pilih mata pelajaran untuk menjelajahi Bab, Sub-Bab, dan materi.'],
+        request()->routeIs('guru.bab.*') => ['Akademik', 'Daftar Bab', 'Struktur bab pada mata pelajaran yang dipilih.'],
+        request()->routeIs('guru.sub_bab.*') => ['Akademik', 'Daftar Sub-Bab', 'Rincian sub-bab di dalam bab yang dipilih.'],
+        request()->routeIs('guru.materi.*') => ['Akademik', 'Kelola Materi', 'Kelola Bab, Sub-Bab, dan tipe konten: video, PDF, atau kuis.'],
+        request()->routeIs('guru.notifikasi_pr.create') => ['Akademik', 'Buat Tugas PR', 'Isi rincian tugas PR di bawah dan kirimkan notifikasi pengingat ke siswa.'],
+        request()->routeIs('guru.notifikasi_pr.edit') => ['Akademik', 'Perbarui Data Tugas PR', 'Ubah judul, tenggat, instruksi, atau kirimkan notifikasi pembaruan ke siswa.'],
+        request()->routeIs('guru.notifikasi_pr.show') => ['Akademik', 'Rincian PR & Riwayat Siswa', 'Detail tugas, tenggat, dan status pengumpulan tiap siswa.'],
+        request()->routeIs('guru.notifikasi_pr.*') => ['Akademik', 'Notifikasi PR', 'Atur tugas PR, tenggat waktu, dan kirim pengingat ke portal siswa.'],
+        request()->routeIs('guru.absensi.*', 'guru.absen.*') => ['Utama', 'Presensi Siswa', 'Monitoring dan rekapitulasi kehadiran siswa.'],
+        request()->routeIs('guru.rpp.*', 'rpp.*', 'rpp_guru.*') => ['Utama', 'RPP & Modul Ajar', 'Rencana pelaksanaan pembelajaran terpadu kurikulum merdeka.'],
+        request()->routeIs('guru.ujian.create') => ['Utama', 'Buat Ujian Online Baru', 'Tentukan konfigurasi ujian, target siswa, tingkat level, dan susun soal-soal ujian.'],
+        request()->routeIs('guru.ujian.edit') => ['Utama', 'Sunting Pengaturan Ujian', 'Ubah konfigurasi ujian, tingkatan level, durasi, dan target peserta ujian.'],
+        request()->routeIs('guru.ujian.show') => ['Utama', 'Detail & Bank Soal', 'Rincian ujian, bobot nilai, dan daftar butir soal.'],
+        request()->routeIs('guru.ujian.*') => ['Utama', 'Tugas & Ujian', 'Susun ujian online, bank soal, bobot nilai, dan target siswa.'],
+        request()->routeIs('guru.quiz.*') => ['Utama', 'Bank Soal', 'Kelola butir soal dan kunci jawaban kuis.'],
+        request()->routeIs('rekap_nilai.*', 'rekap_ujian.*') => ['Utama', 'Buku Nilai', 'Rekapitulasi nilai siswa dan pengumuman hasil ujian.'],
+        default => ['Halaman', 'Portal Pengajar', 'Ringkasan aktivitas mengajar Anda.'],
     };
 
     $menuAkademik = [
@@ -145,26 +153,43 @@
     {{-- ================= MAIN ================= --}}
     <div class="flex-1 ml-[268px] flex flex-col min-w-0">
 
-        {{-- Header --}}
+        {{-- ===== HEADER: satu-satunya sumber judul & aksi halaman ===== --}}
+        {{-- Tinggi dikunci 88px agar identik di semua halaman: breadcrumb 1 baris,
+             judul 1 baris, subjudul 1 baris (selalu ada, di-truncate). --}}
         <header class="bg-white border-b border-[#E6EBF2] sticky top-0 z-20">
-            <div class="px-7 py-4 flex items-center justify-between gap-4 flex-wrap">
-                <div class="min-w-0">
-                    <div class="flex items-center gap-2 text-[11px] font-semibold text-slate-400">
-                        <span>Halaman</span>
-                        <i class="fas fa-chevron-right text-[8px]"></i>
-                        <span class="text-slate-500">@yield('breadcrumb', $judulHalaman[0])</span>
-                    </div>
-                    <h1 class="text-[19px] font-extrabold text-slate-900 tracking-tight mt-0.5 truncate">@yield('page_title', $judulHalaman[1])</h1>
+            <div class="px-4 sm:px-7 h-[88px] flex items-center justify-between gap-5">
+                <div class="min-w-0 flex-1">
+                    <nav class="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 whitespace-nowrap overflow-hidden">
+                        @hasSection('breadcrumb_trail')
+                            @yield('breadcrumb_trail')
+                        @else
+                            <span class="shrink-0">Halaman</span>
+                            <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
+                            <span class="text-slate-500 truncate">@yield('breadcrumb', $judulHalaman[0])</span>
+                        @endif
+                    </nav>
+
+                    <h1 class="text-[17px] sm:text-[19px] leading-[24px] sm:leading-[26px] font-extrabold text-slate-900 tracking-tight sm:mt-1 truncate">@yield('page_title', $judulHalaman[1])</h1>
+
+                    <p class="hidden sm:block text-[11.5px] leading-[16px] text-slate-400 mt-0.5 truncate">
+                        @hasSection('page_subtitle')
+                            @yield('page_subtitle')
+                        @else
+                            {{ $judulHalaman[2] }}
+                        @endif
+                    </p>
                 </div>
 
-                <div class="flex items-center gap-2.5">
-                    @yield('header_actions')
+                <div class="flex items-center gap-2.5 shrink-0">
+                    <div class="flex items-center gap-2 overflow-x-auto">
+                        @yield('header_actions')
+                    </div>
                     <div class="flex items-center gap-2.5 pl-3 ml-1 border-l border-[#E6EBF2]">
-                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-extrabold" style="background: var(--binaro-navy);">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-extrabold shrink-0" style="background: var(--binaro-navy);">
                             {{ $navInisial }}
                         </div>
-                        <div class="leading-tight hidden sm:block">
-                            <div class="text-[12px] font-bold text-slate-900 max-w-[180px] truncate">{{ $navNama }}</div>
+                        <div class="leading-tight hidden xl:block">
+                            <div class="text-[12px] font-bold text-slate-900 max-w-[150px] truncate">{{ $navNama }}</div>
                             <div class="text-[10.5px] text-slate-400">{{ $navPeran }}</div>
                         </div>
                     </div>
