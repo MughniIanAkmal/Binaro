@@ -27,3 +27,6 @@ yarn-error.log
 scripts/_check_siswa.php
 scripts/_check_siswa2.php
 scripts/_siswa2.php
+
+# Nested folder
+/Binaro/
