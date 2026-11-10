@@ -4,7 +4,7 @@
     <div class="container">
         <h2>Edit Siswa</h2>
 
-        <form action="{{ route('siswa.update', $siswa->id_siswa) }}" method="POST">
+        <form action="{{ route('siswa.data.update', $siswa->id_siswa) }}" method="POST">
             @csrf
             @method('PUT')
 
@@ -75,7 +75,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Update</button>
-            <a href="{{ route('siswa.index') }}" class="btn btn-secondary">Batal</a>
+            <a href="{{ route('siswa.data.index') }}" class="btn btn-secondary">Batal</a>
         </form>
     </div>
 @endsection

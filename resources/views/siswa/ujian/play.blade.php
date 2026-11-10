@@ -9,8 +9,9 @@
     @endphp
 
     <!-- Top Desktop CBT Header Bar -->
-    <div class="bg-[#13527D] rounded-3xl p-5 sm:p-6 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
+    <div class="hero-gradient rounded-2xl p-5 sm:p-6 text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative overflow-hidden">
+        <div class="absolute -right-12 -top-16 w-52 h-52 rounded-full bg-white/5"></div>
+        <div class="flex items-center gap-4 relative">
             <a href="{{ route('siswa.ujian.index') }}" onclick="return confirm('Apakah Anda yakin ingin keluar dari lembar ujian? Waktu akan terus berjalan.');"
                class="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition shrink-0" title="Kembali ke Daftar Ujian">
                 <i class="fas fa-arrow-left text-sm"></i>
@@ -41,14 +42,14 @@
                         {{ $mapelName }} &bull; Guru: {{ $guruName }}
                     </span>
                 </div>
-                <h1 class="text-lg sm:text-xl font-black tracking-tight text-white mt-0.5">
+                <h2 class="text-lg sm:text-xl font-black tracking-tight text-white mt-0.5">
                     {{ $quiz->judul_quiz }}
-                </h1>
+                </h2>
             </div>
         </div>
 
         <!-- Timer & Quick Student Profile -->
-        <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
+        <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end relative">
             <!-- Countdown Timer Badge -->
             <div class="flex items-center gap-2.5 bg-white/10 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-white/20 shadow-xs">
                 <div class="w-8 h-8 rounded-xl bg-amber-400 text-slate-900 flex items-center justify-center text-sm shadow-xs animate-pulse">
@@ -86,11 +87,11 @@
                 <input type="hidden" name="soal_ids[]" value="{{ $soal->id_soal }}">
                 <div id="soal-card-{{ $index }}" class="soal-slide space-y-5 {{ $index === 0 ? '' : 'hidden' }}">
                     <!-- Card Soal Konten -->
-                    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm space-y-5">
+                    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#E6EBF2]/90 shadow-sm space-y-5">
                         <!-- Header Soal (Nomor, Bobot, Status) -->
-                        <div class="flex items-center justify-between pb-4 border-b border-slate-100 flex-wrap gap-2">
+                        <div class="flex items-center justify-between pb-4 border-b border-[#EFF2F7] flex-wrap gap-2">
                             <div class="flex items-center gap-3">
-                                <span class="w-10 h-10 rounded-2xl bg-[#13527D] text-white font-black text-sm flex items-center justify-center shadow-xs">
+                                <span class="w-10 h-10 rounded-2xl bg-[#0E3A5C] text-white font-black text-sm flex items-center justify-center shadow-xs">
                                     {{ $index + 1 }}
                                 </span>
                                 <div>
@@ -122,7 +123,7 @@
                             </div>
 
                             <div class="flex items-center gap-2">
-                                <span id="status-badge-{{ $index }}" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                                <span id="status-badge-{{ $index }}" class="px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-[#E6EBF2]">
                                     Belum Dijawab
                                 </span>
                             </div>
@@ -135,11 +136,11 @@
 
                         <!-- Gambar Pendukung Soal dari Guru (Jika Ada) -->
                         @if(!empty($soal->gambar))
-                        <div class="my-4 p-3.5 bg-slate-50/80 border border-slate-200/80 rounded-2xl max-w-2xl">
+                        <div class="my-4 p-3.5 bg-slate-50/80 border border-[#E6EBF2]/80 rounded-2xl max-w-2xl">
                             <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                                 <i class="fas fa-image text-slate-500"></i> Lampiran Gambar Pendukung Soal:
                             </div>
-                            <div class="overflow-hidden rounded-xl bg-white border border-slate-200 p-2 flex items-center justify-center">
+                            <div class="overflow-hidden rounded-xl bg-white border border-[#E6EBF2] p-2 flex items-center justify-center">
                                 <img src="{{ asset('storage/' . $soal->gambar) }}" alt="Gambar Soal {{ $index + 1 }}"
                                      class="max-h-96 w-auto max-w-full object-contain rounded-lg transition hover:scale-[1.01]">
                             </div>
@@ -158,10 +159,10 @@
                             @foreach(['A' => $soal->opsi_a, 'B' => $soal->opsi_b, 'C' => $soal->opsi_c, 'D' => $soal->opsi_d] as $optKey => $optVal)
                             <label id="label-opt-{{ $soal->id_soal }}-{{ $optKey }}"
                                    onclick="selectOption({{ $index }}, '{{ $soal->id_soal }}', '{{ $optKey }}')"
-                                   class="opt-label-{{ $soal->id_soal }} bg-white hover:bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer transition select-none group">
+                                   class="opt-label-{{ $soal->id_soal }} bg-white hover:bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-[#E6EBF2] shadow-2xs flex items-center justify-between cursor-pointer transition select-none group">
                                 <div class="flex items-center gap-3.5 flex-1 pr-4">
                                     <div id="badge-opt-{{ $soal->id_soal }}-{{ $optKey }}"
-                                         class="opt-badge-{{ $soal->id_soal }} w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center transition shrink-0 group-hover:bg-[#13527D]/10 group-hover:text-[#13527D]">
+                                         class="opt-badge-{{ $soal->id_soal }} w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center transition shrink-0 group-hover:bg-[#0E3A5C]/10 group-hover:text-[#0E3A5C]">
                                         {{ $optKey }}
                                     </div>
                                     <span id="text-opt-{{ $soal->id_soal }}-{{ $optKey }}" class="text-xs sm:text-sm font-bold text-slate-800 leading-snug">
@@ -179,7 +180,7 @@
                         </div>
 
                         <!-- Auto-save notification -->
-                        <div class="bg-sky-50/60 border border-sky-100 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-[#13527D] font-medium">
+                        <div class="bg-sky-50/60 border border-sky-100 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-[#0E3A5C] font-medium">
                             <div class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-xs shrink-0">
                                 <i class="fas fa-cloud-arrow-up"></i>
                             </div>
@@ -190,7 +191,7 @@
                 @endforeach
 
                 <!-- Tombol Navigasi Bawah (Sebelumnya, Ragu-ragu, Selanjutnya) -->
-                <div class="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200/90 shadow-sm flex items-center justify-between gap-3 mt-4">
+                <div class="bg-white rounded-3xl p-4 sm:p-5 border border-[#E6EBF2]/90 shadow-sm flex items-center justify-between gap-3 mt-4">
                     <button type="button" id="btn-prev" onclick="navigateSoal(-1)"
                             class="px-5 sm:px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-2">
                         <i class="fas fa-arrow-left text-[11px]"></i>
@@ -204,7 +205,7 @@
                     </button>
 
                     <button type="button" id="btn-next" onclick="navigateSoal(1)"
-                            class="px-5 sm:px-7 py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
+                            class="px-5 sm:px-7 py-3 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
                         <span id="text-next">Selanjutnya</span>
                         <i class="fas fa-arrow-right text-[11px]"></i>
                     </button>
@@ -214,20 +215,20 @@
 
         <!-- ================= KOLOM KANAN: SIDEBAR NAVIGASI NOMOR SOAL ================= -->
         <div class="lg:col-span-4 xl:col-span-3 space-y-5 lg:sticky lg:top-6">
-            <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-5">
+            <div class="bg-white rounded-3xl p-6 border border-[#E6EBF2]/90 shadow-sm space-y-5">
                 <!-- Panel Header -->
-                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center justify-between pb-3 border-b border-[#EFF2F7]">
                     <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
-                        <i class="fas fa-table-cells-large text-[#13527D]"></i>
+                        <i class="fas fa-table-cells-large text-[#0E3A5C]"></i>
                         <span>Daftar Nomor Soal</span>
                     </h3>
                     <span class="text-xs font-bold text-slate-400">Total: {{ count($soals) }}</span>
                 </div>
 
                 <!-- Legend Status -->
-                <div class="grid grid-cols-3 gap-2 text-[10px] font-bold text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-center">
+                <div class="grid grid-cols-3 gap-2 text-[10px] font-bold text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-[#EFF2F7] text-center">
                     <div class="flex flex-col items-center gap-1">
-                        <span class="w-3.5 h-3.5 rounded-md bg-[#13527D] inline-block shadow-2xs"></span>
+                        <span class="w-3.5 h-3.5 rounded-md bg-[#0E3A5C] inline-block shadow-2xs"></span>
                         <span>Terjawab</span>
                     </div>
                     <div class="flex flex-col items-center gap-1">
@@ -244,14 +245,14 @@
                 <div class="grid grid-cols-5 gap-2.5 max-h-[320px] overflow-y-auto pr-1">
                     @for($i = 0; $i < count($soals); $i++)
                     <button type="button" id="grid-btn-{{ $i }}" onclick="goToSoal({{ $i }})"
-                            class="py-3 rounded-xl text-xs font-black transition border {{ $i === 0 ? 'bg-[#13527D] text-white border-[#13527D] ring-2 ring-[#13527D]/30' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200' }}">
+                            class="py-3 rounded-xl text-xs font-black transition border {{ $i === 0 ? 'bg-[#0E3A5C] text-white border-[#0E3A5C] ring-2 ring-[#0E3A5C]/30' : 'bg-slate-100 text-slate-700 border-[#E6EBF2] hover:bg-slate-200' }}">
                         {{ $i + 1 }}
                     </button>
                     @endfor
                 </div>
 
                 <!-- Quick Progress Summary -->
-                <div class="space-y-2 pt-2 border-t border-slate-100 text-xs">
+                <div class="space-y-2 pt-2 border-t border-[#EFF2F7] text-xs">
                     <div class="flex items-center justify-between text-slate-600">
                         <span>Sudah Dijawab:</span>
                         <strong id="counter-terjawab" class="text-emerald-700 font-black">0 / {{ count($soals) }}</strong>
@@ -281,7 +282,7 @@
 
 <!-- ================= MODAL KONFIRMASI PENGUMPULAN UJIAN ================= -->
 <div id="modal-confirm-submit" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-5 shadow-2xl border border-slate-200 transform transition-all text-center max-h-[90vh] overflow-y-auto my-auto">
+    <div class="bg-white rounded-3xl w-full max-w-md p-6 sm:p-7 space-y-5 shadow-2xl border border-[#E6EBF2] transform transition-all text-center max-h-[90vh] overflow-y-auto my-auto">
         <div class="w-16 h-16 rounded-3xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-3xl mx-auto shadow-inner">
             <i class="fas fa-clipboard-check"></i>
         </div>
@@ -294,7 +295,7 @@
         </div>
 
         <!-- Summary Status Box -->
-        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 text-xs space-y-1.5 text-left">
+        <div class="bg-slate-50 p-3.5 rounded-2xl border border-[#EFF2F7] text-xs space-y-1.5 text-left">
             <div class="flex justify-between">
                 <span class="text-slate-500">Soal Terjawab:</span>
                 <span id="modal-sum-terjawab" class="font-bold text-emerald-600">0 Soal</span>
@@ -348,7 +349,7 @@
             btnNext.className = 'px-5 sm:px-7 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm';
         } else {
             textNext.textContent = 'Selanjutnya';
-            btnNext.className = 'px-5 sm:px-7 py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm';
+            btnNext.className = 'px-5 sm:px-7 py-3 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm';
         }
 
         // Ragu-ragu active state
@@ -369,10 +370,10 @@
 
         // Reset styling for all choices in this question
         document.querySelectorAll('.opt-label-' + idSoal).forEach(el => {
-            el.className = 'opt-label-' + idSoal + ' bg-white hover:bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer transition select-none group';
+            el.className = 'opt-label-' + idSoal + ' bg-white hover:bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-[#E6EBF2] shadow-2xs flex items-center justify-between cursor-pointer transition select-none group';
         });
         document.querySelectorAll('.opt-badge-' + idSoal).forEach(el => {
-            el.className = 'opt-badge-' + idSoal + ' w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center transition shrink-0 group-hover:bg-[#13527D]/10 group-hover:text-[#13527D]';
+            el.className = 'opt-badge-' + idSoal + ' w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center transition shrink-0 group-hover:bg-[#0E3A5C]/10 group-hover:text-[#0E3A5C]';
         });
         document.querySelectorAll('.opt-check-' + idSoal).forEach(el => {
             el.className = 'opt-check-' + idSoal + ' w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center text-white transition text-xs shrink-0';
@@ -386,13 +387,13 @@
         const check = document.getElementById('check-icon-' + idSoal + '-' + optKey);
 
         if (label) {
-            label.className = 'opt-label-' + idSoal + ' bg-sky-50/60 rounded-2xl p-4 sm:p-5 border-2 border-[#13527D] shadow-sm flex items-center justify-between cursor-pointer transition select-none';
+            label.className = 'opt-label-' + idSoal + ' bg-sky-50/60 rounded-2xl p-4 sm:p-5 border-2 border-[#0E3A5C] shadow-sm flex items-center justify-between cursor-pointer transition select-none';
         }
         if (badge) {
-            badge.className = 'opt-badge-' + idSoal + ' w-9 h-9 rounded-xl bg-[#13527D] text-white font-black text-xs flex items-center justify-center transition shrink-0 shadow-2xs';
+            badge.className = 'opt-badge-' + idSoal + ' w-9 h-9 rounded-xl bg-[#0E3A5C] text-white font-black text-xs flex items-center justify-center transition shrink-0 shadow-2xs';
         }
         if (check) {
-            check.className = 'opt-check-' + idSoal + ' w-6 h-6 rounded-full bg-[#13527D] border-2 border-[#13527D] flex items-center justify-center text-white transition text-xs shrink-0';
+            check.className = 'opt-check-' + idSoal + ' w-6 h-6 rounded-full bg-[#0E3A5C] border-2 border-[#0E3A5C] flex items-center justify-center text-white transition text-xs shrink-0';
             const icon = check.querySelector('i');
             if (icon) icon.classList.remove('hidden');
         }
@@ -405,7 +406,7 @@
                 statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-black bg-amber-100 text-amber-800 border border-amber-300';
             } else {
                 statusBadge.textContent = 'Terjawab (' + optKey + ')';
-                statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-black bg-sky-100 text-[#13527D] border border-sky-300';
+                statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-black bg-sky-100 text-[#0E3A5C] border border-sky-300';
             }
         }
 
@@ -431,10 +432,10 @@
             } else {
                 if (ans) {
                     statusBadge.textContent = 'Terjawab (' + ans + ')';
-                    statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-black bg-sky-100 text-[#13527D] border border-sky-300';
+                    statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-black bg-sky-100 text-[#0E3A5C] border border-sky-300';
                 } else {
                     statusBadge.textContent = 'Belum Dijawab';
-                    statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-200';
+                    statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-[#E6EBF2]';
                 }
             }
         }
@@ -479,9 +480,9 @@
             if (isFlagged) {
                 classes += 'bg-amber-400 text-slate-900 border-amber-500 shadow-2xs';
             } else if (isAnswered) {
-                classes += 'bg-[#13527D] text-white border-[#13527D] shadow-2xs';
+                classes += 'bg-[#0E3A5C] text-white border-[#0E3A5C] shadow-2xs';
             } else {
-                classes += 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200';
+                classes += 'bg-slate-100 text-slate-700 border-[#E6EBF2] hover:bg-slate-200';
             }
 
             btn.className = classes;

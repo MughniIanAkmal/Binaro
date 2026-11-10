@@ -1,33 +1,23 @@
 @extends('layouts.siswa')
 
-@section('content')
-<div class="max-w-5xl mx-auto space-y-6">
+@section('page_title', 'Notifikasi PR')
 
-    {{-- Header Banner --}}
-    <div class="bg-gradient-to-r from-[#0E385D] to-[#165B96] rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div class="space-y-1">
-            <div class="flex items-center gap-2">
-                <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    <i class="fas fa-bell mr-1"></i> Notifikasi PR
-                </span>
-                <span class="text-xs text-sky-200">SDN Kalitapen 01</span>
-            </div>
-            <h1 class="text-xl md:text-2xl font-black tracking-tight">Pemberitahuan Tugas PR</h1>
-            <p class="text-xs text-sky-100 max-w-xl">
-                Pantau dan baca semua notifikasi tugas pekerjaan rumah (PR) yang dikirimkan oleh guru.
-            </p>
-        </div>
-        @if($belumDibaca > 0)
+@section('header_actions')
+    @if($belumDibaca > 0)
         <form action="{{ route('siswa.notifikasi_pr.baca_semua') }}" method="POST">
             @csrf
             <button type="submit"
                     onclick="return confirm('Tandai semua {{ $belumDibaca }} notifikasi sebagai sudah dibaca?')"
-                    class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl shadow transition flex items-center gap-2 whitespace-nowrap">
-                <i class="fas fa-check-double text-xs"></i> Tandai Semua Dibaca
+                    class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition whitespace-nowrap"
+                    style="background: var(--binaro-navy);">
+                <i class="fas fa-check-double text-[11px]"></i> Tandai Semua Dibaca
             </button>
         </form>
-        @endif
-    </div>
+    @endif
+@endsection
+
+@section('content')
+<div class="max-w-5xl mx-auto space-y-5">
 
     {{-- Session Alerts --}}
     @if(session('success'))
@@ -69,18 +59,18 @@
     {{-- KPI Cards --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <a href="{{ route('siswa.notifikasi_pr.index', array_filter(['filter' => 'semua', 'search' => $search])) }}"
-           class="bg-white p-4 rounded-2xl border {{ $filter === 'semua' ? 'border-[#13527D] ring-2 ring-[#13527D]/20 shadow-md' : 'border-slate-200' }} shadow-sm flex items-center justify-between hover:border-[#13527D] transition group cursor-pointer block">
+           class="bg-white p-4 rounded-2xl border {{ $filter === 'semua' ? 'border-[#0E3A5C] ring-2 ring-[#0E3A5C]/20 shadow-md' : 'border-[#E6EBF2]' }} shadow-sm flex items-center justify-between hover:border-[#0E3A5C] transition group cursor-pointer block">
             <div>
                 <div class="text-2xl font-black text-slate-900">{{ $totalNotif }}</div>
                 <div class="text-[11px] font-bold text-slate-500 mt-0.5">Total Notifikasi</div>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#13527D] flex items-center justify-center text-lg group-hover:scale-105 transition-transform">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#0E3A5C] flex items-center justify-center text-lg group-hover:scale-105 transition-transform">
                 <i class="fas fa-bell"></i>
             </div>
         </a>
 
         <a href="{{ route('siswa.notifikasi_pr.index', array_filter(['filter' => 'belum_dibaca', 'search' => $search])) }}"
-           class="bg-white p-4 rounded-2xl border {{ $filter === 'belum_dibaca' ? 'border-amber-400 ring-2 ring-amber-400/20 shadow-md' : 'border-slate-200' }} shadow-sm flex items-center justify-between hover:border-amber-400 transition group cursor-pointer block"
+           class="bg-white p-4 rounded-2xl border {{ $filter === 'belum_dibaca' ? 'border-amber-400 ring-2 ring-amber-400/20 shadow-md' : 'border-[#E6EBF2]' }} shadow-sm flex items-center justify-between hover:border-amber-400 transition group cursor-pointer block"
            title="Klik untuk melihat notifikasi yang belum dibaca">
             <div>
                 <div class="text-2xl font-black text-amber-500">{{ $belumDibaca }}</div>
@@ -92,7 +82,7 @@
         </a>
 
         <a href="{{ route('siswa.notifikasi_pr.index', array_filter(['filter' => 'sudah_dibaca', 'search' => $search])) }}"
-           class="bg-white p-4 rounded-2xl border {{ $filter === 'sudah_dibaca' ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'border-slate-200' }} shadow-sm flex items-center justify-between hover:border-emerald-500 transition group cursor-pointer block"
+           class="bg-white p-4 rounded-2xl border {{ $filter === 'sudah_dibaca' ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'border-[#E6EBF2]' }} shadow-sm flex items-center justify-between hover:border-emerald-500 transition group cursor-pointer block"
            title="Klik untuk melihat notifikasi yang sudah dibaca">
             <div>
                 <div class="text-2xl font-black text-emerald-600">{{ $sudahDibaca }}</div>
@@ -103,7 +93,7 @@
             </div>
         </a>
 
-        <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div class="bg-white p-4 rounded-2xl border border-[#E6EBF2] shadow-sm flex items-center justify-between">
             <div>
                 <div class="text-2xl font-black text-indigo-600">{{ $prAktif }}</div>
                 <div class="text-[11px] font-bold text-slate-500 mt-0.5">PR Aktif</div>
@@ -115,7 +105,7 @@
     </div>
 
     {{-- Filter & Search Bar --}}
-    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
+    <div class="bg-white rounded-2xl border border-[#E6EBF2] p-4 shadow-sm">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {{-- Tab Filter --}}
             <div class="flex items-center gap-1.5 flex-wrap">
@@ -125,7 +115,7 @@
                     'sudah_dibaca'=> ['Sudah Dibaca', 'fas fa-envelope-open', $sudahDibaca],
                 ] as $key => [$label, $icon, $count])
                 <a href="{{ route('siswa.notifikasi_pr.index', array_filter(['filter' => $key, 'search' => $search])) }}"
-                   class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $filter === $key ? 'bg-[#13527D] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $filter === $key ? 'bg-[#0E3A5C] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
                     <i class="{{ $icon }} text-[10px]"></i>
                     <span>{{ $label }}</span>
                     <span class="px-1.5 py-0.5 rounded-full {{ $filter === $key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500' }} text-[10px] font-extrabold">
@@ -143,7 +133,7 @@
                 <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                 <input type="text" name="search" value="{{ $search }}"
                        placeholder="Cari PR, mapel, atau pesan..."
-                       class="pl-8 pr-8 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:border-[#13527D] w-52 sm:w-60">
+                       class="pl-8 pr-8 py-1.5 text-xs bg-slate-50 border border-[#E6EBF2] rounded-lg text-slate-700 focus:outline-none focus:border-[#0E3A5C] w-52 sm:w-60">
                 @if($search)
                 <a href="{{ route('siswa.notifikasi_pr.index', ['filter' => $filter]) }}"
                    class="absolute right-2 top-2 text-slate-400 hover:text-slate-700" title="Hapus pencarian">
@@ -163,7 +153,7 @@
             $tenggatFormatted = $pr ? \Carbon\Carbon::parse($pr->tgl_tenggat)->translatedFormat('d M Y') . ', ' . \Carbon\Carbon::parse($pr->tgl_tenggat)->format('H:i') . ' WIB' : '-';
             $tenggatDiff = $pr ? \Carbon\Carbon::parse($pr->tgl_tenggat)->diffForHumans() : '-';
         @endphp
-        <div class="bg-white rounded-2xl border {{ $notif->status_baca ? 'border-slate-200' : 'border-amber-300 shadow-md' }} overflow-hidden transition hover:shadow-md">
+        <div class="bg-white rounded-2xl border {{ $notif->status_baca ? 'border-[#E6EBF2]' : 'border-amber-300 shadow-md' }} overflow-hidden transition hover:shadow-md">
             <div class="flex items-start gap-0">
                 {{-- Indikator belum dibaca --}}
                 <div class="w-1 self-stretch {{ $notif->status_baca ? 'bg-slate-200' : 'bg-amber-400' }} rounded-l-2xl shrink-0"></div>
@@ -179,7 +169,7 @@
                                 </span>
                                 @endif
                                 @if($pr)
-                                <span class="bg-sky-100 text-[#13527D] text-[10px] font-extrabold px-2 py-0.5 rounded-lg">
+                                <span class="bg-sky-100 text-[#0E3A5C] text-[10px] font-extrabold px-2 py-0.5 rounded-lg">
                                     {{ $pr->mataPelajaran->nama_mapel ?? 'Mapel' }}
                                 </span>
                                 @endif
@@ -205,7 +195,7 @@
                             <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-400 pt-0.5">
                                 @if($pr)
                                 <span class="flex items-center gap-1">
-                                    <i class="fas fa-calendar-alt text-[#13527D]"></i>
+                                    <i class="fas fa-calendar-alt text-[#0E3A5C]"></i>
                                     Tenggat: <strong class="text-slate-600 ml-0.5">{{ $tenggatFormatted }}</strong>
                                 </span>
                                 @endif
@@ -233,7 +223,7 @@
                             </form>
                             @endif
                             <a href="{{ route('siswa.notifikasi_pr.show', $notif->id_notifikasi) }}"
-                               class="px-3 py-1.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-[11px] font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                               class="px-3 py-1.5 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white text-[11px] font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
                                 <i class="fas fa-eye text-[10px]"></i> Lihat Detail
                             </a>
                         </div>
@@ -242,7 +232,7 @@
             </div>
         </div>
         @empty
-        <div class="bg-white rounded-2xl border border-slate-200 p-12 text-center shadow-sm">
+        <div class="bg-white rounded-2xl border border-[#E6EBF2] p-12 text-center shadow-sm">
             <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center mx-auto mb-4 text-3xl">
                 <i class="fas fa-bell-slash"></i>
             </div>
@@ -259,7 +249,7 @@
             </h3>
             <p class="text-[11px] text-slate-400">
                 @if($filter !== 'semua')
-                    <a href="{{ route('siswa.notifikasi_pr.index') }}" class="text-[#13527D] hover:underline font-medium">Lihat semua notifikasi</a>
+                    <a href="{{ route('siswa.notifikasi_pr.index') }}" class="text-[#0E3A5C] hover:underline font-medium">Lihat semua notifikasi</a>
                 @else
                     Guru belum mengirimkan notifikasi tugas PR kepada kamu.
                 @endif

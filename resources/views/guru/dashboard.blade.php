@@ -1,4 +1,4 @@
-@extends('layouts.guru')
+\@extends('layouts.guru')
 
 @section('breadcrumb', 'Dashboard Pengajar')
 @section('page_title', 'Ruang Kelas & Penilaian')

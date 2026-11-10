@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Models\Admin;
 use App\Models\Guru;
 use App\Models\Siswa;
-use App\Services\ApiTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
@@ -99,9 +98,7 @@ class AuthApiController extends ApiController
             }
             RateLimiter::clear($throttleKey);
             $this->upgradeLegacyPassword($siswa, $password);
-            $token = method_exists($siswa, 'createToken')
-                ? $siswa->createToken('binaro-app')->plainTextToken
-                : ApiTokenService::createToken($siswa, 'siswa');
+            $token = $siswa->createToken('binaro-app')->plainTextToken;
 
             return $this->success([
                 'token' => $token,
@@ -125,9 +122,7 @@ class AuthApiController extends ApiController
         if ($guru && $this->verifyPassword($password, $guru->password)) {
             RateLimiter::clear($throttleKey);
             $this->upgradeLegacyPassword($guru, $password);
-            $token = method_exists($guru, 'createToken')
-                ? $guru->createToken('binaro-app')->plainTextToken
-                : ApiTokenService::createToken($guru, 'guru');
+            $token = $guru->createToken('binaro-app')->plainTextToken;
 
             return $this->success([
                 'token' => $token,
@@ -146,9 +141,7 @@ class AuthApiController extends ApiController
         if ($admin && $this->verifyPassword($password, $admin->password)) {
             RateLimiter::clear($throttleKey);
             $this->upgradeLegacyPassword($admin, $password);
-            $token = method_exists($admin, 'createToken')
-                ? $admin->createToken('binaro-app')->plainTextToken
-                : ApiTokenService::createToken($admin, 'admin');
+            $token = $admin->createToken('binaro-app')->plainTextToken;
 
             return $this->success([
                 'token' => $token,
@@ -167,15 +160,14 @@ class AuthApiController extends ApiController
     }
 
     /**
-     * API Logout
+     * API Logout — hanya mencabut token yang dipakai pada request ini.
+     * Token lain milik user yang sama tetap berlaku.
      */
     public function logout(Request $request)
     {
-        $user = $request->user();
+        $user = $request->user('sanctum') ?? $request->user();
         if ($user && method_exists($user, 'currentAccessToken')) {
             $user->currentAccessToken()?->delete();
-        } else {
-            ApiTokenService::revokeToken($request);
         }
 
         return $this->success(null, 'Berhasil logout');

@@ -36,11 +36,11 @@ function cetakQR() {
             box.classList.remove('hidden');
             if (text) text.textContent = msg;
             input.classList.add('border-rose-400');
-            input.classList.remove('border-slate-200');
+            input.classList.remove('border-[#E6EBF2]');
         } else {
             box.classList.add('hidden');
             input.classList.remove('border-rose-400');
-            input.classList.add('border-slate-200');
+            input.classList.add('border-[#E6EBF2]');
         }
     }
 

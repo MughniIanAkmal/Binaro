@@ -79,7 +79,7 @@ class SiswaUjianOnlineDesktopTest extends TestCase
             ->get(route('siswa.ujian.index'));
 
         $response->assertOk();
-        $response->assertSee('Ujian Online Siswa');
+        $response->assertSee('Ujian Online');
         $response->assertSee('Penilaian Tengah Semester IPA');
         $response->assertSee('Ilmu Pengetahuan Alam');
         $response->assertSee('Pak Budi Hartono, M.Pd');

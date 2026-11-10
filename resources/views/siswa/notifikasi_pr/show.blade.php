@@ -1,26 +1,22 @@
 @extends('layouts.siswa')
 
-@section('content')
-<div class="max-w-3xl mx-auto space-y-6">
+@section('page_title', 'Rincian Tugas PR')
 
-    {{-- Breadcrumb --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-            <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
-                <a href="{{ route('siswa.notifikasi_pr.index') }}"
-                   class="hover:text-[#13527D] font-medium flex items-center gap-1">
-                    <i class="fas fa-arrow-left text-[10px]"></i> Notifikasi PR
-                </a>
-                <span>&bull;</span>
-                <span class="text-slate-800 font-bold">Detail Notifikasi</span>
-            </div>
-            <h1 class="text-xl font-black text-slate-900">Rincian Pemberitahuan Tugas PR</h1>
-        </div>
-        <a href="{{ route('siswa.notifikasi_pr.index') }}"
-           class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-1.5 self-start">
-            <i class="fas fa-list text-xs"></i> Semua Notifikasi
-        </a>
-    </div>
+@section('breadcrumb_trail')
+    <a href="{{ route('siswa.notifikasi_pr.index') }}" class="hover:text-slate-600 transition">Notifikasi PR</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <span class="text-slate-500">Detail Notifikasi</span>
+@endsection
+
+@section('header_actions')
+    <a href="{{ route('siswa.notifikasi_pr.index') }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+        <i class="fas fa-list text-[11px]"></i> Semua Notifikasi
+    </a>
+@endsection
+
+@section('content')
+<div class="max-w-3xl mx-auto space-y-5">
 
     {{-- Session Alerts --}}
     @if(session('success'))
@@ -68,7 +64,7 @@
         $tenggatDiff = $tenggatCarbon ? $tenggatCarbon->diffForHumans() : '-';
     @endphp
 
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-2xl border border-[#E6EBF2] shadow-sm overflow-hidden">
 
         {{-- Header Card --}}
         <div class="bg-gradient-to-r from-[#0E385D] to-[#165B96] px-6 py-5 text-white">
@@ -115,7 +111,7 @@
             {{-- Isi Pesan --}}
             <div>
                 <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <i class="fas fa-envelope-open-text text-[#13527D]"></i> Isi Pesan dari Guru
+                    <i class="fas fa-envelope-open-text text-[#0E3A5C]"></i> Isi Pesan dari Guru
                 </h3>
                 <div class="p-4 bg-amber-50/60 border border-amber-200 rounded-xl text-sm text-slate-800 leading-relaxed whitespace-pre-wrap font-normal">
                     {{ $notifikasi->pesan }}
@@ -126,22 +122,22 @@
             @if($pr && $pr->deskripsi)
             <div>
                 <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <i class="fas fa-clipboard-list text-[#13527D]"></i> Instruksi & Petunjuk Soal
+                    <i class="fas fa-clipboard-list text-[#0E3A5C]"></i> Instruksi & Petunjuk Soal
                 </h3>
-                <div class="p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">
+                <div class="p-4 bg-slate-50 border border-[#E6EBF2] rounded-xl text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">
                     {{ $pr->deskripsi }}
                 </div>
             </div>
             @endif
 
             {{-- Meta Info --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-100">
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-0.5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#EFF2F7]">
+                <div class="bg-slate-50 p-3 rounded-xl border border-[#E6EBF2] text-xs space-y-0.5">
                     <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Dikirimkan kepada</div>
                     <div class="font-extrabold text-slate-900">{{ $siswa->nm_siswa }}</div>
                     <div class="text-slate-500">Kelas {{ $siswa->kelas->pararel ?? '-' }}</div>
                 </div>
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-0.5">
+                <div class="bg-slate-50 p-3 rounded-xl border border-[#E6EBF2] text-xs space-y-0.5">
                     <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Waktu Penerimaan</div>
                     <div class="font-extrabold text-slate-900">
                         {{ $notifikasi->created_at ? $notifikasi->created_at->translatedFormat('d M Y') : '-' }}
@@ -157,14 +153,14 @@
 
     {{-- Notifikasi Lain untuk PR yang Sama --}}
     @if($notifikasiLain->isNotEmpty())
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
+    <div class="bg-white rounded-2xl border border-[#E6EBF2] shadow-sm p-5 space-y-3">
         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-            <i class="fas fa-history text-[#13527D]"></i> Riwayat Notifikasi Lain untuk PR Ini
+            <i class="fas fa-history text-[#0E3A5C]"></i> Riwayat Notifikasi Lain untuk PR Ini
         </h3>
         <div class="space-y-2">
             @foreach($notifikasiLain as $lain)
             <a href="{{ route('siswa.notifikasi_pr.show', $lain->id_notifikasi) }}"
-               class="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl border border-slate-100 transition group">
+               class="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-xl border border-[#EFF2F7] transition group">
                 <div class="w-8 h-8 rounded-lg {{ $lain->status_baca ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600' }} flex items-center justify-center text-sm shrink-0">
                     <i class="fas fa-{{ $lain->status_baca ? 'envelope-open' : 'envelope' }}"></i>
                 </div>
@@ -186,7 +182,7 @@
     {{-- Tombol Aksi Bawah --}}
     <div class="flex items-center justify-between gap-3 pb-4">
         <a href="{{ route('siswa.notifikasi_pr.index') }}"
-           class="px-4 py-2.5 border border-slate-200 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-50 transition flex items-center gap-2">
+           class="px-4 py-2.5 border border-[#E6EBF2] text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-50 transition flex items-center gap-2">
             <i class="fas fa-arrow-left text-xs"></i> Kembali ke Daftar
         </a>
         <span class="text-xs text-emerald-600 font-bold flex items-center gap-1.5">

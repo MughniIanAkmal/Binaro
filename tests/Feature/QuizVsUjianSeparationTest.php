@@ -238,16 +238,16 @@ class QuizVsUjianSeparationTest extends TestCase
         $quizPlayRes = $this->withSession($session)->get(route('siswa.quiz.play', $this->quizMateri->id_quiz));
         $quizPlayContent = $quizPlayRes->getContent();
 
-        // Pembelajaran harus memiliki class active-item
+        // Pembelajaran harus memiliki class nav-item-active
         $this->assertMatchesRegularExpression(
-            '/<a[^>]*href="[^"]*\/siswa\/mapel"[^>]*class="[^"]*active-item[^"]*"[^>]*>[\s\S]*?Pembelajaran[\s\S]*?<\/a>/i',
+            '/<a[^>]*href="[^"]*\/siswa\/mapel"[^>]*class="[^"]*nav-item-active[^"]*"[^>]*>[\s\S]*?Pembelajaran[\s\S]*?<\/a>/i',
             $quizPlayContent,
             'Menu Pembelajaran di sidebar harus aktif saat siswa mengerjakan kuis materi.'
         );
 
-        // Ujian Online TIDAK BOLEH memiliki class active-item saat kuis
+        // Ujian Online TIDAK BOLEH memiliki class nav-item-active saat kuis
         $this->assertDoesNotMatchRegularExpression(
-            '/<a[^>]*href="[^"]*\/siswa\/ujian"[^>]*class="[^"]*active-item[^"]*"[^>]*>[\s\S]*?Ujian Online[\s\S]*?<\/a>/i',
+            '/<a[^>]*href="[^"]*\/siswa\/ujian"[^>]*class="[^"]*nav-item-active[^"]*"[^>]*>[\s\S]*?Ujian Online[\s\S]*?<\/a>/i',
             $quizPlayContent,
             'Menu Ujian Online di sidebar tidak boleh aktif saat siswa mengerjakan kuis materi.'
         );
@@ -257,13 +257,13 @@ class QuizVsUjianSeparationTest extends TestCase
         $examPlayContent = $examPlayRes->getContent();
 
         $this->assertMatchesRegularExpression(
-            '/<a[^>]*href="[^"]*\/siswa\/ujian"[^>]*class="[^"]*active-item[^"]*"[^>]*>[\s\S]*?Ujian Online[\s\S]*?<\/a>/i',
+            '/<a[^>]*href="[^"]*\/siswa\/ujian"[^>]*class="[^"]*nav-item-active[^"]*"[^>]*>[\s\S]*?Ujian Online[\s\S]*?<\/a>/i',
             $examPlayContent,
             'Menu Ujian Online di sidebar harus aktif saat siswa membuka ujian CBT online.'
         );
 
         $this->assertDoesNotMatchRegularExpression(
-            '/<a[^>]*href="[^"]*\/siswa\/mapel"[^>]*class="[^"]*active-item[^"]*"[^>]*>[\s\S]*?Pembelajaran[\s\S]*?<\/a>/i',
+            '/<a[^>]*href="[^"]*\/siswa\/mapel"[^>]*class="[^"]*nav-item-active[^"]*"[^>]*>[\s\S]*?Pembelajaran[\s\S]*?<\/a>/i',
             $examPlayContent,
             'Menu Pembelajaran di sidebar tidak boleh aktif saat siswa membuka ujian CBT online.'
         );

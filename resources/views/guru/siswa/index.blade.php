@@ -29,8 +29,8 @@
                 <td>{{ $item->no_hp }}</td>
                 <td>{{ $item->kelas->nama_kelas ?? '-' }}</td>
                 <td>
-                    <a href="{{ route('siswa.edit', $item->id_siswa) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <form action="{{ route('siswa.destroy', $item->id_siswa) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin hapus data siswa ini?')">
+                    <a href="{{ route('siswa.data.edit', $item->id_siswa) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form action="{{ route('siswa.data.destroy', $item->id_siswa) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin hapus data siswa ini?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-sm btn-danger">Hapus</button>

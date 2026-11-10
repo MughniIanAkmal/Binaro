@@ -30,7 +30,9 @@
 <body class="text-slate-800 min-h-screen">
 
 @php
-    $navGuru = $guru ?? null;
+    // Hanya model Guru tunggal yang dipakai untuk navigasi;
+    // halaman CRUD bisa mengirim paginator dengan nama variabel sama.
+    $navGuru = ($guru ?? null) instanceof \App\Models\Guru ? $guru : null;
     $navNama = $navGuru->nama_guru ?? session('user_name', 'Guru Binaro');
     $navInisial = strtoupper(substr(trim($navNama), 0, 2));
     $navPeran = 'Guru';

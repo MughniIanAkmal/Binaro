@@ -11,8 +11,9 @@
     @endphp
 
     <!-- Top Header Bar -->
-    <div class="bg-[#13527D] rounded-3xl p-5 sm:p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
+    <div class="hero-gradient rounded-2xl p-5 sm:p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative overflow-hidden">
+        <div class="absolute -right-12 -top-16 w-52 h-52 rounded-full bg-white/5"></div>
+        <div class="flex items-center gap-4 relative">
             <div class="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
                 <i class="fas fa-file-signature text-sm"></i>
             </div>
@@ -20,9 +21,9 @@
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 text-sky-200">
                     Hasil Ujian CBT
                 </span>
-                <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white mt-0.5">
+                <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white mt-0.5">
                     {{ $quiz->judul_quiz }}
-                </h1>
+                </h2>
                 <p class="text-xs text-sky-200 mt-0.5">
                     {{ $mapelName }} &bull; Guru: {{ $guruName }}
                 </p>
@@ -32,7 +33,7 @@
 
     @if(!$isPublished)
     <!-- ================= STATE: MENUNGGU RILIS NILAI DARI GURU ================= -->
-    <div class="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/90 shadow-sm text-center max-w-2xl mx-auto space-y-6">
+    <div class="bg-white rounded-3xl p-8 sm:p-12 border border-[#E6EBF2]/90 shadow-sm text-center max-w-2xl mx-auto space-y-6">
         <div class="w-20 h-20 rounded-3xl bg-amber-50 text-amber-500 border border-amber-200 flex items-center justify-center text-3xl mx-auto shadow-inner">
             <i class="fas fa-hourglass-half animate-pulse"></i>
         </div>
@@ -50,7 +51,7 @@
         </div>
 
         <!-- Meta Summary Box -->
-        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 text-left text-xs space-y-2.5 max-w-md mx-auto">
+        <div class="bg-slate-50 p-5 rounded-2xl border border-[#EFF2F7] text-left text-xs space-y-2.5 max-w-md mx-auto">
             <div class="flex justify-between">
                 <span class="text-slate-500">Mata Pelajaran:</span>
                 <span class="font-bold text-slate-800">{{ $mapelName }}</span>
@@ -63,7 +64,7 @@
                 <span class="text-slate-500">Waktu Pengumpulan:</span>
                 <span class="font-bold text-slate-800">{{ $hasil->created_at ? $hasil->created_at->format('d M Y, H:i') : now()->format('d M Y, H:i') }} WIB</span>
             </div>
-            <div class="flex justify-between border-t border-slate-200/60 pt-2">
+            <div class="flex justify-between border-t border-[#E6EBF2]/60 pt-2">
                 <span class="text-slate-500">Status Nilai:</span>
                 <span class="font-bold text-amber-600 flex items-center gap-1">
                     <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
@@ -80,7 +81,7 @@
 
         <div class="pt-2">
             <a href="{{ route('siswa.ujian.index') }}"
-               class="px-8 py-3.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-black transition inline-flex items-center gap-2 shadow-sm">
+               class="px-8 py-3.5 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white rounded-xl text-xs font-black transition inline-flex items-center gap-2 shadow-sm">
                 <i class="fas fa-arrow-left"></i>
                 <span>Kembali ke Daftar Ujian</span>
             </a>
@@ -91,7 +92,7 @@
     <!-- ================= STATE: NILAI TELAH DIRILIS OLEH GURU ================= -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <!-- Left: Circular Gauge Card (5/12) -->
-        <div class="lg:col-span-5 bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 shadow-sm flex flex-col justify-between items-center text-center space-y-4">
+        <div class="lg:col-span-5 bg-white rounded-3xl p-6 sm:p-8 border border-[#E6EBF2]/90 shadow-sm flex flex-col justify-between items-center text-center space-y-4">
             <div>
                 @if($isLulus)
                 <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -112,14 +113,14 @@
                         $circumference = 2 * pi() * 48;
                         $scorePercent = max(min($hasil->nilai_akhir, 100), 0);
                         $strokeOffset = $circumference - ($scorePercent / 100 * $circumference);
-                        $gaugeColor = $isLulus ? '#13527D' : '#E11D48';
+                        $gaugeColor = $isLulus ? '#0E3A5C' : '#E11D48';
                     @endphp
                     <circle cx="60" cy="60" r="48" fill="transparent" stroke="{{ $gaugeColor }}" stroke-width="10"
                             stroke-dasharray="{{ $circumference }}" stroke-dashoffset="{{ $strokeOffset }}" stroke-linecap="round" />
                 </svg>
 
                 <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span class="text-5xl font-black text-[#13527D] tracking-tight leading-none">
+                    <span class="text-5xl font-black text-[#0E3A5C] tracking-tight leading-none">
                         {{ round($hasil->nilai_akhir) }}
                     </span>
                     <span class="text-xs font-bold text-slate-400 mt-1">
@@ -150,8 +151,8 @@
             <!-- 3 Stat KPI Cards -->
             <div class="grid grid-cols-3 gap-4">
                 <!-- Benar -->
-                <div class="bg-[#13527D] text-white p-5 rounded-3xl shadow-sm text-center space-y-1.5">
-                    <div class="w-8 h-8 rounded-xl bg-white text-[#13527D] flex items-center justify-center mx-auto text-xs font-black shadow-xs">
+                <div class="bg-[#0E3A5C] text-white p-5 rounded-3xl shadow-sm text-center space-y-1.5">
+                    <div class="w-8 h-8 rounded-xl bg-white text-[#0E3A5C] flex items-center justify-center mx-auto text-xs font-black shadow-xs">
                         <i class="fas fa-check"></i>
                     </div>
                     <div class="text-2xl font-black">{{ $hasil->jumlah_benar }}</div>
@@ -168,8 +169,8 @@
                 </div>
 
                 <!-- Total Soal -->
-                <div class="bg-[#0E3D5D] text-white p-5 rounded-3xl shadow-sm text-center space-y-1.5">
-                    <div class="w-8 h-8 rounded-xl bg-white text-[#0E3D5D] flex items-center justify-center mx-auto text-xs font-black shadow-xs">
+                <div class="bg-[#0B2E4A] text-white p-5 rounded-3xl shadow-sm text-center space-y-1.5">
+                    <div class="w-8 h-8 rounded-xl bg-white text-[#0B2E4A] flex items-center justify-center mx-auto text-xs font-black shadow-xs">
                         <i class="fas fa-list-ol"></i>
                     </div>
                     <div class="text-2xl font-black">{{ count($reviewDetails) }}</div>
@@ -178,9 +179,9 @@
             </div>
 
             <!-- Info Box Pengampu & Catatan Evaluasi -->
-            <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm space-y-3">
+            <div class="bg-white rounded-3xl p-5 border border-[#E6EBF2]/90 shadow-sm space-y-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#13527D] flex items-center justify-center text-lg shrink-0">
+                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#0E3A5C] flex items-center justify-center text-lg shrink-0">
                         <i class="fas fa-chalkboard-user"></i>
                     </div>
                     <div>
@@ -192,13 +193,13 @@
                     </div>
                 </div>
 
-                <div class="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-[#13527D] text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
+                <div class="bg-slate-50 rounded-2xl p-4 border border-[#EFF2F7] flex items-start gap-3">
+                    <div class="w-8 h-8 rounded-xl bg-[#0E3A5C] text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
                         <i class="fas fa-comment-dots"></i>
                     </div>
                     <div class="text-xs text-slate-700 leading-relaxed flex-1">
                         @if($hasil->catatan_guru && $isLulus)
-                            <strong class="text-[#13527D]">Catatan Guru:</strong> &ldquo;{{ $hasil->catatan_guru }}&rdquo;
+                            <strong class="text-[#0E3A5C]">Catatan Guru:</strong> &ldquo;{{ $hasil->catatan_guru }}&rdquo;
                         @elseif($isLulus)
                             Hasil ujian telah memenuhi kriteria ketuntasan minimal (KKM). Terus pertahankan prestasi belajar Anda!
                         @else
@@ -222,13 +223,13 @@
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row items-center gap-3">
                 <button type="button" onclick="document.getElementById('section-pembahasan').classList.toggle('hidden'); this.scrollIntoView({behavior: 'smooth'})"
-                        class="w-full sm:flex-1 py-3.5 bg-white border-2 border-[#13527D] text-[#13527D] hover:bg-sky-50 rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 shadow-xs">
+                        class="w-full sm:flex-1 py-3.5 bg-white border-2 border-[#0E3A5C] text-[#0E3A5C] hover:bg-sky-50 rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 shadow-xs">
                     <i class="fas fa-book-open"></i>
                     <span>Buka / Tutup Pembahasan Soal</span>
                 </button>
 
                 <a href="{{ route('siswa.ujian.index') }}"
-                   class="w-full sm:flex-1 py-3.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 shadow-sm">
+                   class="w-full sm:flex-1 py-3.5 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 shadow-sm">
                     <i class="fas fa-arrow-left"></i>
                     <span>Kembali ke Daftar Ujian</span>
                 </a>
@@ -238,9 +239,9 @@
 
     <!-- ================= PEMBAHASAN SOAL LENGKAP ================= -->
     <div id="section-pembahasan" class="space-y-4 pt-4">
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-xs flex items-center justify-between">
+        <div class="bg-white rounded-2xl p-4 border border-[#E6EBF2]/90 shadow-xs flex items-center justify-between">
             <h4 class="text-sm font-black text-slate-900 flex items-center gap-2">
-                <i class="fas fa-list-check text-[#13527D]"></i> Pembahasan Butir Soal Ujian
+                <i class="fas fa-list-check text-[#0E3A5C]"></i> Pembahasan Butir Soal Ujian
             </h4>
             <span class="text-xs text-slate-500 font-bold">{{ count($reviewDetails) }} Soal Lengkap</span>
         </div>
@@ -251,7 +252,7 @@
             $userAns = $item['user_answer'];
             $key = $item['kunci_jawaban'];
         @endphp
-        <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200/90 shadow-xs space-y-4">
+        <div class="bg-white p-5 sm:p-6 rounded-3xl border border-[#E6EBF2]/90 shadow-xs space-y-4">
             <div class="flex items-start justify-between gap-3">
                 <div class="flex items-start gap-3">
                     <span class="w-8 h-8 rounded-xl text-xs font-black flex items-center justify-center shrink-0 {{ $isCorrect === true ? 'bg-emerald-600 text-white' : ($isCorrect === false ? 'bg-rose-600 text-white' : 'bg-slate-700 text-white') }}">
@@ -264,7 +265,7 @@
 
                         <!-- Gambar Soal Jika Ada -->
                         @if(!empty($item['gambar']))
-                        <div class="p-2 bg-slate-50 rounded-xl border border-slate-200 max-w-md">
+                        <div class="p-2 bg-slate-50 rounded-xl border border-[#E6EBF2] max-w-md">
                             <img src="{{ asset('storage/' . $item['gambar']) }}" alt="Gambar Soal {{ $idx + 1 }}" class="rounded-lg max-h-60 object-contain">
                         </div>
                         @endif
@@ -311,7 +312,7 @@
                 @php
                     $isCorrectKey = ($optKey === $key);
                     $isUserChoice = ($optKey === $userAns);
-                    $style = 'bg-slate-50 border-slate-200 text-slate-700';
+                    $style = 'bg-slate-50 border-[#E6EBF2] text-slate-700';
                     if ($isCorrectKey) {
                         $style = 'bg-emerald-50 border-2 border-emerald-400 text-emerald-900 font-bold';
                     } elseif ($isUserChoice && !$isCorrect) {

@@ -23,3 +23,7 @@ yarn-error.log
 /.zed
 
 .perch/
+.zcode/
+scripts/_check_siswa.php
+scripts/_check_siswa2.php
+scripts/_siswa2.php

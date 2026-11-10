@@ -204,7 +204,7 @@ class SiswaController extends Controller
 
         $kelasList = Kelas::all();
 
-        return view('siswa.index', compact('siswa', 'search', 'kelasList', 'idRooms'));
+        return view('siswa.data.index', compact('siswa', 'search', 'kelasList', 'idRooms'));
     }
 
     public function create()
@@ -212,7 +212,7 @@ class SiswaController extends Controller
         $mapel = MataPelajaran::all();
         $kelas = Kelas::all();
 
-        return view('siswa.create', compact('mapel', 'kelas'));
+        return view('siswa.data.create', compact('mapel', 'kelas'));
     }
 
     public function store(StoreSiswaRequest $request)
@@ -240,7 +240,7 @@ class SiswaController extends Controller
             ['kode_barcode' => Barcode::buatKodeUnik()]
         );
 
-        return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil ditambahkan.');
+        return redirect()->route('siswa.data.index')->with('success', 'Data siswa berhasil ditambahkan.');
     }
 
     public function edit(Siswa $siswa)
@@ -248,7 +248,7 @@ class SiswaController extends Controller
         $mapel = MataPelajaran::all();
         $kelas = Kelas::all();
 
-        return view('siswa.edit', compact('siswa', 'mapel', 'kelas'));
+        return view('siswa.data.edit', compact('siswa', 'mapel', 'kelas'));
     }
 
     public function update(UpdateSiswaRequest $request, Siswa $siswa)
@@ -273,13 +273,13 @@ class SiswaController extends Controller
 
         $siswa->update($data);
 
-        return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil diperbarui.');
+        return redirect()->route('siswa.data.index')->with('success', 'Data siswa berhasil diperbarui.');
     }
 
     public function destroy(Siswa $siswa)
     {
         $siswa->delete();
 
-        return redirect()->route('siswa.index')->with('success', 'Data siswa berhasil dihapus.');
+        return redirect()->route('siswa.data.index')->with('success', 'Data siswa berhasil dihapus.');
     }
 }
