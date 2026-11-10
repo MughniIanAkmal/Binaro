@@ -1,3 +1,9 @@
+<div>
+    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">Guru / Absensi</p>
+    <h1 class="text-xl font-bold text-slate-900">Scan Absen Siswa</h1>
+    <p class="text-xs text-slate-500 mt-1">Arahkan QR kartu siswa ke kamera. Jika QR tidak terbaca, ketik kodenya secara manual.</p>
+</div>
+
 @php
     $belumCount = max($totalSiswa - $tercatatCount, 0);
     $persen = $totalSiswa ? round($tercatatCount / $totalSiswa * 100) : 0;
