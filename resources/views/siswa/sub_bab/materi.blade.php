@@ -1,46 +1,30 @@
 @extends('layouts.siswa')
 
+@section('page_title', $subBab->nama_sub_bab)
+@section('page_subtitle', $subBab->bab->mataPelajaran->nama_mapel.' · '.$subBab->bab->nama_bab.' · Pilih salah satu materi untuk mulai belajar.')
+
+@section('breadcrumb_trail')
+    <a href="{{ route('siswa.mapel.index') }}" class="hover:text-slate-600 transition">Pembelajaran</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <a href="{{ route('siswa.materi.index', $subBab->bab->mataPelajaran->id_mapel) }}" class="hover:text-slate-600 transition">{{ $subBab->bab->mataPelajaran->nama_mapel }}</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
+    <span class="text-slate-500">{{ $subBab->bab->nama_bab }}</span>
+@endsection
+
+@section('header_actions')
+    <a href="{{ route('siswa.materi.index', $subBab->bab->mataPelajaran->id_mapel) }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+        <i class="fas fa-arrow-left text-[11px]"></i> Kembali
+    </a>
+@endsection
+
 @section('content')
-<div class="space-y-6 max-w-4xl mx-auto">
-    <!-- Breadcrumb -->
-    <div class="flex items-center gap-2 text-xs text-slate-500 font-medium flex-wrap">
-        <a href="{{ route('siswa.mapel.index') }}" class="hover:text-[#13527D] transition">Mata Pelajaran</a>
-        <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
-        <a href="{{ route('siswa.materi.index', $subBab->bab->mataPelajaran->id_mapel) }}" class="hover:text-[#13527D] transition">
-            {{ $subBab->bab->mataPelajaran->nama_mapel }}
-        </a>
-        <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
-        <span class="text-slate-500">{{ $subBab->bab->nama_bab }}</span>
-        <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
-        <span class="text-slate-800 font-bold">{{ $subBab->nama_sub_bab }}</span>
-    </div>
-
-    <!-- Header Card -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-xl bg-[#13527D]/10 text-[#13527D] flex items-center justify-center text-xl font-bold">
-                <i class="fas fa-layer-group"></i>
-            </div>
-            <div>
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    {{ $subBab->bab->mataPelajaran->nama_mapel }} &bull; {{ $subBab->bab->nama_bab }}
-                </span>
-                <h1 class="text-lg font-bold text-slate-900 mt-0.5">{{ $subBab->nama_sub_bab }}</h1>
-                <p class="text-xs text-slate-500">Pilih salah satu materi di bawah ini untuk mulai belajar.</p>
-            </div>
-        </div>
-
-        <div>
-            <a href="{{ route('siswa.materi.index', $subBab->bab->mataPelajaran->id_mapel) }}" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition inline-flex items-center gap-1.5">
-                <i class="fas fa-arrow-left"></i> Kembali ke Sub-Bab
-            </a>
-        </div>
-    </div>
+<div class="space-y-5 max-w-4xl mx-auto">
 
     <!-- Daftar Konten Materi -->
     <div class="space-y-4">
         @forelse($subBab->materi as $mIdx => $mat)
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 hover:border-[#13527D]/50 transition p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-[#E6EBF2] hover:border-[#0E3A5C]/50 transition p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-start gap-4">
                 @if($mat->tipe_materi === 'video')
                     <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base shrink-0">
@@ -94,7 +78,7 @@
             </div>
 
             <div class="shrink-0 self-end sm:self-center">
-                <a href="{{ route('siswa.materi.view', $mat->id_materi) }}" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-xl shadow-sm transition inline-flex items-center gap-1.5">
+                <a href="{{ route('siswa.materi.view', $mat->id_materi) }}" class="px-4 py-2 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white text-xs font-bold rounded-xl shadow-sm transition inline-flex items-center gap-1.5">
                     @if($mat->tipe_materi === 'video')
                         <i class="fas fa-play text-[10px]"></i> Tonton Video
                     @elseif($mat->tipe_materi === 'dokumen')
@@ -106,7 +90,7 @@
             </div>
         </div>
         @empty
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
+        <div class="bg-white rounded-2xl shadow-sm border border-[#E6EBF2] p-12 text-center">
             <div class="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-400 text-xl mb-3">
                 <i class="fas fa-folder-open"></i>
             </div>

@@ -14,11 +14,11 @@
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('admin.dashboard') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
             <i class="fas fa-home w-5"></i> Dashboard
         </a>
-        <a href="{{ route('guru.index') }}"
+        <a href="{{ route('guru.data.index') }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('guru.*') && !Route::is('guru.absen.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
             <i class="fas fa-user-tie w-5"></i> Akun Guru
         </a>
-        <a href="{{ route('siswa.index') }}"
+        <a href="{{ route('siswa.data.index') }}"
            class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm {{ Route::is('siswa.*') ? 'bg-[#1E5D88] text-white font-semibold' : 'text-white/80 hover:bg-white/10' }}">
             <i class="fas fa-user-graduate w-5"></i> Akun Siswa
         </a>

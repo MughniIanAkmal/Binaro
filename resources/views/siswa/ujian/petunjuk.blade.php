@@ -10,17 +10,18 @@
     @endphp
 
     <!-- Top Header Bar with Back Button -->
-    <div class="bg-[#13527D] rounded-3xl px-6 py-5 text-white shadow-lg flex items-center justify-between">
-        <div class="flex items-center gap-3">
+    <div class="hero-gradient rounded-2xl px-6 py-5 text-white shadow-lg flex items-center justify-between relative overflow-hidden">
+        <div class="absolute -right-10 -top-14 w-44 h-44 rounded-full bg-white/5"></div>
+        <div class="flex items-center gap-3 relative">
             <a href="{{ route('siswa.ujian.index') }}" class="w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
                 <i class="fas fa-arrow-left text-sm"></i>
             </a>
             <div>
                 <span class="text-[10px] font-black uppercase text-amber-300 block tracking-wider">CBT Siswa</span>
-                <h1 class="text-base sm:text-lg font-black tracking-tight leading-tight">Petunjuk & Konfirmasi Ujian</h1>
+                <h2 class="text-base sm:text-lg font-black tracking-tight leading-tight">Petunjuk & Konfirmasi Ujian</h2>
             </div>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 relative">
             <div class="text-right hidden sm:block">
                 <div class="text-xs font-bold">{{ session('user_name', 'Siswa') }}</div>
                 <div class="text-[10px] text-white/70">Peserta Ujian</div>
@@ -32,12 +33,12 @@
     </div>
 
     <!-- Exam Header Card -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex items-center gap-5">
-        <div class="w-16 h-16 rounded-2xl bg-[#13527D] text-white flex items-center justify-center text-2xl shrink-0 shadow-md">
+    <div class="bg-white rounded-3xl p-6 border border-[#E6EBF2]/90 shadow-sm flex items-center gap-5">
+        <div class="w-16 h-16 rounded-2xl bg-[#0E3A5C] text-white flex items-center justify-center text-2xl shrink-0 shadow-md">
             <i class="fas fa-file-signature"></i>
         </div>
         <div>
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-sky-50 text-[#13527D] border border-sky-100 uppercase tracking-wide">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-sky-50 text-[#0E3A5C] border border-sky-100 uppercase tracking-wide">
                 {{ $mapelName }}
             </span>
             <h2 class="text-lg sm:text-xl font-black text-slate-900 mt-1 leading-snug">
@@ -55,7 +56,7 @@
         <span class="text-xs font-black text-slate-400 uppercase tracking-wider block">RINGKASAN PARAMETER UJIAN</span>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <!-- 1. Waktu / Status -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex items-center gap-3.5">
+            <div class="bg-white rounded-2xl p-4 border border-[#E6EBF2]/90 shadow-2xs flex items-center gap-3.5">
                 <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl shrink-0">
                     <i class="fas fa-calendar-check"></i>
                 </div>
@@ -66,7 +67,7 @@
             </div>
 
             <!-- 2. Durasi -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex items-center gap-3.5">
+            <div class="bg-white rounded-2xl p-4 border border-[#E6EBF2]/90 shadow-2xs flex items-center gap-3.5">
                 <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
                     <i class="fas fa-stopwatch"></i>
                 </div>
@@ -77,7 +78,7 @@
             </div>
 
             <!-- 3. Kesusahan Soal -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex items-center gap-3.5">
+            <div class="bg-white rounded-2xl p-4 border border-[#E6EBF2]/90 shadow-2xs flex items-center gap-3.5">
                 <div class="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl shrink-0">
                     <i class="fas fa-gauge-high"></i>
                 </div>
@@ -88,7 +89,7 @@
             </div>
 
             <!-- 4. Jumlah Soal -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/90 shadow-2xs flex items-center gap-3.5">
+            <div class="bg-white rounded-2xl p-4 border border-[#E6EBF2]/90 shadow-2xs flex items-center gap-3.5">
                 <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
                     <i class="fas fa-list-ol"></i>
                 </div>
@@ -116,7 +117,7 @@
     <!-- Pilihan Kesusahan Soal Ujian -->
     <div class="bg-gradient-to-r from-sky-50 to-indigo-50/70 border border-sky-200/80 rounded-3xl p-6 space-y-3">
         <div class="flex items-center justify-between">
-            <h4 class="text-sm font-black text-[#13527D] flex items-center gap-2">
+            <h4 class="text-sm font-black text-[#0E3A5C] flex items-center gap-2">
                 <i class="fas fa-sliders"></i>
                 <span>Pilih Tingkat Kesusahan Soal yang Ingin Dikerjakan</span>
             </h4>
@@ -132,7 +133,7 @@
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-            <label class="p-4 rounded-2xl border {{ $defKes === 'mudah' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} flex flex-col justify-between transition shadow-xs select-kes-card {{ ($countMudah ?? 0) === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-emerald-400' }}" id="petunjuk-card-mudah">
+            <label class="p-4 rounded-2xl border {{ $defKes === 'mudah' ? 'border-2 border-[#0E3A5C] bg-sky-50/50' : 'border-[#E6EBF2] bg-white' }} flex flex-col justify-between transition shadow-xs select-kes-card {{ ($countMudah ?? 0) === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-emerald-400' }}" id="petunjuk-card-mudah">
                 <div class="flex items-center justify-between">
                     <input type="radio" name="pilihan_kesulitan" value="mudah" {{ $defKes === 'mudah' ? 'checked' : '' }} {{ ($countMudah ?? 0) === 0 ? 'disabled' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-emerald-600 focus:ring-0 disabled:cursor-not-allowed">
                     <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">Mudah</span>
@@ -143,7 +144,7 @@
                 </div>
             </label>
 
-            <label class="p-4 rounded-2xl border {{ $defKes === 'sedang' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} flex flex-col justify-between transition shadow-xs select-kes-card {{ ($countSedang ?? 0) === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-amber-400' }}" id="petunjuk-card-sedang">
+            <label class="p-4 rounded-2xl border {{ $defKes === 'sedang' ? 'border-2 border-[#0E3A5C] bg-sky-50/50' : 'border-[#E6EBF2] bg-white' }} flex flex-col justify-between transition shadow-xs select-kes-card {{ ($countSedang ?? 0) === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-amber-400' }}" id="petunjuk-card-sedang">
                 <div class="flex items-center justify-between">
                     <input type="radio" name="pilihan_kesulitan" value="sedang" {{ $defKes === 'sedang' ? 'checked' : '' }} {{ ($countSedang ?? 0) === 0 ? 'disabled' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-amber-600 focus:ring-0 disabled:cursor-not-allowed">
                     <span class="text-[10px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">Sedang</span>
@@ -154,7 +155,7 @@
                 </div>
             </label>
 
-            <label class="p-4 rounded-2xl border {{ $defKes === 'sulit' ? 'border-2 border-[#13527D] bg-sky-50/50' : 'border-slate-200 bg-white' }} flex flex-col justify-between transition shadow-xs select-kes-card {{ ($countSulit ?? 0) === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-rose-400' }}" id="petunjuk-card-sulit">
+            <label class="p-4 rounded-2xl border {{ $defKes === 'sulit' ? 'border-2 border-[#0E3A5C] bg-sky-50/50' : 'border-[#E6EBF2] bg-white' }} flex flex-col justify-between transition shadow-xs select-kes-card {{ ($countSulit ?? 0) === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-rose-400' }}" id="petunjuk-card-sulit">
                 <div class="flex items-center justify-between">
                     <input type="radio" name="pilihan_kesulitan" value="sulit" {{ $defKes === 'sulit' ? 'checked' : '' }} {{ ($countSulit ?? 0) === 0 ? 'disabled' : '' }} onchange="changePetunjukKesulitan(this.value)" class="text-rose-600 focus:ring-0 disabled:cursor-not-allowed">
                     <span class="text-[10px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">Sulit</span>
@@ -171,14 +172,14 @@
     </div>
 
     <!-- Petunjuk Pengerjaan Card -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-4">
-        <div class="flex items-center gap-2 text-slate-900 font-extrabold text-sm pb-2 border-b border-slate-100">
-            <i class="fas fa-book-open-reader text-[#13527D]"></i>
+    <div class="bg-white rounded-3xl p-6 border border-[#E6EBF2]/90 shadow-sm space-y-4">
+        <div class="flex items-center gap-2 text-slate-900 font-extrabold text-sm pb-2 border-b border-[#EFF2F7]">
+            <i class="fas fa-book-open-reader text-[#0E3A5C]"></i>
             <span>Petunjuk Pengerjaan & Ketentuan Ujian</span>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-start gap-3">
+            <div class="bg-slate-50 p-4 rounded-2xl border border-[#EFF2F7] flex items-start gap-3">
                 <div class="w-8 h-8 rounded-xl bg-sky-600 text-white font-black text-xs flex items-center justify-center shrink-0">
                     1
                 </div>
@@ -188,7 +189,7 @@
                 </div>
             </div>
 
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-start gap-3">
+            <div class="bg-slate-50 p-4 rounded-2xl border border-[#EFF2F7] flex items-start gap-3">
                 <div class="w-8 h-8 rounded-xl bg-amber-500 text-white font-black text-xs flex items-center justify-center shrink-0">
                     2
                 </div>
@@ -198,7 +199,7 @@
                 </div>
             </div>
 
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex items-start gap-3">
+            <div class="bg-slate-50 p-4 rounded-2xl border border-[#EFF2F7] flex items-start gap-3">
                 <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0">
                     3
                 </div>
@@ -211,16 +212,16 @@
     </div>
 
     <!-- Ready Checkbox & Action Button -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm space-y-4">
+    <div class="bg-white rounded-3xl p-6 border border-[#E6EBF2]/90 shadow-sm space-y-4">
         <label class="flex items-center gap-3 cursor-pointer select-none">
             <input type="checkbox" id="check-ready" onchange="toggleMulaiButton(this.checked)"
-                   class="w-5 h-5 rounded-lg text-[#13527D] focus:ring-[#13527D] border-slate-300">
+                   class="w-5 h-5 rounded-lg text-[#0E3A5C] focus:ring-[#0E3A5C] border-slate-300">
             <span class="text-sm font-black text-slate-800">Saya memahami peraturan ujian dan siap mengerjakannya sekarang.</span>
         </label>
 
         <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
             <a href="{{ route('siswa.ujian.index') }}"
-               class="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-bold transition text-center">
+               class="w-full sm:w-auto px-6 py-3.5 rounded-xl border border-[#E6EBF2] hover:bg-slate-100 text-slate-700 text-xs font-bold transition text-center">
                 Batal / Kembali
             </a>
             <a id="btn-mulai-ujian" href="{{ route('siswa.ujian.play', ['idQuiz' => $quiz->id_quiz, 'kesulitan' => $defKes]) }}"
@@ -256,14 +257,14 @@
         document.getElementById('peringatan-level-kosong')?.classList.add('hidden');
         currentSelectedKesulitan = val;
         document.querySelectorAll('.select-kes-card').forEach(el => {
-            el.classList.remove('border-2', 'border-[#13527D]', 'bg-sky-50/50');
-            el.classList.add('border-slate-200', 'bg-white');
+            el.classList.remove('border-2', 'border-[#0E3A5C]', 'bg-sky-50/50');
+            el.classList.add('border-[#E6EBF2]', 'bg-white');
         });
 
         const activeCard = document.getElementById('petunjuk-card-' + val);
         if (activeCard) {
-            activeCard.classList.remove('border-slate-200', 'bg-white');
-            activeCard.classList.add('border-2', 'border-[#13527D]', 'bg-sky-50/50');
+            activeCard.classList.remove('border-[#E6EBF2]', 'bg-white');
+            activeCard.classList.add('border-2', 'border-[#0E3A5C]', 'bg-sky-50/50');
         }
 
         const btn = document.getElementById('btn-mulai-ujian');
@@ -276,10 +277,10 @@
         const btn = document.getElementById('btn-mulai-ujian');
         if (isChecked) {
             btn.classList.remove('pointer-events-none', 'opacity-50', 'bg-slate-200', 'text-slate-400');
-            btn.classList.add('bg-[#13527D]', 'hover:bg-[#0E3D5D]', 'text-white', 'shadow-md');
+            btn.classList.add('bg-[#0E3A5C]', 'hover:bg-[#0B2E4A]', 'text-white', 'shadow-md');
         } else {
             btn.classList.add('pointer-events-none', 'opacity-50', 'bg-slate-200', 'text-slate-400');
-            btn.classList.remove('bg-[#13527D]', 'hover:bg-[#0E3D5D]', 'text-white', 'shadow-md');
+            btn.classList.remove('bg-[#0E3A5C]', 'hover:bg-[#0B2E4A]', 'text-white', 'shadow-md');
         }
     }
 </script>

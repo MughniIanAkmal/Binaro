@@ -43,7 +43,7 @@
     <!-- 4 KPI Stat Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <!-- Siswa -->
-        <a href="{{ route('siswa.index') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-[#13527D]/60 hover:shadow-md transition group">
+        <a href="{{ route('siswa.data.index') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-[#13527D]/60 hover:shadow-md transition group">
             <div class="flex items-center justify-between">
                 <div>
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Siswa</span>
@@ -59,7 +59,7 @@
         </a>
 
         <!-- Guru -->
-        <a href="{{ route('guru.index') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-[#13527D]/60 hover:shadow-md transition group">
+        <a href="{{ route('guru.data.index') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-[#13527D]/60 hover:shadow-md transition group">
             <div class="flex items-center justify-between">
                 <div>
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Guru</span>
@@ -172,14 +172,14 @@
                 <span class="text-xs font-bold text-slate-700">Jam Absen</span>
             </a>
 
-            <a href="{{ route('guru.create') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#13527D] hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
+            <a href="{{ route('guru.data.create') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#13527D] hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
                 <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#13527D] group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
                     <i class="fas fa-user-plus"></i>
                 </div>
                 <span class="text-xs font-bold text-slate-700">Tambah Guru</span>
             </a>
 
-            <a href="{{ route('siswa.create') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#13527D] hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
+            <a href="{{ route('siswa.data.create') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-[#13527D] hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
                 <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
                     <i class="fas fa-user-graduate"></i>
                 </div>
@@ -230,7 +230,7 @@
                         <p class="text-[10px] text-slate-400">Tenaga pengajar aktif di SDN Kalitapen 01</p>
                     </div>
                 </div>
-                <a href="{{ route('guru.index') }}" class="text-[11px] font-bold text-[#13527D] hover:underline">
+                <a href="{{ route('guru.data.index') }}" class="text-[11px] font-bold text-[#13527D] hover:underline">
                     Lihat Semua &rarr;
                 </a>
             </div>
@@ -242,7 +242,7 @@
                         <p class="font-bold text-slate-800">{{ $g->nama_guru }}</p>
                         <p class="text-[10px] text-slate-400">NIP: {{ $g->nip ?? '-' }} &bull; {{ $g->no_hp ?? '-' }}</p>
                     </div>
-                    <a href="{{ route('guru.edit', $g->id_guru) }}" class="p-1.5 text-slate-400 hover:text-[#13527D] rounded-lg">
+                    <a href="{{ route('guru.data.edit', $g->id_guru) }}" class="p-1.5 text-slate-400 hover:text-[#13527D] rounded-lg">
                         <i class="fas fa-pen text-[10px]"></i>
                     </a>
                 </div>
@@ -264,7 +264,7 @@
                         <p class="text-[10px] text-slate-400">Peserta didik aktif</p>
                     </div>
                 </div>
-                <a href="{{ route('siswa.index') }}" class="text-[11px] font-bold text-[#13527D] hover:underline">
+                <a href="{{ route('siswa.data.index') }}" class="text-[11px] font-bold text-[#13527D] hover:underline">
                     Lihat Semua &rarr;
                 </a>
             </div>
@@ -276,7 +276,7 @@
                         <p class="font-bold text-slate-800">{{ $s->nm_siswa }}</p>
                         <p class="text-[10px] text-slate-400">NISN: {{ $s->nisn }} &bull; {{ $s->kelas?->pararel ?? 'Kelas Aktif' }}</p>
                     </div>
-                    <a href="{{ route('siswa.edit', $s->id_siswa) }}" class="p-1.5 text-slate-400 hover:text-[#13527D] rounded-lg">
+                    <a href="{{ route('siswa.data.edit', $s->id_siswa) }}" class="p-1.5 text-slate-400 hover:text-[#13527D] rounded-lg">
                         <i class="fas fa-pen text-[10px]"></i>
                     </a>
                 </div>

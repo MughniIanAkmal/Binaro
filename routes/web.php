@@ -211,7 +211,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::middleware([EnsureRole::class.':admin,guru'])->post('/rekap-ujian/jadwalkan-remedial/{idQuiz}', [QuizController::class, 'jadwalkanRemedial'])->name('rekap_ujian.jadwalkan_remedial');
 
     // 5. Akun Guru CRUD (Role: Admin)
-    Route::middleware([EnsureRole::class.':admin'])->prefix('guru')->name('guru.')->group(function () {
+    Route::middleware([EnsureRole::class.':admin'])->prefix('guru')->name('guru.data.')->group(function () {
         Route::get('/', [GuruController::class, 'index'])->name('index');
         Route::get('/create', [GuruController::class, 'create'])->name('create');
         Route::post('/', [GuruController::class, 'store'])->name('store');
@@ -260,7 +260,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     });
 
     // 7. Akun Siswa CRUD (Role: Admin & Guru)
-    Route::middleware([EnsureRole::class.':admin,guru'])->prefix('siswa')->name('siswa.')->group(function () {
+    Route::middleware([EnsureRole::class.':admin,guru'])->prefix('siswa')->name('siswa.data.')->group(function () {
         Route::get('/', [SiswaController::class, 'index'])->name('index');
         Route::get('/create', [SiswaController::class, 'create'])->name('create');
         Route::post('/', [SiswaController::class, 'store'])->name('store');

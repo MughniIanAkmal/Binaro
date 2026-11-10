@@ -24,15 +24,19 @@ class SiswaApiController extends ApiController
     public function __construct(private AbsensiService $absensiService) {}
 
     /**
-     * Resolve ID Siswa dari token user, request, session, atau default first siswa
+     * Resolve ID Siswa dari token Sanctum (prioritas utama), lalu fallback
+     * parameter/session/first untuk preview web & pengembangan.
      */
     protected function resolveSiswaId(Request $request): ?int
     {
-        $user = $request->user();
+        // 1. User dari token Bearer / actingAs — guard sanctum memvalidasi
+        //    personal_access_tokens meski route-nya publik.
+        $user = $request->user('sanctum') ?? $request->user();
         if ($user && isset($user->id_siswa)) {
             return (int) $user->id_siswa;
         }
 
+        // 2. Tanpa autentikasi: parameter, session, lalu siswa pertama (dev preview).
         $id = $request->input('id_siswa')
             ?? $request->query('id_siswa')
             ?? $request->query('id')
@@ -194,6 +198,10 @@ class SiswaApiController extends ApiController
         $alpa = $siswa->absens ? $siswa->absens->where('status', 'Alpa')->count() : 0;
 
         return $this->success([
+            // Kontrak API: kunci flat di level data (dipakai test & mobile),
+            // sementara objek "siswa" dipertahankan untuk kompatibilitas aplikasi lama.
+            'id_siswa' => $siswa->id_siswa,
+            'nisn' => $siswa->nisn,
             'siswa' => [
                 'id_siswa' => $siswa->id_siswa,
                 'nama' => $siswa->nm_siswa,
@@ -300,6 +308,7 @@ class SiswaApiController extends ApiController
             ->first();
 
         return $this->success([
+            'id_siswa' => $userId,
             'tanggal' => $today,
             'status' => $absen ? $absen->status : 'Belum Hadir',
             'keterangan' => $absen ? ($absen->keterangan ?? 'Tepat Waktu') : 'Belum melakukan absensi hari ini',

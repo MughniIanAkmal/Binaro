@@ -78,7 +78,7 @@ class GuruUjianOnlineTest extends TestCase
             ->get(route('guru.ujian.index'));
 
         $response->assertStatus(200);
-        $response->assertSee('Kelola Ujian Online');
+        $response->assertSee('Tugas & Ujian');
         $response->assertSee('Buat Ujian Baru');
     }
 

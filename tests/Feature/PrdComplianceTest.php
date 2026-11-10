@@ -369,27 +369,30 @@ class PrdComplianceTest extends TestCase
             ->getJson('/api/admin/absensi/rekap?fecha='.$today);
 
         $response->assertStatus(200);
+        // Helper success() membungkus payload di key "data" (konvensi seluruh API).
         $response->assertJsonStructure([
             'success',
-            'summary' => [
-                'total_siswa',
-                'hadir',
-                'izin',
-                'sakit',
-                'alpa',
+            'data' => [
+                'summary' => [
+                    'total_siswa',
+                    'hadir',
+                    'izin',
+                    'sakit',
+                    'alpa',
+                ],
+                'data',
             ],
-            'data',
         ]);
 
         $this->assertTrue($response->json('success'));
-        $this->assertEquals(5, $response->json('summary.total_siswa')); // 5 siswa created
-        $this->assertEquals(1, $response->json('summary.hadir'));
-        $this->assertEquals(1, $response->json('summary.izin'));
-        $this->assertEquals(1, $response->json('summary.sakit'));
-        $this->assertEquals(1, $response->json('summary.alpa'));
+        $this->assertEquals(5, $response->json('data.summary.total_siswa')); // 5 siswa created
+        $this->assertEquals(1, $response->json('data.summary.hadir'));
+        $this->assertEquals(1, $response->json('data.summary.izin'));
+        $this->assertEquals(1, $response->json('data.summary.sakit'));
+        $this->assertEquals(1, $response->json('data.summary.alpa'));
 
         // Data should contain 4 attendance records (one for each status)
-        $dataItems = $response->json('data.data') ?? $response->json('data');
+        $dataItems = $response->json('data.data.data') ?? [];
         $this->assertCount(4, $dataItems);
     }
 

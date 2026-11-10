@@ -160,8 +160,8 @@ class GuruRekapNilaiTest extends TestCase
         $response = $this->withSession($session)->get(route('rekap_nilai.index', ['quiz_id' => $ujian->id_quiz]));
 
         $response->assertOk();
-        // Ujian must have "Cetak Rekap Nilai"
-        $response->assertSee('Cetak Rekap Nilai');
+        // Ujian must have tombol Cetak Rekap (label hasil refactor UI)
+        $response->assertSee('Cetak Rekap');
         // Ujian must have "Kirim Nilai ke Semua Siswa"
         // Ujian must have Remedial Tab
         $response->assertSee('id="tab-remedial"', false);

@@ -140,7 +140,7 @@ class InputValidationAndHumanErrorTest extends TestCase
     {
         // Guru creation with invalid symbols in name
         $responseGuru = $this->withSession(['user_id' => $this->admin->id_admin, 'user_type' => 'admin'])
-            ->post(route('guru.store'), [
+            ->post(route('guru.data.store'), [
                 'nama' => 'Guru <script> 123 #$%',
                 'nip' => '199011112222333444',
                 'no_hp' => '081234567890',
@@ -154,7 +154,7 @@ class InputValidationAndHumanErrorTest extends TestCase
 
         // Siswa creation with invalid symbols in name
         $responseSiswa = $this->withSession(['user_id' => $this->admin->id_admin, 'user_type' => 'admin'])
-            ->post(route('siswa.store'), [
+            ->post(route('siswa.data.store'), [
                 'nama' => 'Siswa *&^% 123',
                 'nis' => '54321',
                 'nisn' => '0098765432',
