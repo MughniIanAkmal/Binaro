@@ -1,11 +1,6 @@
 @extends('layouts.guru')
 
-@section('header_actions')
-    <a href="{{ route('guru.materi.index') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
-        <i class="fas fa-layer-group text-[11px]"></i> Kelola Materi
-    </a>
-@endsection
+@section('page_title', 'Mata Pelajaran')
 
 @section('content')
 <div class="space-y-5">

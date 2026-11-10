@@ -4,242 +4,310 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Portal Pengajar - Binaro' }}</title>
+    <title>{{ $title ?? 'Portal Guru - Sahabat Belajar' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            --binaro-navy: #0E3A5C;
+            --binaro-navy: #18537D;
             --binaro-navy-soft: #17557F;
             --binaro-line: #E6EBF2;
-            --binaro-canvas: #F5F7FB;
+            --binaro-canvas: #F8FAFC;
         }
-        body { font-family: 'Plus Jakarta Sans', 'Instrument Sans', sans-serif; background-color: var(--binaro-canvas); }
-        .nav-item { transition: background-color .15s ease, color .15s ease; }
-        .nav-item-active { background-color: var(--binaro-navy); color: #fff; font-weight: 700; box-shadow: 0 6px 14px -8px rgba(14, 58, 92, .8); }
-        .nav-item-active i { color: #fff !important; }
-        .card { background: #fff; border: 1px solid var(--binaro-line); border-radius: 1rem; }
-        .hero-gradient { background: linear-gradient(115deg, #0E3A5C 0%, #14496F 55%, #1A5C88 100%); }
-        .scroll-thin::-webkit-scrollbar { width: 6px; }
-        .scroll-thin::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
+        body { font-family: 'Plus Jakarta Sans', 'Instrument Sans', sans-serif; background-color: #F8FAFC; }
+        .sidebar-brand-bg { background-color: #18537D; }
+        .active-menu-pill { background-color: #18537D; color: #ffffff; }
     </style>
 </head>
-<body class="text-slate-800 min-h-screen">
+<body class="text-slate-800 flex min-h-screen bg-[#F8FAFC]">
 
-@php
-    // Hanya model Guru tunggal yang dipakai untuk navigasi;
-    // halaman CRUD bisa mengirim paginator dengan nama variabel sama.
-    $navGuru = ($guru ?? null) instanceof \App\Models\Guru ? $guru : null;
-    $navNama = $navGuru->nama_guru ?? session('user_name', 'Guru Binaro');
-    $navInisial = strtoupper(substr(trim($navNama), 0, 2));
-    $navPeran = 'Guru';
-    $navSemester = (int) now()->month >= 7 ? 'GANJIL' : 'GENAP';
-    $navTahun = (int) now()->month >= 7
-        ? now()->year.'/'.(now()->year + 1)
-        : (now()->year - 1).'/'.now()->year;
-
-    // Jumlah sesi hari ini: dipakai dashboard dari controller, halaman lain hitung sendiri.
-    if (isset($sesiHariIni)) {
-        $navSesiHariIni = $sesiHariIni->count();
-    } elseif ($navGuru) {
-        $navSesiHariIni = \App\Models\JadwalMataPelajaran::where('id_guru', $navGuru->id_guru)
-            ->whereRaw('LOWER(TRIM(hari)) = ?', [strtolower(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'][now()->dayOfWeekIso - 1])])
-            ->count();
-    } else {
-        $navSesiHariIni = 0;
-    }
-
-    $menuUtama = [
-        ['label' => 'Beranda Guru', 'icon' => 'fa-house', 'route' => 'guru.dashboard', 'aktif' => request()->routeIs('guru.dashboard')],
-        ['label' => 'Presensi Siswa', 'icon' => 'fa-clipboard-check', 'route' => 'guru.absensi.rekap', 'aktif' => request()->routeIs('guru.absensi.*') || request()->routeIs('guru.absen.*')],
-        ['label' => 'RPP & Modul', 'icon' => 'fa-file-lines', 'route' => 'guru.rpp.index', 'aktif' => request()->routeIs('guru.rpp.*') || request()->routeIs('rpp.*') || request()->routeIs('rpp_guru.*')],
-        ['label' => 'Tugas & Kuis', 'icon' => 'fa-pen-to-square', 'route' => 'guru.ujian.index', 'aktif' => request()->routeIs('guru.ujian.*') || request()->routeIs('guru.quiz.*')],
-        ['label' => 'Buku Nilai', 'icon' => 'fa-chart-simple', 'route' => 'rekap_nilai.index', 'aktif' => request()->routeIs('rekap_nilai.*') || request()->routeIs('rekap_ujian.*')],
-    ];
-
-    // [0] = label breadcrumb, [1] = judul halaman, [2] = subjudul
-    $judulHalaman = match (true) {
-        request()->routeIs('guru.dashboard') => ['Dashboard Pengajar', 'Ruang Kelas & Penilaian', 'Ringkasan sesi mengajar, presensi, dan penilaian hari ini.'],
-        request()->routeIs('guru.jadwal.*') => ['Akademik', 'Jadwal Mengajar', 'Daftar sesi mengajar Senin sampai Sabtu beserta jam dan ruang kelas.'],
-        request()->routeIs('guru.mapel.*') => ['Akademik', 'Mata Pelajaran', 'Pilih mata pelajaran untuk menjelajahi Bab, Sub-Bab, dan materi.'],
-        request()->routeIs('guru.bab.*') => ['Akademik', 'Daftar Bab', 'Struktur bab pada mata pelajaran yang dipilih.'],
-        request()->routeIs('guru.sub_bab.*') => ['Akademik', 'Daftar Sub-Bab', 'Rincian sub-bab di dalam bab yang dipilih.'],
-        request()->routeIs('guru.materi.*') => ['Akademik', 'Kelola Materi', 'Kelola Bab, Sub-Bab, dan tipe konten: video, PDF, atau kuis.'],
-        request()->routeIs('guru.notifikasi_pr.create') => ['Akademik', 'Buat Tugas PR', 'Isi rincian tugas PR di bawah dan kirimkan notifikasi pengingat ke siswa.'],
-        request()->routeIs('guru.notifikasi_pr.edit') => ['Akademik', 'Perbarui Data Tugas PR', 'Ubah judul, tenggat, instruksi, atau kirimkan notifikasi pembaruan ke siswa.'],
-        request()->routeIs('guru.notifikasi_pr.show') => ['Akademik', 'Rincian PR & Riwayat Siswa', 'Detail tugas, tenggat, dan status pengumpulan tiap siswa.'],
-        request()->routeIs('guru.notifikasi_pr.*') => ['Akademik', 'Notifikasi PR', 'Atur tugas PR, tenggat waktu, dan kirim pengingat ke portal siswa.'],
-        request()->routeIs('guru.absensi.*', 'guru.absen.*') => ['Utama', 'Presensi Siswa', 'Monitoring dan rekapitulasi kehadiran siswa.'],
-        request()->routeIs('guru.rpp.*', 'rpp.*', 'rpp_guru.*') => ['Utama', 'RPP & Modul Ajar', 'Rencana pelaksanaan pembelajaran terpadu kurikulum merdeka.'],
-        request()->routeIs('guru.ujian.create') => ['Utama', 'Buat Ujian Online Baru', 'Tentukan konfigurasi ujian, target siswa, tingkat level, dan susun soal-soal ujian.'],
-        request()->routeIs('guru.ujian.edit') => ['Utama', 'Sunting Pengaturan Ujian', 'Ubah konfigurasi ujian, tingkatan level, durasi, dan target peserta ujian.'],
-        request()->routeIs('guru.ujian.show') => ['Utama', 'Detail & Bank Soal', 'Rincian ujian, bobot nilai, dan daftar butir soal.'],
-        request()->routeIs('guru.ujian.*') => ['Utama', 'Tugas & Ujian', 'Susun ujian online, bank soal, bobot nilai, dan target siswa.'],
-        request()->routeIs('guru.quiz.*') => ['Utama', 'Bank Soal', 'Kelola butir soal dan kunci jawaban kuis.'],
-        request()->routeIs('rekap_nilai.*', 'rekap_ujian.*') => ['Utama', 'Buku Nilai', 'Rekapitulasi nilai siswa dan pengumuman hasil ujian.'],
-        default => ['Halaman', 'Portal Pengajar', 'Ringkasan aktivitas mengajar Anda.'],
-    };
-
-    $menuAkademik = [
-        ['label' => 'Jadwal Mengajar', 'icon' => 'fa-calendar-days', 'route' => 'guru.jadwal.index', 'aktif' => request()->routeIs('guru.jadwal.*')],
-        ['label' => 'Mata Pelajaran', 'icon' => 'fa-book-bookmark', 'route' => 'guru.mapel.browse', 'aktif' => request()->routeIs('guru.mapel.*') || request()->routeIs('guru.bab.*') || request()->routeIs('guru.sub_bab.*')],
-        ['label' => 'Kelola Materi', 'icon' => 'fa-layer-group', 'route' => 'guru.materi.index', 'aktif' => request()->routeIs('guru.materi.*')],
-        ['label' => 'Notifikasi PR', 'icon' => 'fa-bell', 'route' => 'guru.notifikasi_pr.index', 'aktif' => request()->routeIs('guru.notifikasi_pr.*')],
-    ];
-@endphp
-
-<div class="flex min-h-screen">
-
-    {{-- ================= SIDEBAR ================= --}}
-    <aside class="w-[268px] shrink-0 bg-white border-r border-[#E6EBF2] fixed inset-y-0 left-0 z-30 flex flex-col">
-        {{-- Brand --}}
-        <div class="px-5 pt-6 pb-5">
+    <!-- Sidebar 64 (256px) Fixed Left: White Background as in Reference Images -->
+    <aside class="w-64 bg-white border-r border-slate-200/90 text-slate-800 flex flex-col fixed h-screen z-20 shadow-sm">
+        
+        <!-- Brand / Logo Area -->
+        <div class="p-5 border-b border-slate-100">
             <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm" style="background: var(--binaro-navy);">
-                    <i class="fas fa-graduation-cap text-white text-lg"></i>
+                <div class="w-10 h-10 rounded-xl sidebar-brand-bg text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                    <i class="fas fa-graduation-cap text-base"></i>
                 </div>
-                <div class="leading-tight">
-                    <div class="text-[17px] font-extrabold tracking-tight text-slate-900">BINARO</div>
-                    <div class="text-[9.5px] font-bold tracking-[0.16em] text-slate-400 uppercase">Portal Pengajar</div>
+                <div>
+                    <h1 class="font-extrabold text-sm leading-tight text-slate-900 tracking-tight">Sahabat Belajar</h1>
+                    <p class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-0.5">PORTAL GURU SD</p>
                 </div>
             </div>
         </div>
 
-        <nav class="flex-1 overflow-y-auto scroll-thin px-3 pb-4">
-            <div class="px-3 pt-2 pb-2 text-[10px] font-extrabold tracking-[0.14em] text-slate-400 uppercase">Utama</div>
-            <div class="space-y-1">
-                @foreach($menuUtama as $menu)
-                    <a href="{{ route($menu['route']) }}"
-                       class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] {{ $menu['aktif'] ? 'nav-item-active' : 'text-slate-600 hover:bg-slate-50' }}">
-                        <i class="fas {{ $menu['icon'] }} w-4 text-center text-[13px] {{ $menu['aktif'] ? '' : 'text-slate-400' }}"></i>
-                        <span>{{ $menu['label'] }}</span>
-                    </a>
-                @endforeach
+        <!-- Sidebar Navigation: Sesuai Referensi Gambar Guru -->
+        <nav class="flex-1 p-3.5 space-y-1.5 overflow-y-auto">
+            <div class="text-[10px] font-bold text-slate-400 tracking-widest uppercase px-3 pt-1 pb-1">
+                MENU UTAMA
             </div>
 
-            <div class="px-3 pt-6 pb-2 text-[10px] font-extrabold tracking-[0.14em] text-slate-400 uppercase">Akademik</div>
-            <div class="space-y-1">
-                @foreach($menuAkademik as $menu)
-                    <a href="{{ route($menu['route']) }}"
-                       class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] {{ $menu['aktif'] ? 'nav-item-active' : 'text-slate-600 hover:bg-slate-50' }}">
-                        <i class="fas {{ $menu['icon'] }} w-4 text-center text-[13px] {{ $menu['aktif'] ? '' : 'text-slate-400' }}"></i>
-                        <span>{{ $menu['label'] }}</span>
-                    </a>
-                @endforeach
+            <!-- 1. Dashboard -->
+            <a href="{{ route('guru.dashboard') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.dashboard') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
+                <i class="fas fa-table-cells-large w-4 text-center {{ request()->routeIs('guru.dashboard') ? 'text-white' : 'text-slate-400' }}"></i> 
+                <span>Dashboard</span>
+            </a>
+
+            <!-- 2. Mapel & Kustomisasi (1 Item Utama dengan Flyout Popover ke Samping Kanan) -->
+            @php
+                $isMapelChildActive = request()->routeIs('guru.mapel.*') || request()->routeIs('guru.bab.*') || request()->routeIs('guru.sub_bab.*');
+                $isMateriChildActive = request()->routeIs('guru.materi.*');
+                $isMapelActive = $isMapelChildActive || $isMateriChildActive;
+            @endphp
+            <div>
+                <button type="button" 
+                        id="btn-mapel-kustomisasi"
+                        onclick="toggleMapelFlyout(this)" 
+                        class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition {{ $isMapelActive ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold' }}">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-book-open-reader w-4 text-center {{ $isMapelActive ? 'text-white' : 'text-slate-400' }}"></i> 
+                        <span>Mapel & Kustomisasi</span>
+                    </div>
+                    <i class="fas fa-chevron-right text-[10px] {{ $isMapelActive ? 'text-white/80' : 'text-slate-400' }}"></i>
+                </button>
             </div>
+
+            <!-- 3. Pekerjaan Rumah (PR) -->
+            <a href="{{ route('guru.notifikasi_pr.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.notifikasi_pr.*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
+                <i class="fas fa-clipboard-list w-4 text-center {{ request()->routeIs('guru.notifikasi_pr.*') ? 'text-white' : 'text-slate-400' }}"></i> 
+                <span>Pekerjaan Rumah (PR)</span>
+            </a>
+
+            <!-- 4. Absensi Siswa (Unified Scan + Rekap) -->
+            <a href="{{ route('guru.absen.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.absen.*') || request()->routeIs('guru.absensi.*') || request()->is('guru/absen*') || request()->is('guru/absensi*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
+                <i class="fas fa-id-card-clip w-4 text-center {{ request()->routeIs('guru.absen.*') || request()->routeIs('guru.absensi.*') || request()->is('guru/absen*') || request()->is('guru/absensi*') ? 'text-white' : 'text-slate-400' }}"></i> 
+                <span>Absensi Siswa</span>
+            </a>
+
+            <!-- 5. Ujian Online -->
+            <a href="{{ route('guru.ujian.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.ujian.*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
+                <i class="fas fa-laptop-code w-4 text-center {{ request()->routeIs('guru.ujian.*') ? 'text-white' : 'text-slate-400' }}"></i> 
+                <span>Ujian Online</span>
+            </a>
+
+            <!-- 6. Rencana Pelaksanaan Pembelajaran (RPP) -->
+            <a href="{{ route('guru.rpp.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.rpp.*') || request()->is('rpp-guru*') || (request()->routeIs('rpp.*') && session('user_type') === 'guru') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
+                <i class="fas fa-file-lines w-4 text-center {{ request()->routeIs('guru.rpp.*') || request()->is('rpp-guru*') ? 'text-white' : 'text-slate-400' }}"></i> 
+                <span class="truncate">Rencana Pelaksanaan Pembelajaran (RPP)</span>
+            </a>
         </nav>
 
-        {{-- Semester card --}}
-        <div class="p-3">
-            <div class="rounded-2xl border border-[#E6EBF2] bg-[#FAFBFD] px-4 py-3.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    <span class="text-[10px] font-extrabold tracking-[0.1em] text-slate-500 uppercase">Semester {{ $navSemester }}</span>
+        <!-- Bottom User Card & Keluar Portal -->
+        <div class="p-4 border-t border-slate-100 space-y-2.5">
+            <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-2.5 flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-full sidebar-brand-bg text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm">
+                    <i class="fas fa-user-graduate text-xs"></i>
                 </div>
-                <div class="mt-1 text-[12px] font-bold text-slate-800">TA {{ $navTahun }}</div>
-                <div class="mt-0.5 text-[11px] text-slate-400">{{ $navSesiHariIni }} Sesi Terjadwal Hari Ini</div>
+                <div class="min-w-0 flex-1">
+                    <div class="text-xs font-bold text-slate-900 truncate leading-tight">
+                        {{ $guru->nama_guru ?? session('user_name', 'Ibu Sarah Wijaya, S.Pd.') }}
+                    </div>
+                    <div class="text-[10px] text-slate-500 truncate leading-tight mt-0.5">
+                        Guru Kelas 4B NIP {{ substr($guru->nip ?? session('user_identifier', '198803152010012003'), 0, 8) }}...
+                    </div>
+                </div>
             </div>
 
-            <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar?')" class="mt-2">
+            <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar portal?')">
                 @csrf
-                <button type="submit" class="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[12px] font-semibold text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition">
-                    <i class="fas fa-arrow-right-from-bracket w-4 text-center text-[12px]"></i> Keluar
+                <button type="submit" class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/80 font-bold text-xs transition">
+                    <i class="fas fa-arrow-right-from-bracket text-xs"></i> 
+                    <span>Keluar Portal</span>
                 </button>
             </form>
         </div>
     </aside>
 
-    {{-- ================= MAIN ================= --}}
-    <div class="flex-1 ml-[268px] flex flex-col min-w-0">
+    <!-- Main Content Area -->
+    <main class="flex-1 ml-64 flex flex-col min-w-0">
+        <!-- Top Header: Clean, Elegant, Single-Row Layout -->
+        <header class="bg-white border-b border-slate-200/80 px-8 py-3.5 flex justify-between items-center sticky top-0 z-30 shadow-xs gap-4 min-h-[64px]">
+            <!-- Left Breadcrumb & Page Title -->
+            <div class="flex items-center gap-2 text-xs shrink-0 truncate">
+                <span class="text-slate-500 font-medium hidden md:inline">SD Negeri Karanganyar 01</span>
+                <span class="text-slate-300 hidden md:inline">/</span>
+                <a href="{{ route('guru.dashboard') }}" class="font-bold text-[#18537D] hover:underline">Portal Ruang Guru</a>
+                @if(View::hasSection('page_title'))
+                <span class="text-slate-300">/</span>
+                <span class="font-bold text-slate-700">@yield('page_title')</span>
+                @endif
+            </div>
 
-        {{-- ===== HEADER: satu-satunya sumber judul & aksi halaman ===== --}}
-        {{-- Tinggi dikunci 88px agar identik di semua halaman: breadcrumb 1 baris,
-             judul 1 baris, subjudul 1 baris (selalu ada, di-truncate). --}}
-        <header class="bg-white border-b border-[#E6EBF2] sticky top-0 z-20">
-            <div class="px-4 sm:px-7 h-[88px] flex items-center justify-between gap-5">
-                <div class="min-w-0 flex-1">
-                    <nav class="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 whitespace-nowrap overflow-hidden">
-                        @hasSection('breadcrumb_trail')
-                            @yield('breadcrumb_trail')
-                        @else
-                            <span class="shrink-0">Halaman</span>
-                            <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
-                            <span class="text-slate-500 truncate">@yield('breadcrumb', $judulHalaman[0])</span>
-                        @endif
-                    </nav>
+            <!-- Right Controls: Header Actions (Jika ada), Search, Semester Badge, Bell, User Avatar -->
+            <div class="flex items-center gap-3.5 ml-auto shrink-0 flex-nowrap">
+                @yield('header_actions')
 
-                    <h1 class="text-[17px] sm:text-[19px] leading-[24px] sm:leading-[26px] font-extrabold text-slate-900 tracking-tight sm:mt-1 truncate">@yield('page_title', $judulHalaman[1])</h1>
-
-                    <p class="hidden sm:block text-[11.5px] leading-[16px] text-slate-400 mt-0.5 truncate">
-                        @hasSection('page_subtitle')
-                            @yield('page_subtitle')
-                        @else
-                            {{ $judulHalaman[2] }}
-                        @endif
-                    </p>
+                <!-- Search Box -->
+                <div class="relative w-44 md:w-56 hidden sm:block">
+                    <i class="fas fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" placeholder="Cari materi, PR, siswa..."
+                           class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-slate-700 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18537D] transition">
                 </div>
 
-                <div class="flex items-center gap-2.5 shrink-0">
-                    <div class="flex items-center gap-2 overflow-x-auto">
-                        @yield('header_actions')
-                    </div>
-                    <div class="flex items-center gap-2.5 pl-3 ml-1 border-l border-[#E6EBF2]">
-                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-extrabold shrink-0" style="background: var(--binaro-navy);">
-                            {{ $navInisial }}
-                        </div>
-                        <div class="leading-tight hidden xl:block">
-                            <div class="text-[12px] font-bold text-slate-900 max-w-[150px] truncate">{{ $navNama }}</div>
-                            <div class="text-[10.5px] text-slate-400">{{ $navPeran }}</div>
-                        </div>
-                    </div>
+                <!-- Semester Badge -->
+                <div class="hidden lg:flex bg-amber-50 text-amber-900 border border-amber-200/90 px-3 py-1.5 rounded-xl text-xs font-bold items-center gap-1.5 shadow-xs whitespace-nowrap">
+                    <i class="far fa-calendar-days text-amber-600 text-xs"></i>
+                    <span>Semester Genap 2025/2026</span>
+                </div>
+
+                <!-- Notification Bell -->
+                <div class="relative w-9 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center text-slate-600 text-sm transition cursor-pointer shrink-0">
+                    <i class="far fa-bell text-sm"></i>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+                </div>
+
+                <!-- User Profile Circle -->
+                <div class="w-9 h-9 rounded-xl sidebar-brand-bg text-white flex items-center justify-center font-bold text-xs shadow-xs cursor-pointer shrink-0">
+                    <i class="fas fa-user-tie text-xs"></i>
                 </div>
             </div>
         </header>
 
-        {{-- Flash --}}
-        <div class="px-7">
-            @if(session('success'))
-                <div class="mt-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <i class="fas fa-circle-check text-emerald-600"></i>
-                        <span class="font-semibold">{{ session('success') }}</span>
-                    </div>
-                    <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700"><i class="fas fa-xmark"></i></button>
-                </div>
-            @endif
+        <!-- Flash Alerts -->
+        @if(session('success'))
+        <div class="mx-8 mt-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2.5">
+                <i class="fas fa-check-circle text-emerald-600 text-base"></i>
+                <span class="font-semibold">{{ session('success') }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700"><i class="fas fa-times"></i></button>
+        </div>
+        @endif
 
-            @if(session('error'))
-                <div class="mt-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <i class="fas fa-circle-exclamation text-rose-600"></i>
-                        <span class="font-semibold">{{ session('error') }}</span>
-                    </div>
-                    <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700"><i class="fas fa-xmark"></i></button>
-                </div>
-            @endif
+        @if(session('error'))
+        <div class="mx-8 mt-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2.5">
+                <i class="fas fa-circle-exclamation text-rose-600 text-base"></i>
+                <span class="font-semibold">{{ session('error') }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700"><i class="fas fa-times"></i></button>
+        </div>
+        @endif
 
-            @if(isset($errors) && $errors->any())
-                <div class="mt-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
-                    <div class="font-bold mb-1.5 flex items-center gap-2"><i class="fas fa-triangle-exclamation"></i> Terjadi kesalahan input:</div>
-                    <ul class="list-disc list-inside space-y-1 text-slate-700">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
+        <!-- Page Content -->
+        <div class="p-8 space-y-6 flex-1">
+            @yield('content')
+        </div>
+    </main>
+
+    <!-- Include Pop-Up Modal Action PRD 4.2 -->
+    @include('guru.materi.modal_action')
+
+    <!-- Flyout Popover Menu ke Samping Kanan (Muncul saat tombol Mapel & Kustomisasi diklik) -->
+    <div id="flyout-mapel-kustomisasi" 
+         class="hidden fixed z-50 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-2.5 transition-all duration-150 ease-out"
+         style="top: 0; left: 0;">
+        
+        <!-- Header Popover -->
+        <div class="px-3 py-2 border-b border-slate-100 flex items-center justify-between">
+            <span class="text-[10px] font-bold text-slate-400 tracking-wider uppercase">PILIHAN AKSES</span>
+            <span class="text-[10px] bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-md">2 Opsi</span>
         </div>
 
-        <main class="flex-1 px-7 py-6">
-            @yield('content')
-        </main>
+        <div class="p-1 space-y-1.5 mt-1.5">
+            <!-- Opsi 1: Lihat Mapel -->
+            <a href="{{ route('guru.mapel.browse') }}"
+               class="group flex items-start gap-3 p-2.5 rounded-xl transition {{ $isMapelChildActive ? 'bg-[#18537D] text-white shadow-sm' : 'hover:bg-slate-50 text-slate-700' }}">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 {{ $isMapelChildActive ? 'bg-white/20 text-white' : 'bg-sky-50 text-[#18537D] group-hover:bg-[#18537D] group-hover:text-white transition' }}">
+                    <i class="fas fa-book-open text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold leading-tight {{ $isMapelChildActive ? 'text-white' : 'text-slate-800' }}">
+                        Lihat Mapel
+                    </div>
+                    <div class="text-[10.5px] mt-0.5 leading-tight {{ $isMapelChildActive ? 'text-white/80' : 'text-slate-400' }}">
+                        Daftar mata pelajaran & struktur bab
+                    </div>
+                </div>
+                <i class="fas fa-arrow-right text-[10px] self-center {{ $isMapelChildActive ? 'text-white' : 'text-slate-300 group-hover:text-slate-600 transition' }}"></i>
+            </a>
+
+            <!-- Opsi 2: Kustomisasi / Tambah Materi (Langsung Membuka Pop-Up Tambah Materi) -->
+            <button type="button"
+                    onclick="openTambahMateriFromFlyout()"
+                    class="w-full text-left group flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 transition">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-600 group-hover:bg-[#18537D] group-hover:text-white transition">
+                    <i class="fas fa-plus text-xs"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="text-xs font-bold leading-tight text-slate-800 group-hover:text-[#18537D] transition">
+                        Kustomisasi / Tambah Materi
+                    </div>
+                    <div class="text-[10.5px] mt-0.5 leading-tight text-slate-400">
+                        Buka form tambah materi pelajaran baru
+                    </div>
+                </div>
+                <i class="fas fa-arrow-up-right-from-square text-[10px] self-center text-slate-300 group-hover:text-slate-600 transition"></i>
+            </button>
+        </div>
+
+        <!-- Footer Link: Kelola Silabus & Urutan Bab -->
+        <div class="pt-2 mt-1 border-t border-slate-100 px-1">
+            <a href="{{ route('guru.materi.index') }}"
+               class="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-[#18537D] hover:bg-slate-50 transition">
+                <span class="flex items-center gap-2">
+                    <i class="fas fa-layer-group text-[10px] text-slate-400"></i>
+                    <span>Kelola Silabus, Bab & Modul</span>
+                </span>
+                <i class="fas fa-chevron-right text-[9px] text-slate-400"></i>
+            </a>
+        </div>
     </div>
-</div>
 
-@include('guru.materi.modal_action')
+    <script>
+        function toggleMapelFlyout(button) {
+            const popover = document.getElementById('flyout-mapel-kustomisasi');
+            if (!popover || !button) return;
+            
+            const isHidden = popover.classList.contains('hidden');
+            if (isHidden) {
+                const rect = button.getBoundingClientRect();
+                popover.style.top = `${rect.top}px`;
+                popover.style.left = `${rect.right + 12}px`;
+                popover.classList.remove('hidden');
+            } else {
+                popover.classList.add('hidden');
+            }
+        }
 
+        // Buka Pop-Up Tambah Materi dari Flyout
+        function openTambahMateriFromFlyout() {
+            const popover = document.getElementById('flyout-mapel-kustomisasi');
+            if (popover) popover.classList.add('hidden');
+            if (typeof openModalAction === 'function') {
+                openModalAction('tambah', 'materi');
+            }
+        }
+
+        // Tutup flyout saat mengklik di luar area flyout / tombol
+        document.addEventListener('click', function(e) {
+            const popover = document.getElementById('flyout-mapel-kustomisasi');
+            const trigger = document.getElementById('btn-mapel-kustomisasi');
+            if (!popover || !trigger) return;
+            
+            if (!popover.classList.contains('hidden')) {
+                if (!popover.contains(e.target) && !trigger.contains(e.target)) {
+                    popover.classList.add('hidden');
+                }
+            }
+        });
+
+        // Tutup dengan tombol Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const popover = document.getElementById('flyout-mapel-kustomisasi');
+                if (popover) popover.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
