@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
@@ -39,10 +40,34 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
   YoutubePlayerController? _ytController;
   StreamSubscription<YoutubePlayerValue>? _ytSubscription;
   String? _loadedVideoId;
+  bool _isFullScreen = false;
 
   bool get _canUseInAppPlayer => WebViewPlatform.instance != null && _ytController != null;
 
   static const String _baseUrl = AppConstants.baseUrl;
+
+  void _updateOrientation(bool isFullScreen) {
+    if (_isFullScreen == isFullScreen) return;
+    _isFullScreen = isFullScreen;
+    try {
+      if (isFullScreen) {
+        // Otomatis putar ke landscape (layar penuh horizontal)
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ]);
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+      } else {
+        // Kembalikan ke portrait (layar tegak normal)
+        SystemChrome.setPreferredOrientations([
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ]);
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      }
+    } catch (_) {}
+    if (mounted) setState(() {});
+  }
 
   @override
   void initState() {
@@ -67,6 +92,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
 
   @override
   void dispose() {
+    _updateOrientation(false);
     _ytSubscription?.cancel();
     _ytController?.close();
     super.dispose();
@@ -106,13 +132,20 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
             showVideoAnnotations: false,
             enableCaption: false,
             enableJavaScript: true,
-            privacyEnhancedMode: false,
-            origin: 'https://www.youtube.com',
+            privacyEnhancedMode: true,
             strictRelatedVideos: true,
             playsInline: true,
           ),
         );
+        // Daftarkan listener rotasi layar penuh otomatis
+        _ytController!.setFullScreenListener((isFullScreen) {
+          _updateOrientation(isFullScreen);
+        });
         _ytSubscription = _ytController!.listen((event) {
+          final isFs = event.fullScreenOption.enabled;
+          if (isFs != _isFullScreen) {
+            _updateOrientation(isFs);
+          }
           if (mounted) setState(() {});
         });
         if (mounted) setState(() {});
@@ -124,6 +157,11 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
 
   void _handleVideoAction(String url, [String? judul]) {
     try {
+      final hasError = _ytController?.value.error != null && _ytController!.value.error != YoutubeError.none;
+      if (hasError) {
+        _launchMediaUrl(url);
+        return;
+      }
       if (_ytController == null) {
         _initYoutubePlayer(url);
       }
@@ -142,8 +180,8 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
           }
         }
       } else {
-        // Fallback cerdas: buka pemutar video internal yang responsif dan fullscreen
-        _launchMediaUrl(url, forceInApp: true);
+        // Fallback cerdas: buka aplikasi eksternal YouTube / browser
+        _launchMediaUrl(url);
       }
     } catch (_) {
       _launchMediaUrl(url);
@@ -151,6 +189,11 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
   }
 
   void _openFullScreenVideo(String url, String judul) {
+    final hasError = _ytController?.value.error != null && _ytController!.value.error != YoutubeError.none;
+    if (hasError) {
+      _launchMediaUrl(url);
+      return;
+    }
     if (_canUseInAppPlayer && _ytController != null) {
       final state = _ytController!.value.playerState;
       if (state == PlayerState.unStarted || state == PlayerState.unknown || state == PlayerState.cued) {
@@ -161,10 +204,11 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
           _ytController!.playVideo();
         }
       }
+      _updateOrientation(true);
       _ytController!.enterFullScreen();
     } else {
-      // Buka browser view layar penuh jika kontroler webview belum terpasang
-      _launchMediaUrl(url, forceInApp: true);
+      // Buka aplikasi eksternal YouTube / browser jika pemutar belum terpasang
+      _launchMediaUrl(url);
     }
   }
 
@@ -205,9 +249,17 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
 
   String? _extractYoutubeId(String? url) {
     if (url == null || url.trim().isEmpty) return null;
-    final cleanUrl = url.trim();
+    String cleanUrl = url.trim();
+
+    // 1. Ekstrak src jika input berupa kode embed <iframe>
+    final iframeMatch = RegExp('<iframe[^>]+src=["\']([^"\']+)["\']', caseSensitive: false).firstMatch(cleanUrl);
+    if (iframeMatch != null && iframeMatch.group(1) != null) {
+      cleanUrl = iframeMatch.group(1)!;
+    }
+
+    // 2. Ekstrak YouTube ID 11 karakter (embed, watch, youtu.be, shorts, live)
     final regExp = RegExp(
-      r'(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})',
+      r'(?:https?:\/\/)?(?:www\.|m\.)?(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts|live)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})',
       caseSensitive: false,
     );
     final match = regExp.firstMatch(cleanUrl);
@@ -218,6 +270,20 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
       return cleanUrl;
     }
     return null;
+  }
+
+  String _cleanVideoUrl(String rawUrl) {
+    if (rawUrl.trim().isEmpty) return '';
+    final ytId = _extractYoutubeId(rawUrl);
+    if (ytId != null) {
+      return 'https://www.youtube.com/watch?v=$ytId';
+    }
+    // Jika berupa tag <iframe> namun bukan YouTube
+    final iframeMatch = RegExp('<iframe[^>]+src=["\']([^"\']+)["\']', caseSensitive: false).firstMatch(rawUrl);
+    if (iframeMatch != null && iframeMatch.group(1) != null) {
+      return _normalizeUrl(iframeMatch.group(1)!);
+    }
+    return _normalizeUrl(rawUrl.trim());
   }
 
   String _normalizeUrl(String rawUrl) {
@@ -275,7 +341,9 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
   }
 
   Future<void> _launchMediaUrl(String url, {bool forceInApp = false}) async {
-    final Uri uri = Uri.parse(url);
+    final cleanUrl = _cleanVideoUrl(url);
+    if (cleanUrl.isEmpty) return;
+    final Uri uri = Uri.parse(cleanUrl);
     try {
       if (forceInApp) {
         final bool launchedInApp = await launchUrl(
@@ -302,7 +370,17 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: !_isFullScreen && (_ytController?.value.fullScreenOption.enabled != true),
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) {
+          if (_isFullScreen || (_ytController?.value.fullScreenOption.enabled == true)) {
+            _ytController?.exitFullScreen();
+            _updateOrientation(false);
+          }
+        }
+      },
+      child: Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: const Color(0xFF1D5A86),
@@ -512,6 +590,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                     _buildStickyBottomBar(),
                   ],
                 ),
+      ),
     );
   }
 
@@ -604,9 +683,11 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
   // ---------------------------------------------------------------------------
   Widget _buildVideoPlayerCard(Map<String, dynamic> video) {
     final String judul = video['judul'] ?? _detailMateri['judul_materi'] ?? 'Video Pembelajaran';
-    final String url = video['url'] ?? '';
-    final String? ytId = _extractYoutubeId(url);
+    final String rawUrl = video['url'] ?? '';
+    final String url = _cleanVideoUrl(rawUrl);
+    final String? ytId = _extractYoutubeId(rawUrl);
     final bool isPlaying = _ytController?.value.playerState == PlayerState.playing;
+    final bool hasError = _ytController?.value.error != null && _ytController!.value.error != YoutubeError.none;
 
     return Container(
       decoration: BoxDecoration(
@@ -648,10 +729,90 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                         YoutubePlayer(
                           controller: _ytController!,
                           aspectRatio: 16 / 9,
-                          enableFullScreenOnVerticalDrag: false,
+                          enableFullScreenOnVerticalDrag: true,
+                          autoFullScreen: true,
                         ),
+                        // Overlay Khusus Jika Video Dibatasi Pemutaran Sematan oleh YouTube
+                        if (hasError)
+                          Positioned.fill(
+                            child: Container(
+                              color: const Color(0xFF0F172A),
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  if (ytId != null)
+                                    Opacity(
+                                      opacity: 0.25,
+                                      child: Image.network(
+                                        'https://img.youtube.com/vi/$ytId/hqdefault.jpg',
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => const SizedBox(),
+                                      ),
+                                    ),
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFDC2626).withValues(alpha: 0.2),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: const Icon(
+                                              Icons.play_disabled_rounded,
+                                              color: Color(0xFFF87171),
+                                              size: 32,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          const Text(
+                                            'Pemutaran Sematan Dibatasi',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          const Text(
+                                            'Pemilik video mewajibkan pemutaran langsung di aplikasi YouTube.',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              color: Color(0xFF94A3B8),
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          ElevatedButton.icon(
+                                            onPressed: () => _launchMediaUrl(url),
+                                            icon: const Icon(Icons.open_in_new_rounded, size: 15),
+                                            label: const Text(
+                                              'Tonton di YouTube',
+                                              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                                            ),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color(0xFFDC2626),
+                                              foregroundColor: Colors.white,
+                                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(10),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         // Overlay Tombol Putar saat video belum berputar
-                        if (!isPlaying && (_ytController?.value.playerState != PlayerState.buffering))
+                        if (!hasError && !isPlaying && (_ytController?.value.playerState != PlayerState.buffering))
                           Positioned.fill(
                             child: Material(
                               color: Colors.transparent,
@@ -854,22 +1015,26 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
           // Tombol Putar / Jeda Video Cerah & Elegan + Tombol Full Screen + Shortcut Eksternal
           Row(
             children: [
-              // 1. Tombol Putar / Jeda
+              // 1. Tombol Putar / Jeda / Buka Eksternal
               Expanded(
                 child: SizedBox(
                   height: 44,
                   child: ElevatedButton.icon(
                     onPressed: () => _handleVideoAction(url, judul),
                     icon: Icon(
-                      isPlaying ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded,
+                      hasError
+                          ? Icons.open_in_new_rounded
+                          : (isPlaying ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded),
                       size: 20,
                     ),
                     label: Text(
-                      isPlaying ? 'Jeda Video' : 'Putar di Aplikasi',
+                      hasError ? 'Tonton di YouTube' : (isPlaying ? 'Jeda Video' : 'Putar di Aplikasi'),
                       style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isPlaying ? const Color(0xFF1D5A86) : const Color(0xFFFFA000),
+                      backgroundColor: hasError
+                          ? const Color(0xFFDC2626)
+                          : (isPlaying ? const Color(0xFF1D5A86) : const Color(0xFFFFA000)),
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -912,23 +1077,47 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
               ),
             ],
           ),
-          if (_ytController?.value.error != null && _ytController!.value.error != YoutubeError.none) ...[
+          if (hasError) ...[
             const SizedBox(height: 10),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
                 color: const Color(0xFFFEF2F2),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: const Color(0xFFFECACA)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.info_outline_rounded, size: 16, color: Color(0xFFDC2626)),
-                  const SizedBox(width: 8),
+                  const Icon(Icons.info_outline_rounded, size: 20, color: Color(0xFFDC2626)),
+                  const SizedBox(width: 10),
                   Expanded(
-                    child: Text(
-                      'Pemilik video membatasi pemutaran tertentu (${_ytController!.value.error.name}). Gunakan tombol "Buka di YouTube" di samping jika diperlukan.',
-                      style: const TextStyle(fontSize: 11, color: Color(0xFFDC2626), fontWeight: FontWeight.w600),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Pemutaran Sematan Dibatasi',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFFB91C1C)),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Pemilik video membatasi pemutaran pihak ketiga (${_ytController?.value.error.name ?? 'sameAsNotEmbeddable'}). Ketuk tombol untuk langsung menonton.',
+                          style: const TextStyle(fontSize: 11, color: Color(0xFF7F1D1D)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: () => _launchMediaUrl(url),
+                    icon: const Icon(Icons.play_arrow_rounded, size: 16),
+                    label: const Text('Buka', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFDC2626),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      visualDensity: VisualDensity.compact,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                   ),
                 ],
