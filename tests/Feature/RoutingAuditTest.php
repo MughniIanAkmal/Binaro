@@ -3,10 +3,17 @@
 namespace Tests\Feature;
 
 use App\Models\Guru;
+use App\Models\Bab;
+use App\Models\JadwalMataPelajaran;
 use App\Models\Kelas;
+use App\Models\Materi;
 use App\Models\MataPelajaran;
+use App\Models\Notifikasi;
+use App\Models\Pr;
 use App\Models\Rpp;
 use App\Models\Siswa;
+use App\Models\SubBab;
+use Carbon\Carbon;
 use Database\Seeders\SiswaSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -258,6 +265,150 @@ class RoutingAuditTest extends TestCase
         // Access Absensi
         $response = $this->withSession($session)->get('/absensi');
         $response->assertStatus(200);
+    }
+
+    public function test_guru_dashboard_modul_count_matches_learning_materials_by_subject()
+    {
+        $mapelIpa = MataPelajaran::create(['nama_mapel' => 'IPA']);
+
+        $babMatematika = Bab::create([
+            'id_mapel' => $this->mapel->id_mapel,
+            'nama_bab' => 'Bab Matematika',
+        ]);
+        $babMatematikaKedua = Bab::create([
+            'id_mapel' => $this->mapel->id_mapel,
+            'nama_bab' => 'Bab Matematika Kedua',
+        ]);
+        $subBabMatematika = SubBab::create([
+            'id_bab' => $babMatematika->id_bab,
+            'nama_sub_bab' => 'Subbab Matematika',
+        ]);
+        foreach (['Materi Matematika 1', 'Materi Matematika 2'] as $judul) {
+            Materi::create([
+                'id_bab' => $babMatematika->id_bab,
+                'id_sub_bab' => $subBabMatematika->id_sub_bab,
+                'judul_materi' => $judul,
+            ]);
+        }
+        $subBabMatematikaKedua = SubBab::create([
+            'id_bab' => $babMatematikaKedua->id_bab,
+            'nama_sub_bab' => 'Subbab Matematika Kedua',
+        ]);
+        Materi::create([
+            'id_bab' => $babMatematikaKedua->id_bab,
+            'id_sub_bab' => $subBabMatematikaKedua->id_sub_bab,
+            'judul_materi' => 'Materi Matematika 3',
+        ]);
+
+        $babIpa = Bab::create([
+            'id_mapel' => $mapelIpa->id_mapel,
+            'nama_bab' => 'Bab IPA',
+        ]);
+        $subBabIpa = SubBab::create([
+            'id_bab' => $babIpa->id_bab,
+            'nama_sub_bab' => 'Subbab IPA',
+        ]);
+        Materi::create([
+            'id_bab' => $babIpa->id_bab,
+            'id_sub_bab' => $subBabIpa->id_sub_bab,
+            'judul_materi' => 'Materi IPA',
+        ]);
+
+        $response = $this->withSession([
+            'user_id' => $this->guru->id_guru,
+            'user_type' => 'guru',
+            'user_name' => $this->guru->nama_guru,
+        ])->get('/guru/dashboard');
+
+        $response->assertOk()
+            ->assertViewHas('totalModul', 3)
+            ->assertViewHas('mapelRingkasan', function ($mapelRingkasan) use ($mapelIpa) {
+                $countsByMapel = $mapelRingkasan->keyBy('id_mapel');
+
+                return $countsByMapel[$this->mapel->id_mapel]->bab_count === 2
+                    && $countsByMapel[$this->mapel->id_mapel]->bab->sum('materi_count') === 3
+                    && $countsByMapel[$mapelIpa->id_mapel]->bab_count === 1
+                    && $countsByMapel[$mapelIpa->id_mapel]->bab->sum('materi_count') === 1
+                    && $mapelRingkasan->sum('bab_count') === 3;
+            });
+    }
+
+    public function test_guru_dashboard_shows_schedule_for_current_day_and_date()
+    {
+        $this->travelTo(Carbon::create(2026, 11, 10, 8, 0, 0, 'Asia/Jakarta'));
+
+        JadwalMataPelajaran::create([
+            'id_mapel' => $this->mapel->id_mapel,
+            'id_guru' => $this->guru->id_guru,
+            'id_rooms' => $this->kelas->id_rooms,
+            'hari' => 'Selasa',
+            'jam' => '07:00-08:00',
+        ]);
+        JadwalMataPelajaran::create([
+            'id_mapel' => $this->mapel->id_mapel,
+            'id_guru' => $this->guru->id_guru,
+            'id_rooms' => $this->kelas->id_rooms,
+            'hari' => 'Senin',
+            'jam' => '09:00-10:00',
+        ]);
+
+        $response = $this->withSession([
+            'user_id' => $this->guru->id_guru,
+            'user_type' => 'guru',
+            'user_name' => $this->guru->nama_guru,
+        ])->get('/guru/dashboard');
+
+        $response->assertOk()
+            ->assertSee('Selasa 10 November 2026')
+            ->assertViewHas('jadwalHariIni', function ($jadwalHariIni) {
+                return $jadwalHariIni->count() === 1
+                    && $jadwalHariIni->first()->hari === 'Selasa'
+                    && $jadwalHariIni->first()->jam === '07:00-08:00';
+            });
+    }
+
+    public function test_guru_dashboard_shows_only_active_prs_from_notification_data()
+    {
+        $this->travelTo(Carbon::create(2026, 11, 10, 8, 0, 0, 'Asia/Jakarta'));
+
+        $prAktif = Pr::create([
+            'id_mapel' => $this->mapel->id_mapel,
+            'id_guru' => $this->guru->id_guru,
+            'nama_pr' => 'PR Masih Berjalan',
+            'tgl_tenggat' => Carbon::now()->addDay(),
+        ]);
+        Pr::create([
+            'id_mapel' => $this->mapel->id_mapel,
+            'id_guru' => $this->guru->id_guru,
+            'nama_pr' => 'PR Sudah Berakhir',
+            'tgl_tenggat' => Carbon::now()->subMinute(),
+        ]);
+
+        foreach (['Notifikasi pertama', 'Notifikasi kedua'] as $pesan) {
+            Notifikasi::create([
+                'id_guru' => $this->guru->id_guru,
+                'id_siswa' => $this->siswa->id_siswa,
+                'id_pr' => $prAktif->id_pr,
+                'pesan' => $pesan,
+            ]);
+        }
+
+        $response = $this->withSession([
+            'user_id' => $this->guru->id_guru,
+            'user_type' => 'guru',
+            'user_name' => $this->guru->nama_guru,
+        ])->get('/guru/dashboard');
+
+        $response->assertOk()
+            ->assertSee('PR Masih Berjalan')
+            ->assertDontSee('PR Sudah Berakhir')
+            ->assertSee('Notifikasi terkirim')
+            ->assertViewHas('prAktif', 1)
+            ->assertViewHas('prs', function ($prs) use ($prAktif) {
+                return $prs->count() === 1
+                    && $prs->first()->id_pr === $prAktif->id_pr
+                    && $prs->first()->notifikasi_count === 2;
+            });
     }
 
     public function test_rpp_show_view_resolves_cleanly()
