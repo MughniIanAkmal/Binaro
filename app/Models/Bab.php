@@ -27,4 +27,9 @@ class Bab extends Model
     {
         return $this->hasMany(SubBab::class, 'id_bab', 'id_bab');
     }
+
+    public function materi()
+    {
+        return $this->hasMany(Materi::class, 'id_bab', 'id_bab');
+    }
 }
