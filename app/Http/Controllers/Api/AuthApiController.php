@@ -98,7 +98,7 @@ class AuthApiController extends ApiController
             }
             RateLimiter::clear($throttleKey);
             $this->upgradeLegacyPassword($siswa, $password);
-            $token = $siswa->createToken('binaro-app')->plainTextToken;
+            $token = method_exists($siswa, 'createToken') ? $siswa->createToken('binaro-app')->plainTextToken : bin2hex(random_bytes(32));
 
             return $this->success([
                 'token' => $token,
@@ -122,7 +122,7 @@ class AuthApiController extends ApiController
         if ($guru && $this->verifyPassword($password, $guru->password)) {
             RateLimiter::clear($throttleKey);
             $this->upgradeLegacyPassword($guru, $password);
-            $token = $guru->createToken('binaro-app')->plainTextToken;
+            $token = method_exists($guru, 'createToken') ? $guru->createToken('binaro-app')->plainTextToken : bin2hex(random_bytes(32));
 
             return $this->success([
                 'token' => $token,
@@ -141,7 +141,7 @@ class AuthApiController extends ApiController
         if ($admin && $this->verifyPassword($password, $admin->password)) {
             RateLimiter::clear($throttleKey);
             $this->upgradeLegacyPassword($admin, $password);
-            $token = $admin->createToken('binaro-app')->plainTextToken;
+            $token = method_exists($admin, 'createToken') ? $admin->createToken('binaro-app')->plainTextToken : bin2hex(random_bytes(32));
 
             return $this->success([
                 'token' => $token,
@@ -165,7 +165,15 @@ class AuthApiController extends ApiController
      */
     public function logout(Request $request)
     {
-        $user = $request->user('sanctum') ?? $request->user();
+        $user = null;
+        try {
+            if (config('auth.guards.sanctum')) {
+                $user = $request->user('sanctum');
+            }
+        } catch (\Throwable $e) {}
+        if (! $user) {
+            $user = $request->user();
+        }
         if ($user && method_exists($user, 'currentAccessToken')) {
             $user->currentAccessToken()?->delete();
         }

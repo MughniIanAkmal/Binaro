@@ -230,9 +230,9 @@
 
             <!-- Field Video -->
             <div id="field-video" class="space-y-1">
-                <label class="block font-semibold text-slate-700">URL Link Video (YouTube / MP4) <span class="text-rose-500">*</span></label>
-                <input type="url" name="url_video" id="index-url-video" onblur="validateIndexVideoUrl(this)" placeholder="https://www.youtube.com/watch?v=... atau https://example.com/video.mp4" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]">
-                <p class="text-[10px] text-amber-700 font-semibold"><i class="fas fa-triangle-exclamation mr-1"></i>Hanya menerima link YouTube atau file .mp4. Link Google Drive dilarang dan akan ditolak.</p>
+                <label class="block font-semibold text-slate-700">URL Link Video / Kode Embed (YouTube / MP4) <span class="text-rose-500">*</span></label>
+                <input type="text" name="url_video" id="index-url-video" onblur="validateIndexVideoUrl(this)" oninput="validateIndexVideoUrl(this, true)" placeholder="https://www.youtube.com/watch?v=... atau tempelkan kode embed <iframe>" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]">
+                <p class="text-[10px] text-amber-700 font-semibold"><i class="fas fa-triangle-exclamation mr-1"></i>Hanya menerima link YouTube atau file .mp4. Kode embed <code>&lt;iframe&gt;</code> akan otomatis dibersihkan dan disesuaikan sistem.</p>
             </div>
 
             <!-- Field PDF -->
@@ -323,20 +323,39 @@ function validateIndexFormNoSymbols(inputId, fieldName) {
     return true;
 }
 
-function validateIndexVideoUrl(input) {
+function validateIndexVideoUrl(input, silent = false) {
     if (!input || !input.value.trim()) return true;
-    const val = input.value.trim().toLowerCase();
-    if (val.includes('drive.google.com') || val.includes('docs.google.com') || val.includes('google.com/file') || val.includes('google.com/drive')) {
-        alert('Tautan Google Drive dilarang!\n\nHanya diperbolehkan tautan YouTube atau file video .mp4 langsung.');
-        input.value = '';
-        input.focus();
+    let val = input.value.trim();
+
+    // 1. Ekstrak otomatis jika pengguna menempelkan kode <iframe ...>
+    const iframeMatch = val.match(/<iframe[^>]+src=["']([^"']+)["']/i);
+    if (iframeMatch) {
+        val = iframeMatch[1];
+    }
+
+    // 2. Ekstrak ID YouTube jika berupa embed/watch/youtu.be/shorts
+    const ytMatch = val.match(/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts|live)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i);
+    if (ytMatch && ytMatch[1]) {
+        input.value = 'https://www.youtube.com/watch?v=' + ytMatch[1];
+        return true;
+    }
+
+    const lowerVal = val.toLowerCase();
+    if (lowerVal.includes('drive.google.com') || lowerVal.includes('docs.google.com') || lowerVal.includes('google.com/file') || lowerVal.includes('google.com/drive')) {
+        if (!silent) {
+            alert('Tautan Google Drive dilarang!\n\nHanya diperbolehkan tautan YouTube atau file video .mp4 langsung.');
+            input.value = '';
+            input.focus();
+        }
         return false;
     }
-    const isYt = val.includes('youtube.com/watch') || val.includes('youtu.be/') || val.includes('youtube.com/embed') || val.includes('youtube.com/shorts');
-    const isMp4 = val.endsWith('.mp4') || val.includes('.mp4?');
+    const isYt = lowerVal.includes('youtube.com') || lowerVal.includes('youtu.be');
+    const isMp4 = lowerVal.endsWith('.mp4') || lowerVal.includes('.mp4?');
     if (!isYt && !isMp4) {
-        alert('URL Video tidak sah! Hanya link YouTube resmi atau file .mp4 langsung.');
-        input.focus();
+        if (!silent) {
+            alert('URL Video tidak sah! Hanya link YouTube resmi atau file .mp4 langsung.');
+            input.focus();
+        }
         return false;
     }
     return true;

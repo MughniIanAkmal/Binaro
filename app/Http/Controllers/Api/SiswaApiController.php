@@ -31,7 +31,15 @@ class SiswaApiController extends ApiController
     {
         // 1. User dari token Bearer / actingAs — guard sanctum memvalidasi
         //    personal_access_tokens meski route-nya publik.
-        $user = $request->user('sanctum') ?? $request->user();
+        $user = null;
+        try {
+            if (config('auth.guards.sanctum')) {
+                $user = $request->user('sanctum');
+            }
+        } catch (\Throwable $e) {}
+        if (! $user) {
+            $user = $request->user();
+        }
         if ($user && isset($user->id_siswa)) {
             return (int) $user->id_siswa;
         }
@@ -640,7 +648,7 @@ class SiswaApiController extends ApiController
             ],
             'video' => $hasVideo ? [
                 'judul' => $materi->judul_materi,
-                'url' => $materi->url_video,
+                'url' => $materi->youtube_watch_url ?: $materi->url_video,
             ] : null,
             'pdf' => $hasPdf ? [
                 'file_pdf' => basename($materi->file_pdf),
@@ -1094,10 +1102,12 @@ class SiswaApiController extends ApiController
      */
     private function calculateMapelProgress(int $idMapel, int $idSiswa): array
     {
-        // 1. Ambil seluruh bab yang terbuka (unlocked) pada mapel ini
-        $unlockedBabs = Bab::where('id_mapel', $idMapel)
-            ->where('is_locked', false)
-            ->get();
+        // 1. Ambil seluruh bab pada mapel ini (jika ada kolom is_locked, filter yang tidak terkunci)
+        $unlockedBabsQuery = Bab::where('id_mapel', $idMapel);
+        if (\Illuminate\Support\Facades\Schema::hasColumn('bab', 'is_locked')) {
+            $unlockedBabsQuery->where('is_locked', false);
+        }
+        $unlockedBabs = $unlockedBabsQuery->get();
 
         $totalUnlocked = $unlockedBabs->count();
         if ($totalUnlocked === 0) {

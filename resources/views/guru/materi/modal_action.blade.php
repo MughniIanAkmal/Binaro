@@ -1,5 +1,5 @@
 <!-- Modal Action Pembelajaran (Tambah / Edit) PRD 4.2 -->
-<div id="modal-learning-action" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 overflow-y-auto">
+<div id="modal-learning-action" style="display: none;" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
         <!-- Modal Header with Mode Tabs -->
         <div class="bg-[#13527D] text-white p-5 flex items-center justify-between shrink-0">
@@ -240,11 +240,11 @@
 
                     <!-- Tipe Form Input: Video -->
                     <div id="tambah-input-video" class="space-y-1.5">
-                        <label class="block text-xs font-bold text-slate-700">Link URL Video (Hanya YouTube / MP4) <span class="text-rose-500">*</span></label>
-                        <input type="url" name="url_video" id="tambah-url-video" onblur="validateVideoUrlInput(this)" placeholder="https://www.youtube.com/watch?v=... atau https://example.com/video.mp4" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <label class="block text-xs font-bold text-slate-700">Link URL Video / Kode Embed (YouTube & MP4) <span class="text-rose-500">*</span></label>
+                        <input type="text" name="url_video" id="tambah-url-video" onblur="validateVideoUrlInput(this)" oninput="validateVideoUrlInput(this, true)" placeholder="https://www.youtube.com/watch?v=... atau tempelkan kode embed <iframe>" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
                         <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] leading-relaxed flex items-start gap-2">
                             <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0"></i>
-                            <span><strong>PENTING:</strong> Gunakan tautan YouTube resmi (youtube.com / youtu.be) atau file video langsung (.mp4). Jika video memiliki pembatasan hak cipta/musik dari pemiliknya, sistem telah otomatis menyediakan tombol <strong>Buka di YouTube</strong> agar siswa tetap bisa memutarnya langsung. Tautan Google Drive dilarang.</span>
+                            <span><strong>PENTING:</strong> Anda bisa langsung menempelkan tautan YouTube biasa ATAU kode embed <code>&lt;iframe&gt;</code>. Sistem akan otomatis membersihkannya agar video dapat diputar langsung di aplikasi siswa.</span>
                         </div>
                     </div>
 
@@ -344,8 +344,8 @@
                         <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 break-all flex items-center justify-between">
                             <span id="edit-current-video-url" class="truncate mr-2 font-mono text-[11px]">-</span>
                         </div>
-                        <label class="block text-xs font-bold text-slate-700 mt-2">Ganti URL Video Baru (Hanya YouTube / MP4)</label>
-                        <input type="url" name="url_video" id="edit-new-video-url" onblur="validateVideoUrlInput(this)" placeholder="https://www.youtube.com/watch?v=... atau https://example.com/video.mp4" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <label class="block text-xs font-bold text-slate-700 mt-2">Ganti URL Video / Kode Embed (YouTube & MP4)</label>
+                        <input type="text" name="url_video" id="edit-new-video-url" onblur="validateVideoUrlInput(this)" oninput="validateVideoUrlInput(this, true)" placeholder="https://www.youtube.com/watch?v=... atau tempelkan kode embed <iframe>" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
                         <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] leading-relaxed flex items-start gap-2">
                             <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0"></i>
                             <span>Hanya menerima link YouTube resmi atau file video langsung .mp4. Jika video YouTube dibatasi penyematannya oleh pemilik, siswa tetap dapat menonton melalui tombol <strong>Buka di YouTube</strong>. Link Google Drive dilarang.</span>
@@ -496,6 +496,7 @@
         const modal = document.getElementById('modal-learning-action');
         if (!modal) return;
         modal.classList.remove('hidden');
+        modal.style.display = 'flex';
 
         // Kembalikan ke keadaan default non-terkunci terlebih dahulu
         resetContextualLocks();
@@ -637,7 +638,10 @@
 
     function closeModalAction() {
         const modal = document.getElementById('modal-learning-action');
-        if (modal) modal.classList.add('hidden');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
         resetContextualLocks();
     }
 
@@ -852,20 +856,40 @@
         }
     }
 
-    function validateVideoUrlInput(input) {
+    function validateVideoUrlInput(input, silent = false) {
         if (!input || !input.value.trim()) return true;
-        const val = input.value.trim().toLowerCase();
-        if (val.includes('drive.google.com') || val.includes('docs.google.com') || val.includes('google.com/file') || val.includes('google.com/drive') || val.includes('dropbox.com') || val.includes('onedrive.live.com')) {
-            alert('Tautan Google Drive / Cloud dilarang!\n\nUntuk materi video pembelajaran, hanya boleh menggunakan tautan YouTube resmi (youtube.com / youtu.be) atau file video langsung (.mp4). Tautan Google Drive tidak dapat diputar oleh siswa.');
-            input.value = '';
-            input.focus();
+        let val = input.value.trim();
+
+        // 1. Ekstrak otomatis jika pengguna menempelkan kode <iframe ...>
+        const iframeMatch = val.match(/<iframe[^>]+src=["']([^"']+)["']/i);
+        if (iframeMatch) {
+            val = iframeMatch[1];
+        }
+
+        // 2. Ekstrak ID YouTube jika berupa embed/watch/youtu.be/shorts
+        const ytMatch = val.match(/(?:youtube(?:-nocookie)?\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?|shorts|live)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i);
+        if (ytMatch && ytMatch[1]) {
+            input.value = 'https://www.youtube.com/watch?v=' + ytMatch[1];
+            return true;
+        }
+
+        const lowerVal = val.toLowerCase();
+        if (lowerVal.includes('drive.google.com') || lowerVal.includes('docs.google.com') || lowerVal.includes('google.com/file') || lowerVal.includes('google.com/drive') || lowerVal.includes('dropbox.com') || lowerVal.includes('onedrive.live.com')) {
+            if (!silent) {
+                alert('Tautan Google Drive / Cloud dilarang!\n\nUntuk materi video pembelajaran, hanya boleh menggunakan tautan YouTube resmi (youtube.com / youtu.be) atau file video langsung (.mp4). Tautan Google Drive tidak dapat diputar oleh siswa.');
+                input.value = '';
+                input.focus();
+            }
             return false;
         }
-        const isYt = val.includes('youtube.com/watch') || val.includes('youtu.be/') || val.includes('youtube.com/embed') || val.includes('youtube.com/shorts') || val.includes('youtube.com/live') || val.includes('m.youtube.com');
-        const isMp4 = val.endsWith('.mp4') || val.includes('.mp4?');
+
+        const isYt = lowerVal.includes('youtube.com') || lowerVal.includes('youtu.be');
+        const isMp4 = lowerVal.endsWith('.mp4') || lowerVal.includes('.mp4?');
         if (!isYt && !isMp4) {
-            alert('URL Video tidak sah!\n\nHanya diperbolehkan tautan YouTube (youtube.com / youtu.be) atau file video langsung berformat .mp4.');
-            input.focus();
+            if (!silent) {
+                alert('URL Video tidak sah!\n\nHanya diperbolehkan tautan YouTube (youtube.com / youtu.be) atau file video langsung berformat .mp4.');
+                input.focus();
+            }
             return false;
         }
         return true;
