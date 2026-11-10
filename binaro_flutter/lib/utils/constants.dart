@@ -8,7 +8,7 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // Network configuration
-  static const String baseUrl = 'http://192.168.18.9:8000/api';
+  static const String baseUrl = 'http://192.168.100.69:8000/api';
   static const Duration timeoutDuration = Duration(seconds: 10);
 
   // Storage keys / Default fallback IDs
