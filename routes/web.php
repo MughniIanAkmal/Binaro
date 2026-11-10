@@ -109,9 +109,13 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::get('/dashboard', [GuruDashboardController::class, 'index'])->name('dashboard');
         Route::get('/jadwal-mengajar', [GuruController::class, 'jadwalMengajar'])->name('jadwal.index');
         Route::get('/jadwal', [GuruController::class, 'jadwalMengajar'])->name('jadwal');
-        Route::get('/absensi/rekap', [AbsensiController::class, 'rekap'])->name('absensi.rekap');
-        Route::get('/absensi', [AbsensiController::class, 'rekap'])->name('absensi');
-        Route::get('/rekap-absensi', [AbsensiController::class, 'rekap']);
+        Route::get('/absensi/rekap', [AbsenScanController::class, 'index'])->name('absensi.rekap');
+        Route::get('/absensi', [AbsenScanController::class, 'index'])->name('absensi');
+        Route::get('/rekap-absensi', [AbsenScanController::class, 'index']);
+        Route::get('/absensi/export/excel', [AbsenScanController::class, 'exportExcel'])->name('absensi.export.excel');
+        Route::get('/absensi/export/pdf', [AbsenScanController::class, 'exportPdf'])->name('absensi.export.pdf');
+        Route::post('/absensi/kunci', [AbsenScanController::class, 'kunciAbsensi'])->name('absensi.kunci');
+        Route::post('/absensi/update-status', [AbsenScanController::class, 'updateStatusCepat'])->name('absensi.update_status');
 
         // Materi Management & Learning Hierarchy (PRD 4.1)
         Route::get('/mapel-belajar', [MateriController::class, 'mapelGrid'])->name('mapel.browse');
@@ -129,8 +133,9 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             Route::delete('/{id}', [MateriController::class, 'destroyMateri'])->name('destroy');
             Route::delete('/bab/{id}', [MateriController::class, 'destroyBab'])->name('destroy.bab');
             Route::delete('/sub-bab/{id}', [MateriController::class, 'destroySubBab'])->name('destroy.sub-bab');
-            Route::patch('/bab/{id}/toggle-lock', [MateriController::class, 'toggleBabLock'])->name('toggle-lock.bab');
-            Route::patch('/sub-bab/{id}/toggle-lock', [MateriController::class, 'toggleSubBabLock'])->name('toggle-lock.sub-bab');
+            // Toggle Lock Bab & Sub-Bab (Dukung POST dan PATCH)
+            Route::match(['POST', 'PATCH'], '/bab/{id}/toggle-lock', [MateriController::class, 'toggleBabLock'])->name('toggle-lock.bab');
+            Route::match(['POST', 'PATCH'], '/sub-bab/{id}/toggle-lock', [MateriController::class, 'toggleSubBabLock'])->name('toggle-lock.sub-bab');
         });
 
         // Cascading Dropdown API Helpers for Modal Action (PRD 4.2)
@@ -169,8 +174,8 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             Route::post('/{idQuiz}/soal', [UjianController::class, 'storeSoal'])->name('soal.store');
             Route::put('/{idQuiz}/soal/{idSoal}', [UjianController::class, 'updateSoal'])->name('soal.update');
             Route::delete('/{idQuiz}/soal/{idSoal}', [UjianController::class, 'destroySoal'])->name('soal.destroy');
-            // Rilis / Tampilkan Nilai Ujian ke Siswa
-            Route::post('/{id}/rilis-nilai', [UjianController::class, 'rilisNilaiSemua'])->name('rilis_nilai_semua');
+            // Rilis nilai ujian ke siswa
+            Route::post('/{id}/rilis-nilai-semua', [UjianController::class, 'rilisNilaiSemua'])->name('rilis_nilai_semua');
             Route::post('/hasil/{idHasil}/toggle-rilis', [UjianController::class, 'toggleRilisNilai'])->name('toggle_rilis_nilai');
         });
 
@@ -211,13 +216,20 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::middleware([EnsureRole::class.':admin,guru'])->post('/rekap-ujian/jadwalkan-remedial/{idQuiz}', [QuizController::class, 'jadwalkanRemedial'])->name('rekap_ujian.jadwalkan_remedial');
 
     // 5. Akun Guru CRUD (Role: Admin)
-    Route::middleware([EnsureRole::class.':admin'])->prefix('guru')->name('guru.data.')->group(function () {
+    Route::middleware([EnsureRole::class.':admin'])->prefix('guru')->name('guru.')->group(function () {
         Route::get('/', [GuruController::class, 'index'])->name('index');
         Route::get('/create', [GuruController::class, 'create'])->name('create');
         Route::post('/', [GuruController::class, 'store'])->name('store');
         Route::get('/{guru}/edit', [GuruController::class, 'edit'])->name('edit');
         Route::put('/{guru}', [GuruController::class, 'update'])->name('update');
         Route::delete('/{guru}', [GuruController::class, 'destroy'])->name('destroy');
+        // Aliases guru.data.*
+        Route::get('/data/list', [GuruController::class, 'index'])->name('data.index');
+        Route::get('/data/create', [GuruController::class, 'create'])->name('data.create');
+        Route::post('/data', [GuruController::class, 'store'])->name('data.store');
+        Route::get('/data/{guru}/edit', [GuruController::class, 'edit'])->name('data.edit');
+        Route::put('/data/{guru}', [GuruController::class, 'update'])->name('data.update');
+        Route::delete('/data/{guru}', [GuruController::class, 'destroy'])->name('data.destroy');
     });
 
     // 6. Siswa Dashboard & Learning Engine (Role: Siswa)
@@ -260,13 +272,20 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     });
 
     // 7. Akun Siswa CRUD (Role: Admin & Guru)
-    Route::middleware([EnsureRole::class.':admin,guru'])->prefix('siswa')->name('siswa.data.')->group(function () {
+    Route::middleware([EnsureRole::class.':admin,guru'])->prefix('siswa')->name('siswa.')->group(function () {
         Route::get('/', [SiswaController::class, 'index'])->name('index');
         Route::get('/create', [SiswaController::class, 'create'])->name('create');
         Route::post('/', [SiswaController::class, 'store'])->name('store');
         Route::get('/{siswa}/edit', [SiswaController::class, 'edit'])->name('edit');
         Route::put('/{siswa}', [SiswaController::class, 'update'])->name('update');
         Route::delete('/{siswa}', [SiswaController::class, 'destroy'])->name('destroy');
+        // Aliases siswa.data.*
+        Route::get('/data/list', [SiswaController::class, 'index'])->name('data.index');
+        Route::get('/data/create', [SiswaController::class, 'create'])->name('data.create');
+        Route::post('/data', [SiswaController::class, 'store'])->name('data.store');
+        Route::get('/data/{siswa}/edit', [SiswaController::class, 'edit'])->name('data.edit');
+        Route::put('/data/{siswa}', [SiswaController::class, 'update'])->name('data.update');
+        Route::delete('/data/{siswa}', [SiswaController::class, 'destroy'])->name('data.destroy');
     });
 
     // 8. Admin Dashboard & Pengaturan (Role: Admin)
@@ -307,22 +326,8 @@ Route::middleware([EnsureAuthenticated::class, EnsureRole::class.':admin,guru'])
     Route::get('/', [AbsenScanController::class, 'index'])->name('index');
     Route::post('/scan', [AbsenScanController::class, 'store'])->name('scan');
     Route::post('/izin', [AbsenScanController::class, 'storeIzin'])->name('izin');
+    Route::get('/export/excel', [AbsenScanController::class, 'exportExcel'])->name('export.excel');
+    Route::get('/export/pdf', [AbsenScanController::class, 'exportPdf'])->name('export.pdf');
+    Route::post('/kunci', [AbsenScanController::class, 'kunciAbsensi'])->name('kunci');
+    Route::post('/update-status', [AbsenScanController::class, 'updateStatusCepat'])->name('update_status');
 });
-
-// Rute publik untuk akses & download file materi PDF / media (kompatibel penuh Windows & mobile)
-Route::get('/storage/{path?}', function (\Illuminate\Http\Request $request, $path = null) {
-    if (!$path) {
-        return redirect('/');
-    }
-    $filePath = storage_path('app/public/' . $path);
-    if (!file_exists($filePath) || is_dir($filePath)) {
-        abort(404, 'File tidak ditemukan');
-    }
-    if ($request->query('download') == '1') {
-        return response()->download($filePath);
-    }
-    return response()->file($filePath, [
-        'Access-Control-Allow-Origin' => '*',
-        'Access-Control-Allow-Methods' => 'GET, OPTIONS',
-    ]);
-})->where('path', '.*');
