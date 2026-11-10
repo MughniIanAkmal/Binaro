@@ -17,6 +17,30 @@ abstract class MateriRequest extends FormRequest
     }
 
     /**
+     * Otomatis ekstrak dan standarkan jika guru menempelkan kode embed <iframe> YouTube.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('url_video') && ! empty($this->url_video)) {
+            $raw = trim((string) $this->url_video);
+
+            // 1. Ekstrak src jika guru memasukkan kode HTML <iframe>
+            if (preg_match('/<iframe[^>]+src=["\']([^"\']+)["\']/i', $raw, $match)) {
+                $raw = $match[1];
+            }
+
+            // 2. Jika link adalah YouTube (embed / watch / shorts / youtu.be), standarkan ke URL bersih
+            if (preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?|shorts|live)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $raw, $ytMatch)) {
+                $raw = 'https://www.youtube.com/watch?v='.$ytMatch[1];
+            }
+
+            $this->merge([
+                'url_video' => $raw,
+            ]);
+        }
+    }
+
+    /**
      * URL video hanya boleh YouTube atau file MP4 langsung.
      */
     protected function aturanUrlVideo(): array
