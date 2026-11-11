@@ -1,70 +1,43 @@
-# Sistem Informasi Sekolah
+# Binaro - Sistem Akademik & Belajar Siswa
 
-Aplikasi Laravel untuk pengelolaan pembelajaran, jadwal, absensi, ujian, nilai, dan akun admin, guru, serta siswa.
+Monorepo resmi untuk proyek **Binaro**, yang terdiri dari web backend Laravel dan aplikasi mobile Flutter.
 
-## Peta Proyek
+---
+
+## 📁 Struktur Monorepo
 
 ```text
-app/
-  Http/
-    Controllers/       Controller bersama dan controller per peran/API
-    Middleware/        Pemeriksaan login dan hak akses
-  Models/              Model Eloquent
-  Observers/            Observer model
-  Providers/            Service provider aplikasi
-database/
-  migrations/           Struktur tabel dan perubahan skema
-  seeders/              Data awal/demo
-  factories/            Factory untuk test
-  imports/              Dump SQL referensi/impor lama
-resources/
-  views/                Halaman Blade, dikelompokkan berdasarkan fitur/peran
-  css/                  Style aplikasi
-  js/                   JavaScript aplikasi
-routes/
-  web.php               Route web
-  api.php               Route API
-tests/
-  Feature/              Test alur HTTP dan fitur
-  Unit/                 Test unit
-docs/
-  superpowers/          Dokumen rencana
-  reference/            Catatan referensi proyek
-  archive/              Fragmen/output lama, bukan kode runtime
-scripts/
-  debug/                Skrip pemeriksaan manual, bukan bagian dari aplikasi
+Binaro/
+├── laravel/          # Laravel 11 Backend (Web Dashboard Guru/Admin & REST API)
+└── mobile/           # Flutter Mobile App (Aplikasi Belajar & Ujian Siswa)
 ```
 
-## Menjalankan Lokal
+---
 
-1. Pasang dependensi PHP dan JavaScript:
+## 🚀 Panduan Memulai
 
-   ```sh
-   composer install
-   npm install
-   ```
-
-2. Salin `.env.example` ke `.env`, lalu atur koneksi database.
-3. Buat application key dan jalankan migrasi:
-
-   ```sh
-   php artisan key:generate
-   php artisan migrate --seed
-   ```
-
-4. Jalankan aplikasi dan Vite di terminal terpisah:
-
-   ```sh
-   php artisan serve
-   npm run dev
-   ```
-
-## Pemeriksaan
-
-Jalankan test dengan:
-
-```sh
-php artisan test
+### 1. Backend (Laravel)
+```bash
+cd laravel
+composer install
+cp .env.example .env    # jika belum ada .env
+php artisan key:generate
+php artisan migrate
+php artisan serve --host=0.0.0.0 --port=8000
 ```
 
-Skrip di `scripts/debug` digunakan manual untuk inspeksi lokal. Jangan jalankan pada database produksi tanpa meninjau isi skrip dan konfigurasi `.env` terlebih dahulu.
+### 2. Mobile (Flutter)
+```bash
+cd mobile
+flutter pub get
+flutter run
+```
+
+---
+
+## ⚙️ Konfigurasi Koneksi API
+Untuk menghubungkan aplikasi Flutter ke backend Laravel:
+* Atur IP server pada file `mobile/lib/utils/constants.dart`:
+```dart
+static const String baseUrl = 'http://<IP_KOMPUTER_ANDA>:8000/api';
+```
