@@ -14,7 +14,7 @@
         <!-- Tabs -->
         <div class="flex gap-2 w-full sm:w-auto">
             <button type="button" onclick="switchUjianTab('tersedia')" id="tab-btn-tersedia"
-                    class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#0E3A5C] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition">
+                    class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#13527D] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition">
                 <i class="fas fa-clipboard-list text-sm"></i>
                 <span>Ujian Tersedia</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] bg-white/20 font-black">
@@ -34,7 +34,7 @@
         <!-- Search Bar -->
         <div class="relative w-full sm:w-72">
             <input type="text" id="search-ujian-input" onkeyup="filterUjianCards()" placeholder="Cari nama ujian atau mapel..."
-                   class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-[#E6EBF2] rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#0E3A5C] focus:border-transparent outline-none transition">
+                   class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-[#E6EBF2] rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#13527D] focus:border-transparent outline-none transition">
             <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
         </div>
     </div>
@@ -51,12 +51,12 @@
                 $durasi = $quiz->durasi_menit ?? 60;
                 $level = strtolower($quiz->tingkat_level ?? 'sedang');
             @endphp
-            <div class="ujian-card bg-white rounded-2xl p-6 border border-[#E6EBF2]/90 shadow-sm hover:shadow-md hover:border-[#0E3A5C]/40 transition flex flex-col justify-between group"
+            <div class="ujian-card bg-white rounded-2xl p-6 border border-[#E6EBF2]/90 shadow-sm hover:shadow-md hover:border-[#13527D]/40 transition flex flex-col justify-between group"
                  data-title="{{ strtolower($quiz->judul_quiz) }}" data-mapel="{{ strtolower($mapelName) }}">
                 <div class="space-y-4">
                     <!-- Badges -->
                     <div class="flex items-center justify-between gap-2">
-                        <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-50 text-[#0E3A5C] border border-sky-100 flex items-center gap-1.5 truncate max-w-[180px]">
+                        <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-50 text-[#13527D] border border-sky-100 flex items-center gap-1.5 truncate max-w-[180px]">
                             <i class="fas fa-book-open text-[10px]"></i> {{ $mapelName }}
                         </span>
 
@@ -77,7 +77,7 @@
 
                     <!-- Judul & Guru -->
                     <div>
-                        <h3 class="text-base font-black text-slate-900 group-hover:text-[#0E3A5C] transition leading-snug line-clamp-2">
+                        <h3 class="text-base font-black text-slate-900 group-hover:text-[#13527D] transition leading-snug line-clamp-2">
                             {{ $quiz->judul_quiz }}
                         </h3>
                         <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
@@ -131,7 +131,7 @@
                                 sulits: {{ $quiz->sulit_count ?? 0 }},
                                 playUrl: '{{ route('siswa.ujian.play', $quiz->id_quiz) }}'
                             })"
-                            class="w-full py-3 bg-[#0E3A5C] hover:bg-[#0B2E4A] active:scale-[0.99] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+                            class="w-full py-3 bg-[#13527D] hover:bg-[#0E3D5D] active:scale-[0.99] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
                         <i class="fas fa-play text-[10px]"></i>
                         <span>Mulai Ujian</span>
                         <i class="fas fa-arrow-right text-[11px] ml-1"></i>
@@ -143,7 +143,7 @@
         @else
         <!-- Empty State Tersedia -->
         <div class="bg-white rounded-3xl p-12 border border-[#E6EBF2] text-center max-w-xl mx-auto space-y-4 shadow-xs">
-            <div class="w-20 h-20 rounded-3xl bg-sky-50 text-[#0E3A5C] flex items-center justify-center text-3xl mx-auto shadow-inner">
+            <div class="w-20 h-20 rounded-3xl bg-sky-50 text-[#13527D] flex items-center justify-center text-3xl mx-auto shadow-inner">
                 <i class="fas fa-clipboard-check"></i>
             </div>
             <h3 class="text-base font-black text-slate-900">Belum Ada Ujian Online Tersedia</h3>
@@ -169,14 +169,14 @@
                 $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu');
                 $hasil = $quiz->hasilSiswa->first();
                 $nilai = $hasil ? $hasil->nilai_akhir : 0;
-                $isLulus = $nilai >= 75;
+                $isLulus = $nilai >= config('binaro.kkm');
                 $isPublished = (bool)($hasil?->status_kirim ?? false);
             @endphp
             <div class="ujian-card bg-white rounded-2xl p-6 border border-[#E6EBF2]/90 shadow-sm flex flex-col justify-between"
                  data-title="{{ strtolower($quiz->judul_quiz) }}" data-mapel="{{ strtolower($mapelName) }}">
                 <div class="space-y-3.5">
                     <div class="flex items-center justify-between">
-                        <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-50 text-[#0E3A5C] border border-sky-100">
+                        <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-50 text-[#13527D] border border-sky-100">
                             {{ $mapelName }}
                         </span>
                         @if($isPublished)
@@ -221,7 +221,7 @@
 
                 <div class="pt-4 border-t border-[#EFF2F7] mt-4">
                     <a href="{{ route('siswa.ujian.result', $quiz->id_quiz) }}"
-                       class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-[#0E3A5C] rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                       class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-[#13527D] rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
                         <i class="fas fa-eye text-xs"></i>
                         <span>{{ $isPublished ? 'Lihat Hasil & Evaluasi' : 'Lihat Status Ujian' }}</span>
                     </a>
@@ -266,11 +266,11 @@
         <div class="flex items-center gap-4 shrink-0 w-full md:w-auto justify-between md:justify-end">
             <div class="text-right">
                 <span class="text-[10px] uppercase font-extrabold text-slate-400 block tracking-wider">Skor Kamu</span>
-                <span class="text-2xl font-black text-[#0E3A5C]">{{ round($latestHasil->nilai_akhir) }}</span>
+                <span class="text-2xl font-black text-[#13527D]">{{ round($latestHasil->nilai_akhir) }}</span>
                 <span class="text-xs font-bold text-slate-400">/ 100</span>
             </div>
             <a href="{{ route('siswa.ujian.result', $latestHasil->id_quiz) }}"
-               class="px-5 py-2.5 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs">
+               class="px-5 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs">
                 <span>Detail Hasil</span>
                 <i class="fas fa-chevron-right text-[10px]"></i>
             </a>
@@ -285,11 +285,11 @@
         <!-- Header Modal (Sticky / Non-shrinking) -->
         <div class="p-5 sm:p-6 pb-4 border-b border-[#EFF2F7] flex items-center justify-between shrink-0 bg-white">
             <div class="flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-2xl bg-[#0E3A5C] text-white flex items-center justify-center text-xl shadow-md shrink-0">
+                <div class="w-12 h-12 rounded-2xl bg-[#13527D] text-white flex items-center justify-center text-xl shadow-md shrink-0">
                     <i class="fas fa-file-signature"></i>
                 </div>
                 <div>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-50 text-[#0E3A5C] border border-sky-100">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-50 text-[#13527D] border border-sky-100">
                         Konfirmasi Pelaksanaan Ujian
                     </span>
                     <h3 id="modal-ujian-judul" class="text-base sm:text-lg font-black text-slate-900 mt-0.5 leading-tight">
@@ -351,7 +351,7 @@
             <!-- PILIH TINGKAT KESULITAN SOAL YANG INGIN DIKERJAKAN -->
             <div class="bg-gradient-to-r from-sky-50 to-indigo-50/70 border border-sky-200/80 rounded-2xl p-4 space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <h4 class="text-xs font-black text-[#0E3A5C] flex items-center gap-1.5">
+                    <h4 class="text-xs font-black text-[#13527D] flex items-center gap-1.5">
                         <i class="fas fa-sliders"></i> Pilih Kesusahan Soal yang Ingin Dikerjakan:
                     </h4>
                     <span class="text-[10px] font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-full border border-sky-200">
@@ -371,7 +371,7 @@
                         <span class="text-[10px] text-slate-500 font-semibold" id="label-count-mudah">0 Soal</span>
                     </label>
 
-                    <label class="p-3 rounded-xl border-2 border-[#0E3A5C] bg-sky-50/50 cursor-pointer flex flex-col justify-between transition hover:border-amber-400 kes-modal-card" id="card-kes-sedang">
+                    <label class="p-3 rounded-xl border-2 border-[#13527D] bg-sky-50/50 cursor-pointer flex flex-col justify-between transition hover:border-amber-400 kes-modal-card" id="card-kes-sedang">
                         <div class="flex items-center justify-between">
                             <input type="radio" name="modal_kesulitan" value="sedang" checked onchange="updateModalKesulitan(this.value)" class="text-amber-600 focus:ring-0">
                             <span class="text-[9px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">Sedang</span>
@@ -393,7 +393,7 @@
 
             <!-- Tata Tertib & Petunjuk Pengerjaan -->
             <div class="bg-sky-50/70 border border-sky-100 rounded-2xl p-4 space-y-2">
-                <h4 class="text-xs font-black text-[#0E3A5C] flex items-center gap-1.5">
+                <h4 class="text-xs font-black text-[#13527D] flex items-center gap-1.5">
                     <i class="fas fa-circle-info"></i> Petunjuk & Peraturan Ujian:
                 </h4>
                 <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
@@ -413,7 +413,7 @@
                 Batal
             </button>
             <a id="modal-ujian-btn-mulai" href="#"
-               class="px-6 py-2.5 rounded-xl bg-[#0E3A5C] hover:bg-[#0B2E4A] active:scale-[0.99] text-white text-xs font-black shadow-md flex items-center gap-2 transition">
+               class="px-6 py-2.5 rounded-xl bg-[#13527D] hover:bg-[#0E3D5D] active:scale-[0.99] text-white text-xs font-black shadow-md flex items-center gap-2 transition">
                 <span>Mulai Kerjakan Sekarang</span>
                 <i class="fas fa-arrow-right text-[11px]"></i>
             </a>
@@ -431,12 +431,12 @@
         if (tab === 'tersedia') {
             cTersedia.classList.remove('hidden');
             cSelesai.classList.add('hidden');
-            btnTersedia.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#0E3A5C] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition';
+            btnTersedia.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#13527D] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition';
             btnSelesai.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 text-xs font-bold flex items-center justify-center gap-2.5 transition';
         } else {
             cTersedia.classList.add('hidden');
             cSelesai.classList.remove('hidden');
-            btnSelesai.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#0E3A5C] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition';
+            btnSelesai.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#13527D] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition';
             btnTersedia.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 text-xs font-bold flex items-center justify-center gap-2.5 transition';
         }
     }
@@ -503,14 +503,14 @@
             return;
         }
         document.querySelectorAll('.kes-modal-card').forEach(el => {
-            el.classList.remove('border-2', 'border-[#0E3A5C]', 'border-emerald-500', 'border-amber-500', 'border-rose-500', 'bg-sky-50/50');
+            el.classList.remove('border-2', 'border-[#13527D]', 'border-emerald-500', 'border-amber-500', 'border-rose-500', 'bg-sky-50/50');
             el.classList.add('border-[#E6EBF2]', 'bg-white');
         });
 
         const activeCard = document.getElementById('card-kes-' + val);
         if (activeCard) {
             activeCard.classList.remove('border-[#E6EBF2]', 'bg-white');
-            activeCard.classList.add('border-2', 'border-[#0E3A5C]', 'bg-sky-50/50');
+            activeCard.classList.add('border-2', 'border-[#13527D]', 'bg-sky-50/50');
         }
 
         const btn = document.getElementById('modal-ujian-btn-mulai');

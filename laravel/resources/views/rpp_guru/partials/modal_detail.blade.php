@@ -8,7 +8,7 @@
                     <i class="fas fa-file-lines text-amber-300"></i> Detail Modul Ajar
                 </h3>
                 <p class="text-xs text-sky-100 mt-0.5" id="detail-subtitle">
-                    SDN Kalitapen 01 &bull; Portal Guru
+                    {{ config('binaro.nama_sekolah') }} &bull; Portal Guru
                 </p>
             </div>
             <button type="button" onclick="closeModalDetailRpp()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">

@@ -1,37 +1,16 @@
 @extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
 
-@section('content')
-<div class="p-8 space-y-6">
-    <!-- Header Halaman & Breadcrumb -->
-    <div class="flex justify-between items-start flex-wrap gap-4">
-        <div>
-            <div class="flex items-center gap-2 text-[11px] font-semibold mb-1 text-slate-400">
-                <a href="{{ session('user_type') === 'guru' ? route('guru.dashboard') : route('admin.dashboard') }}" class="hover:text-slate-600 transition">Dashboard</a>
-                <i class="fas fa-chevron-right text-[9px] text-slate-300"></i>
-                <span class="text-[#13527D] font-bold">Jadwal Pelajaran</span>
-            </div>
-            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Jadwal Mata Pelajaran</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Kelola alokasi waktu dan jadwal pembelajaran rombel kelas SDN Kalitapen 01.</p>
-        </div>
-        <div class="flex items-center gap-2.5">
-            @if(session('user_type') === 'admin')
-            <!-- <a href="{{ route('admin.absensi.settings') }}" class="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition flex items-center gap-1.5 shadow-xs">
-                <i class="fas fa-clock text-slate-500"></i>
-                <span>Setting Jam Absen</span>
-            </a> -->
-            @endif
-            <a href="{{ route('jadwal.create') }}" class="bg-[#13527D] hover:bg-[#0E3D5D] text-white px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                <i class="fas fa-plus"></i> Tambah Jadwal
-            </a>
-        </div>
-    </div>
+@section('page_title', 'Jadwal Mata Pelajaran')
+@section('page_subtitle', 'Kelola alokasi waktu dan jadwal pembelajaran rombel kelas ' . config('binaro.nama_sekolah') . '.')
 
-    <!-- Alert Sukses -->
-    @if (session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg mb-6 text-sm">
-            {{ session('success') }}
-        </div>
-    @endif
+@section('header_actions')
+    <a href="{{ route('jadwal.create') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition" style="background: var(--binaro-navy);">
+        <i class="fas fa-plus"></i> Tambah Jadwal
+    </a>
+@endsection
+
+@section('content')
+<div class="space-y-6">
 
     <!-- Tabel Data Jadwal -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">

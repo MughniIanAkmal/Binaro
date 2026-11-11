@@ -1,4 +1,4 @@
-@extends('layouts.guru')
+@extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
 
 @php
     $isQuiz = !empty($selectedQuiz?->id_sub_bab);
@@ -24,7 +24,7 @@
 @section('header_actions')
     <form method="GET" action="{{ route('rekap_nilai.index') }}" class="flex items-center gap-2 print:hidden">
         <select name="quiz_id" onchange="this.form.submit()"
-            class="px-4 h-10 bg-white border border-[#E6EBF2] rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-[#17557F]">
+            class="px-4 h-10 bg-white border border-[#E6EBF2] rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-[#13527D]">
             <option value="">-- Pilih Rekap Nilai --</option>
             @foreach($quizzes as $q)
             @php
@@ -66,9 +66,9 @@
     @if($selectedQuiz)
     <div class="hidden print:block mb-6 border-b-2 border-slate-900 pb-3">
         <div class="text-center space-y-0.5">
-            <h2 class="text-base font-black uppercase tracking-wider text-slate-900">PEMERINTAH KABUPATEN BONDOWOSO</h2>
-            <h3 class="text-sm font-bold uppercase text-slate-800">DINAS PENDIDIKAN - SDN KALITAPEN 01</h3>
-            <p class="text-[10px] text-slate-600">Kecamatan Tapen, Kabupaten Bondowoso, Jawa Timur &bull; Pos: 68283</p>
+            <h2 class="text-base font-black uppercase tracking-wider text-slate-900">{{ config('binaro.kabupaten_kop') }}</h2>
+            <h3 class="text-sm font-bold uppercase text-slate-800">DINAS PENDIDIKAN - {{ strtoupper(config('binaro.nama_sekolah')) }}</h3>
+            <p class="text-[10px] text-slate-600">{{ config('binaro.alamat_kop') }}</p>
         </div>
         <div class="mt-4 pt-2 border-t border-slate-300 flex items-center justify-between text-xs font-semibold text-slate-800">
             <div>
@@ -412,7 +412,7 @@
                                         salah: {{ $row->jumlah_salah ?? 0 }},
                                         waktu: '{{ $row->waktu_menit ? $row->waktu_menit . ' menit' : '-' }}',
                                         keaktifan: '{{ $row->nilai_keaktifan ? $row->nilai_keaktifan . ' poin' : '-' }}',
-                                        status: '{{ ($row->nilai_akhir ?? 0) >= 70 ? ($isQuiz ? 'TUNTAS KKM' : 'LULUS KKM') : ($isQuiz ? 'BELUM TUNTAS' : 'REMEDIAL') }}',
+                                        status: '{{ ($row->nilai_akhir ?? 0) >= config('binaro.kkm') ? ($isQuiz ? 'TUNTAS KKM' : 'LULUS KKM') : ($isQuiz ? 'BELUM TUNTAS' : 'REMEDIAL') }}',
                                         feedback: '{{ addslashes($row->catatan_guru ?? 'Belum ada catatan') }}'
                                     })"
                                     class="w-7 h-7 rounded-lg bg-sky-50 text-sky-600 hover:bg-sky-100 flex items-center justify-center transition border border-sky-100">
@@ -467,7 +467,7 @@
             <div class="flex items-center gap-3 text-[11px] text-slate-400">
                 <span>Alokasi: <strong class="text-slate-700">{{ $selectedQuiz->durasi_menit ?? 60 }} mnt</strong></span>
                 <span>·</span>
-                <span>KKM: <strong class="text-slate-700">70</strong></span>
+                <span>KKM: <strong class="text-slate-700">{{ config("binaro.kkm") }}</strong></span>
             </div>
         </div>
         @endif
@@ -478,13 +478,13 @@
     <div class="hidden print:flex justify-between items-end mt-12 pt-8 text-xs text-slate-800">
         <div class="text-center">
             <p>Mengetahui,</p>
-            <p class="font-bold">Kepala Sekolah SDN Kalitapen 01</p>
+            <p class="font-bold">Kepala Sekolah {{ config('binaro.nama_sekolah') }}</p>
             <div class="h-20"></div>
-            <p class="font-bold underline">SUGIARTO, S.Pd., M.Pd.</p>
-            <p class="text-[10px] text-slate-500">NIP. 19700101 199503 1 001</p>
+            <p class="font-bold underline">{{ config("binaro.kepala_sekolah") }}</p>
+            <p class="text-[10px] text-slate-500">NIP. {{ config('binaro.kepala_sekolah_nip') }}</p>
         </div>
         <div class="text-center">
-            <p>Bondowoso, {{ now()->translatedFormat('d F Y') }}</p>
+            <p>{{ config('binaro.kota') }}, {{ now()->translatedFormat('d F Y') }}</p>
             <p class="font-bold">Guru Pengampu</p>
             <div class="h-20"></div>
             <p class="font-bold underline">{{ session('user_name', 'Guru Mata Pelajaran') }}</p>
@@ -503,7 +503,7 @@
             <div>
                 <h3 class="text-white font-bold text-sm">Jadwalkan Remedial Otomatis untuk {{ $remedial }} Siswa</h3>
                 <p class="text-white/80 text-[11px] mt-0.5">
-                    Ada {{ $remedial }} siswa yang belum mencapai KKM (70). Anda dapat menerbitkan jadwal remedial dan notifikasi otomatis ke siswa bersangkutan.
+                    Ada {{ $remedial }} siswa yang belum mencapai KKM ({{ config('binaro.kkm') }}). Anda dapat menerbitkan jadwal remedial dan notifikasi otomatis ke siswa bersangkutan.
                 </p>
             </div>
         </div>

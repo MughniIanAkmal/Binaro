@@ -5,7 +5,7 @@
 
 @section('header_actions')
     <form method="GET" action="{{ route('guru.quiz.rekap') }}" class="flex items-center gap-2">
-        <select name="quiz_id" onchange="this.form.submit()" class="px-4 h-10 bg-white border border-[#E6EBF2] rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-[#17557F]">
+        <select name="quiz_id" onchange="this.form.submit()" class="px-4 h-10 bg-white border border-[#E6EBF2] rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-[#13527D]">
             <option value="">-- Pilih Kuis --</option>
             @foreach($quizzes as $q)
                 <option value="{{ $q->id_quiz }}" {{ $selectedQuizId == $q->id_quiz ? 'selected' : '' }}>

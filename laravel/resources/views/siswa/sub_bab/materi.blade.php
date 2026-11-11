@@ -24,7 +24,7 @@
     <!-- Daftar Konten Materi -->
     <div class="space-y-4">
         @forelse($subBab->materi as $mIdx => $mat)
-        <div class="bg-white rounded-2xl shadow-sm border border-[#E6EBF2] hover:border-[#0E3A5C]/50 transition p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="bg-white rounded-2xl shadow-sm border border-[#E6EBF2] hover:border-[#13527D]/50 transition p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div class="flex items-start gap-4">
                 @if($mat->tipe_materi === 'video')
                     <div class="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base shrink-0">
@@ -78,7 +78,7 @@
             </div>
 
             <div class="shrink-0 self-end sm:self-center">
-                <a href="{{ route('siswa.materi.view', $mat->id_materi) }}" class="px-4 py-2 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white text-xs font-bold rounded-xl shadow-sm transition inline-flex items-center gap-1.5">
+                <a href="{{ route('siswa.materi.view', $mat->id_materi) }}" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-xl shadow-sm transition inline-flex items-center gap-1.5">
                     @if($mat->tipe_materi === 'video')
                         <i class="fas fa-play text-[10px]"></i> Tonton Video
                     @elseif($mat->tipe_materi === 'dokumen')

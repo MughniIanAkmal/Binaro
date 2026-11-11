@@ -8,7 +8,7 @@
                     <i class="fas fa-layer-group text-sky-300"></i> Kelola Materi & Silabus
                 </h3>
                 <p class="text-xs text-sky-100 mt-0.5" id="modal-action-subtitle">
-                    SDN Kalitapen 01 &bull; Modul Guru
+                    {{ config('binaro.nama_sekolah') }} &bull; Modul Guru
                 </p>
             </div>
             <div class="flex items-center gap-3">

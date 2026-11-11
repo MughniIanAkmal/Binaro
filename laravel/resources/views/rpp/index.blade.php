@@ -1,20 +1,21 @@
-@extends('layouts.app')
+@extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
+
+@section('page_title', 'Persetujuan & Kelola RPP Guru')
+@section('page_subtitle', 'Khusus meninjau & menyetujui pengajuan modul ajar dari guru.')
+
+@section('breadcrumb_trail')
+    <a href="{{ session('user_type') === 'guru' ? route('guru.dashboard') : route('admin.dashboard') }}" class="hover:text-slate-600 transition shrink-0">Dashboard</a>
+@endsection
+
+@section('header_actions')
+    <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
+        <i class="fas fa-download"></i> Cetak / Export
+    </button>
+@endsection
 
 @section('content')
 <!-- Content Body -->
-        <div class="p-8 space-y-6">
-            <!-- Page Title -->
-            <div class="flex justify-between items-start">
-                <div>
-                    <h2 class="text-xl font-extrabold text-slate-900">Persetujuan & Kelola RPP Guru</h2>
-                    <p class="text-xs text-slate-500">Dashboard &gt; Persetujuan Modul Ajar (RPP Guru) &bull; Khusus Meninjau & Menyetujui Pengajuan Guru</p>
-                </div>
-                <div class="flex gap-2">
-                    <button onclick="window.print()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50 flex items-center gap-1.5 shadow-xs">
-                        <i class="fas fa-download mr-1"></i> Cetak / Export
-                    </button>
-                </div>
-            </div>
+        <div class="space-y-6">
 
             <!-- KPI Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">

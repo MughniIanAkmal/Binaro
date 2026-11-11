@@ -4,7 +4,7 @@
             <span class="w-8 h-8 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center text-sm"><i class="fas fa-address-card"></i></span>
             Keterangan
         </h3>
-        <button type="button" onclick="toggleModal('modal-edit')" class="px-3.5 py-2 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white text-[11px] font-bold rounded-lg transition">
+        <button type="button" onclick="toggleModal('modal-edit')" class="px-3.5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-[11px] font-bold rounded-lg transition">
             <i class="fas fa-pen mr-1.5"></i>Edit
         </button>
     </div>

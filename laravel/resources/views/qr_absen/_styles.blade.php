@@ -4,7 +4,7 @@
 <style>
 :root{
   --bg:#F2F5FA; --surface:#FFFFFF; --ink:#16223A; --muted:#5D6B85; --line:#DDE3EE;
-  --brand:#2456C8; --brand-ink:#FFFFFF;
+  --brand:#13527D; --brand-ink:#FFFFFF;
   --ok:#17805A; --ok-soft:#E1F4EC; --warn:#8A5A00; --warn-soft:#FDF0D5;
   --err:#B3261E; --err-soft:#FCE4E2; --pencil:#F5B82E;
 }

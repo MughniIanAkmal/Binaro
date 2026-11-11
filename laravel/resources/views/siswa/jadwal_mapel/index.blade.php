@@ -31,7 +31,7 @@
 
         {{-- Total Sesi --}}
         <div class="bg-white rounded-xl p-4 border border-[#E6EBF2] shadow-sm flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#0E3A5C] flex items-center justify-center text-base shrink-0">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#13527D] flex items-center justify-center text-base shrink-0">
                 <i class="fas fa-clock"></i>
             </div>
             <div class="min-w-0">
@@ -69,7 +69,7 @@
             {{-- Tab Semua --}}
             <button type="button" onclick="pilihHari('semua')" id="tab-btn-semua"
                 class="tab-btn-hari px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0"
-                style="background-color:#0E3A5C; color:white;">
+                style="background-color:#13527D; color:white;">
                 <i class="fas fa-layer-group text-[10px]"></i>
                 <span>Semua Hari</span>
                 <span class="text-[10px] px-1.5 py-0.5 rounded-full font-bold" style="background:rgba(255,255,255,0.2); color:white;">{{ $totalSesi }}</span>
@@ -81,7 +81,7 @@
                     $isHariIni = ($hari === $hariIni);
                 @endphp
                 <button type="button" onclick="pilihHari('{{ $hari }}')" id="tab-btn-{{ $hari }}"
-                    class="tab-btn-hari px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#0E3A5C] hover:bg-slate-50 transition flex items-center gap-1.5 shrink-0">
+                    class="tab-btn-hari px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-[#13527D] hover:bg-slate-50 transition flex items-center gap-1.5 shrink-0">
                     <span>{{ $hari }}</span>
                     @if($isHariIni)
                     <span class="bg-emerald-100 text-emerald-700 text-[9px] font-extrabold px-1.5 py-0.5 rounded-md">Hari Ini</span>
@@ -113,7 +113,7 @@
                 $isHariIni = ($hari === $hariIni);
             @endphp
 
-            <div class="kartu-hari bg-white rounded-2xl border {{ $isHariIni ? 'border-[#0E3A5C]' : 'border-[#E6EBF2]' }} shadow-sm overflow-hidden"
+            <div class="kartu-hari bg-white rounded-2xl border {{ $isHariIni ? 'border-[#13527D]' : 'border-[#E6EBF2]' }} shadow-sm overflow-hidden"
                  data-hari="{{ $hari }}"
                  style="{{ $isHariIni ? 'box-shadow: 0 0 0 3px rgba(19,82,125,0.08);' : '' }}">
 
@@ -121,7 +121,7 @@
                 <div class="px-6 py-4 {{ $isHariIni ? 'bg-gradient-to-r from-sky-50 to-white' : 'bg-slate-50/60' }} border-b border-[#EFF2F7] flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm"
-                             style="{{ $isHariIni ? 'background:#0E3A5C; color:white;' : 'background:white; color:#475569; border:1px solid #e2e8f0;' }}">
+                             style="{{ $isHariIni ? 'background:#13527D; color:white;' : 'background:white; color:#475569; border:1px solid #e2e8f0;' }}">
                             <i class="fas fa-calendar-day"></i>
                         </div>
                         <div>
@@ -234,7 +234,7 @@
 
                                     @if($item->id_mapel)
                                     <a href="{{ route('siswa.materi.index', $item->id_mapel) }}"
-                                       class="text-[11px] font-bold text-[#0E3A5C] hover:underline flex items-center gap-1 print:hidden">
+                                       class="text-[11px] font-bold text-[#13527D] hover:underline flex items-center gap-1 print:hidden">
                                         <span>Buka Materi</span>
                                         <i class="fas fa-arrow-right text-[9px]"></i>
                                     </a>
@@ -263,7 +263,7 @@
     {{-- ===== CATATAN PENTING ===== --}}
     <div class="bg-white rounded-2xl border border-[#E6EBF2] p-6 shadow-sm space-y-3 print:hidden">
         <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
-            <i class="fas fa-circle-info text-[#0E3A5C]"></i>
+            <i class="fas fa-circle-info text-[#13527D]"></i>
             <span>Catatan Penting Kegiatan Belajar Mengajar</span>
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
@@ -309,7 +309,7 @@
         // Aktifkan tombol yang dipilih via inline style
         var activeBtn = document.getElementById('tab-btn-' + hari);
         if (activeBtn) {
-            activeBtn.style.backgroundColor = '#0E3A5C';
+            activeBtn.style.backgroundColor = '#13527D';
             activeBtn.style.color           = 'white';
             activeBtn.style.boxShadow       = '0 1px 3px rgba(0,0,0,0.15)';
         }

@@ -51,7 +51,7 @@
         }
 
         .btn-print:hover {
-            background-color: #0d3856;
+            background-color: #0E3D5D;
         }
 
         .btn-close {
@@ -258,13 +258,13 @@
         <div class="kop-header">
             <h4>PEMERINTAH KABUPATEN BONDOWOSO &bull; DINAS PENDIDIKAN</h4>
             <h3>SEKOLAH DASAR NEGERI KALITAPEN 01</h3>
-            <p>Kecamatan Tapen, Kabupaten Bondowoso, Jawa Timur &bull; Pos: 68283</p>
+            <p>{{ config('binaro.alamat_kop') }}</p>
         </div>
 
         <!-- Judul Dokumen -->
         <div class="doc-title">
             <h2>MODUL AJAR / RPP KURIKULUM MERDEKA</h2>
-            <span>TAHUN AJARAN 2026/2027</span>
+            <span>TAHUN AJARAN {{ config('binaro.tahun_ajaran') }}</span>
         </div>
 
         <!-- Bagian A: Identitas Modul -->
@@ -273,7 +273,7 @@
             <tr>
                 <td class="label">Satuan Pendidikan</td>
                 <td class="colon">:</td>
-                <td class="value">SD Negeri Kalitapen 01</td>
+                <td class="value">{{ config("binaro.nama_sekolah") }}</td>
             </tr>
             <tr>
                 <td class="label">Mata Pelajaran</td>
@@ -354,17 +354,17 @@
             <tr>
                 <td>
                     Mengetahui,<br>
-                    Kepala Sekolah SDN Kalitapen 01
+                    Kepala Sekolah {{ config('binaro.nama_sekolah') }}
                     <div class="signature-space"></div>
-                    <span class="sign-name">Budi Santoso, M.Pd.</span><br>
-                    NIP. 19750812 199903 1 002
+                    <span class="sign-name">{{ config("binaro.kepala_sekolah") }}</span><br>
+                    NIP. {{ config('binaro.kepala_sekolah_nip') }}
                 </td>
                 <td>
-                    Bondowoso, {{ now()->translatedFormat('d F Y') }}<br>
+                    {{ config('binaro.kota') }}, {{ now()->translatedFormat('d F Y') }}<br>
                     Guru Pengajar Kelas
                     <div class="signature-space"></div>
-                    <span class="sign-name">{{ $rpp->guru->nama_guru ?? 'Ibu Sarah Wijaya, S.Pd.' }}</span><br>
-                    NIP. {{ $rpp->guru->nip ?? '198501012010012001' }}
+                    <span class="sign-name">{{ $rpp->guru->nama_guru ?? 'Guru' }}</span><br>
+                    {{ ($rpp->guru->nip ?? null) ? 'NIP. ' . $rpp->guru->nip : '' }}
                 </td>
             </tr>
         </table>

@@ -5,8 +5,6 @@
 
 @section('breadcrumb_trail')
     <a href="{{ route('guru.materi.index') }}" class="hover:text-slate-600 transition">Kelola Materi</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <span class="text-slate-500">Bank Soal</span>
 @endsection
 
 @section('header_actions')

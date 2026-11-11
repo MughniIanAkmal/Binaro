@@ -1,4 +1,4 @@
-@extends('layouts.siswa')
+@extends(session('user_type') === 'siswa' ? 'layouts.siswa' : (session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app'))
 
 @section('page_title', 'Rincian Tugas PR')
 
@@ -18,43 +18,6 @@
 @section('content')
 <div class="max-w-3xl mx-auto space-y-5">
 
-    {{-- Session Alerts --}}
-    @if(session('success'))
-    <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <i class="fas fa-check-circle text-emerald-600 text-sm"></i>
-            <span class="font-semibold">{{ session('success') }}</span>
-        </div>
-        <button onclick="this.parentElement.remove()" class="text-emerald-400 hover:text-emerald-700">
-            <i class="fas fa-times text-xs"></i>
-        </button>
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <i class="fas fa-exclamation-circle text-rose-600 text-sm"></i>
-            <span class="font-semibold">{{ session('error') }}</span>
-        </div>
-        <button onclick="this.parentElement.remove()" class="text-rose-400 hover:text-rose-700">
-            <i class="fas fa-times text-xs"></i>
-        </button>
-    </div>
-    @endif
-
-    @if(session('info'))
-    <div class="p-4 bg-sky-50 border border-sky-200 text-sky-800 text-xs rounded-xl flex items-center justify-between">
-        <div class="flex items-center gap-2">
-            <i class="fas fa-info-circle text-sky-600 text-sm"></i>
-            <span class="font-semibold">{{ session('info') }}</span>
-        </div>
-        <button onclick="this.parentElement.remove()" class="text-sky-400 hover:text-sky-700">
-            <i class="fas fa-times text-xs"></i>
-        </button>
-    </div>
-    @endif
-
     {{-- Card Utama: Detail Notifikasi --}}
     @php
         $pr = $notifikasi->pr;
@@ -67,7 +30,7 @@
     <div class="bg-white rounded-2xl border border-[#E6EBF2] shadow-sm overflow-hidden">
 
         {{-- Header Card --}}
-        <div class="bg-gradient-to-r from-[#0E385D] to-[#165B96] px-6 py-5 text-white">
+        <div class="bg-gradient-to-r from-[#0E3D5D] to-[#13527D] px-6 py-5 text-white">
             <div class="flex flex-wrap items-center gap-2 mb-2">
                 @if($pr)
                 <span class="bg-white/20 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg">
@@ -111,7 +74,7 @@
             {{-- Isi Pesan --}}
             <div>
                 <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <i class="fas fa-envelope-open-text text-[#0E3A5C]"></i> Isi Pesan dari Guru
+                    <i class="fas fa-envelope-open-text text-[#13527D]"></i> Isi Pesan dari Guru
                 </h3>
                 <div class="p-4 bg-amber-50/60 border border-amber-200 rounded-xl text-sm text-slate-800 leading-relaxed whitespace-pre-wrap font-normal">
                     {{ $notifikasi->pesan }}
@@ -122,7 +85,7 @@
             @if($pr && $pr->deskripsi)
             <div>
                 <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-2">
-                    <i class="fas fa-clipboard-list text-[#0E3A5C]"></i> Instruksi & Petunjuk Soal
+                    <i class="fas fa-clipboard-list text-[#13527D]"></i> Instruksi & Petunjuk Soal
                 </h3>
                 <div class="p-4 bg-slate-50 border border-[#E6EBF2] rounded-xl text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">
                     {{ $pr->deskripsi }}
@@ -155,7 +118,7 @@
     @if($notifikasiLain->isNotEmpty())
     <div class="bg-white rounded-2xl border border-[#E6EBF2] shadow-sm p-5 space-y-3">
         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-            <i class="fas fa-history text-[#0E3A5C]"></i> Riwayat Notifikasi Lain untuk PR Ini
+            <i class="fas fa-history text-[#13527D]"></i> Riwayat Notifikasi Lain untuk PR Ini
         </h3>
         <div class="space-y-2">
             @foreach($notifikasiLain as $lain)

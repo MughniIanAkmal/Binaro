@@ -1,33 +1,23 @@
-@extends('layouts.app')
+@extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
+
+@section('page_title', 'Detail Jadwal Mata Pelajaran')
+@section('page_subtitle', 'Informasi lengkap jadwal mata pelajaran dan guru pengampu.')
+
+@section('breadcrumb_trail')
+    <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-600 transition shrink-0">Dashboard</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
+    <a href="{{ route('jadwal.index') }}" class="hover:text-slate-600 transition shrink-0">Jadwal Pelajaran</a>
+@endsection
+
+@section('header_actions')
+    <a href="{{ route('jadwal.index') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
+        <i class="fas fa-arrow-left text-slate-400"></i>
+        <span>Kembali ke Jadwal</span>
+    </a>
+@endsection
 
 @section('content')
-<div class="p-8 space-y-6">
-    <!-- Breadcrumb & Header -->
-    <div class="flex justify-between items-start flex-wrap gap-4">
-        <div>
-            <div class="flex items-center gap-2 text-[11px] font-semibold mb-1 text-slate-400">
-                <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-600 transition">Dashboard</a>
-                <i class="fas fa-chevron-right text-[9px] text-slate-300"></i>
-                <a href="{{ route('jadwal.index') }}" class="hover:text-slate-600 transition">Jadwal Pelajaran</a>
-                <i class="fas fa-chevron-right text-[9px] text-slate-300"></i>
-                <span class="text-[#13527D] font-bold">Detail Jadwal</span>
-            </div>
-            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Detail Jadwal Mata Pelajaran</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Informasi lengkap jadwal mata pelajaran dan guru pengampu.</p>
-        </div>
-        <a href="{{ route('jadwal.index') }}" class="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition flex items-center gap-1.5 shadow-xs">
-            <i class="fas fa-arrow-left text-slate-400"></i>
-            <span>Kembali ke Jadwal</span>
-        </a>
-    </div>
-
-    <!-- Alert Sukses / Error -->
-    @if (session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-xl mb-6 text-sm flex items-center gap-2">
-            <i class="fas fa-check-circle"></i>
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
+<div class="space-y-6">
 
     <!-- Card Detail Utama -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">

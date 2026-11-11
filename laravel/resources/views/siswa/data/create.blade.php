@@ -1,4 +1,4 @@
-@extends('layouts.siswa')
+@extends(session('user_type') === 'siswa' ? 'layouts.siswa' : 'layouts.app')
 
 @section('breadcrumb_trail')
     <a href="{{ route('siswa.data.index') }}" class="hover:text-slate-600 transition">Data Siswa</a>

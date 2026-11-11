@@ -1,28 +1,16 @@
 @extends('layouts.app')
 
-@section('content')
-<div class="p-8 space-y-6">
-    <!-- Header Title & Role Clarification Banner -->
-    <div class="flex justify-between items-start flex-wrap gap-4">
-        <div>
-            <div class="flex items-center gap-2 text-[11px] font-semibold mb-1">
-                <span class="bg-[#13527D]/10 text-[#13527D] px-2.5 py-0.5 rounded-full flex items-center gap-1 font-bold">
-                    <i class="fas fa-shield-halved text-[9px]"></i> Panel Administrator
-                </span>
-                <span class="text-slate-400">Dashboard &gt; Kelola Mata Pelajaran</span>
-            </div>
-            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Daftar Mata Pelajaran</h2>
-            <p class="text-xs text-slate-500">
-                Kelola master data mata pelajaran SDN Kalitapen 01. Anda dapat menambahkan mata pelajaran baru, memonitor, dan menghapus mapel.
-            </p>
-        </div>
+@section('page_title', 'Kelola Mata Pelajaran')
+@section('page_subtitle', 'Kelola master data mata pelajaran ' . config('binaro.nama_sekolah') . '. Anda dapat menambahkan mata pelajaran baru, memonitor, dan menghapus mapel.')
 
-        <div class="flex items-center gap-2">
-            <button type="button" onclick="openCreateModal()" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
-                <i class="fas fa-plus"></i> Tambah Mapel
-            </button>
-        </div>
-    </div>
+@section('header_actions')
+    <button type="button" onclick="openCreateModal()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition" style="background: var(--binaro-navy);">
+        <i class="fas fa-plus"></i> Tambah Mapel
+    </button>
+@endsection
+
+@section('content')
+<div class="space-y-6">
 
     <!-- Quick Stat Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -51,7 +39,7 @@
         <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
             <div>
                 <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Pusat Data</span>
-                <div class="text-sm font-bold text-slate-800 mt-2">SDN Kalitapen 01</div>
+                <div class="text-sm font-bold text-slate-800 mt-2">{{ config('binaro.nama_sekolah') }}</div>
                 <span class="text-[11px] text-slate-400">Tahun Ajaran Aktif</span>
             </div>
             <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">

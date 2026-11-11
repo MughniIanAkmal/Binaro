@@ -8,7 +8,7 @@
         $subBabName = $quiz->subBab->nama_sub_bab ?? null;
         $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu');
         $durasi = $quiz->durasi_menit ?? 20;
-        $isLulus = $hasil->nilai_akhir >= 75;
+        $isLulus = $hasil->nilai_akhir >= config('binaro.kkm');
 
         $backUrl = route('siswa.dashboard');
         if ($quiz->materi) {
@@ -56,11 +56,11 @@
             <div>
                 @if($isLulus)
                 <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <i class="fas fa-check-circle text-emerald-600"></i> PEMAHAMAN BAIK (Skor &ge; 75)
+                    <i class="fas fa-check-circle text-emerald-600"></i> PEMAHAMAN BAIK (Skor &ge; {{ config('binaro.kkm') }})
                 </span>
                 @else
                 <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-amber-50 text-amber-700 border border-amber-200">
-                    <i class="fas fa-triangle-exclamation text-amber-600"></i> PERLU BELAJAR LAGI (Skor &lt; 75)
+                    <i class="fas fa-triangle-exclamation text-amber-600"></i> PERLU BELAJAR LAGI (Skor &lt; {{ config('binaro.kkm') }})
                 </span>
                 @endif
             </div>
@@ -102,7 +102,7 @@
         <div class="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-[#E6EBF2]/90 shadow-sm flex flex-col justify-between space-y-6">
             <div>
                 <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
-                    <i class="fas fa-chart-pie text-[#0E3A5C]"></i> Ringkasan Kuis Materi
+                    <i class="fas fa-chart-pie text-[#13527D]"></i> Ringkasan Kuis Materi
                 </h3>
                 <p class="text-xs text-slate-400 mt-0.5">Hasil pengerjaan latihan evaluasi sub-bab pembelajaran</p>
             </div>
@@ -147,7 +147,7 @@
                     <span>Lihat Pembahasan Soal</span>
                 </a>
                 <a href="{{ $backUrl }}"
-                   class="w-full sm:flex-1 py-3 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+                   class="w-full sm:flex-1 py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
                     <i class="fas fa-arrow-left text-xs"></i>
                     <span>Kembali ke Materi Belajar</span>
                 </a>
@@ -159,7 +159,7 @@
     <div id="section-pembahasan" class="space-y-4 pt-4">
         <div class="bg-white rounded-2xl p-4 border border-[#E6EBF2]/90 shadow-xs flex items-center justify-between">
             <h4 class="text-sm font-black text-slate-900 flex items-center gap-2">
-                <i class="fas fa-list-check text-[#0E3A5C]"></i> Pembahasan Butir Soal Kuis Materi
+                <i class="fas fa-list-check text-[#13527D]"></i> Pembahasan Butir Soal Kuis Materi
             </h4>
             <span class="text-xs text-slate-500 font-bold">{{ count($reviewDetails) }} Soal Lengkap</span>
         </div>
@@ -236,7 +236,7 @@
 
     <!-- Bottom Return CTA -->
     <div class="text-center pt-4">
-        <a href="{{ $backUrl }}" class="px-6 py-3 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-2 shadow-sm">
+        <a href="{{ $backUrl }}" class="px-6 py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-2 shadow-sm">
             <i class="fas fa-book-open"></i>
             <span>Kembali ke Materi Belajar</span>
         </a>

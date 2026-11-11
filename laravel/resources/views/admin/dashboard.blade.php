@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="p-8 space-y-6">
+<div class="space-y-6">
     <!-- Header Welcome Banner -->
     <div class="bg-[#13527D] rounded-2xl shadow-sm p-8 text-white relative overflow-hidden">
         <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
@@ -12,7 +12,7 @@
             <div>
                 <div class="flex items-center gap-2 mb-2">
                     <span class="bg-amber-400 text-amber-900 font-bold text-[10px] px-2.5 py-0.5 rounded-full shadow-sm">
-                        <i class="fas fa-lock mr-1"></i> Panel Administrator &bull; SDN Kalitapen 01
+                        <i class="fas fa-lock mr-1"></i> Panel Administrator &bull; {{ config('binaro.nama_sekolah') }}
                     </span>
                     <span class="text-xs text-sky-200">
                         {{ now()->translatedFormat('l, d F Y') }}
@@ -119,7 +119,7 @@
                         Pengaturan Jam Absensi & Jam Tutup Sekolah
                     </h3>
                     <p class="text-xs text-slate-500">
-                        Ambang batas kehadiran siswa SDN Kalitapen 01 yang tersinkronisasi otomatis dengan Jadwal Pelajaran.
+                        Ambang batas kehadiran siswa {{ config('binaro.nama_sekolah') }} yang tersinkronisasi otomatis dengan Jadwal Pelajaran.
                     </p>
                 </div>
             </div>
@@ -227,7 +227,7 @@
                     </div>
                     <div>
                         <h4 class="text-xs font-bold text-slate-900">Daftar Guru Terdaftar</h4>
-                        <p class="text-[10px] text-slate-400">Tenaga pengajar aktif di SDN Kalitapen 01</p>
+                        <p class="text-[10px] text-slate-400">Tenaga pengajar aktif di {{ config('binaro.nama_sekolah') }}</p>
                     </div>
                 </div>
                 <a href="{{ route('guru.data.index') }}" class="text-[11px] font-bold text-[#13527D] hover:underline">

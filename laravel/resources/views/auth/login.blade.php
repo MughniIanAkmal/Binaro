@@ -502,7 +502,7 @@
 
                 <div>
                     <h1>Binaro</h1>
-                    <p>SDN Kalitapen 01</p>
+                    <p>{{ config('binaro.nama_sekolah') }}</p>
                 </div>
 
             </div>
@@ -645,7 +645,7 @@
 
 
             <div class="access-text" id="access-text">
-                🔒 Akses untuk Siswa, Guru, dan Admin • SDN Kalitapen 01
+                🔒 Akses untuk Siswa, Guru, dan Admin • {{ config('binaro.nama_sekolah') }}
             </div>
 
 

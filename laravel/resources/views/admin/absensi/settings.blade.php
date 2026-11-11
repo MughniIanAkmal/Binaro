@@ -1,31 +1,27 @@
 @extends('layouts.app')
 
+@section('page_title', 'Pengaturan Jam Absensi')
+@section('page_subtitle', 'Konfigurasi ambang batas waktu presensi kehadiran siswa serta jam tutup operasional sekolah.')
+
+@section('breadcrumb_trail')
+    <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-600 transition shrink-0">Dashboard</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
+    <a href="{{ route('absensi.index') }}" class="hover:text-slate-600 transition shrink-0">Kelola Absensi</a>
+@endsection
+
+@section('header_actions')
+    <a href="{{ route('absensi.index') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
+        <i class="fas fa-clipboard-check text-slate-500"></i>
+        <span>Lihat Rekap Absensi</span>
+    </a>
+    <a href="{{ route('jadwal.index') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition" style="background: var(--binaro-navy);">
+        <i class="fas fa-calendar-days"></i>
+        <span>Kelola Jadwal</span>
+    </a>
+@endsection
+
 @section('content')
-<div class="p-8 space-y-6">
-    <!-- Header Halaman & Breadcrumb -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-2 text-[11px] font-semibold mb-1 text-slate-400">
-                <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-600 transition">Dashboard</a>
-                <i class="fas fa-chevron-right text-[9px] text-slate-300"></i>
-                <a href="{{ route('absensi.index') }}" class="hover:text-slate-600 transition">Kelola Absensi</a>
-                <i class="fas fa-chevron-right text-[9px] text-slate-300"></i>
-                <span class="text-[#13527D] font-bold">Pengaturan Jam Absen</span>
-            </div>
-            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Pengaturan Jam Absensi & Operasional</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Konfigurasi ambang batas waktu presensi kehadiran siswa serta jam tutup operasional sekolah.</p>
-        </div>
-        <div class="flex items-center gap-2.5">
-            <a href="{{ route('absensi.index') }}" class="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition flex items-center gap-1.5 shadow-xs">
-                <i class="fas fa-clipboard-user text-slate-500"></i>
-                <span>Lihat Rekap Absensi</span>
-            </a>
-            <a href="{{ route('jadwal.index') }}" class="px-4 py-2 text-xs font-bold text-white bg-[#13527D] hover:bg-[#0E3D5D] rounded-lg transition flex items-center gap-1.5 shadow-sm">
-                <i class="fas fa-calendar-alt text-sky-300"></i>
-                <span>Kelola Jadwal</span>
-            </a>
-        </div>
-    </div>
+<div class="space-y-6">
 
     <!-- Visual 4-Zone Timeline Diagram -->
     <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
@@ -110,7 +106,7 @@
                 <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
                     <i class="fas fa-sliders text-[#13527D]"></i> Formulir Konfigurasi Waktu Presensi
                 </h2>
-                <p class="text-xs text-slate-500 mt-0.5">Ubah parameter jam sesuai tata tertib operasional SDN Kalitapen 01.</p>
+                <p class="text-xs text-slate-500 mt-0.5">Ubah parameter jam sesuai tata tertib operasional {{ config('binaro.nama_sekolah') }}.</p>
             </div>
             <span class="text-xs font-semibold text-slate-500 bg-white px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5 self-start sm:self-center">
                 <i class="fas fa-server text-slate-400"></i>

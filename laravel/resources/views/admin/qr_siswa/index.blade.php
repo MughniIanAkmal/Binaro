@@ -1,17 +1,14 @@
 @extends('layouts.app')
 
+@section('page_title', 'QR Siswa')
+@section('page_subtitle', 'Buat kartu QR code untuk absen. Guru memindai kartu ini saat mengabsen siswa.')
+
 @section('content')
 @include('qr_absen._styles')
 <style>
-    body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:#f8fafc;color:#1e293b;font-size:16px;line-height:1.5}
-    body > aside{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff;line-height:1.25}
-    body > aside h1{font-size:.875rem;line-height:1.25;color:#fff;margin:0}
-    body > aside p{margin:0}
-    body > aside a{color:inherit}
-    body > main{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#1e293b;line-height:1.5}
-    .wrap{max-width:none;margin:0;padding:32px}
+    .wrap{max-width:none;margin:0;padding:0}
     .crumb{font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px}
-    h1{font-size:24px;line-height:1.25;letter-spacing:-.025em;color:#0f172a}
+    .wrap h1{font-size:24px;line-height:1.25;letter-spacing:-.025em;color:#0f172a}
     .lead{font-size:12px;margin:4px 0 24px;color:#64748b}
     .panel{border-color:#e2e8f0;border-radius:12px;box-shadow:0 1px 2px rgba(15,23,42,.03)}
     .progress{padding:20px;gap:16px;margin-bottom:16px}
@@ -46,22 +43,12 @@
     .card-sub{font-size:14px;color:#4f5d79;text-align:center;line-height:1.5;margin:12px 0 18px}
     .card-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
     .card-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;padding:0 18px;border:1px solid #d5d9e2;background:#fff;color:#1f2937;font-size:15px;font-weight:700;text-decoration:none;cursor:pointer}
-    .card-btn.primary{background:#2456C8;color:#fff;border-color:#2456C8}
+    .card-btn.primary{background:#13527D;color:#fff;border-color:#13527D}
     .card-btn.secondary{background:#f1f1f1}
     .sr-only{position:absolute;left:-9999px}
     .tools input[type="search"],.tools button[type="submit"]{display:none}
 </style>
 <div class="wrap">
-    <div class="crumb">Admin / QR code siswa</div>
-    <h1>QR code siswa</h1>
-    <p class="lead">Buat kartu QR code untuk absen. Guru memindai kartu ini saat mengabsen siswa.</p>
-
-    @if (session('success'))
-        <div class="flash ok" role="status">{{ session('success') }}</div>
-    @endif
-    @if (session('error'))
-        <div class="flash err" role="alert">{{ session('error') }}</div>
-    @endif
 
     <section class="panel progress">
         <div class="txt">

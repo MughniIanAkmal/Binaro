@@ -4,21 +4,20 @@
     <div class="p-8 space-y-6">
         <!-- Profile Banner -->
         <div
-            class="bg-gradient-to-r from-[#0E385D] to-[#165B96] rounded-xl p-6 text-white shadow-md flex justify-between items-center flex-wrap gap-4">
+            class="bg-gradient-to-r from-[#0E3D5D] to-[#13527D] rounded-xl p-6 text-white shadow-md flex justify-between items-center flex-wrap gap-4">
             <div class="flex items-center gap-4">
                 <div
                     class="w-14 h-14 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center font-black text-xl text-white">
-                    {{ strtoupper(substr($guru->nama_guru ?? session('user_name', 'Ibu Sarah Wijaya'), 0, 2)) }}
+                    {{ strtoupper(substr($guru->nama_guru ?? session('user_name', 'Guru'), 0, 2)) }}
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
                         <h2 class="text-xl font-black">
-                            {{ $guru->nama_guru ?? session('user_name', 'Ibu Sarah Wijaya, S.Pd.') }}</h2>
+                            {{ $guru->nama_guru ?? session('user_name', 'Guru') }}</h2>
                         <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-2 py-0.5 rounded-md">Wali
                             Kelas 4B</span>
                     </div>
-                    <p class="text-xs text-sky-100 mt-1">SDN Kalitapen 01 &bull; NIP.
-                        {{ $guru->nip ?? '198503152010012003' }}</p>
+                    <p class="text-xs text-sky-100 mt-1">{{ config('binaro.nama_sekolah') }}@if($guru->nip ?? null) &bull; NIP. {{ $guru->nip }}@endif</p>
                 </div>
             </div>
             <div class="flex gap-2">
@@ -44,7 +43,7 @@
                     <div class="text-[11px] text-slate-400">Kelas 4B &bull; Semester Ganjil</div>
                 </div>
                 <div
-                    class="w-12 h-12 rounded-xl bg-sky-50 text-[#165B96] group-hover:bg-[#13527D] group-hover:text-white transition flex items-center justify-center text-xl font-bold">
+                    class="w-12 h-12 rounded-xl bg-sky-50 text-[#13527D] group-hover:bg-[#13527D] group-hover:text-white transition flex items-center justify-center text-xl font-bold">
                     <i class="fas fa-book-open"></i>
                 </div>
             </a>
@@ -87,9 +86,9 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <button type="button" onclick="openModalAction('tambah', 'bab')"
-                            class="text-xs font-bold text-[#165B96] hover:underline">+ Tambah Bab</button>
+                            class="text-xs font-bold text-[#13527D] hover:underline">+ Tambah Bab</button>
                         <a href="{{ route('guru.mapel.browse') }}"
-                            class="text-xs font-bold text-slate-500 hover:text-[#165B96] hover:underline">Lihat Semua</a>
+                            class="text-xs font-bold text-slate-500 hover:text-[#13527D] hover:underline">Lihat Semua</a>
                     </div>
                 </div>
 
@@ -99,7 +98,7 @@
                             class="p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition flex justify-between items-center flex-wrap gap-3">
                             <div class="flex items-center gap-3">
                                 <div
-                                    class="w-10 h-10 rounded-lg bg-sky-100 text-[#165B96] flex items-center justify-center text-base font-bold">
+                                    class="w-10 h-10 rounded-lg bg-sky-100 text-[#13527D] flex items-center justify-center text-base font-bold">
                                     <i class="fas fa-book-bookmark"></i>
                                 </div>
                                 <div>
@@ -113,7 +112,7 @@
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <a href="{{ route('guru.bab.index', $mapel->id_mapel) }}"
-                                    class="bg-[#165B96] text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-sky-800 transition">
+                                    class="bg-[#13527D] text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-sky-800 transition">
                                     Mulai Ajar
                                 </a>
                                 <a href="{{ route('guru.bab.index', $mapel->id_mapel) }}"
@@ -132,7 +131,7 @@
                             class="p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition flex justify-between items-center flex-wrap gap-3">
                             <div class="flex items-center gap-3">
                                 <div
-                                    class="w-10 h-10 rounded-lg bg-sky-100 text-[#165B96] flex items-center justify-center text-base font-bold">
+                                    class="w-10 h-10 rounded-lg bg-sky-100 text-[#13527D] flex items-center justify-center text-base font-bold">
                                     <i class="fas fa-calculator"></i>
                                 </div>
                                 <div>
@@ -144,7 +143,7 @@
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <a href="{{ route('guru.mapel.browse') }}"
-                                    class="bg-[#165B96] text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-sky-800 transition">
+                                    class="bg-[#13527D] text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-sky-800 transition">
                                     Mulai Ajar
                                 </a>
                                 <a href="{{ route('guru.mapel.browse') }}"
@@ -175,7 +174,7 @@
                             </div>
                             <div class="flex items-center gap-1.5">
                                 <a href="{{ route('guru.mapel.browse') }}"
-                                    class="bg-[#165B96] text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-sky-800 transition">
+                                    class="bg-[#13527D] text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-sky-800 transition">
                                     Mulai Ajar
                                 </a>
                                 <a href="{{ route('guru.mapel.browse') }}"
@@ -197,7 +196,7 @@
                 <div class="flex justify-between items-center pb-3 border-b border-slate-100">
                     <h3 class="font-extrabold text-base text-slate-900">Jadwal Hari Ini</h3>
                     <a href="{{ route('guru.jadwal.index') }}"
-                        class="text-xs text-[#165B96] font-bold hover:underline">Lihat Semua</a>
+                        class="text-xs text-[#13527D] font-bold hover:underline">Lihat Semua</a>
                 </div>
 
                 <div
@@ -222,17 +221,17 @@
                     <!-- Time Slot 2 -->
                     <div class="relative pl-7 space-y-1">
                         <div
-                            class="absolute left-1.5 top-1.5 w-3 h-3 rounded-full bg-[#165B96] ring-4 ring-sky-50 animate-pulse">
+                            class="absolute left-1.5 top-1.5 w-3 h-3 rounded-full bg-[#13527D] ring-4 ring-sky-50 animate-pulse">
                         </div>
                         <div class="flex justify-between items-start">
                             <span class="text-xs font-bold text-slate-900">09:30 - 11:00</span>
                             <span
-                                class="bg-sky-100 text-[#165B96] text-[10px] font-extrabold px-2 py-0.5 rounded">Berlangsung</span>
+                                class="bg-sky-100 text-[#13527D] text-[10px] font-extrabold px-2 py-0.5 rounded">Berlangsung</span>
                         </div>
                         <div class="font-bold text-xs text-slate-800">IPA - Kelas 4A</div>
                         <div class="text-[11px] text-slate-500">Lab IPA SD &bull; 30 Siswa</div>
                         <a href="{{ route('guru.absen.index') }}"
-                            class="block text-center w-full mt-2 bg-[#165B96] text-white text-xs font-bold py-1.5 rounded-lg hover:bg-sky-800 transition shadow-sm">
+                            class="block text-center w-full mt-2 bg-[#13527D] text-white text-xs font-bold py-1.5 rounded-lg hover:bg-sky-800 transition shadow-sm">
                             <i class="fas fa-door-open mr-1"></i> Masuk Kelas / Scan Absen
                         </a>
                     </div>
@@ -248,13 +247,13 @@
                     <p class="text-xs text-slate-500">Status pengumpulan tugas siswa</p>
                 </div>
                 <a href="{{ route('guru.notifikasi_pr.index') }}"
-                    class="text-xs font-bold text-[#165B96] hover:underline">Kelola Semua PR</a>
+                    class="text-xs font-bold text-[#13527D] hover:underline">Kelola Semua PR</a>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @forelse($prs ?? [] as $pr)
                     <a href="{{ route('guru.notifikasi_pr.show', $pr->id_pr) }}"
-                        class="block p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 hover:border-[#165B96] hover:shadow-sm transition">
+                        class="block p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 hover:border-[#13527D] hover:shadow-sm transition">
                         <div class="flex justify-between items-start">
                             <div>
                                 <span
@@ -278,7 +277,7 @@
                 @empty
                     <!-- PR Card 1 -->
                     <a href="{{ route('guru.notifikasi_pr.index') }}"
-                        class="block p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 hover:border-[#165B96] hover:shadow-sm transition">
+                        class="block p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 hover:border-[#13527D] hover:shadow-sm transition">
                         <div class="flex justify-between items-start">
                             <div>
                                 <span
@@ -301,7 +300,7 @@
 
                     <!-- PR Card 2 -->
                     <a href="{{ route('guru.notifikasi_pr.index') }}"
-                        class="block p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 hover:border-[#165B96] hover:shadow-sm transition">
+                        class="block p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 hover:border-[#13527D] hover:shadow-sm transition">
                         <div class="flex justify-between items-start">
                             <div>
                                 <span
@@ -325,7 +324,7 @@
             </div>
             <div class="flex flex-wrap gap-2 pt-1">
                 <a href="{{ route('guru.notifikasi_pr.create') }}"
-                    class="text-xs font-bold bg-[#165B96] text-white px-4 py-2 rounded-lg hover:bg-sky-800 transition"><i
+                    class="text-xs font-bold bg-[#13527D] text-white px-4 py-2 rounded-lg hover:bg-sky-800 transition"><i
                         class="fas fa-plus mr-1"></i> Tambah PR Baru</a>
                 <a href="{{ route('guru.ujian.index') }}"
                     class="text-xs font-bold border border-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-50 transition"><i

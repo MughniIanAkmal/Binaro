@@ -21,13 +21,6 @@
 @section('content')
 <div class="space-y-5 max-w-4xl mx-auto">
 
-    @if(session('error'))
-    <div class="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-semibold flex items-center gap-2">
-        <i class="fas fa-circle-exclamation text-rose-500 text-sm"></i>
-        <span>{{ session('error') }}</span>
-    </div>
-    @endif
-
     <!-- Card Container -->
     <div class="bg-white rounded-xl shadow-sm border border-[#E6EBF2] p-6 space-y-5">
         <div class="flex items-center justify-between pb-4 border-b border-[#EFF2F7]">
@@ -93,10 +86,10 @@
                 @else
                 <div class="p-4 bg-slate-50 rounded-lg border border-[#E6EBF2] flex items-center justify-between text-xs">
                     <div class="flex items-center gap-2 text-slate-700 truncate">
-                        <i class="fas fa-link text-[#0E3A5C]"></i>
+                        <i class="fas fa-link text-[#13527D]"></i>
                         <span class="truncate">{{ $materi->url_video }}</span>
                     </div>
-                    <a href="{{ $materi->url_video }}" target="_blank" class="px-3 py-1 bg-[#0E3A5C] text-white rounded-md font-semibold text-[11px] shrink-0">
+                    <a href="{{ $materi->url_video }}" target="_blank" class="px-3 py-1 bg-[#13527D] text-white rounded-md font-semibold text-[11px] shrink-0">
                         Buka Link Video <i class="fas fa-external-link-alt ml-1"></i>
                     </a>
                 </div>
@@ -126,11 +119,11 @@
                         </button>
                         
                         <div class="px-3 py-1.5 bg-slate-50 border border-[#E6EBF2] rounded-xl text-xs font-black text-slate-800">
-                            Halaman <span id="pdf-page-num" class="text-[#0E3A5C]">1</span> / <span id="pdf-page-count">-</span>
+                            Halaman <span id="pdf-page-num" class="text-[#13527D]">1</span> / <span id="pdf-page-count">-</span>
                         </div>
 
                         <button type="button" id="pdf-next-btn" onclick="onNextPage()"
-                                class="px-3 py-1.5 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs">
+                                class="px-3 py-1.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs">
                             Berikutnya <i class="fas fa-chevron-right text-[10px]"></i>
                         </button>
 
@@ -161,7 +154,7 @@
                 <!-- PDF Canvas Render Area -->
                 <div class="relative w-full min-h-[500px] max-h-[750px] overflow-auto rounded-2xl border border-[#E6EBF2] bg-slate-100/80 p-4 text-center flex items-center justify-center shadow-inner">
                     <div id="pdf-loading-spinner" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-100/90 z-10 text-xs font-bold text-slate-500 gap-2">
-                        <i class="fas fa-circle-notch fa-spin text-2xl text-[#0E3A5C]"></i>
+                        <i class="fas fa-circle-notch fa-spin text-2xl text-[#13527D]"></i>
                         <span>Memuat Dokumen PDF...</span>
                     </div>
 
@@ -324,7 +317,7 @@
                 </div>
                 @else
                 @if($materi->id_quiz)
-                <a href="{{ route('siswa.quiz.play', $materi->id_quiz) }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white font-bold text-xs rounded-xl shadow-sm transition">
+                <a href="{{ route('siswa.quiz.play', $materi->id_quiz) }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white font-bold text-xs rounded-xl shadow-sm transition">
                     <i class="fas fa-play"></i> Mulai Kerjakan Kuis Sekarang
                 </a>
                 @else
