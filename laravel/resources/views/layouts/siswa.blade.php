@@ -9,20 +9,20 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            --binaro-navy: #0E3A5C;
-            --binaro-navy-soft: #17557F;
+            --binaro-navy: #13527D;
+            --binaro-navy-soft: #1E5D88;
             --binaro-line: #E6EBF2;
-            --binaro-canvas: #F5F7FB;
+            --binaro-canvas: #F8FAFC;
         }
         body { font-family: 'Plus Jakarta Sans', 'Instrument Sans', sans-serif; background-color: var(--binaro-canvas); }
         .nav-item { transition: background-color .15s ease, color .15s ease; }
-        .nav-item-active { background-color: var(--binaro-navy); color: #fff; font-weight: 700; box-shadow: 0 6px 14px -8px rgba(14, 58, 92, .8); }
+        .nav-item-active { background-color: var(--binaro-navy); color: #fff; font-weight: 700; box-shadow: 0 6px 14px -8px rgba(19, 82, 125, .8); }
         .nav-item-active i { color: #fff !important; }
         .card { background: #fff; border: 1px solid var(--binaro-line); border-radius: 1rem; }
-        .hero-gradient { background: linear-gradient(115deg, #0E3A5C 0%, #14496F 55%, #1A5C88 100%); }
+        .hero-gradient { background: linear-gradient(115deg, #0E3D5D 0%, #13527D 55%, #1E5D88 100%); }
         .scroll-thin::-webkit-scrollbar { width: 6px; }
         .scroll-thin::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
     </style>
@@ -131,7 +131,7 @@
                     <span class="text-[10px] font-extrabold tracking-[0.1em] text-slate-500 uppercase">Kelas {{ $navKelas }}</span>
                 </div>
                 <div class="mt-1 text-[12px] font-bold text-slate-800 truncate">{{ $navNama }}</div>
-                <div class="mt-0.5 text-[11px] text-slate-400">SDN Kalitapen 01</div>
+                <div class="mt-0.5 text-[11px] text-slate-400">{{ config('binaro.nama_sekolah') }}</div>
             </div>
 
             <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar?')" class="mt-2">
@@ -208,6 +208,16 @@
                         <span class="font-semibold">{{ session('error') }}</span>
                     </div>
                     <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700"><i class="fas fa-xmark"></i></button>
+                </div>
+            @endif
+
+            @if(session('info'))
+                <div class="mt-5 p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-800 text-xs flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <i class="fas fa-circle-info text-sky-600"></i>
+                        <span class="font-semibold">{{ session('info') }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-sky-500 hover:text-sky-700"><i class="fas fa-xmark"></i></button>
                 </div>
             @endif
 

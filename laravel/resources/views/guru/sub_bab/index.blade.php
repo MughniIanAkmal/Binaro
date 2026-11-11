@@ -7,8 +7,6 @@
     <a href="{{ route('guru.mapel.browse') }}" class="hover:text-slate-600 transition">Mata Pelajaran</a>
     <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
     <a href="{{ route('guru.bab.index', $bab->mataPelajaran->id_mapel) }}" class="hover:text-slate-600 transition">{{ $bab->mataPelajaran->nama_mapel }}</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <span class="text-slate-500">{{ $bab->nama_bab }}</span>
 @endsection
 
 @section('header_actions')

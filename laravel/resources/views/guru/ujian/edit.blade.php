@@ -6,8 +6,6 @@
     <a href="{{ route('guru.ujian.index') }}" class="hover:text-slate-600 transition">Tugas & Ujian</a>
     <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
     <a href="{{ route('guru.ujian.show', $quiz->id_quiz) }}" class="hover:text-slate-600 transition">{{ $quiz->judul_quiz }}</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <span class="text-slate-500">Edit Ujian</span>
 @endsection
 
 @section('header_actions')

@@ -30,7 +30,7 @@ class SiswaController extends Controller
 
         $nama = $siswa->nm_siswa;
         $kelas = $siswa->kelas?->pararel ?? 'Siswa';
-        $sekolah = 'SDN Kalitapen 01';
+        $sekolah = config('binaro.nama_sekolah');
 
         // Semua mata pelajaran beserta jumlah Bab.
         $daftarMapel = MataPelajaran::withCount('bab')->orderBy('nama_mapel')->get();

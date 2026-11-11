@@ -24,7 +24,7 @@
                     </h3>
                 </a>
                 <p class="text-xs text-slate-500 mt-1 line-clamp-2">
-                    {{ $mapel->deskripsi ?? 'Kurikulum pembelajaran terintegrasi SDN Kalitapen 01.' }}
+                    {{ $mapel->deskripsi ?? 'Kurikulum pembelajaran terintegrasi ' . config('binaro.nama_sekolah') . '.' }}
                 </p>
             </div>
 

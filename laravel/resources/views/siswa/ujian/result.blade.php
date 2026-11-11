@@ -6,7 +6,7 @@
         $mapelName = $quiz->mataPelajaran->nama_mapel ?? ($quiz->subBab->bab->mataPelajaran->nama_mapel ?? 'Mata Pelajaran');
         $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? ($quiz->subBab->bab->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu'));
         $durasi = $quiz->durasi_menit ?? 60;
-        $isLulus = $hasil->nilai_akhir >= 75;
+        $isLulus = $hasil->nilai_akhir >= config('binaro.kkm');
         $isPublished = (bool)($hasil->status_kirim ?? false);
     @endphp
 
@@ -81,7 +81,7 @@
 
         <div class="pt-2">
             <a href="{{ route('siswa.ujian.index') }}"
-               class="px-8 py-3.5 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white rounded-xl text-xs font-black transition inline-flex items-center gap-2 shadow-sm">
+               class="px-8 py-3.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-black transition inline-flex items-center gap-2 shadow-sm">
                 <i class="fas fa-arrow-left"></i>
                 <span>Kembali ke Daftar Ujian</span>
             </a>
@@ -96,11 +96,11 @@
             <div>
                 @if($isLulus)
                 <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    <i class="fas fa-check-circle text-emerald-600"></i> LULUS KKM (Target: 75)
+                    <i class="fas fa-check-circle text-emerald-600"></i> LULUS KKM (Target: {{ config('binaro.kkm') }})
                 </span>
                 @else
                 <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-rose-50 text-rose-700 border border-rose-200">
-                    <i class="fas fa-circle-exclamation text-rose-600"></i> PERLU REMEDIAL (Target: 75)
+                    <i class="fas fa-circle-exclamation text-rose-600"></i> PERLU REMEDIAL (Target: {{ config('binaro.kkm') }})
                 </span>
                 @endif
             </div>
@@ -113,14 +113,14 @@
                         $circumference = 2 * pi() * 48;
                         $scorePercent = max(min($hasil->nilai_akhir, 100), 0);
                         $strokeOffset = $circumference - ($scorePercent / 100 * $circumference);
-                        $gaugeColor = $isLulus ? '#0E3A5C' : '#E11D48';
+                        $gaugeColor = $isLulus ? '#13527D' : '#E11D48';
                     @endphp
                     <circle cx="60" cy="60" r="48" fill="transparent" stroke="{{ $gaugeColor }}" stroke-width="10"
                             stroke-dasharray="{{ $circumference }}" stroke-dashoffset="{{ $strokeOffset }}" stroke-linecap="round" />
                 </svg>
 
                 <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span class="text-5xl font-black text-[#0E3A5C] tracking-tight leading-none">
+                    <span class="text-5xl font-black text-[#13527D] tracking-tight leading-none">
                         {{ round($hasil->nilai_akhir) }}
                     </span>
                     <span class="text-xs font-bold text-slate-400 mt-1">
@@ -134,7 +134,7 @@
                 <h3 class="text-base font-black text-slate-900">
                     @if($hasil->nilai_akhir >= 85)
                         🌟 Sangat Baik & Membanggakan!
-                    @elseif($hasil->nilai_akhir >= 75)
+                    @elseif($hasil->nilai_akhir >= config('binaro.kkm'))
                         👍 Baik & Memenuhi Target KKM!
                     @else
                         💪 Tetap Semangat, Ayo Bimbingan Remedial!
@@ -151,8 +151,8 @@
             <!-- 3 Stat KPI Cards -->
             <div class="grid grid-cols-3 gap-4">
                 <!-- Benar -->
-                <div class="bg-[#0E3A5C] text-white p-5 rounded-3xl shadow-sm text-center space-y-1.5">
-                    <div class="w-8 h-8 rounded-xl bg-white text-[#0E3A5C] flex items-center justify-center mx-auto text-xs font-black shadow-xs">
+                <div class="bg-[#13527D] text-white p-5 rounded-3xl shadow-sm text-center space-y-1.5">
+                    <div class="w-8 h-8 rounded-xl bg-white text-[#13527D] flex items-center justify-center mx-auto text-xs font-black shadow-xs">
                         <i class="fas fa-check"></i>
                     </div>
                     <div class="text-2xl font-black">{{ $hasil->jumlah_benar }}</div>
@@ -169,8 +169,8 @@
                 </div>
 
                 <!-- Total Soal -->
-                <div class="bg-[#0B2E4A] text-white p-5 rounded-3xl shadow-sm text-center space-y-1.5">
-                    <div class="w-8 h-8 rounded-xl bg-white text-[#0B2E4A] flex items-center justify-center mx-auto text-xs font-black shadow-xs">
+                <div class="bg-[#0E3D5D] text-white p-5 rounded-3xl shadow-sm text-center space-y-1.5">
+                    <div class="w-8 h-8 rounded-xl bg-white text-[#0E3D5D] flex items-center justify-center mx-auto text-xs font-black shadow-xs">
                         <i class="fas fa-list-ol"></i>
                     </div>
                     <div class="text-2xl font-black">{{ count($reviewDetails) }}</div>
@@ -181,7 +181,7 @@
             <!-- Info Box Pengampu & Catatan Evaluasi -->
             <div class="bg-white rounded-3xl p-5 border border-[#E6EBF2]/90 shadow-sm space-y-3">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#0E3A5C] flex items-center justify-center text-lg shrink-0">
+                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#13527D] flex items-center justify-center text-lg shrink-0">
                         <i class="fas fa-chalkboard-user"></i>
                     </div>
                     <div>
@@ -194,12 +194,12 @@
                 </div>
 
                 <div class="bg-slate-50 rounded-2xl p-4 border border-[#EFF2F7] flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-xl bg-[#0E3A5C] text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
+                    <div class="w-8 h-8 rounded-xl bg-[#13527D] text-white flex items-center justify-center text-xs shrink-0 mt-0.5">
                         <i class="fas fa-comment-dots"></i>
                     </div>
                     <div class="text-xs text-slate-700 leading-relaxed flex-1">
                         @if($hasil->catatan_guru && $isLulus)
-                            <strong class="text-[#0E3A5C]">Catatan Guru:</strong> &ldquo;{{ $hasil->catatan_guru }}&rdquo;
+                            <strong class="text-[#13527D]">Catatan Guru:</strong> &ldquo;{{ $hasil->catatan_guru }}&rdquo;
                         @elseif($isLulus)
                             Hasil ujian telah memenuhi kriteria ketuntasan minimal (KKM). Terus pertahankan prestasi belajar Anda!
                         @else
@@ -223,13 +223,13 @@
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row items-center gap-3">
                 <button type="button" onclick="document.getElementById('section-pembahasan').classList.toggle('hidden'); this.scrollIntoView({behavior: 'smooth'})"
-                        class="w-full sm:flex-1 py-3.5 bg-white border-2 border-[#0E3A5C] text-[#0E3A5C] hover:bg-sky-50 rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 shadow-xs">
+                        class="w-full sm:flex-1 py-3.5 bg-white border-2 border-[#13527D] text-[#13527D] hover:bg-sky-50 rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 shadow-xs">
                     <i class="fas fa-book-open"></i>
                     <span>Buka / Tutup Pembahasan Soal</span>
                 </button>
 
                 <a href="{{ route('siswa.ujian.index') }}"
-                   class="w-full sm:flex-1 py-3.5 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 shadow-sm">
+                   class="w-full sm:flex-1 py-3.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-2xl text-xs font-black transition flex items-center justify-center gap-2 shadow-sm">
                     <i class="fas fa-arrow-left"></i>
                     <span>Kembali ke Daftar Ujian</span>
                 </a>
@@ -241,7 +241,7 @@
     <div id="section-pembahasan" class="space-y-4 pt-4">
         <div class="bg-white rounded-2xl p-4 border border-[#E6EBF2]/90 shadow-xs flex items-center justify-between">
             <h4 class="text-sm font-black text-slate-900 flex items-center gap-2">
-                <i class="fas fa-list-check text-[#0E3A5C]"></i> Pembahasan Butir Soal Ujian
+                <i class="fas fa-list-check text-[#13527D]"></i> Pembahasan Butir Soal Ujian
             </h4>
             <span class="text-xs text-slate-500 font-bold">{{ count($reviewDetails) }} Soal Lengkap</span>
         </div>

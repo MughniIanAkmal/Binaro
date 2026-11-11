@@ -4,8 +4,6 @@
 
 @section('breadcrumb_trail')
     <a href="{{ route('guru.ujian.index') }}" class="hover:text-slate-600 transition">Tugas & Ujian</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <span class="text-slate-500">Detail & Bank Soal</span>
 @endsection
 
 @section('page_subtitle')

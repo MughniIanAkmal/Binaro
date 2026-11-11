@@ -1,4 +1,4 @@
-@extends('layouts.siswa')
+@extends(session('user_type') === 'siswa' ? 'layouts.siswa' : 'layouts.app')
 
 @section('breadcrumb_trail')
     <span class="shrink-0">Halaman</span>
@@ -7,7 +7,7 @@
 @endsection
 
 @section('page_title', 'Kelola Data Siswa')
-@section('page_subtitle', 'Daftar akun siswa SDN Kalitapen 01 beserta kontak dan kelasnya.')
+@section('page_subtitle', 'Daftar akun siswa ' . config('binaro.nama_sekolah') . ' beserta kontak dan kelasnya.')
 
 @section('header_actions')
     <a href="{{ route('siswa.data.create') }}"
@@ -25,7 +25,7 @@
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                     <input type="text" name="search" value="{{ request('search', request('q')) }}" placeholder="Cari nama, NIS, email..."
-                           class="pl-8 pr-3 py-2 bg-slate-50 border border-[#E6EBF2] rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#0E3A5C] focus:border-transparent outline-none transition">
+                           class="pl-8 pr-3 py-2 bg-slate-50 border border-[#E6EBF2] rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#13527D] focus:border-transparent outline-none transition">
                 </div>
                 <button type="submit" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
                     Cari

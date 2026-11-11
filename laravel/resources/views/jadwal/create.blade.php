@@ -1,36 +1,23 @@
-@extends('layouts.app')
+@extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
+
+@section('page_title', 'Tambah Jadwal Pelajaran')
+@section('page_subtitle', 'Lengkapi formulir di bawah untuk menambahkan jadwal mata pelajaran baru.')
+
+@section('breadcrumb_trail')
+    <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-600 transition shrink-0">Dashboard</a>
+    <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
+    <a href="{{ route('jadwal.index') }}" class="hover:text-slate-600 transition shrink-0">Jadwal Pelajaran</a>
+@endsection
+
+@section('header_actions')
+    <a href="{{ route('jadwal.index') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
+        <i class="fas fa-arrow-left text-slate-400"></i>
+        <span>Kembali ke Jadwal</span>
+    </a>
+@endsection
 
 @section('content')
-<div class="p-8 space-y-6">
-    <!-- Breadcrumb & Header -->
-    <div class="flex justify-between items-start flex-wrap gap-4">
-        <div>
-            <div class="flex items-center gap-2 text-[11px] font-semibold mb-1 text-slate-400">
-                <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-600 transition">Dashboard</a>
-                <i class="fas fa-chevron-right text-[9px] text-slate-300"></i>
-                <a href="{{ route('jadwal.index') }}" class="hover:text-slate-600 transition">Jadwal Pelajaran</a>
-                <i class="fas fa-chevron-right text-[9px] text-slate-300"></i>
-                <span class="text-[#13527D] font-bold">Tambah Jadwal</span>
-            </div>
-            <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Tambah Jadwal Pelajaran</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Lengkapi formulir di bawah untuk menambahkan jadwal mata pelajaran baru.</p>
-        </div>
-        <a href="{{ route('jadwal.index') }}" class="px-4 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition flex items-center gap-1.5 shadow-xs">
-            <i class="fas fa-arrow-left text-slate-400"></i>
-            <span>Kembali ke Jadwal</span>
-        </a>
-    </div>
-
-    <!-- Alert Error Validasi -->
-    @if ($errors->any())
-        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6 text-sm">
-            <ul class="list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+<div class="space-y-6">
 
     <!-- Card Utama (Satu Kotak Utuh) -->
     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -47,7 +34,7 @@
             <!-- Input Hari -->
             <div>
                 <label for="hari" class="block text-sm font-semibold text-gray-700 mb-1.5">Hari</label>
-                <select name="hari" id="hari" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700" required>
+                <select name="hari" id="hari" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#13527D] text-sm text-gray-700" required>
                     <option value="">-- Pilih Hari --</option>
                     @foreach (['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $hari)
                         <option value="{{ $hari }}" {{ old('hari') == $hari ? 'selected' : '' }}>
@@ -117,7 +104,7 @@
             <!-- Select Mata Pelajaran -->
             <div>
                 <label for="id_mapel" class="block text-sm font-semibold text-gray-700 mb-1.5">Mata Pelajaran</label>
-                <select name="id_mapel" id="id_mapel" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700" required>
+                <select name="id_mapel" id="id_mapel" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#13527D] text-sm text-gray-700" required>
                     <option value="">-- Pilih Mata Pelajaran --</option>
                     @foreach ($mapel as $m)
                         <option value="{{ $m->id_mapel }}" {{ old('id_mapel') == $m->id_mapel ? 'selected' : '' }}>
@@ -130,7 +117,7 @@
             <!-- Select Guru -->
             <div>
                 <label for="id_guru" class="block text-sm font-semibold text-gray-700 mb-1.5">Guru Pengampu</label>
-                <select name="id_guru" id="id_guru" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700" required>
+                <select name="id_guru" id="id_guru" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#13527D] text-sm text-gray-700" required>
                     <option value="">-- Pilih Guru --</option>
                     @foreach ($guru as $g)
                         <option value="{{ $g->id_guru }}" {{ old('id_guru') == $g->id_guru ? 'selected' : '' }}>
@@ -143,7 +130,7 @@
             <!-- Select Kelas -->
             <div>
                 <label for="id_kelas" class="block text-sm font-semibold text-gray-700 mb-1.5">Kelas</label>
-                <select name="id_kelas" id="id_kelas" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700" required>
+                <select name="id_kelas" id="id_kelas" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#13527D] text-sm text-gray-700" required>
                     <option value="">-- Pilih Kelas --</option>
                     @foreach ($kelas as $k)
                         <option value="{{ $k->id_rooms }}" {{ old('id_kelas') == $k->id_rooms ? 'selected' : '' }}>

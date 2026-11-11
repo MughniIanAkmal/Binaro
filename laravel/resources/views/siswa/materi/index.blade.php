@@ -26,7 +26,7 @@
             <!-- Bab Header -->
             <div class="bg-slate-50/80 px-5 py-3.5 border-b border-[#E6EBF2] flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <span class="w-7 h-7 bg-[#0E3A5C] text-white text-xs font-bold rounded-lg flex items-center justify-center shadow-sm">
+                    <span class="w-7 h-7 bg-[#13527D] text-white text-xs font-bold rounded-lg flex items-center justify-center shadow-sm">
                         {{ $bIdx + 1 }}
                     </span>
                     <h2 class="text-sm font-bold text-slate-900">{{ $bab->nama_bab }}</h2>
@@ -40,13 +40,13 @@
             <div class="p-4 space-y-2.5">
                 @forelse($bab->subBab as $sIdx => $sub)
                 <a href="{{ route('siswa.sub_bab.materi', $sub->id_sub_bab) }}"
-                   class="flex items-center justify-between p-3.5 rounded-xl border border-[#E6EBF2] bg-white hover:border-[#0E3A5C] hover:bg-slate-50/70 hover:shadow-sm transition group">
+                   class="flex items-center justify-between p-3.5 rounded-xl border border-[#E6EBF2] bg-white hover:border-[#13527D] hover:bg-slate-50/70 hover:shadow-sm transition group">
                     <div class="flex items-center gap-3">
-                        <span class="w-8 h-8 rounded-lg bg-sky-50 text-[#0E3A5C] group-hover:bg-[#0E3A5C] group-hover:text-white font-bold text-xs flex items-center justify-center transition">
+                        <span class="w-8 h-8 rounded-lg bg-sky-50 text-[#13527D] group-hover:bg-[#13527D] group-hover:text-white font-bold text-xs flex items-center justify-center transition">
                             {{ $sIdx + 1 }}
                         </span>
                         <div>
-                            <h3 class="text-xs font-bold text-slate-800 group-hover:text-[#0E3A5C] transition">
+                            <h3 class="text-xs font-bold text-slate-800 group-hover:text-[#13527D] transition">
                                 {{ $sub->nama_sub_bab }}
                             </h3>
                             <div class="flex items-center gap-3 text-[11px] text-slate-400 mt-0.5">
@@ -55,7 +55,7 @@
                         </div>
                     </div>
 
-                    <div class="flex items-center gap-2 text-xs font-bold text-[#0E3A5C] group-hover:translate-x-1 transition">
+                    <div class="flex items-center gap-2 text-xs font-bold text-[#13527D] group-hover:translate-x-1 transition">
                         <span>Buka Materi</span>
                         <i class="fas fa-arrow-right text-[10px]"></i>
                     </div>

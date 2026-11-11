@@ -90,7 +90,7 @@
                 <label class="block text-[11px] font-semibold text-slate-600 mb-1.5">Catatan untuk Siswa</label>
                 <textarea name="catatan_guru" id="modal-feedback-text" rows="4" required
                     placeholder="Tulis catatan umpan balik yang membangun untuk siswa..."
-                    class="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-amber-400 resize-none bg-slate-50 transition"></textarea>
+                    class="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] resize-none bg-slate-50 transition"></textarea>
             </div>
             <div class="flex gap-2">
                 <button type="button" onclick="closeFeedbackModal()" class="flex-1 py-2.5 text-xs font-semibold border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition">Batal</button>
@@ -129,7 +129,7 @@
             <div>
                 <label class="block text-[11px] font-semibold text-slate-600 mb-1.5">Pesan Tambahan (opsional)</label>
                 <textarea name="pesan_tambahan" rows="3" placeholder="Tambahkan pesan motivasi atau instruksi..."
-                    class="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-400 resize-none bg-slate-50"></textarea>
+                    class="w-full px-3 py-2.5 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] resize-none bg-slate-50"></textarea>
             </div>
             <div class="flex gap-2">
                 <button type="button" onclick="closeKirimModal()" class="flex-1 py-2.5 text-xs font-semibold border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 transition">Batal</button>

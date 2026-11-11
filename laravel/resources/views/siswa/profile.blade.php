@@ -11,7 +11,6 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto space-y-5">
-    @include('siswa.profile._alerts')
 
     @php
         $namaSiswa = $siswa->nm_siswa ?? session('user_name', 'Siswa');

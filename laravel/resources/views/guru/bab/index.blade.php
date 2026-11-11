@@ -5,8 +5,6 @@
 
 @section('breadcrumb_trail')
     <a href="{{ route('guru.mapel.browse') }}" class="hover:text-slate-600 transition">Mata Pelajaran</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <span class="text-slate-500">{{ $mapel->nama_mapel }}</span>
 @endsection
 
 @section('header_actions')

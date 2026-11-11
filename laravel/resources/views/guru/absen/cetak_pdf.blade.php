@@ -43,11 +43,11 @@
                 <i class="fas fa-graduation-cap text-5xl text-[#13527D]"></i>
             </div>
             <div class="flex-1 px-4">
-                <h3 class="text-sm font-bold uppercase tracking-wider">PEMERINTAH KABUPATEN KARANGANYAR</h3>
-                <h3 class="text-sm font-bold uppercase tracking-wider">DINAS PENDIDIKAN DAN KEBUDAYAAN</h3>
-                <h1 class="text-xl font-black uppercase tracking-wide text-[#13527D] my-0.5">SD NEGERI KARANGANYAR 01</h1>
-                <p class="text-xs italic text-slate-600">Jl. Pelajar Pintar No. 01, Telp: (0271) 789101, Email: info@sdnkaranganyar01.sch.id</p>
-                <p class="text-[11px] font-semibold text-slate-700">NPSN: 20312345 • AKREDITASI A • KURIKULUM MERDEKA</p>
+                <h3 class="text-sm font-bold uppercase tracking-wider">{{ config('binaro.kabupaten_kop') }}</h3>
+                <h3 class="text-sm font-bold uppercase tracking-wider">{{ config('binaro.dinas_kop') }}</h3>
+                <h1 class="text-xl font-black uppercase tracking-wide text-[#13527D] my-0.5">{{ strtoupper(config('binaro.nama_sekolah')) }}</h1>
+                <p class="text-xs italic text-slate-600">{{ config('binaro.alamat_kop') }}</p>
+                <p class="text-[11px] font-semibold text-slate-700">NPSN: {{ config('binaro.npsn') }} • AKREDITASI A • KURIKULUM MERDEKA</p>
             </div>
             <div class="w-20 text-center">
                 <div class="w-16 h-16 border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center text-[10px] text-slate-400 font-sans-ui">
@@ -62,7 +62,7 @@
             <p class="text-xs font-sans-ui font-semibold text-slate-700 mt-1">
                 Kelas: <span class="font-bold text-slate-900">{{ $namaKelas }}</span> &bull; 
                 Tanggal: <span class="font-bold text-slate-900">{{ \Carbon\Carbon::parse($today)->translatedFormat('l, d F Y') }}</span> &bull; 
-                Semester: <span class="font-bold text-slate-900">Genap 2025/2026</span>
+                Semester: <span class="font-bold text-slate-900">{{ config('binaro.semester') }} {{ config('binaro.tahun_ajaran') }}</span>
             </p>
         </div>
 
@@ -134,17 +134,17 @@
         <div class="grid grid-cols-2 gap-8 text-center text-xs mt-10 pt-4">
             <div>
                 <p>Mengetahui,</p>
-                <p class="font-bold">Kepala Sekolah SDN Karanganyar 01</p>
+                <p class="font-bold">Kepala Sekolah {{ config('binaro.nama_sekolah') }}</p>
                 <div class="h-20"></div>
-                <p class="font-bold underline uppercase">Drs. H. Bambang Sudarsono, M.Pd.</p>
-                <p class="text-[11px] text-slate-600">NIP. 197005121995031002</p>
+                <p class="font-bold underline uppercase">{{ config('binaro.kepala_sekolah') }}</p>
+                <p class="text-[11px] text-slate-600">NIP. {{ config('binaro.kepala_sekolah_nip') }}</p>
             </div>
             <div>
-                <p>Karanganyar, {{ \Carbon\Carbon::parse($today)->translatedFormat('d F Y') }}</p>
+                <p>{{ config('binaro.kota') }}, {{ \Carbon\Carbon::parse($today)->translatedFormat('d F Y') }}</p>
                 <p class="font-bold">Wali Kelas {{ $namaKelas }}</p>
                 <div class="h-20"></div>
-                <p class="font-bold underline uppercase">{{ $guru->nama_guru ?? 'Ibu Sarah Wijaya, S.Pd.' }}</p>
-                <p class="text-[11px] text-slate-600">NIP. {{ $guru->nip ?? '198501012010012001' }}</p>
+                <p class="font-bold underline uppercase">{{ $guru->nama_guru ?? 'Guru' }}</p>
+                <p class="text-[11px] text-slate-600">{{ ($guru->nip ?? null) ? 'NIP. ' . $guru->nip : '' }}</p>
             </div>
         </div>
 

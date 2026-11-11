@@ -4,8 +4,6 @@
 
 @section('breadcrumb_trail')
     <a href="{{ route('guru.notifikasi_pr.index') }}" class="hover:text-slate-600 transition">Notifikasi PR</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <span class="text-slate-500">Detail Tugas</span>
 @endsection
 
 @section('header_actions')

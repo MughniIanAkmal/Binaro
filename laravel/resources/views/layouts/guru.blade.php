@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Portal Guru - Sahabat Belajar' }}</title>
+    <title>{{ $title ?? 'Portal Guru - Binaro' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,14 +12,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
-            --binaro-navy: #18537D;
-            --binaro-navy-soft: #17557F;
+            --binaro-navy: #13527D;
+            --binaro-navy-soft: #1E5D88;
             --binaro-line: #E6EBF2;
             --binaro-canvas: #F8FAFC;
         }
         body { font-family: 'Plus Jakarta Sans', 'Instrument Sans', sans-serif; background-color: #F8FAFC; }
-        .sidebar-brand-bg { background-color: #18537D; }
-        .active-menu-pill { background-color: #18537D; color: #ffffff; }
+        .sidebar-brand-bg { background-color: #13527D; }
+        .active-menu-pill { background-color: #13527D; color: #ffffff; }
     </style>
 </head>
 <body class="text-slate-800 flex min-h-screen bg-[#F8FAFC]">
@@ -34,8 +34,8 @@
                     <i class="fas fa-graduation-cap text-base"></i>
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-sm leading-tight text-slate-900 tracking-tight">Sahabat Belajar</h1>
-                    <p class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-0.5">PORTAL GURU SD</p>
+                <h1 class="font-extrabold text-sm leading-tight text-slate-900 tracking-tight">Binaro</h1>
+                <p class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-0.5">PORTAL GURU SD</p>
                 </div>
             </div>
         </div>
@@ -109,10 +109,10 @@
                 </div>
                 <div class="min-w-0 flex-1">
                     <div class="text-xs font-bold text-slate-900 truncate leading-tight">
-                        {{ $guru->nama_guru ?? session('user_name', 'Ibu Sarah Wijaya, S.Pd.') }}
+                        {{ $guru->nama_guru ?? session('user_name', 'Guru') }}
                     </div>
                     <div class="text-[10px] text-slate-500 truncate leading-tight mt-0.5">
-                        Guru Kelas 4B NIP {{ substr($guru->nip ?? session('user_identifier', '198803152010012003'), 0, 8) }}...
+                        {{ ($guru->nip ?? session('user_identifier')) ? 'NIP ' . ($guru->nip ?? session('user_identifier')) : 'Portal Guru' }}
                     </div>
                 </div>
             </div>
@@ -131,14 +131,27 @@
     <main class="flex-1 ml-64 flex flex-col min-w-0">
         <!-- Top Header: Clean, Elegant, Single-Row Layout -->
         <header class="bg-white border-b border-slate-200/80 px-8 py-3.5 flex justify-between items-center sticky top-0 z-30 shadow-xs gap-4 min-h-[64px]">
-            <!-- Left Breadcrumb & Page Title -->
-            <div class="flex items-center gap-2 text-xs shrink-0 truncate">
-                <span class="text-slate-500 font-medium hidden md:inline">SD Negeri Karanganyar 01</span>
-                <span class="text-slate-300 hidden md:inline">/</span>
-                <a href="{{ route('guru.dashboard') }}" class="font-bold text-[#18537D] hover:underline">Portal Ruang Guru</a>
-                @if(View::hasSection('page_title'))
-                <span class="text-slate-300">/</span>
-                <span class="font-bold text-slate-700">@yield('page_title')</span>
+            <!-- Left: Breadcrumb, Page Title & Subtitle -->
+            <div class="flex flex-col justify-center gap-0.5 min-w-0 flex-1 truncate">
+                <nav class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 whitespace-nowrap overflow-hidden">
+                    @hasSection('breadcrumb_trail')
+                        @yield('breadcrumb_trail')
+                        @if(View::hasSection('page_title'))
+                        <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
+                        <span class="text-slate-600 truncate">@yield('page_title')</span>
+                        @endif
+                    @else
+                        <span class="shrink-0 hidden md:inline">{{ config('binaro.nama_sekolah') }}</span>
+                        <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0 hidden md:inline"></i>
+                        <a href="{{ route('guru.dashboard') }}" class="font-bold text-[#13527D] hover:underline shrink-0">Portal Ruang Guru</a>
+                        @if(View::hasSection('page_title'))
+                        <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
+                        <span class="text-slate-500 truncate">@yield('page_title')</span>
+                        @endif
+                    @endif
+                </nav>
+                @hasSection('page_subtitle')
+                <p class="hidden md:block text-[10.5px] leading-[14px] text-slate-400 truncate">@yield('page_subtitle')</p>
                 @endif
             </div>
 
@@ -150,13 +163,13 @@
                 <div class="relative w-44 md:w-56 hidden sm:block">
                     <i class="fas fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                     <input type="text" placeholder="Cari materi, PR, siswa..."
-                           class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-slate-700 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#18537D] transition">
+                           class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-slate-700 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#13527D] transition">
                 </div>
 
                 <!-- Semester Badge -->
                 <div class="hidden lg:flex bg-amber-50 text-amber-900 border border-amber-200/90 px-3 py-1.5 rounded-xl text-xs font-bold items-center gap-1.5 shadow-xs whitespace-nowrap">
                     <i class="far fa-calendar-days text-amber-600 text-xs"></i>
-                    <span>Semester Genap 2025/2026</span>
+                    <span>Semester {{ config('binaro.semester') }} {{ config('binaro.tahun_ajaran') }}</span>
                 </div>
 
                 <!-- Notification Bell -->
@@ -193,6 +206,16 @@
         </div>
         @endif
 
+        @if(session('info'))
+        <div class="mx-8 mt-5 p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-800 text-xs flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2.5">
+                <i class="fas fa-circle-info text-sky-600 text-base"></i>
+                <span class="font-semibold">{{ session('info') }}</span>
+            </div>
+            <button onclick="this.parentElement.remove()" class="text-sky-500 hover:text-sky-700"><i class="fas fa-times"></i></button>
+        </div>
+        @endif
+
         <!-- Page Content -->
         <div class="p-8 space-y-6 flex-1">
             @yield('content')
@@ -216,8 +239,8 @@
         <div class="p-1 space-y-1.5 mt-1.5">
             <!-- Opsi 1: Lihat Mapel -->
             <a href="{{ route('guru.mapel.browse') }}"
-               class="group flex items-start gap-3 p-2.5 rounded-xl transition {{ $isMapelChildActive ? 'bg-[#18537D] text-white shadow-sm' : 'hover:bg-slate-50 text-slate-700' }}">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 {{ $isMapelChildActive ? 'bg-white/20 text-white' : 'bg-sky-50 text-[#18537D] group-hover:bg-[#18537D] group-hover:text-white transition' }}">
+               class="group flex items-start gap-3 p-2.5 rounded-xl transition {{ $isMapelChildActive ? 'bg-[#13527D] text-white shadow-sm' : 'hover:bg-slate-50 text-slate-700' }}">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 {{ $isMapelChildActive ? 'bg-white/20 text-white' : 'bg-sky-50 text-[#13527D] group-hover:bg-[#13527D] group-hover:text-white transition' }}">
                     <i class="fas fa-book-open text-xs"></i>
                 </div>
                 <div class="flex-1 min-w-0">
@@ -235,11 +258,11 @@
             <button type="button"
                     onclick="openTambahMateriFromFlyout()"
                     class="w-full text-left group flex items-start gap-3 p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 transition">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-600 group-hover:bg-[#18537D] group-hover:text-white transition">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-emerald-50 text-emerald-600 group-hover:bg-[#13527D] group-hover:text-white transition">
                     <i class="fas fa-plus text-xs"></i>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold leading-tight text-slate-800 group-hover:text-[#18537D] transition">
+                    <div class="text-xs font-bold leading-tight text-slate-800 group-hover:text-[#13527D] transition">
                         Kustomisasi / Tambah Materi
                     </div>
                     <div class="text-[10.5px] mt-0.5 leading-tight text-slate-400">
@@ -253,7 +276,7 @@
         <!-- Footer Link: Kelola Silabus & Urutan Bab -->
         <div class="pt-2 mt-1 border-t border-slate-100 px-1">
             <a href="{{ route('guru.materi.index') }}"
-               class="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-[#18537D] hover:bg-slate-50 transition">
+               class="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-[#13527D] hover:bg-slate-50 transition">
                 <span class="flex items-center gap-2">
                     <i class="fas fa-layer-group text-[10px] text-slate-400"></i>
                     <span>Kelola Silabus, Bab & Modul</span>

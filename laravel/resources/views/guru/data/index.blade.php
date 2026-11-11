@@ -1,21 +1,20 @@
-@extends('layouts.guru')
+@extends('layouts.app')
+
+@section('page_title', 'Kelola Data Guru')
+@section('page_subtitle', 'Daftar akun pendidik dan staf pengajar ' . config('binaro.nama_sekolah') . '.')
+
+@section('breadcrumb_trail')
+    <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-600 transition shrink-0">Dashboard</a>
+@endsection
+
+@section('header_actions')
+    <a href="{{ route('guru.data.create') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition" style="background: var(--binaro-navy);">
+        <i class="fas fa-plus"></i> Tambah Guru
+    </a>
+@endsection
 
 @section('content')
-<div class="p-8 space-y-6">
-    <div class="flex justify-between items-start flex-wrap gap-4">
-        <div>
-            <div class="flex items-center gap-2 text-[11px] font-semibold mb-1 text-slate-400">
-                <span>Dashboard &gt; Data Guru</span>
-            </div>
-            <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Kelola Data Guru</h2>
-            <p class="text-xs text-slate-500">Daftar akun pendidik dan staf pengajar SDN Kalitapen 01.</p>
-        </div>
-        <div class="flex gap-2">
-            <a href="{{ route('guru.data.create') }}" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-lg text-xs font-bold transition shadow-sm flex items-center gap-1.5">
-                <i class="fas fa-plus"></i> Tambah Guru
-            </a>
-        </div>
-    </div>
+<div class="space-y-6">
 
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="p-4 border-b border-slate-200 flex justify-between items-center flex-wrap gap-3">

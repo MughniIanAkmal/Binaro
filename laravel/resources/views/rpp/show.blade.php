@@ -1,54 +1,28 @@
 @extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
 
-@if(session('user_type') === 'guru')
-    @section('page_title', 'Detail Modul Ajar')
-    @section('page_subtitle', ($rpp->judul_rpp ?? $rpp->judul).' · Kelengkapan silabus & dokumen')
+@section('page_title', $rpp->judul_rpp ?? $rpp->judul)
+@section('page_subtitle', 'Informasi lengkap kelengkapan silabus dan dokumen modul ajar.')
 
-    @section('breadcrumb_trail')
-        <a href="{{ route('guru.rpp.index') }}" class="hover:text-slate-600 transition">RPP & Modul Ajar</a>
-        <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-        <span class="text-slate-500">Detail</span>
-    @endsection
+@section('breadcrumb_trail')
+    <a href="{{ session('user_type') === 'guru' ? route('guru.rpp.index') : route('rpp.index') }}" class="hover:text-slate-600 transition shrink-0">RPP & Modul Ajar</a>
+@endsection
 
-    @section('header_actions')
-        <a href="{{ route('guru.rpp.index') }}"
-           class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
-            <i class="fas fa-arrow-left text-[11px]"></i> Kembali
+@section('header_actions')
+    <a href="{{ session('user_type') === 'guru' ? route('guru.rpp.index') : route('rpp.index') }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+        <i class="fas fa-arrow-left text-[11px]"></i> Kembali
+    </a>
+    @if($rpp->file_rpp)
+        <a href="{{ route('rpp.download', $rpp->id_rpp) }}"
+           class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
+           style="background: var(--binaro-navy);">
+            <i class="fas fa-download text-[11px]"></i> Unduh Berkas
         </a>
-        @if($rpp->file_rpp)
-            <a href="{{ route('rpp.download', $rpp->id_rpp) }}"
-               class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-               style="background: var(--binaro-navy);">
-                <i class="fas fa-download text-[11px]"></i> Unduh Berkas
-            </a>
-        @endif
-    @endsection
-@endif
+    @endif
+@endsection
 
 @section('content')
 <div class="space-y-5">
-    @if(session('user_type') !== 'guru')
-    <!-- Header Title & Back Button (panel admin) -->
-    <div class="flex justify-between items-start flex-wrap gap-4">
-        <div>
-            <div class="text-[11px] font-semibold text-slate-400 mb-1">
-                RPP &bull; Modul Ajar &bull; Detail
-            </div>
-            <h2 class="text-xl font-bold text-slate-900 tracking-tight">{{ $rpp->judul_rpp ?? $rpp->judul }}</h2>
-            <p class="text-xs text-slate-500">Informasi lengkap kelengkapan silabus dan dokumen modul ajar.</p>
-        </div>
-        <div class="flex items-center gap-2">
-            <a href="{{ route('rpp.index') }}" class="px-3.5 py-2 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition flex items-center gap-1.5">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </a>
-            @if($rpp->file_rpp)
-            <a href="{{ route('rpp.download', $rpp->id_rpp) }}" class="px-3.5 py-2 rounded-lg bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
-                <i class="fas fa-download"></i> Unduh Berkas
-            </a>
-            @endif
-        </div>
-    </div>
-    @endif
 
     <!-- Main Detail Card -->
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm p-6 space-y-6 text-xs">

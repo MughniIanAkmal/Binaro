@@ -1,23 +1,23 @@
-@extends('layouts.guru')
+@extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
+
+@section('page_title', 'Manajemen Mata Pelajaran')
+
+@section('breadcrumb_trail')
+    <a href="{{ session('user_type') === 'guru' ? route('guru.dashboard') : route('admin.dashboard') }}" class="hover:text-slate-600 transition shrink-0">Dashboard</a>
+@endsection
+
+@section('header_actions')
+    <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
+        <i class="fas fa-download"></i> Export
+    </button>
+    <button onclick="openCreateModal()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition" style="background: var(--binaro-navy);">
+        <i class="fas fa-plus"></i> Tambah Mapel
+    </button>
+@endsection
 
 @section('content')
 <!-- Content Body -->
-<div class="p-8 space-y-6">
-    <!-- Page Title -->
-    <div class="flex justify-between items-start">
-        <div>
-            <h2 class="text-xl font-extrabold text-slate-900">Manajemen Mata Pelajaran</h2>
-            <p class="text-xs text-slate-500">Dashboard &gt; Kelola Mata Pelajaran</p>
-        </div>
-                <div class="flex gap-2">
-            <button onclick="window.print()" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold bg-white hover:bg-slate-50">
-                <i class="fas fa-download mr-1.5"></i> Export
-            </button>
-        <button onclick="openCreateModal()" class="px-4 py-2 bg-[#F59E0B] text-white rounded-lg text-xs font-semibold hover:bg-amber-600 transition shadow-sm">
-            <i class="fas fa-plus mr-1.5"></i> Tambah Mapel
-        </button>
-    </div>
-    </div>
+<div class="space-y-6">
 
     <!-- KPI Card -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">

@@ -91,7 +91,7 @@
                         <!-- Header Soal (Nomor, Bobot, Status) -->
                         <div class="flex items-center justify-between pb-4 border-b border-[#EFF2F7] flex-wrap gap-2">
                             <div class="flex items-center gap-3">
-                                <span class="w-10 h-10 rounded-2xl bg-[#0E3A5C] text-white font-black text-sm flex items-center justify-center shadow-xs">
+                                <span class="w-10 h-10 rounded-2xl bg-[#13527D] text-white font-black text-sm flex items-center justify-center shadow-xs">
                                     {{ $index + 1 }}
                                 </span>
                                 <div>
@@ -162,7 +162,7 @@
                                    class="opt-label-{{ $soal->id_soal }} bg-white hover:bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-[#E6EBF2] shadow-2xs flex items-center justify-between cursor-pointer transition select-none group">
                                 <div class="flex items-center gap-3.5 flex-1 pr-4">
                                     <div id="badge-opt-{{ $soal->id_soal }}-{{ $optKey }}"
-                                         class="opt-badge-{{ $soal->id_soal }} w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center transition shrink-0 group-hover:bg-[#0E3A5C]/10 group-hover:text-[#0E3A5C]">
+                                         class="opt-badge-{{ $soal->id_soal }} w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center transition shrink-0 group-hover:bg-[#13527D]/10 group-hover:text-[#13527D]">
                                         {{ $optKey }}
                                     </div>
                                     <span id="text-opt-{{ $soal->id_soal }}-{{ $optKey }}" class="text-xs sm:text-sm font-bold text-slate-800 leading-snug">
@@ -180,7 +180,7 @@
                         </div>
 
                         <!-- Auto-save notification -->
-                        <div class="bg-sky-50/60 border border-sky-100 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-[#0E3A5C] font-medium">
+                        <div class="bg-sky-50/60 border border-sky-100 rounded-2xl p-3.5 flex items-center gap-3 text-xs text-[#13527D] font-medium">
                             <div class="w-6 h-6 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-xs shrink-0">
                                 <i class="fas fa-cloud-arrow-up"></i>
                             </div>
@@ -205,7 +205,7 @@
                     </button>
 
                     <button type="button" id="btn-next" onclick="navigateSoal(1)"
-                            class="px-5 sm:px-7 py-3 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
+                            class="px-5 sm:px-7 py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm">
                         <span id="text-next">Selanjutnya</span>
                         <i class="fas fa-arrow-right text-[11px]"></i>
                     </button>
@@ -219,7 +219,7 @@
                 <!-- Panel Header -->
                 <div class="flex items-center justify-between pb-3 border-b border-[#EFF2F7]">
                     <h3 class="text-sm font-black text-slate-900 flex items-center gap-2">
-                        <i class="fas fa-table-cells-large text-[#0E3A5C]"></i>
+                        <i class="fas fa-table-cells-large text-[#13527D]"></i>
                         <span>Daftar Nomor Soal</span>
                     </h3>
                     <span class="text-xs font-bold text-slate-400">Total: {{ count($soals) }}</span>
@@ -228,7 +228,7 @@
                 <!-- Legend Status -->
                 <div class="grid grid-cols-3 gap-2 text-[10px] font-bold text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-[#EFF2F7] text-center">
                     <div class="flex flex-col items-center gap-1">
-                        <span class="w-3.5 h-3.5 rounded-md bg-[#0E3A5C] inline-block shadow-2xs"></span>
+                        <span class="w-3.5 h-3.5 rounded-md bg-[#13527D] inline-block shadow-2xs"></span>
                         <span>Terjawab</span>
                     </div>
                     <div class="flex flex-col items-center gap-1">
@@ -245,7 +245,7 @@
                 <div class="grid grid-cols-5 gap-2.5 max-h-[320px] overflow-y-auto pr-1">
                     @for($i = 0; $i < count($soals); $i++)
                     <button type="button" id="grid-btn-{{ $i }}" onclick="goToSoal({{ $i }})"
-                            class="py-3 rounded-xl text-xs font-black transition border {{ $i === 0 ? 'bg-[#0E3A5C] text-white border-[#0E3A5C] ring-2 ring-[#0E3A5C]/30' : 'bg-slate-100 text-slate-700 border-[#E6EBF2] hover:bg-slate-200' }}">
+                            class="py-3 rounded-xl text-xs font-black transition border {{ $i === 0 ? 'bg-[#13527D] text-white border-[#13527D] ring-2 ring-[#13527D]/30' : 'bg-slate-100 text-slate-700 border-[#E6EBF2] hover:bg-slate-200' }}">
                         {{ $i + 1 }}
                     </button>
                     @endfor
@@ -349,7 +349,7 @@
             btnNext.className = 'px-5 sm:px-7 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm';
         } else {
             textNext.textContent = 'Selanjutnya';
-            btnNext.className = 'px-5 sm:px-7 py-3 bg-[#0E3A5C] hover:bg-[#0B2E4A] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm';
+            btnNext.className = 'px-5 sm:px-7 py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm';
         }
 
         // Ragu-ragu active state
@@ -373,7 +373,7 @@
             el.className = 'opt-label-' + idSoal + ' bg-white hover:bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-[#E6EBF2] shadow-2xs flex items-center justify-between cursor-pointer transition select-none group';
         });
         document.querySelectorAll('.opt-badge-' + idSoal).forEach(el => {
-            el.className = 'opt-badge-' + idSoal + ' w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center transition shrink-0 group-hover:bg-[#0E3A5C]/10 group-hover:text-[#0E3A5C]';
+            el.className = 'opt-badge-' + idSoal + ' w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-black text-xs flex items-center justify-center transition shrink-0 group-hover:bg-[#13527D]/10 group-hover:text-[#13527D]';
         });
         document.querySelectorAll('.opt-check-' + idSoal).forEach(el => {
             el.className = 'opt-check-' + idSoal + ' w-6 h-6 rounded-full border-2 border-slate-300 flex items-center justify-center text-white transition text-xs shrink-0';
@@ -387,13 +387,13 @@
         const check = document.getElementById('check-icon-' + idSoal + '-' + optKey);
 
         if (label) {
-            label.className = 'opt-label-' + idSoal + ' bg-sky-50/60 rounded-2xl p-4 sm:p-5 border-2 border-[#0E3A5C] shadow-sm flex items-center justify-between cursor-pointer transition select-none';
+            label.className = 'opt-label-' + idSoal + ' bg-sky-50/60 rounded-2xl p-4 sm:p-5 border-2 border-[#13527D] shadow-sm flex items-center justify-between cursor-pointer transition select-none';
         }
         if (badge) {
-            badge.className = 'opt-badge-' + idSoal + ' w-9 h-9 rounded-xl bg-[#0E3A5C] text-white font-black text-xs flex items-center justify-center transition shrink-0 shadow-2xs';
+            badge.className = 'opt-badge-' + idSoal + ' w-9 h-9 rounded-xl bg-[#13527D] text-white font-black text-xs flex items-center justify-center transition shrink-0 shadow-2xs';
         }
         if (check) {
-            check.className = 'opt-check-' + idSoal + ' w-6 h-6 rounded-full bg-[#0E3A5C] border-2 border-[#0E3A5C] flex items-center justify-center text-white transition text-xs shrink-0';
+            check.className = 'opt-check-' + idSoal + ' w-6 h-6 rounded-full bg-[#13527D] border-2 border-[#13527D] flex items-center justify-center text-white transition text-xs shrink-0';
             const icon = check.querySelector('i');
             if (icon) icon.classList.remove('hidden');
         }
@@ -406,7 +406,7 @@
                 statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-black bg-amber-100 text-amber-800 border border-amber-300';
             } else {
                 statusBadge.textContent = 'Terjawab (' + optKey + ')';
-                statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-black bg-sky-100 text-[#0E3A5C] border border-sky-300';
+                statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-black bg-sky-100 text-[#13527D] border border-sky-300';
             }
         }
 
@@ -432,7 +432,7 @@
             } else {
                 if (ans) {
                     statusBadge.textContent = 'Terjawab (' + ans + ')';
-                    statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-black bg-sky-100 text-[#0E3A5C] border border-sky-300';
+                    statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-black bg-sky-100 text-[#13527D] border border-sky-300';
                 } else {
                     statusBadge.textContent = 'Belum Dijawab';
                     statusBadge.className = 'px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-600 border border-[#E6EBF2]';
@@ -480,7 +480,7 @@
             if (isFlagged) {
                 classes += 'bg-amber-400 text-slate-900 border-amber-500 shadow-2xs';
             } else if (isAnswered) {
-                classes += 'bg-[#0E3A5C] text-white border-[#0E3A5C] shadow-2xs';
+                classes += 'bg-[#13527D] text-white border-[#13527D] shadow-2xs';
             } else {
                 classes += 'bg-slate-100 text-slate-700 border-[#E6EBF2] hover:bg-slate-200';
             }

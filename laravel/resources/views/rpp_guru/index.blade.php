@@ -1,4 +1,4 @@
-@extends('layouts.guru')
+@extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
 
 @section('page_title', 'RPP & Modul Ajar')
 
@@ -337,7 +337,7 @@
                                 <span>{{ $rpp->alokasi_waktu ?? '2 JP' }}</span>
                             </span>
                             <span>&bull;</span>
-                            <span>{{ $rpp->guru->nama_guru ?? 'Ibu Sarah Wijaya, S.Pd.' }}</span>
+                            <span>{{ $rpp->guru->nama_guru ?? 'Guru' }}</span>
                         </p>
                     </div>
                 </div>
@@ -481,61 +481,6 @@
     </div>
     @endif
 
-    {{-- <!-- 3 Bottom Feature Integration Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-4">
-        <!-- 1. Sinkronisasi Roster Kelas -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-3">
-            <div class="space-y-2">
-                <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-base">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-                <h4 class="font-bold text-sm text-slate-900 leading-snug">Sinkronisasi Roster Kelas</h4>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    RPP terhubung otomatis dengan jam mengajar mingguan wali kelas 4B tanpa perlu input manual.
-                </p>
-            </div>
-            <a href="{{ route('guru.jadwal.index') }}" class="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-1.5 transition">
-                <span>Buka Jadwal Mengajar</span>
-                <i class="fas fa-arrow-right text-[10px]"></i>
-            </a>
-        </div>
-
-        <!-- 2. Bank Modul Ajar Kemendikbud -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-3">
-            <div class="space-y-2">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base">
-                    <i class="fas fa-wand-magic-sparkles"></i>
-                </div>
-                <h4 class="font-bold text-sm text-slate-900 leading-snug">Bank Modul Ajar Kemendikbud</h4>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Salin ribuan modul ajar SD terverifikasi Kurikulum Merdeka resmi langsung ke koleksi RPP Anda.
-                </p>
-            </div>
-            <a href="https://guru.kemdikbud.go.id" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-amber-600 hover:text-amber-800 flex items-center gap-1.5 transition">
-                <span>Jelajahi Bank Modul</span>
-                <i class="fas fa-arrow-right text-[10px]"></i>
-            </a>
-        </div>
-
-        <!-- 3. Ekspor Bundle Supervisi -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col justify-between space-y-3">
-            <div class="space-y-2">
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#13527D] flex items-center justify-center text-base">
-                    <i class="fas fa-box-archive"></i>
-                </div>
-                <h4 class="font-bold text-sm text-slate-900 leading-snug">Ekspor Bundle Supervisi</h4>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Unduh seluruh RPP 1 semester format ZIP/DOCX lengkap dengan lembar pengesahan Kepala Sekolah.
-                </p>
-            </div>
-            <button type="button" onclick="alert('Bundle RPP 1 Semester sedang dikompilasi ke arsip ZIP.');" class="text-xs font-bold text-[#13527D] hover:text-[#0E3D5D] flex items-center gap-1.5 transition text-left">
-                <span>Unduh Dokumen Bundle</span>
-                <i class="fas fa-arrow-right text-[10px]"></i>
-            </button>
-        </div>
-    </div>
-
-</div> --}}
 
     <!-- Include Modals RPP (Tambah, Edit, Detail & Script Interaktif) -->
     @include('rpp_guru.modals')
