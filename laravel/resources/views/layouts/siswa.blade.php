@@ -81,7 +81,7 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto scroll-thin px-3 pb-4">
-            <div class="px-3 pt-2 pb-2 text-[10px] font-extrabold tracking-[0.14em] text-slate-400 uppercase">Utama</div>
+            <div class="px-3 pt-2 pb-2 text-[10px] font-extrabold tracking-[0.14em] text-slate-400 uppercase">Menu Utama</div>
             <div class="space-y-1">
                 <a href="{{ route('siswa.dashboard') }}"
                    class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] {{ request()->routeIs('siswa.dashboard') ? 'nav-item-active' : 'text-slate-600 hover:bg-slate-50' }}">
@@ -98,10 +98,6 @@
                     <i class="fas fa-clipboard-question w-4 text-center text-[13px] {{ request()->routeIs('siswa.ujian.*') ? '' : 'text-slate-400' }}"></i>
                     <span>Ujian Online</span>
                 </a>
-            </div>
-
-            <div class="px-3 pt-6 pb-2 text-[10px] font-extrabold tracking-[0.14em] text-slate-400 uppercase">Akademik</div>
-            <div class="space-y-1">
                 <a href="{{ route('siswa.jadwal_mapel.index') }}"
                    class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] {{ request()->routeIs('siswa.jadwal*') ? 'nav-item-active' : 'text-slate-600 hover:bg-slate-50' }}">
                     <i class="fas fa-calendar-days w-4 text-center text-[13px] {{ request()->routeIs('siswa.jadwal*') ? '' : 'text-slate-400' }}"></i>
