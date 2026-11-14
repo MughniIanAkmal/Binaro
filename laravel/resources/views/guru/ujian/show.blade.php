@@ -42,9 +42,9 @@
             <div class="flex items-center justify-between">
                 <div class="text-[10px] font-bold text-slate-400 uppercase">Total Bobot Nilai</div>
                 @if($totalBobot >= 100)
-                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">Limit 100 Poin</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Limit 100 Poin</span>
                 @else
-                    <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-sky-100 text-sky-800">Sisa {{ 100 - $totalBobot }} Poin</span>
+                    <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800">Sisa {{ 100 - $totalBobot }} Poin</span>
                 @endif
             </div>
             <div class="text-lg font-bold {{ $totalBobot >= 100 ? 'text-emerald-700' : 'text-primary' }} mt-0.5">
@@ -66,7 +66,7 @@
                 $sisaDetik = $detikPerSoal % 60;
             @endphp
             <div class="text-[10px] font-semibold text-primary mt-0.5 flex items-center gap-1">
-                <i class="fas fa-stopwatch text-[9px]"></i>
+                <i class="fas fa-stopwatch text-[10px]"></i>
                 @if($soalCount > 0)
                     <span>Rata-rata: {{ $menitPerSoal > 0 ? $menitPerSoal . 'm ' : '' }}{{ $sisaDetik > 0 ? $sisaDetik . 's' : '' }} / soal</span>
                 @else
@@ -186,7 +186,7 @@
                         </p>
                         <a href="{{ asset('storage/' . $soal->gambar) }}" target="_blank" class="block group relative">
                             <img src="{{ asset('storage/' . $soal->gambar) }}" alt="Gambar Soal" class="max-h-48 rounded-lg object-contain group-hover:opacity-90 transition">
-                            <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition">
+                            <span class="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition">
                                 <i class="fas fa-magnifying-glass-plus"></i> Lihat Penuh
                             </span>
                         </a>
@@ -352,11 +352,11 @@
                                 <td class="py-3 px-4 text-center">
                                     @if($hasil->status_kirim)
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                            <i class="fas fa-check-circle text-[9px]"></i> Nilai Ditampilkan
+                                            <i class="fas fa-check-circle text-[10px]"></i> Nilai Ditampilkan
                                         </span>
                                     @else
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 animate-pulse">
-                                            <i class="fas fa-clock text-[9px]"></i> Menunggu Nilai
+                                            <i class="fas fa-clock text-[10px]"></i> Menunggu Nilai
                                         </span>
                                     @endif
                                 </td>

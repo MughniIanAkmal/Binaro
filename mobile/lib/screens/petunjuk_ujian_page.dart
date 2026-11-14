@@ -134,7 +134,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                     padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
@@ -253,7 +253,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                         backgroundColor: _isReady ? AppColors.primary : AppColors.textMuted,
                         disabledBackgroundColor: AppColors.textMuted.withValues(alpha: 0.5),
                         elevation: 0,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -305,7 +305,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -462,7 +462,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
               color: iconBg,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: iconColor, size: 20),
           ),
@@ -505,7 +505,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(

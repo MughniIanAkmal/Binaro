@@ -55,3 +55,15 @@
         color: var(--color-gray-400);
     }
 }
+
+/* Aksesibilitas: indikator fokus keyboard selalu terlihat (T17) */
+@layer base {
+    a:focus-visible,
+    button:focus-visible,
+    summary:focus-visible,
+    [tabindex]:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+}

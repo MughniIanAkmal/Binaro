@@ -133,7 +133,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                     padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
@@ -235,7 +235,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: AppColors.primary,
                                     elevation: 0,
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                   ),
                                   child: const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -273,7 +273,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: AppColors.primaryLight,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(color: AppColors.primaryLight),
           ),
           child: Row(
@@ -322,7 +322,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
           padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 20),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(22),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(color: AppColors.border),
             boxShadow: [
               BoxShadow(
@@ -374,7 +374,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: AppColors.primaryLight),
                 ),
                 child: const Row(
@@ -416,7 +416,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,
               elevation: 0,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
           ),
         ),
@@ -430,7 +430,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
             onPressed: () => Navigator.pop(context),
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.border),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             ),
             child: const Text(
               'Kembali ke Daftar Ujian',
@@ -451,7 +451,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: AppColors.warningLight, // Cream yellow background
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.warningLight),
         boxShadow: [
           BoxShadow(
@@ -511,7 +511,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
       padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -528,7 +528,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
               color: AppColors.successLight, // Soft green
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -619,7 +619,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
             padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
               color: AppColors.primary, // Deep blue
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
@@ -628,7 +628,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                   height: 32,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.check_rounded, color: AppColors.primary, size: 20),
                 ),
@@ -662,7 +662,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
             padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
               color: AppColors.accent, // Vibrant orange
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
@@ -671,7 +671,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                   height: 32,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.close_rounded, color: AppColors.accent, size: 20),
                 ),
@@ -705,7 +705,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
             padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
               color: AppColors.primary, // Deep blue
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Column(
               children: [
@@ -714,7 +714,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                   height: 32,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: const Icon(Icons.access_time_rounded, color: AppColors.primary, size: 20),
                 ),
@@ -757,7 +757,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -825,7 +825,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
               color: AppColors.background,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.border),
             ),
             child: Row(

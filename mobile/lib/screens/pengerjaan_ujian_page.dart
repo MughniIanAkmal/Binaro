@@ -213,7 +213,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                     padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
@@ -334,7 +334,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
               decoration: BoxDecoration(
                 color: AppColors.accent, // Vibrant amber orange
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
                 _formattedTime,
@@ -352,7 +352,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
 
         // Progress Bar Halus
         ClipRRect(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
           child: LinearProgressIndicator(
             value: progressValue,
             minHeight: 6,
@@ -377,7 +377,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
+        borderRadius: BorderRadius.circular(24),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(

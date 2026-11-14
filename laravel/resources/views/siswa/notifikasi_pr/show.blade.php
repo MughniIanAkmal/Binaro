@@ -38,7 +38,7 @@
                 </span>
                 @endif
                 <span class="bg-emerald-400/20 text-emerald-200 text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg flex items-center gap-1">
-                    <i class="fas fa-check-double text-[9px]"></i> Sudah Dibaca
+                    <i class="fas fa-check-double text-[10px]"></i> Sudah Dibaca
                 </span>
             </div>
             <h2 class="text-lg font-black tracking-tight">{{ $pr->nama_pr ?? 'Tugas PR' }}</h2>

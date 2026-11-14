@@ -313,7 +313,7 @@
                                     {{ $row->waktu_menit ? $row->waktu_menit . ' menit' : ($selectedQuiz->durasi_menit ? $selectedQuiz->durasi_menit . ' menit' : '–') }}
                                 </span>
                                 @if($selectedQuiz->durasi_menit && $row->waktu_menit)
-                                <span class="text-[9px] text-slate-400 mt-0.5">
+                                <span class="text-[10px] text-slate-400 mt-0.5">
                                     dari alokasi {{ $selectedQuiz->durasi_menit }} mnt
                                 </span>
                                 @endif
@@ -380,11 +380,11 @@
                                     @endif
 
                                     @if($row->status_kirim)
-                                    <span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 print:hidden">
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 print:hidden">
                                         <i class="fas fa-check text-[8px]"></i> Terkirim
                                     </span>
                                     @else
-                                    <span class="px-2 py-0.5 rounded-md text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 print:hidden">
+                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1 print:hidden">
                                         <i class="fas fa-clock text-[8px]"></i> Belum Dikirim
                                     </span>
                                     @endif

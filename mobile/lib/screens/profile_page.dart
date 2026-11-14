@@ -137,7 +137,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.fromLTRB(22, 22, 22, 24),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(26),
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.25),
@@ -184,7 +184,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(color: AppColors.border, width: 2),
                         boxShadow: [
                           BoxShadow(
@@ -275,7 +275,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: const Text(
@@ -339,7 +339,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     padding: const EdgeInsets.fromLTRB(22, 22, 22, 24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(26),
+                      borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.25),
@@ -523,7 +523,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 foregroundColor: Colors.white,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
                               child: isSubmitting
@@ -612,7 +612,7 @@ class _ProfilePageState extends State<ProfilePage> {
         content: Text(message),
         backgroundColor: isError ? AppColors.error : AppColors.success,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
@@ -744,12 +744,12 @@ class _ProfilePageState extends State<ProfilePage> {
             Clipboard.setData(ClipboardData(text: _siswa['nisn'] ?? ''));
             _showToast('NISN berhasil disalin ke clipboard');
           },
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
               color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.primaryLight),
             ),
             child: Row(
@@ -781,7 +781,7 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -815,7 +815,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
                   'Absensi',
@@ -850,7 +850,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
                 elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ),
@@ -867,7 +867,7 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -901,7 +901,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   _rekap['bulan'] ?? '-',
@@ -937,7 +937,7 @@ class _ProfilePageState extends State<ProfilePage> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: AppColors.successLight,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: AppColors.successLight),
               ),
               child: Row(
@@ -996,7 +996,7 @@ class _ProfilePageState extends State<ProfilePage> {
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
           children: [
@@ -1031,7 +1031,7 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -1128,7 +1128,7 @@ class _ProfilePageState extends State<ProfilePage> {
           backgroundColor: AppColors.errorLight,
           foregroundColor: AppColors.error,
           elevation: 0,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );
@@ -1176,7 +1176,7 @@ class _ProfilePageState extends State<ProfilePage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -1210,7 +1210,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
                   'Keamanan',
@@ -1286,7 +1286,7 @@ class _ProfilePageState extends State<ProfilePage> {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               _versi,

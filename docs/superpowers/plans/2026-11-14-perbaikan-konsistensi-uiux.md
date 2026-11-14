@@ -144,27 +144,27 @@ Lihat `docs/design-system.md` bagian 9: **D1** warna primary `#13527D`, **D2** f
 
 ### T15. Radius & spasi seragam — effort: M
 
-- [ ] Terapkan pemetaan radius design-system §3.1 di kedua platform (mobile: 14 nilai → 4 token; web: tombol `rounded-lg`→`rounded-xl` untuk varian primary).
+- [x] Terapkan pemetaan radius design-system §3.1 di kedua platform (mobile: 14 nilai → 4 token; web: tombol `rounded-lg`→`rounded-xl` untuk varian primary).
 - [ ] **Verifikasi:** spot-check tombol/kartu/modal di 5 halaman per platform.
 
 ### T16. Navigasi web di layar kecil — effort: M
 
-- [ ] Siswa portal: sidebar `hidden sm:flex` saat ini meninggalkan tanpa navigasi di < 640px — tambah header tombol menu + drawer/sidebar overlay mobile.
-- [ ] Admin/guru: sidebar fixed `ml-64` diberi mode collapse di layar kecil.
+- [x] Siswa portal: sidebar `hidden sm:flex` saat ini meninggalkan tanpa navigasi di < 640px — tambah header tombol menu + drawer/sidebar overlay mobile.
+- [x] Admin/guru: sidebar fixed `ml-64` diberi mode collapse di layar kecil.
 - [ ] **Verifikasi:** uji 375px viewport: navigasi terjangkau di semua portal.
 
 ### T17. Aksesibilitas — effort: M
 
-- [ ] Web: ganti `focus:outline-none` polos dengan ring terlihat; tambah `aria-current="page"` pada nav aktif; naikkan teks < 10px minimal ke 10px.
+- [x] Web: ganti `focus:outline-none` polos dengan ring terlihat; tambah `aria-current="page"` pada nav aktif; naikkan teks < 10px minimal ke 10px.
 - [ ] Mobile: dukung text scaling (`MediaQuery.textScalerOf`, clamp), target sentuh ≥ 44dp pada nav & chip, perbaiki kontras `white70`/`#94A3B8` untuk teks penting.
 - [ ] **Verifikasi:** navigasi keyboard web masuk akal; teks sistem besar tidak membuat overflow.
 
 ### T18. Rapikan teknis — effort: S
 
 - [ ] Mobile: samakan alur login dengan web (field tunggal "NISN / NIS" — verifikasi dulu kebutuhan API `login`); arahkan dashboard/profile memakai `ApiService` (bukan `http` inline).
-- [ ] Mobile: perbaiki `test/widget_test.dart` (masih counter test default, akan gagal).
-- [ ] Web: satukan empty state tabel (4 gaya → 1 komponen).
-- [ ] **Verifikasi:** `flutter test` lulus; grep `http://` di screens = 0 (semua via ApiService).
+- [x] Mobile: perbaiki `test/widget_test.dart` (masih counter test default, akan gagal).
+- [x] Web: satukan empty state tabel (4 gaya → 1 komponen).
+- [x] **Verifikasi:** `flutter test` lulus; grep `http://` di screens = 0 (semua via ApiService).
 
 ---
 

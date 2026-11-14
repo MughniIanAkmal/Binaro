@@ -138,11 +138,11 @@
                                 @endif
                                 @if($pr && !$isExpired)
                                 <span class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
-                                    <i class="fas fa-clock text-[9px]"></i> Aktif · Tenggat {{ $tenggatDiff }}
+                                    <i class="fas fa-clock text-[10px]"></i> Aktif · Tenggat {{ $tenggatDiff }}
                                 </span>
                                 @elseif($pr && $isExpired)
                                 <span class="bg-rose-100 text-rose-700 text-[10px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-1">
-                                    <i class="fas fa-circle-exclamation text-[9px]"></i> Berakhir {{ $tenggatDiff }}
+                                    <i class="fas fa-circle-exclamation text-[10px]"></i> Berakhir {{ $tenggatDiff }}
                                 </span>
                                 @endif
                             </div>

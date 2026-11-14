@@ -265,7 +265,7 @@ class _KuisPageState extends State<KuisPage> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text(
                       'Kembali ke Pembelajaran',
@@ -348,7 +348,7 @@ class _KuisPageState extends State<KuisPage> {
                     padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
@@ -436,7 +436,7 @@ class _KuisPageState extends State<KuisPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -478,7 +478,7 @@ class _KuisPageState extends State<KuisPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -521,7 +521,7 @@ class _KuisPageState extends State<KuisPage> {
                         height: 7,
                         decoration: BoxDecoration(
                           color: segColor,
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                     );
@@ -557,7 +557,7 @@ class _KuisPageState extends State<KuisPage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -774,7 +774,7 @@ class _KuisPageState extends State<KuisPage> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: AppColors.warningLight, // Cream yellow
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppColors.accentBright),
       ),
       child: Row(
@@ -973,7 +973,7 @@ class WatermelonPainter extends CustomPainter {
         canvas.drawRRect(
           RRect.fromRectAndRadius(
             Rect.fromCenter(center: badgeCenter, width: 20, height: 20),
-            const Radius.circular(6),
+            const Radius.circular(8),
           ),
           badgePaint,
         );

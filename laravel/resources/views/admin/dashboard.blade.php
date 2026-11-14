@@ -49,7 +49,7 @@
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Siswa</span>
                     <div class="text-3xl font-black text-slate-900 mt-1">{{ $stats['total_siswa'] }}</div>
                     <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Kelola Siswa <i class="fas fa-arrow-right text-[9px]"></i>
+                        Kelola Siswa <i class="fas fa-arrow-right text-[10px]"></i>
                     </span>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary group-hover:bg-primary group-hover:text-white transition flex items-center justify-center text-xl font-bold">
@@ -65,7 +65,7 @@
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Guru</span>
                     <div class="text-3xl font-black text-slate-900 mt-1">{{ $stats['total_guru'] }}</div>
                     <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Kelola Guru <i class="fas fa-arrow-right text-[9px]"></i>
+                        Kelola Guru <i class="fas fa-arrow-right text-[10px]"></i>
                     </span>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
@@ -81,7 +81,7 @@
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Mata Pelajaran</span>
                     <div class="text-3xl font-black text-slate-900 mt-1">{{ $stats['total_mapel'] }}</div>
                     <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Kelola Mapel <i class="fas fa-arrow-right text-[9px]"></i>
+                        Kelola Mapel <i class="fas fa-arrow-right text-[10px]"></i>
                     </span>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
@@ -97,7 +97,7 @@
                     <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Jadwal Pelajaran</span>
                     <div class="text-3xl font-black text-slate-900 mt-1">{{ $stats['total_jadwal'] ?? $stats['total_kelas'] }}</div>
                     <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Kelola Jadwal <i class="fas fa-arrow-right text-[9px]"></i>
+                        Kelola Jadwal <i class="fas fa-arrow-right text-[10px]"></i>
                     </span>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition flex items-center justify-center text-xl font-bold">

@@ -56,7 +56,7 @@
                     <i class="fas fa-stopwatch"></i>
                 </div>
                 <div>
-                    <span class="text-[9px] uppercase font-extrabold text-sky-200 block tracking-wider">Sisa Waktu</span>
+                    <span class="text-[10px] uppercase font-extrabold text-sky-200 block tracking-wider">Sisa Waktu</span>
                     <span id="timer-display" class="font-mono font-black text-base text-white">00:00:00</span>
                 </div>
             </div>

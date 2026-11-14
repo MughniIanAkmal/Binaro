@@ -119,7 +119,7 @@ class _MapelPageState extends State<MapelPage> {
                         padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: AppColors.border),
                         ),
                         child: Column(
@@ -258,12 +258,12 @@ class _MapelPageState extends State<MapelPage> {
 
     return InkWell(
       onTap: () => setState(() => _selectedFilter = index),
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.border,
           ),
@@ -323,7 +323,7 @@ class _MapelPageState extends State<MapelPage> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: AppColors.primary, // Dark Blue container
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -405,7 +405,7 @@ class _MapelPageState extends State<MapelPage> {
                 const SizedBox(height: 6),
                 // Progress Bar (Oranye di atas putih)
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 6,
@@ -422,7 +422,7 @@ class _MapelPageState extends State<MapelPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -453,12 +453,12 @@ class _MapelPageState extends State<MapelPage> {
                       ),
                     );
                   },
-                  borderRadius: BorderRadius.circular(18),
+                  borderRadius: BorderRadius.circular(16),
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,

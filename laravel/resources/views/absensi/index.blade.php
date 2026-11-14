@@ -136,15 +136,15 @@
                                 $isTerlambat = $status === 'Hadir' && str_contains((string) ($s->keterangan ?? ''), 'Terlambat');
                             @endphp
                             @if($isTerlambat)
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-clock text-[9px]"></i> Terlambat</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-clock text-[10px]"></i> Terlambat</span>
                             @elseif($status == 'Hadir')
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800"><i class="fas fa-check text-[9px]"></i> Hadir</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800"><i class="fas fa-check text-[10px]"></i> Hadir</span>
                             @elseif($status == 'Sakit')
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-violet-100 text-violet-800"><i class="fas fa-plus-circle text-[9px]"></i> Sakit</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-violet-100 text-violet-800"><i class="fas fa-plus-circle text-[10px]"></i> Sakit</span>
                             @elseif($status == 'Izin')
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800"><i class="fas fa-info-circle text-[9px]"></i> Izin</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800"><i class="fas fa-info-circle text-[10px]"></i> Izin</span>
                             @else
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800"><i class="fas fa-times text-[9px]"></i> Alpa</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800"><i class="fas fa-times text-[10px]"></i> Alpa</span>
                             @endif
                         </td>
                         <td class="p-3.5">

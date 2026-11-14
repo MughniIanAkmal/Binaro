@@ -320,7 +320,7 @@
                         {{ $isMatematika ? 'bg-amber-50 text-amber-600' : ($isIpa ? 'bg-emerald-50 text-emerald-600' : ($isBindo ? 'bg-sky-50 text-sky-600' : ($isPancasila ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-600'))) }}">
                         <div class="w-full">
                             <i class="{{ $topikIcon }} text-xl block mb-0.5"></i>
-                            <span class="text-[9px] font-black uppercase tracking-tight block truncate max-w-[54px] mx-auto leading-none">
+                            <span class="text-[10px] font-black uppercase tracking-tight block truncate max-w-[54px] mx-auto leading-none">
                                 {{ $topikLabel }}
                             </span>
                         </div>
@@ -363,11 +363,11 @@
                             <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1
                                 {{ $isMissing ? 'bg-rose-50 text-rose-600 border border-rose-200' : ($isProcess ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200/70') }}">
                                 @if($isMissing)
-                                    <i class="fas fa-times text-[9px]"></i>
+                                    <i class="fas fa-times text-[10px]"></i>
                                 @elseif($isProcess)
-                                    <i class="fas fa-clock text-[9px]"></i>
+                                    <i class="fas fa-clock text-[10px]"></i>
                                 @else
-                                    <i class="fas fa-check text-[9px]"></i>
+                                    <i class="fas fa-check text-[10px]"></i>
                                 @endif
                                 <span>{{ $tag }}</span>
                             </span>
@@ -375,16 +375,16 @@
                     @else
                         <!-- Default Badges from Boolean Checklist -->
                         <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 {{ ($checklist['tujuan'] ?? true) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70' : 'bg-slate-100 text-slate-400' }}">
-                            <i class="fas fa-check text-[9px]"></i> Tujuan Pembelajaran
+                            <i class="fas fa-check text-[10px]"></i> Tujuan Pembelajaran
                         </span>
                         <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 {{ ($checklist['video'] ?? false) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70' : 'bg-slate-100 text-slate-400' }}">
-                            <i class="fas fa-play text-[9px]"></i> Video Interaktif
+                            <i class="fas fa-play text-[10px]"></i> Video Interaktif
                         </span>
                         <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 {{ ($checklist['kktp'] ?? true) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70' : 'bg-slate-100 text-slate-400' }}">
-                            <i class="fas fa-chart-simple text-[9px]"></i> Kriteria KKTP
+                            <i class="fas fa-chart-simple text-[10px]"></i> Kriteria KKTP
                         </span>
                         <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 {{ ($checklist['lkpd'] ?? true) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70' : 'bg-rose-50 text-rose-600 border border-rose-200' }}">
-                            <i class="fas fa-file-pen text-[9px]"></i> {{ ($checklist['lkpd'] ?? true) ? 'LKPD Siap Cetak' : 'LKPD Belum Diunggah' }}
+                            <i class="fas fa-file-pen text-[10px]"></i> {{ ($checklist['lkpd'] ?? true) ? 'LKPD Siap Cetak' : 'LKPD Belum Diunggah' }}
                         </span>
                     @endif
                 </div>

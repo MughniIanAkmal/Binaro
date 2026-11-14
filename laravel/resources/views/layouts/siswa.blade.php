@@ -61,14 +61,14 @@
 <div class="flex min-h-screen">
 
     {{-- ================= SIDEBAR ================= --}}
-    <aside class="w-[268px] shrink-0 bg-white border-r border-line fixed inset-y-0 left-0 z-30 hidden sm:flex flex-col">
+    <aside id="portal-sidebar" class="w-[268px] shrink-0 bg-white border-r border-line fixed inset-y-0 left-0 z-40 flex flex-col -translate-x-full transition-transform duration-200 sm:translate-x-0">
         {{-- Brand --}}
         <div class="px-5 pt-6 pb-5">
             <div class="flex items-center gap-3">
                 <img src="{{ asset('images/logo-binaro.svg') }}" alt="Logo Binaro" class="w-11 h-11 rounded-2xl">
                 <div class="leading-tight">
                     <div class="text-[17px] font-extrabold tracking-tight text-slate-900">Binaro</div>
-                    <div class="text-[9.5px] font-bold tracking-[0.16em] text-slate-400 uppercase">Portal Siswa</div>
+                    <div class="text-[10px] font-bold tracking-[0.16em] text-slate-400 uppercase">Portal Siswa</div>
                 </div>
             </div>
         </div>
@@ -101,7 +101,7 @@
                     <i class="fas fa-bell w-4 text-center text-[13px] {{ request()->routeIs('siswa.notifikasi_pr.*') ? '' : 'text-slate-400' }}"></i>
                     <span class="flex-1">Notifikasi PR</span>
                     @if($notifBelumBacaCount > 0)
-                        <span class="bg-amber-400 text-slate-900 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight">{{ $notifBelumBacaCount > 99 ? '99+' : $notifBelumBacaCount }}</span>
+                        <span class="bg-amber-400 text-slate-900 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-tight">{{ $notifBelumBacaCount > 99 ? '99+' : $notifBelumBacaCount }}</span>
                     @endif
                 </a>
                 <a href="{{ route('siswa.profile') }}"
@@ -132,13 +132,18 @@
         </div>
     </aside>
 
+        <div id="portal-sidebar-backdrop" onclick="togglePortalSidebar(false)" class="fixed inset-0 bg-slate-900/50 z-[35] hidden" aria-hidden="true"></div>
+
     {{-- ================= MAIN ================= --}}
     <div class="flex-1 sm:ml-[268px] flex flex-col min-w-0">
 
         {{-- ===== HEADER: satu-satunya sumber judul & aksi halaman ===== --}}
 
         <header class="bg-white border-b border-line sticky top-0 z-20">
-            <div class="px-4 sm:px-7 h-[88px] flex items-center justify-between gap-5">
+            <div class="px-4 sm:px-7 h-[88px] flex items-center justify-between gap-5">                    <button type="button" onclick="togglePortalSidebar()" aria-label="Buka menu navigasi" class="sm:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-line text-slate-600 hover:bg-surface-alt shrink-0">
+                    <i class="fas fa-bars"></i>
+                </button>
+
                 <div class="min-w-0 flex-1">
                     <nav class="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 whitespace-nowrap overflow-hidden">
                         @hasSection('breadcrumb_trail')
@@ -210,5 +215,21 @@
     </div>
 </div>
 
-</body>
+    <script>
+        function togglePortalSidebar(force) {
+            const sb = document.getElementById('portal-sidebar');
+            const bd = document.getElementById('portal-sidebar-backdrop');
+            if (!sb || !bd) return;
+            const willOpen = typeof force === 'boolean' ? force : bd.classList.contains('hidden');
+            sb.classList.toggle('-translate-x-full', !willOpen);
+            bd.classList.toggle('hidden', !willOpen);
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') togglePortalSidebar(false);
+        });
+        // Tandai item nav aktif untuk pembaca layar
+        document.querySelectorAll('aside nav a').forEach((a) => {
+            if (a.querySelector('.active-menu-pill, .nav-item-active')) a.setAttribute('aria-current', 'page');
+        });
+    </script></body>
 </html>

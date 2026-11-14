@@ -237,7 +237,7 @@
                     <div class="bg-white p-3 rounded-lg border border-amber-200/80 shadow-xs space-y-1">
                         <div class="flex items-center justify-between">
                             <span class="text-[10px] font-extrabold text-primary" id="preview-tag-mapel">[Mata Pelajaran]</span>
-                            <span class="text-[9px] text-slate-400">Baru Saja</span>
+                            <span class="text-[10px] text-slate-400">Baru Saja</span>
                         </div>
                         <p class="text-xs font-medium text-slate-800 leading-relaxed" id="preview-text-body">
                             Tugas PR Baru: '...' Silakan periksa instruksi tugas dan kumpulkan tepat waktu.

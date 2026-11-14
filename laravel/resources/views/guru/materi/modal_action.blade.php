@@ -78,7 +78,7 @@
                             </div>
                         </div>
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-800 font-bold text-[10px] rounded-lg border border-amber-200 shrink-0">
-                            <i class="fas fa-lock text-[9px]"></i> Terkunci Otomatis
+                            <i class="fas fa-lock text-[10px]"></i> Terkunci Otomatis
                         </span>
                         <input type="hidden" name="id_mapel" id="tambah-bab-mapel-hidden" disabled>
                     </div>
@@ -137,7 +137,7 @@
                             </div>
                         </div>
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-800 font-bold text-[10px] rounded-lg border border-amber-200 shrink-0">
-                            <i class="fas fa-lock text-[9px]"></i> Terkunci Otomatis
+                            <i class="fas fa-lock text-[10px]"></i> Terkunci Otomatis
                         </span>
                         <input type="hidden" name="id_bab" id="tambah-subbab-bab-hidden" disabled>
                     </div>
@@ -204,7 +204,7 @@
                             </div>
                         </div>
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-100 text-amber-800 font-bold text-[10px] rounded-lg border border-amber-200 shrink-0">
-                            <i class="fas fa-lock text-[9px]"></i> Terkunci Otomatis
+                            <i class="fas fa-lock text-[10px]"></i> Terkunci Otomatis
                         </span>
                         <input type="hidden" name="id_sub_bab" id="tambah-materi-subbab-hidden" disabled>
                     </div>

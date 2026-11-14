@@ -140,7 +140,7 @@
                                     {{ $pr->mataPelajaran->nama_mapel ?? 'Mata Pelajaran' }}
                                 </span>
                                 <span class="text-[10px] text-slate-400">
-                                    <i class="fas fa-user-tie text-[9px] mr-0.5"></i> {{ $pr->guru->nama_guru ?? 'Guru' }}
+                                    <i class="fas fa-user-tie text-[10px] mr-0.5"></i> {{ $pr->guru->nama_guru ?? 'Guru' }}
                                 </span>
                             </div>
                         </td>
@@ -154,11 +154,11 @@
                             <div class="mt-0.5">
                                 @if($isExpired)
                                     <span class="bg-rose-50 text-rose-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                                        <i class="fas fa-times-circle text-[9px]"></i> Berakhir {{ $diffForHumans }}
+                                        <i class="fas fa-times-circle text-[10px]"></i> Berakhir {{ $diffForHumans }}
                                     </span>
                                 @else
                                     <span class="bg-emerald-50 text-emerald-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                                        <i class="fas fa-clock text-[9px]"></i> Tenggat {{ $diffForHumans }}
+                                        <i class="fas fa-clock text-[10px]"></i> Tenggat {{ $diffForHumans }}
                                     </span>
                                 @endif
                             </div>
@@ -271,16 +271,16 @@
                             @if($grup['total'] === 1)
                                 @if($grup['items'][0]['status_baca'])
                                     <span class="bg-emerald-50 text-emerald-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                                        <i class="fas fa-check-double text-[9px]"></i> Sudah Dibaca
+                                        <i class="fas fa-check-double text-[10px]"></i> Sudah Dibaca
                                     </span>
                                 @else
                                     <span class="bg-amber-50 text-amber-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                                        <i class="fas fa-envelope text-[9px]"></i> Belum Dibaca
+                                        <i class="fas fa-envelope text-[10px]"></i> Belum Dibaca
                                     </span>
                                 @endif
                             @else
                                 <span class="bg-sky-50 text-primary font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                                    <i class="fas fa-check-double text-[9px]"></i> {{ $grup['dibaca'] }} / {{ $grup['total'] }} dibaca
+                                    <i class="fas fa-check-double text-[10px]"></i> {{ $grup['dibaca'] }} / {{ $grup['total'] }} dibaca
                                 </span>
                             @endif
                         </td>

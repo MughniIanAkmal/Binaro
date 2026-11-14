@@ -129,11 +129,11 @@
                         <td class="py-3 px-4 text-center">
                             @if($notif->status_baca)
                                 <span class="bg-emerald-50 text-emerald-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                                    <i class="fas fa-check-double text-[9px]"></i> Sudah Dibaca
+                                    <i class="fas fa-check-double text-[10px]"></i> Sudah Dibaca
                                 </span>
                             @else
                                 <span class="bg-amber-50 text-amber-700 font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                                    <i class="fas fa-envelope text-[9px]"></i> Belum Dibaca
+                                    <i class="fas fa-envelope text-[10px]"></i> Belum Dibaca
                                 </span>
                             @endif
                         </td>
