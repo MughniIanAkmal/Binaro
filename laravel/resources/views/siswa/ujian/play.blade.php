@@ -27,15 +27,15 @@
                     @endphp
                     @if($modeKesulitan === 'mudah')
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-400 text-slate-900 shadow-xs">
-                            🟢 Tingkat Mudah
+                            <i class="fas fa-circle text-emerald-500"></i>  Tingkat Mudah
                         </span>
                     @elseif($modeKesulitan === 'sulit')
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-400 text-slate-900 shadow-xs">
-                            🔴 Tingkat Sulit
+                            <i class="fas fa-circle text-rose-500"></i>  Tingkat Sulit
                         </span>
                     @else
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-300 text-slate-900 shadow-xs">
-                            🟡 Tingkat Sedang
+                            <i class="fas fa-circle text-amber-400"></i>  Tingkat Sedang
                         </span>
                     @endif
                     <span class="text-xs text-sky-200 font-medium">
@@ -104,15 +104,15 @@
                                         @endphp
                                         @if($sLevel === 'mudah')
                                             <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                                🟢 Mudah
+                                                <i class="fas fa-circle text-emerald-500"></i>  Mudah
                                             </span>
                                         @elseif($sLevel === 'sulit' || $sLevel === 'susah')
                                             <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                                🔴 Sulit
+                                                <i class="fas fa-circle text-rose-500"></i>  Sulit
                                             </span>
                                         @else
                                             <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                                                🟡 Sedang
+                                                <i class="fas fa-circle text-amber-400"></i>  Sedang
                                             </span>
                                         @endif
                                     </div>

@@ -62,9 +62,9 @@
                 <label class="block text-[11px] font-bold text-slate-600 mb-1">Tingkat Kesulitan</label>
                 <select name="level" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition">
                     <option value="">Semua Level</option>
-                    <option value="mudah" {{ $level === 'mudah' ? 'selected' : '' }}>🟢 Mudah</option>
-                    <option value="sedang" {{ $level === 'sedang' ? 'selected' : '' }}>🟡 Sedang</option>
-                    <option value="susah" {{ $level === 'susah' ? 'selected' : '' }}>🔴 Susah</option>
+                    <option value="mudah" {{ $level === 'mudah' ? 'selected' : '' }}><i class="fas fa-circle text-emerald-500"></i>  Mudah</option>
+                    <option value="sedang" {{ $level === 'sedang' ? 'selected' : '' }}><i class="fas fa-circle text-amber-400"></i>  Sedang</option>
+                    <option value="susah" {{ $level === 'susah' ? 'selected' : '' }}><i class="fas fa-circle text-rose-500"></i>  Susah</option>
                 </select>
             </div>
 

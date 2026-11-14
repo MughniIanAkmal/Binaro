@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Panel Admin - Binaro' }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-binaro.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,9 +25,7 @@
         <!-- Brand / Logo Area -->
         <div class="p-5 border-b border-slate-100">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl sidebar-brand-bg text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                    <i class="fas fa-graduation-cap text-base"></i>
-                </div>
+                <img src="{{ asset('images/logo-binaro.svg') }}" alt="Logo Binaro" class="w-10 h-10 rounded-xl">
                 <div>
                     <h1 class="font-extrabold text-sm leading-tight text-slate-900 tracking-tight">Binaro</h1>
                     <p class="text-[10px] font-bold text-slate-400 tracking-wider uppercase mt-0.5">PORTAL ADMIN SD</p>

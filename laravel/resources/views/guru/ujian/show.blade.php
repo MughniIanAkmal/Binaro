@@ -145,15 +145,15 @@
                         @endphp
                         @if($soalLevel === 'mudah')
                             <span class="px-2 py-0.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-bold">
-                                🟢 Mudah
+                                <i class="fas fa-circle text-emerald-500"></i>  Mudah
                             </span>
                         @elseif($soalLevel === 'sulit' || $soalLevel === 'susah')
                             <span class="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-[11px] font-bold">
-                                🔴 Sulit
+                                <i class="fas fa-circle text-rose-500"></i>  Sulit
                             </span>
                         @else
                             <span class="px-2 py-0.5 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 text-[11px] font-bold">
-                                🟡 Sedang
+                                <i class="fas fa-circle text-amber-400"></i>  Sedang
                             </span>
                         @endif
 
@@ -452,9 +452,9 @@
                 <div class="flex items-center justify-between sm:justify-end gap-2">
                     <span class="text-xs font-bold text-slate-700">Tingkat Kesulitan:</span>
                     <select name="tingkat_kesulitan" class="px-2.5 py-1 text-xs font-bold bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-primary">
-                        <option value="mudah">🟢 Mudah</option>
-                        <option value="sedang" selected>🟡 Sedang</option>
-                        <option value="sulit">🔴 Sulit</option>
+                        <option value="mudah"><i class="fas fa-circle text-emerald-500"></i>  Mudah</option>
+                        <option value="sedang" selected><i class="fas fa-circle text-amber-400"></i>  Sedang</option>
+                        <option value="sulit"><i class="fas fa-circle text-rose-500"></i>  Sulit</option>
                     </select>
                 </div>
             </div>
@@ -550,9 +550,9 @@
                 <div class="flex items-center justify-between sm:justify-end gap-2">
                     <span class="text-xs font-bold text-slate-700">Tingkat Kesulitan:</span>
                     <select id="edit-tingkat-kesulitan" name="tingkat_kesulitan" class="px-2.5 py-1 text-xs font-bold bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-primary">
-                        <option value="mudah">🟢 Mudah</option>
-                        <option value="sedang">🟡 Sedang</option>
-                        <option value="sulit">🔴 Sulit</option>
+                        <option value="mudah"><i class="fas fa-circle text-emerald-500"></i>  Mudah</option>
+                        <option value="sedang"><i class="fas fa-circle text-amber-400"></i>  Sedang</option>
+                        <option value="sulit"><i class="fas fa-circle text-rose-500"></i>  Sulit</option>
                     </select>
                 </div>
             </div>

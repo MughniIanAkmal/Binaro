@@ -367,7 +367,7 @@
                             <input type="radio" name="modal_kesulitan" value="mudah" onchange="updateModalKesulitan(this.value)" class="text-emerald-600 focus:ring-0">
                             <span class="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Mudah</span>
                         </div>
-                        <span class="text-xs font-black text-slate-800 mt-2 block">🟢 Level Mudah</span>
+                        <span class="text-xs font-black text-slate-800 mt-2 block"><i class="fas fa-circle text-emerald-500"></i>  Level Mudah</span>
                         <span class="text-[10px] text-slate-500 font-semibold" id="label-count-mudah">0 Soal</span>
                     </label>
 
@@ -376,7 +376,7 @@
                             <input type="radio" name="modal_kesulitan" value="sedang" checked onchange="updateModalKesulitan(this.value)" class="text-amber-600 focus:ring-0">
                             <span class="text-[9px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">Sedang</span>
                         </div>
-                        <span class="text-xs font-black text-slate-800 mt-2 block">🟡 Level Sedang</span>
+                        <span class="text-xs font-black text-slate-800 mt-2 block"><i class="fas fa-circle text-amber-400"></i>  Level Sedang</span>
                         <span class="text-[10px] text-slate-500 font-semibold" id="label-count-sedang">0 Soal</span>
                     </label>
 
@@ -385,7 +385,7 @@
                             <input type="radio" name="modal_kesulitan" value="sulit" onchange="updateModalKesulitan(this.value)" class="text-rose-600 focus:ring-0">
                             <span class="text-[9px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded">Sulit</span>
                         </div>
-                        <span class="text-xs font-black text-slate-800 mt-2 block">🔴 Level Sulit</span>
+                        <span class="text-xs font-black text-slate-800 mt-2 block"><i class="fas fa-circle text-rose-500"></i>  Level Sulit</span>
                         <span class="text-[10px] text-slate-500 font-semibold" id="label-count-sulit">0 Soal</span>
                     </label>
                 </div>

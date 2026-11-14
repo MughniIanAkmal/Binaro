@@ -139,7 +139,7 @@
                     <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">Mudah</span>
                 </div>
                 <div class="mt-2">
-                    <span class="text-xs font-black text-slate-900 block">🟢 Level Mudah</span>
+                    <span class="text-xs font-black text-slate-900 block"><i class="fas fa-circle text-emerald-500"></i>  Level Mudah</span>
                     <span class="text-[11px] font-semibold mt-0.5 block {{ ($countMudah ?? 0) === 0 ? 'text-rose-500' : 'text-slate-500' }}">{{ $countMudah ?? 0 }} Butir Soal{{ ($countMudah ?? 0) === 0 ? ' • Kosong' : '' }}</span>
                 </div>
             </label>
@@ -150,7 +150,7 @@
                     <span class="text-[10px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">Sedang</span>
                 </div>
                 <div class="mt-2">
-                    <span class="text-xs font-black text-slate-900 block">🟡 Level Sedang</span>
+                    <span class="text-xs font-black text-slate-900 block"><i class="fas fa-circle text-amber-400"></i>  Level Sedang</span>
                     <span class="text-[11px] font-semibold mt-0.5 block {{ ($countSedang ?? 0) === 0 ? 'text-rose-500' : 'text-slate-500' }}">{{ $countSedang ?? 0 }} Butir Soal{{ ($countSedang ?? 0) === 0 ? ' • Kosong' : '' }}</span>
                 </div>
             </label>
@@ -161,7 +161,7 @@
                     <span class="text-[10px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-md">Sulit</span>
                 </div>
                 <div class="mt-2">
-                    <span class="text-xs font-black text-slate-900 block">🔴 Level Sulit</span>
+                    <span class="text-xs font-black text-slate-900 block"><i class="fas fa-circle text-rose-500"></i>  Level Sulit</span>
                     <span class="text-[11px] font-semibold mt-0.5 block {{ ($countSulit ?? 0) === 0 ? 'text-rose-500' : 'text-slate-500' }}">{{ $countSulit ?? 0 }} Butir Soal{{ ($countSulit ?? 0) === 0 ? ' • Kosong' : '' }}</span>
                 </div>
             </label>

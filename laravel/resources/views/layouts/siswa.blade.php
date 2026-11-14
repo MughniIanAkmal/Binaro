@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Portal Siswa - Binaro' }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-binaro.svg') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -64,11 +65,9 @@
         {{-- Brand --}}
         <div class="px-5 pt-6 pb-5">
             <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm bg-primary" >
-                    <i class="fas fa-graduation-cap text-white text-lg"></i>
-                </div>
+                <img src="{{ asset('images/logo-binaro.svg') }}" alt="Logo Binaro" class="w-11 h-11 rounded-2xl">
                 <div class="leading-tight">
-                    <div class="text-[17px] font-extrabold tracking-tight text-slate-900">BINARO</div>
+                    <div class="text-[17px] font-extrabold tracking-tight text-slate-900">Binaro</div>
                     <div class="text-[9.5px] font-bold tracking-[0.16em] text-slate-400 uppercase">Portal Siswa</div>
                 </div>
             </div>

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import 'dashboard_page.dart';
 import '../utils/constants.dart';
@@ -155,26 +156,11 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const SizedBox(height: 32),
 
-                  // Header Badge Logo Toga
-                  Container(
+                  // Logo Binaro
+                  SvgPicture.asset(
+                    'assets/images/logo_binaro_dark.svg',
                     width: 60,
                     height: 60,
-                    decoration: BoxDecoration(
-                      color: AppColors.primarySoft,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.25),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Icon(
-                      Icons.school_rounded,
-                      color: Colors.white,
-                      size: 34,
-                    ),
                   ),
 
                   const SizedBox(height: 14),

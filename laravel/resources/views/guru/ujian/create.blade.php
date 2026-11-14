@@ -150,7 +150,7 @@
                         <label class="flex items-center p-3 rounded-xl border border-slate-200 bg-white hover:border-emerald-400 cursor-pointer transition">
                             <input type="radio" name="tingkat_level" value="mudah" class="w-4 h-4 text-emerald-600 focus:ring-0 mr-3 accent-emerald-600" {{ old('tingkat_level') === 'mudah' ? 'checked' : '' }} required>
                             <div>
-                                <span class="block text-xs font-bold text-emerald-800">🟢 Level Mudah</span>
+                                <span class="block text-xs font-bold text-emerald-800"><i class="fas fa-circle text-emerald-500"></i>  Level Mudah</span>
                                 <span class="block text-[10px] text-slate-500">Pemahaman konsep dasar, pengenalan materi</span>
                             </div>
                         </label>
@@ -158,7 +158,7 @@
                         <label class="flex items-center p-3 rounded-xl border border-slate-200 bg-white hover:border-amber-400 cursor-pointer transition">
                             <input type="radio" name="tingkat_level" value="sedang" class="w-4 h-4 text-amber-600 focus:ring-0 mr-3 accent-amber-600" {{ old('tingkat_level', 'sedang') === 'sedang' ? 'checked' : '' }}>
                             <div>
-                                <span class="block text-xs font-bold text-amber-800">🟡 Level Sedang</span>
+                                <span class="block text-xs font-bold text-amber-800"><i class="fas fa-circle text-amber-400"></i>  Level Sedang</span>
                                 <span class="block text-[10px] text-slate-500">Aplikasi rumus & pemahaman logika standar</span>
                             </div>
                         </label>
@@ -166,7 +166,7 @@
                         <label class="flex items-center p-3 rounded-xl border border-slate-200 bg-white hover:border-rose-400 cursor-pointer transition">
                             <input type="radio" name="tingkat_level" value="susah" class="w-4 h-4 text-rose-600 focus:ring-0 mr-3 accent-rose-600" {{ old('tingkat_level') === 'susah' ? 'checked' : '' }}>
                             <div>
-                                <span class="block text-xs font-bold text-rose-800">🔴 Level Susah (HOTS)</span>
+                                <span class="block text-xs font-bold text-rose-800"><i class="fas fa-circle text-rose-500"></i>  Level Susah (HOTS)</span>
                                 <span class="block text-[10px] text-slate-500">Analisis tingkat tinggi & penalaran mendalam</span>
                             </div>
                         </label>
