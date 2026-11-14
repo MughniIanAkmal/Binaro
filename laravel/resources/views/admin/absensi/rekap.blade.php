@@ -120,7 +120,7 @@
                             <div class="font-bold text-slate-900 flex items-center gap-2">
                                 <span>{{ $s->nm_siswa }}</span>
                                 @if($isHighAlpa)
-                                    <span class="bg-[#EF4444] text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full shadow-sm">
+                                    <span class="bg-[#EF4444] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-sm">
                                         <i class="fas fa-exclamation-triangle"></i> Alpa &gt; 2 Hari
                                     </span>
                                 @endif
@@ -130,15 +130,15 @@
                         <td class="p-3.5 font-medium text-slate-700">{{ $s->nama_kelas ?? $s->kelas->pararel ?? '-' }}</td>
                         <td class="p-3.5">
                             @if($isTerlambat)
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-clock text-[9px]"></i> Terlambat</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-clock text-[10px]"></i> Terlambat</span>
                             @elseif($status == 'Hadir')
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800"><i class="fas fa-check text-[9px]"></i> Hadir</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800"><i class="fas fa-check text-[10px]"></i> Hadir</span>
                             @elseif($status == 'Sakit')
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-violet-100 text-violet-800"><i class="fas fa-plus-circle text-[9px]"></i> Sakit</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-violet-100 text-violet-800"><i class="fas fa-plus-circle text-[10px]"></i> Sakit</span>
                             @elseif($status == 'Izin')
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800"><i class="fas fa-info-circle text-[9px]"></i> Izin</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800"><i class="fas fa-info-circle text-[10px]"></i> Izin</span>
                             @else
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800"><i class="fas fa-times text-[9px]"></i> Alpa</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800"><i class="fas fa-times text-[10px]"></i> Alpa</span>
                             @endif
                         </td>
                         <td class="p-3.5 text-slate-600">

@@ -191,7 +191,7 @@
                             @endif
                         @else
                             <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200 flex items-center gap-1">
-                                <i class="fas fa-clock text-[9px]"></i> Menunggu Rilis Nilai
+                                <i class="fas fa-clock text-[10px]"></i> Menunggu Rilis Nilai
                             </span>
                         @endif
                     </div>
@@ -365,7 +365,7 @@
                     <label class="p-3 rounded-xl border border-line bg-white cursor-pointer flex flex-col justify-between transition hover:border-emerald-400 kes-modal-card" id="card-kes-mudah">
                         <div class="flex items-center justify-between">
                             <input type="radio" name="modal_kesulitan" value="mudah" onchange="updateModalKesulitan(this.value)" class="text-emerald-600 focus:ring-0">
-                            <span class="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Mudah</span>
+                            <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Mudah</span>
                         </div>
                         <span class="text-xs font-black text-slate-800 mt-2 block"><i class="fas fa-circle text-emerald-500"></i>  Level Mudah</span>
                         <span class="text-[10px] text-slate-500 font-semibold" id="label-count-mudah">0 Soal</span>
@@ -374,7 +374,7 @@
                     <label class="p-3 rounded-xl border-2 border-primary bg-sky-50/50 cursor-pointer flex flex-col justify-between transition hover:border-amber-400 kes-modal-card" id="card-kes-sedang">
                         <div class="flex items-center justify-between">
                             <input type="radio" name="modal_kesulitan" value="sedang" checked onchange="updateModalKesulitan(this.value)" class="text-amber-600 focus:ring-0">
-                            <span class="text-[9px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">Sedang</span>
+                            <span class="text-[10px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">Sedang</span>
                         </div>
                         <span class="text-xs font-black text-slate-800 mt-2 block"><i class="fas fa-circle text-amber-400"></i>  Level Sedang</span>
                         <span class="text-[10px] text-slate-500 font-semibold" id="label-count-sedang">0 Soal</span>
@@ -383,7 +383,7 @@
                     <label class="p-3 rounded-xl border border-line bg-white cursor-pointer flex flex-col justify-between transition hover:border-rose-400 kes-modal-card" id="card-kes-sulit">
                         <div class="flex items-center justify-between">
                             <input type="radio" name="modal_kesulitan" value="sulit" onchange="updateModalKesulitan(this.value)" class="text-rose-600 focus:ring-0">
-                            <span class="text-[9px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded">Sulit</span>
+                            <span class="text-[10px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded">Sulit</span>
                         </div>
                         <span class="text-xs font-black text-slate-800 mt-2 block"><i class="fas fa-circle text-rose-500"></i>  Level Sulit</span>
                         <span class="text-[10px] text-slate-500 font-semibold" id="label-count-sulit">0 Soal</span>

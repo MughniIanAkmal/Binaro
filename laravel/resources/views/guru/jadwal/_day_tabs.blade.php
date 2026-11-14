@@ -11,7 +11,7 @@
             @endphp
             <button type="button" onclick="pilihHari('{{ $hari }}')" id="tab-btn-{{ $hari }}" class="tab-btn-hari px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-primary hover:bg-slate-50 transition flex items-center gap-1.5 shrink-0">
                 <span>{{ $hari }}</span>
-                @if($isHariIni)<span class="bg-emerald-100 text-emerald-700 text-[9px] font-extrabold px-1.5 py-0.5 rounded-md">Hari Ini</span>@endif
+                @if($isHariIni)<span class="bg-emerald-100 text-emerald-700 text-[10px] font-extrabold px-1.5 py-0.5 rounded-md">Hari Ini</span>@endif
                 <span class="bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.5 rounded-full font-bold">{{ $countSesi }}</span>
             </button>
         @endforeach

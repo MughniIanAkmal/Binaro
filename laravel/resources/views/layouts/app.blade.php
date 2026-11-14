@@ -20,7 +20,7 @@
 <body class="text-slate-800 flex min-h-screen bg-canvas">
 
     <!-- Sidebar 64 (256px) Fixed Left: Desain identik dengan Portal Guru -->
-    <aside class="w-64 bg-white border-r border-slate-200/90 text-slate-800 flex flex-col fixed h-screen z-20 shadow-sm">
+    <aside id="portal-sidebar" class="w-64 bg-white border-r border-slate-200/90 text-slate-800 flex flex-col fixed h-screen z-40 shadow-sm -translate-x-full lg:translate-x-0 transition-transform duration-200">
 
         <!-- Brand / Logo Area -->
         <div class="p-5 border-b border-slate-100">
@@ -129,10 +129,15 @@
         </div>
     </aside>
 
+        <div id="portal-sidebar-backdrop" onclick="togglePortalSidebar(false)" class="fixed inset-0 bg-slate-900/50 z-[35] hidden" aria-hidden="true"></div>
+
     <!-- Main Content Area -->
-    <main class="flex-1 ml-64 flex flex-col min-w-0">
+    <main class="flex-1 lg:ml-64 flex flex-col min-w-0">
         <!-- Top Header: Desain identik dengan Portal Guru -->
         <header class="bg-white border-b border-slate-200/80 px-8 py-3.5 flex justify-between items-center sticky top-0 z-30 shadow-xs gap-4 min-h-[64px]">
+                <button type="button" onclick="togglePortalSidebar()" aria-label="Buka menu navigasi" class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 shrink-0">
+                    <i class="fas fa-bars"></i>
+                </button>
             <!-- Left: Breadcrumb, Page Title & Subtitle -->
             <div class="flex flex-col justify-center gap-0.5 min-w-0 flex-1 truncate">
                 <nav class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 whitespace-nowrap overflow-hidden">
@@ -216,5 +221,21 @@
             @yield('content')
         </div>
     </main>
-</body>
+    <script>
+        function togglePortalSidebar(force) {
+            const sb = document.getElementById('portal-sidebar');
+            const bd = document.getElementById('portal-sidebar-backdrop');
+            if (!sb || !bd) return;
+            const willOpen = typeof force === 'boolean' ? force : bd.classList.contains('hidden');
+            sb.classList.toggle('-translate-x-full', !willOpen);
+            bd.classList.toggle('hidden', !willOpen);
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') togglePortalSidebar(false);
+        });
+        // Tandai item nav aktif untuk pembaca layar
+        document.querySelectorAll('aside nav a').forEach((a) => {
+            if (a.querySelector('.active-menu-pill, .nav-item-active')) a.setAttribute('aria-current', 'page');
+        });
+    </script></body>
 </html>

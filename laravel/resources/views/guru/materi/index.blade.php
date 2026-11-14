@@ -68,7 +68,7 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <button onclick="openModalAddMateri({{ $sub->id_sub_bab }}, '{{ $sub->nama_sub_bab }}')" class="text-[11px] text-primary hover:underline font-medium flex items-center gap-1">
-                                <i class="fas fa-plus text-[9px]"></i> Tambah Materi
+                                <i class="fas fa-plus text-[10px]"></i> Tambah Materi
                             </button>
                             <form action="{{ route('guru.materi.destroy.sub-bab', $sub->id_sub_bab) }}" method="POST" onsubmit="return confirm('Hapus Sub-Bab ini?')">
                                 @csrf
@@ -105,21 +105,21 @@
                             </div>
 
                             <div class="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100">
-                                <span class="uppercase font-semibold tracking-wider text-[9px] px-1.5 py-0.5 rounded bg-slate-100">
+                                <span class="uppercase font-semibold tracking-wider text-[10px] px-1.5 py-0.5 rounded bg-slate-100">
                                     {{ $mat->tipe_materi }}
                                 </span>
                                 @if($mat->tipe_materi === 'video' && $mat->url_video)
                                     <a href="{{ $mat->url_video }}" target="_blank" class="text-primary hover:underline flex items-center gap-1">
-                                        <i class="fas fa-external-link-alt text-[9px]"></i> Link
+                                        <i class="fas fa-external-link-alt text-[10px]"></i> Link
                                     </a>
                                 @elseif($mat->tipe_materi === 'dokumen' && $mat->file_pdf)
                                     <a href="{{ route('guru.materi.sub_bab', $sub->id_sub_bab) }}" class="text-rose-600 hover:text-rose-800 font-bold flex items-center gap-1">
-                                        <i class="fas fa-file-pdf text-[9px]"></i> Preview PDF
+                                        <i class="fas fa-file-pdf text-[10px]"></i> Preview PDF
                                     </a>
                                 @elseif($mat->tipe_materi === 'kuis')
                                     @if($mat->id_quiz)
                                     <a href="{{ route('guru.quiz.bank', $mat->id_quiz) }}" class="text-primary font-bold hover:underline flex items-center gap-1">
-                                        <i class="fas fa-edit text-[9px]"></i> Kelola Bank Soal
+                                        <i class="fas fa-edit text-[10px]"></i> Kelola Bank Soal
                                     </a>
                                     @else
                                     <span class="text-slate-400">Bank Soal Auto</span>

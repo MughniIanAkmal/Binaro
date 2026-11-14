@@ -370,19 +370,19 @@
                                         </span>
                                     @elseif($item['status'] === 'Sakit')
                                         <span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                                            <i class="fas fa-plus text-[9px]"></i> Sakit
+                                            <i class="fas fa-plus text-[10px]"></i> Sakit
                                         </span>
                                     @elseif($item['status'] === 'Izin')
                                         <span class="bg-sky-100 text-sky-800 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                                            <i class="fas fa-info text-[9px]"></i> {{ str_contains($item['keterangan'], 'Keluarga') ? 'Izin Keluarga' : 'Izin' }}
+                                            <i class="fas fa-info text-[10px]"></i> {{ str_contains($item['keterangan'], 'Keluarga') ? 'Izin Keluarga' : 'Izin' }}
                                         </span>
                                     @elseif($item['status'] === 'Alpa')
                                         <span class="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                                            <i class="fas fa-times text-[9px]"></i> Alpa
+                                            <i class="fas fa-times text-[10px]"></i> Alpa
                                         </span>
                                     @else
                                         <span class="bg-rose-50 text-rose-600 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded flex items-center gap-1">
-                                            <i class="far fa-clock text-[9px]"></i> Belum Pindai
+                                            <i class="far fa-clock text-[10px]"></i> Belum Pindai
                                         </span>
                                     @endif
                                 </div>

@@ -109,7 +109,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                         padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: AppColors.border),
                           boxShadow: [
                             BoxShadow(
@@ -189,7 +189,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
             padding: const EdgeInsets.all(7),
             decoration: BoxDecoration(
               color: AppColors.accent,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.calculate_rounded, color: Colors.white, size: 20),
           ),
@@ -256,7 +256,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -274,7 +274,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
             height: 48,
             decoration: BoxDecoration(
               color: AppColors.accent,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.calculate_rounded, color: Colors.white, size: 26),
           ),
@@ -340,7 +340,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
         color: AppColors.primary,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

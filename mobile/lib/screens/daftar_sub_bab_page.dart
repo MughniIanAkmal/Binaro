@@ -162,7 +162,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                         padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: AppColors.border),
                           boxShadow: [
                             BoxShadow(
@@ -235,7 +235,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: AppColors.primary,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -252,7 +252,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
             height: 48,
             decoration: BoxDecoration(
               color: AppColors.accent,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Center(
               child: Text(
@@ -331,7 +331,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: borderColor, width: isActive ? 2.5 : 1.8),
         boxShadow: [
           BoxShadow(
@@ -345,7 +345,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
         color: Colors.transparent,
         child: InkWell(
           onTap: isLocked ? null : () => _navigateToMateri(subBab),
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -358,7 +358,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                     color: isActive
                         ? AppColors.accent
                         : (isLocked ? AppColors.surfaceAlt : AppColors.primaryLight),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     _getSubBabIcon(tipeIcon),

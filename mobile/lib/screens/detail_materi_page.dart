@@ -432,7 +432,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                     padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
@@ -593,7 +593,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: AppColors.primaryLight,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppColors.primaryLight),
             ),
             child: Row(
@@ -619,7 +619,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: AppColors.surfaceAlt,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               bab,
@@ -638,7 +638,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
               color: AppColors.surfaceAlt,
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               subBab,
@@ -668,7 +668,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white, // Kartu Putih Bersih sesuai tema aplikasi
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border, width: 1.2),
         boxShadow: [
           BoxShadow(
@@ -775,7 +775,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                                               foregroundColor: Colors.white,
                                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                               shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(10),
+                                                borderRadius: BorderRadius.circular(12),
                                               ),
                                             ),
                                           ),
@@ -894,7 +894,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
                                 color: Colors.black.withValues(alpha: 0.75),
-                                borderRadius: BorderRadius.circular(6),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Row(
                                 mainAxisSize: MainAxisSize.min,
@@ -944,7 +944,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: AppColors.primaryLight,
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: const Text(
                               'Video Pembelajaran SD',
@@ -956,7 +956,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
                               color: isPlaying ? AppColors.successLight : AppColors.warningLight,
-                              borderRadius: BorderRadius.circular(6),
+                              borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
                               children: [
@@ -1119,7 +1119,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border, width: 1.2),
         boxShadow: [
           BoxShadow(
@@ -1167,7 +1167,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                           decoration: BoxDecoration(
                             color: AppColors.primaryLight,
-                            borderRadius: BorderRadius.circular(5),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Text(
                             'Dokumen PDF',
@@ -1287,7 +1287,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
@@ -1381,7 +1381,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                     foregroundColor: AppColors.primary,
                     side: const BorderSide(color: AppColors.border),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                 ),
@@ -1413,7 +1413,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),

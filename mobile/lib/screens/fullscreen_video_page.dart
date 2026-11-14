@@ -72,9 +72,9 @@ class _FullscreenVideoPageState extends State<FullscreenVideoPage> {
               child: SafeArea(
                 child: Material(
                   color: Colors.black.withValues(alpha: 0.65),
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(24),
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(30),
+                    borderRadius: BorderRadius.circular(24),
                     onTap: () {
                       SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
                       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -115,7 +115,7 @@ class _FullscreenVideoPageState extends State<FullscreenVideoPage> {
               child: SafeArea(
                 child: Material(
                   color: Colors.black.withValues(alpha: 0.65),
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: BorderRadius.circular(24),
                   child: IconButton(
                     icon: const Icon(Icons.fullscreen_exit_rounded, color: Colors.white, size: 24),
                     tooltip: 'Keluar Layar Penuh',

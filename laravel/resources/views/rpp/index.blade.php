@@ -99,13 +99,13 @@
                                 </td>
                                 <td class="p-3.5">
                                     @if($rpp->status == 'terverifikasi')
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800"><i class="fas fa-check text-[9px]"></i> Terverifikasi</span>
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800"><i class="fas fa-check text-[10px]"></i> Terverifikasi</span>
                                     @elseif($rpp->status == 'menunggu_review')
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800"><i class="fas fa-clock text-[9px]"></i> Menunggu Review</span>
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800"><i class="fas fa-clock text-[10px]"></i> Menunggu Review</span>
                                     @elseif($rpp->status == 'perlu_revisi')
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-exclamation-triangle text-[9px]"></i> Perlu Revisi</span>
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800"><i class="fas fa-exclamation-triangle text-[10px]"></i> Perlu Revisi</span>
                                     @else
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800"><i class="fas fa-times text-[9px]"></i> Draf Belum Lengkap</span>
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-100 text-rose-800"><i class="fas fa-times text-[10px]"></i> Draf Belum Lengkap</span>
                                     @endif
                                 </td>
                                 <td class="p-3.5 text-center">

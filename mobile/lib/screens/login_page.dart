@@ -15,7 +15,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _namaController = TextEditingController();
   final TextEditingController _nisnController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -26,7 +25,6 @@ class _LoginPageState extends State<LoginPage> {
   static const String _apiUrl = '${AppConstants.baseUrl}/login';
 
   Future<void> _handleLogin() async {
-    final nama = _namaController.text.trim();
     final nisn = _nisnController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -45,7 +43,6 @@ class _LoginPageState extends State<LoginPage> {
           'Accept': 'application/json',
         },
         body: jsonEncode({
-          'nama_lengkap': nama,
           'nisn': nisn,
           'password': password,
         }),
@@ -95,14 +92,13 @@ class _LoginPageState extends State<LoginPage> {
         backgroundColor:
             isError ? AppColors.error : AppColors.success,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
 
   @override
   void dispose() {
-    _namaController.dispose();
     _nisnController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -204,7 +200,7 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(32)),
+                          BorderRadius.vertical(top: Radius.circular(24)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black26,
@@ -227,16 +223,7 @@ class _LoginPageState extends State<LoginPage> {
 
                         const SizedBox(height: 20),
 
-                        // Field 1: Nama Lengkap
-                        _buildInputField(
-                          controller: _namaController,
-                          hint: 'Nama Lengkap',
-                          icon: Icons.person,
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        // Field 2: NISN / NIS
+                        // Field 1: NISN / NIS (selaras dengan login web)
                         _buildInputField(
                           controller: _nisnController,
                           hint: 'NISN / NIS',
@@ -273,7 +260,7 @@ class _LoginPageState extends State<LoginPage> {
                               disabledBackgroundColor: AppColors.primary.withValues(alpha: 0.6),
                               elevation: 0,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
                             child: _isLoading
@@ -341,11 +328,11 @@ class _LoginPageState extends State<LoginPage> {
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.border, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
       ),

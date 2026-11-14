@@ -138,11 +138,11 @@
                                     </span>
                                     <span class="text-slate-300">&bull;</span>
                                     @if($menungguNilai > 0)
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-100 text-amber-800">
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
                                             <i class="fas fa-clock text-[8px]"></i> {{ $menungguNilai }} Menunggu Nilai
                                         </span>
                                     @else
-                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800">
+                                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
                                             <i class="fas fa-check text-[8px]"></i> Nilai Dirilis
                                         </span>
                                     @endif
@@ -178,7 +178,7 @@
                         <td class="py-3.5 px-4 text-center">
                             @if(($ujian->target_tipe ?? 'semua') === 'semua')
                                 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                                    <i class="fas fa-users text-[9px]"></i> Semua Siswa
+                                    <i class="fas fa-users text-[10px]"></i> Semua Siswa
                                 </span>
                             @else
                                 @php
@@ -186,11 +186,11 @@
                                 @endphp
                                 @if($kelasTarget->count() === 1)
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200" title="{{ $ujian->targetSiswa->pluck('nm_siswa')->join(', ') }}">
-                                        <i class="fas fa-users text-[9px]"></i> Siswa kelas {{ $kelasTarget->first() }}
+                                        <i class="fas fa-users text-[10px]"></i> Siswa kelas {{ $kelasTarget->first() }}
                                     </span>
                                 @else
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200" title="{{ $ujian->targetSiswa->pluck('nm_siswa')->join(', ') }}">
-                                        <i class="fas fa-user-tag text-[9px]"></i> {{ $ujian->targetSiswa->count() }} Siswa Pilihan
+                                        <i class="fas fa-user-tag text-[10px]"></i> {{ $ujian->targetSiswa->count() }} Siswa Pilihan
                                     </span>
                                 @endif
                             @endif

@@ -28,8 +28,8 @@
 
         <div class="relative flex items-start justify-between gap-6 flex-wrap">
             <div class="min-w-0">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 border border-white/15 text-[9.5px] font-extrabold tracking-[0.12em] uppercase">
-                    <i class="fas fa-graduation-cap text-[9px]"></i> Portal Belajar Siswa
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 border border-white/15 text-[10px] font-extrabold tracking-[0.12em] uppercase">
+                    <i class="fas fa-graduation-cap text-[10px]"></i> Portal Belajar Siswa
                 </span>
 
                 <h2 class="mt-3 text-[26px] leading-tight font-extrabold tracking-tight">Halo, {{ $namaSiswa }}!</h2>
@@ -59,7 +59,7 @@
                     <i class="fas fa-clipboard-list text-[13px]"></i>
                 </div>
                 <div class="text-right min-w-0">
-                    <div class="text-[9.5px] font-extrabold tracking-[0.1em] text-slate-400 uppercase">Tugas Aktif</div>
+                    <div class="text-[10px] font-extrabold tracking-[0.1em] text-slate-400 uppercase">Tugas Aktif</div>
                     <div class="text-[26px] leading-tight font-extrabold text-slate-900 mt-0.5">{{ $jumlahTugasAktif }} <span class="text-[15px] font-bold text-slate-500">PR</span></div>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                     <i class="fas fa-book-bookmark text-[13px]"></i>
                 </div>
                 <div class="text-right min-w-0">
-                    <div class="text-[9.5px] font-extrabold tracking-[0.1em] text-slate-400 uppercase">Mata Pelajaran</div>
+                    <div class="text-[10px] font-extrabold tracking-[0.1em] text-slate-400 uppercase">Mata Pelajaran</div>
                     <div class="text-[26px] leading-tight font-extrabold text-slate-900 mt-0.5">{{ $jumlahMapel }}</div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
                     <i class="fas fa-pen-to-square text-[13px]"></i>
                 </div>
                 <div class="text-right min-w-0">
-                    <div class="text-[9.5px] font-extrabold tracking-[0.1em] text-slate-400 uppercase">Ujian Online</div>
+                    <div class="text-[10px] font-extrabold tracking-[0.1em] text-slate-400 uppercase">Ujian Online</div>
                     <div class="text-[26px] leading-tight font-extrabold text-slate-900 mt-0.5">&nbsp;</div>
                 </div>
             </div>
@@ -110,7 +110,7 @@
                     <i class="fas fa-user-graduate text-[13px]"></i>
                 </div>
                 <div class="text-right min-w-0">
-                    <div class="text-[9.5px] font-extrabold tracking-[0.1em] text-slate-400 uppercase">Kelas Saya</div>
+                    <div class="text-[10px] font-extrabold tracking-[0.1em] text-slate-400 uppercase">Kelas Saya</div>
                     <div class="text-[26px] leading-tight font-extrabold text-slate-900 mt-0.5">{{ str_replace('Kelas ', '', $kelasSiswa) }}</div>
                 </div>
             </div>
@@ -146,7 +146,7 @@
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <h4 class="text-[13.5px] font-extrabold text-slate-900 truncate">{{ $item['judul'] ?? '-' }}</h4>
-                                <span class="px-2 py-0.5 rounded-md bg-[#EAF1F8] text-[9px] font-extrabold tracking-[0.08em] uppercase text-primary" >{{ $item['mapel'] ?? '-' }}</span>
+                                <span class="px-2 py-0.5 rounded-md bg-[#EAF1F8] text-[10px] font-extrabold tracking-[0.08em] uppercase text-primary" >{{ $item['mapel'] ?? '-' }}</span>
                             </div>
                             <div class="mt-1 flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
                                 <span class="font-semibold text-slate-600"><i class="fas fa-clock text-[10px] mr-1"></i>Tenggat: {{ $item['deadline'] ?? '-' }}</span>
@@ -156,7 +156,7 @@
                         <a href="{{ route('siswa.notifikasi_pr.index') }}"
                            class="inline-flex items-center gap-1.5 px-4 h-10 rounded-xl text-[12px] font-bold text-white transition hover:opacity-90 shrink-0 bg-primary"
                            >
-                            Buka <i class="fas fa-arrow-right text-[9px]"></i>
+                            Buka <i class="fas fa-arrow-right text-[10px]"></i>
                         </a>
                     </div>
                 @empty
@@ -180,7 +180,7 @@
                         {{ ($tugas_total ?? 0) - $jumlahTugasAktif }} tugas lainnya sudah lewat tenggat
                     </span>
                     <a href="{{ route('siswa.notifikasi_pr.index') }}" class="text-[11.5px] font-bold text-slate-500 hover:text-slate-800 transition">
-                        Lihat semua tugas <i class="fas fa-arrow-right text-[9px] ml-1"></i>
+                        Lihat semua tugas <i class="fas fa-arrow-right text-[10px] ml-1"></i>
                     </a>
                 </div>
             @endif
@@ -213,7 +213,7 @@
                             </a>
                         </div>
                         <div class="mt-2.5 flex items-center gap-2">
-                            <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[9.5px] font-extrabold">{{ $item['badge'] ?? 'Aktif' }}</span>
+                            <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] font-extrabold">{{ $item['badge'] ?? 'Aktif' }}</span>
                         </div>
                     </div>
                 @empty
@@ -233,14 +233,14 @@
                     <span class="flex items-center gap-2 text-[11.5px] font-bold text-slate-700">
                         <i class="fas fa-calendar-days text-[12px] text-primary" ></i> Lihat Jadwal Pelajaran
                     </span>
-                    <i class="fas fa-arrow-right text-[9px] text-slate-400 group-hover:text-slate-700 transition"></i>
+                    <i class="fas fa-arrow-right text-[10px] text-slate-400 group-hover:text-slate-700 transition"></i>
                 </a>
                 <a href="{{ route('siswa.notifikasi_pr.index') }}"
                    class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-line bg-white hover:bg-slate-50 transition group">
                     <span class="flex items-center gap-2 text-[11.5px] font-bold text-slate-700">
                         <i class="fas fa-bell text-[12px] text-amber-500"></i> Semua Notifikasi PR
                     </span>
-                    <i class="fas fa-arrow-right text-[9px] text-slate-400 group-hover:text-slate-700 transition"></i>
+                    <i class="fas fa-arrow-right text-[10px] text-slate-400 group-hover:text-slate-700 transition"></i>
                 </a>
             </div>
         </div>

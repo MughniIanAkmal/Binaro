@@ -161,7 +161,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                         padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(16),
                           border: Border.all(color: AppColors.border),
                           boxShadow: [
                             BoxShadow(
@@ -279,7 +279,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(color: borderColor, width: 2),
         boxShadow: [
           BoxShadow(
@@ -292,7 +292,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(16),
           onTap: navigateToDestination,
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -309,7 +309,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                       height: 44,
                       decoration: BoxDecoration(
                         color: isOrange ? AppColors.accent : AppColors.primaryLight,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
                         _getMateriIcon(tipe),

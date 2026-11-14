@@ -284,12 +284,12 @@
                     <!-- Metrik Bobot -->
                     <div class="flex items-center gap-3 self-end sm:self-auto bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-xs">
                         <div class="text-right">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Total Terkumpul</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Terkumpul</span>
                             <span class="text-sm font-black text-slate-800" id="bobot-total-display">0 <span class="text-[10px] font-bold text-slate-400">/ 100</span></span>
                         </div>
                         <div class="h-6 w-px bg-slate-200"></div>
                         <div class="text-right">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Sisa Kuota</span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Sisa Kuota</span>
                             <span class="text-sm font-black text-emerald-600" id="bobot-sisa-display">100 <span class="text-[10px] font-bold text-slate-400">Poin</span></span>
                         </div>
                     </div>

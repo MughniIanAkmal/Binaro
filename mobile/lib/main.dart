@@ -35,6 +35,14 @@ class BinaroApp extends StatelessWidget {
     return MaterialApp(
       title: '${AppConstants.appName} - ${AppConstants.appSubtitle}',
       debugShowCheckedModeBanner: false,
+      // Batasi skala teks sistem agar layout padat tidak overflow (T17)
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: MediaQuery.textScalerOf(context)
+              .clamp(maxScaleFactor: 1.3),
+        ),
+        child: child!,
+      ),
       theme: ThemeData(
         fontFamily: 'Plus Jakarta Sans',
         colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
