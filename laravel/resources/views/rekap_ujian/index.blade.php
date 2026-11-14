@@ -24,7 +24,7 @@
 @section('header_actions')
     <form method="GET" action="{{ route('rekap_nilai.index') }}" class="flex items-center gap-2 print:hidden">
         <select name="quiz_id" onchange="this.form.submit()"
-            class="px-4 h-10 bg-white border border-[#E6EBF2] rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-[#13527D]">
+            class="px-4 h-10 bg-white border border-line rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-primary">
             <option value="">-- Pilih Rekap Nilai --</option>
             @foreach($quizzes as $q)
             @php
@@ -40,7 +40,7 @@
 
     @if($selectedQuizId && $hasils->isNotEmpty())
         <button type="button" onclick="window.print()"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition print:hidden">
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition print:hidden">
             <i class="fas fa-print text-[11px]"></i> {{ $isQuiz ? 'Cetak Daftar Nilai' : 'Cetak Rekap' }}
         </button>
         <a href="{{ route('guru.quiz.export', $selectedQuizId) }}"
@@ -51,8 +51,8 @@
         <form method="POST" action="{{ route('rekap_ujian.kirim_semua', $selectedQuizId) }}" class="inline print:hidden" onsubmit="return confirm('Kirimkan nilai ujian ini ke seluruh siswa?')">
             @csrf
             <button type="submit"
-                class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-                style="background: var(--binaro-navy);">
+                class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+                >
                 <i class="fas fa-paper-plane text-[11px]"></i> Kirim Nilai
             </button>
         </form>
@@ -88,8 +88,8 @@
     {{-- ===== NO QUIZ SELECTED EMPTY STATE ===== --}}
     @if(!$selectedQuizId)
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-16 flex flex-col items-center justify-center text-center gap-4 print:hidden">
-        <div class="w-16 h-16 rounded-2xl bg-[#13527D]/10 flex items-center justify-center">
-            <i class="fas fa-clipboard-list text-2xl text-[#13527D]/60"></i>
+        <div class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <i class="fas fa-clipboard-list text-2xl text-primary/60"></i>
         </div>
         <div>
             <h3 class="font-bold text-slate-700 text-sm mb-1">Belum Ada Kuis atau Ujian Dipilih</h3>
@@ -124,7 +124,7 @@
                         <i class="fas fa-chart-line text-sky-600 text-xs"></i>
                     </div>
                 </div>
-                <div class="text-2xl font-black text-[#13527D] tracking-tight leading-none">{{ $rataRata }}</div>
+                <div class="text-2xl font-black text-primary tracking-tight leading-none">{{ $rataRata }}</div>
             </div>
             <div class="text-[10px] text-slate-400 mt-2 font-medium">Dari {{ $totalSiswa }} peserta</div>
         </div>
@@ -221,8 +221,8 @@
                 {{-- Tabs --}}
                 <div class="flex items-center gap-1 overflow-x-auto" id="tab-bar">
                     <button onclick="switchTab('semua')" id="tab-semua"
-                        class="tab-btn active-tab whitespace-nowrap px-4 py-2 text-[11px] font-bold rounded-t-lg border-b-2 border-[#13527D] text-[#13527D] transition">
-                        Semua Siswa <span class="ml-1 bg-[#13527D]/10 text-[#13527D] px-1.5 py-0.5 rounded-full text-[10px]">{{ $totalSiswa }}</span>
+                        class="tab-btn active-tab whitespace-nowrap px-4 py-2 text-[11px] font-bold rounded-t-lg border-b-2 border-primary text-primary transition">
+                        Semua Siswa <span class="ml-1 bg-primary/10 text-primary px-1.5 py-0.5 rounded-full text-[10px]">{{ $totalSiswa }}</span>
                     </button>
                     <button onclick="switchTab('lulus')" id="tab-lulus"
                         class="tab-btn whitespace-nowrap px-4 py-2 text-[11px] font-medium rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-emerald-600 hover:border-emerald-400 transition">
@@ -235,11 +235,11 @@
                     </button>
                     @endif
                     <button onclick="switchTab('rekap')" id="tab-rekap"
-                        class="tab-btn whitespace-nowrap px-4 py-2 text-[11px] font-medium rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-[#13527D] hover:border-[#13527D] transition">
+                        class="tab-btn whitespace-nowrap px-4 py-2 text-[11px] font-medium rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-primary hover:border-primary transition">
                         Rekap + Keaktifan
                     </button>
                     <button onclick="switchTab('nilai')" id="tab-nilai"
-                        class="tab-btn whitespace-nowrap px-4 py-2 text-[11px] font-medium rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-[#13527D] hover:border-[#13527D] transition">
+                        class="tab-btn whitespace-nowrap px-4 py-2 text-[11px] font-medium rounded-t-lg border-b-2 border-transparent text-slate-500 hover:text-primary hover:border-primary transition">
                         Nilai {{ $isQuiz ? 'Kuis' : 'Ujian' }} Saja
                     </button>
                 </div>
@@ -250,9 +250,9 @@
                         <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-300 text-[10px]"></i>
                         <input type="text" id="search-input" placeholder="Cari siswa..."
                             oninput="filterTable()"
-                            class="pl-7 pr-3 py-2 text-[11px] border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D] w-48 bg-slate-50">
+                            class="pl-7 pr-3 py-2 text-[11px] border border-slate-200 rounded-lg focus:outline-none focus:border-primary w-48 bg-slate-50">
                     </div>
-                    <select id="sort-select" onchange="sortTable()" class="px-3 py-2 text-[11px] border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D] bg-slate-50 text-slate-600">
+                    <select id="sort-select" onchange="sortTable()" class="px-3 py-2 text-[11px] border border-slate-200 rounded-lg focus:outline-none focus:border-primary bg-slate-50 text-slate-600">
                         <option value="default">Urutan Default</option>
                         <option value="nilai_desc">Nilai Tertinggi</option>
                         <option value="nilai_asc">Nilai Terendah</option>
@@ -570,7 +570,7 @@
 
     // Pre-built class sets (avoids dynamic Tailwind arbitrary-value injection)
     const TAB_INACTIVE = 'border-transparent text-slate-500 font-medium';
-    const TAB_ACTIVE_DEFAULT  = 'font-bold text-[#13527D]';
+    const TAB_ACTIVE_DEFAULT  = 'font-bold text-primary';
     const TAB_ACTIVE_LULUS    = 'font-bold text-emerald-600';
     const TAB_ACTIVE_REMEDIAL = 'font-bold text-rose-600';
 
@@ -581,7 +581,7 @@
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.className = btn.className
                 .replace(/\bfont-bold\b/g, 'font-medium')
-                .replace(/\btext-\[#13527D\]\b/g, 'text-slate-500')
+                .replace(/\btext-primary\b/g, 'text-slate-500')
                 .replace(/\btext-emerald-600\b/g, 'text-slate-500')
                 .replace(/\btext-rose-600\b/g, 'text-slate-500');
             btn.style.borderBottomColor = 'transparent';
@@ -603,8 +603,8 @@
             activeBtn.style.borderBottomColor = '#34d399'; // emerald-400
             activeBtn.style.color = '#059669';              // emerald-600
         } else {
-            activeBtn.style.borderBottomColor = '#13527D';
-            activeBtn.style.color = '#13527D';
+            activeBtn.style.borderBottomColor = 'var(--color-primary)';
+            activeBtn.style.color = 'var(--color-primary)';
         }
 
         filterTable();
@@ -653,8 +653,8 @@
         const firstTab = document.getElementById('tab-semua');
         if (firstTab) {
             firstTab.style.borderBottomWidth = '2px';
-            firstTab.style.borderBottomColor = '#13527D';
-            firstTab.style.color = '#13527D';
+            firstTab.style.borderBottomColor = 'var(--color-primary)';
+            firstTab.style.color = 'var(--color-primary)';
             firstTab.style.fontWeight = '700';
         }
     });

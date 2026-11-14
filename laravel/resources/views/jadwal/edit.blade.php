@@ -35,7 +35,7 @@
             <!-- Input Hari -->
             <div>
                 <label for="hari" class="block text-sm font-semibold text-gray-700 mb-1.5">Hari</label>
-                <select name="hari" id="hari" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#13527D] text-sm text-gray-700" required>
+                <select name="hari" id="hari" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-sm text-gray-700" required>
                     <option value="">-- Pilih Hari --</option>
                     @foreach (['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $hari)
                         <option value="{{ $hari }}" {{ old('hari', $jadwal->hari) == $hari ? 'selected' : '' }}>
@@ -52,7 +52,7 @@
                         Jam Pelajaran (Waktu Mulai s/d Selesai) <span class="text-rose-500">*</span>
                     </label>
                     <span class="text-[11px] font-semibold text-slate-500 bg-white px-2.5 py-0.5 rounded-full border border-slate-200">
-                        <i class="fas fa-school mr-1 text-[#13527D]"></i> Tutup Sekolah: <strong class="text-slate-800" id="badge-jam-tutup">{{ $jamTutup ?? '12:00' }}</strong> WIB
+                        <i class="fas fa-school mr-1 text-primary"></i> Tutup Sekolah: <strong class="text-slate-800" id="badge-jam-tutup">{{ $jamTutup ?? '12:00' }}</strong> WIB
                     </span>
                 </div>
 
@@ -62,7 +62,7 @@
                         <input
                             type="time"
                             id="picker_jam_mulai"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#13527D] text-xs font-bold text-slate-800"
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary text-xs font-bold text-slate-800"
                             required
                         >
                     </div>
@@ -71,7 +71,7 @@
                         <input
                             type="time"
                             id="picker_jam_selesai"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#13527D] text-xs font-bold text-slate-800"
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary text-xs font-bold text-slate-800"
                             required
                         >
                     </div>
@@ -87,12 +87,12 @@
                         placeholder="Contoh: 07.00-08.30"
                         pattern="[0-9]{2}\.[0-9]{2}-[0-9]{2}\.[0-9]{2}"
                         title="Format jam: HH.MM-HH.MM"
-                        class="w-full px-3.5 py-2 bg-white rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-700 focus:outline-none focus:border-[#13527D]"
+                        class="w-full px-3.5 py-2 bg-white rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-700 focus:outline-none focus:border-primary"
                         required
                     >
                     <p class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
                         <span>*Otomatis tersinkron dengan pilihan Jam Mulai & Selesai di atas (format HH.MM-HH.MM).</span>
-                        <a href="{{ route('admin.absensi.settings') }}" class="text-[#13527D] hover:underline font-semibold">Ubah Jam Tutup Sekolah</a>
+                        <a href="{{ route('admin.absensi.settings') }}" class="text-primary hover:underline font-semibold">Ubah Jam Tutup Sekolah</a>
                     </p>
                 </div>
 
@@ -105,7 +105,7 @@
             <!-- Select Mata Pelajaran -->
             <div>
                 <label for="id_mapel" class="block text-sm font-semibold text-gray-700 mb-1.5">Mata Pelajaran</label>
-                <select name="id_mapel" id="id_mapel" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#13527D] text-sm text-gray-700" required>
+                <select name="id_mapel" id="id_mapel" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-sm text-gray-700" required>
                     <option value="">-- Pilih Mata Pelajaran --</option>
                     @foreach ($mapel as $m)
                         <option value="{{ $m->id_mapel }}" {{ old('id_mapel', $jadwal->id_mapel) == $m->id_mapel ? 'selected' : '' }}>
@@ -118,7 +118,7 @@
             <!-- Select Guru -->
             <div>
                 <label for="id_guru" class="block text-sm font-semibold text-gray-700 mb-1.5">Guru Pengampu</label>
-                <select name="id_guru" id="id_guru" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#13527D] text-sm text-gray-700" required>
+                <select name="id_guru" id="id_guru" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-sm text-gray-700" required>
                     <option value="">-- Pilih Guru --</option>
                     @foreach ($guru as $g)
                         <option value="{{ $g->id_guru }}" {{ old('id_guru', $jadwal->id_guru) == $g->id_guru ? 'selected' : '' }}>
@@ -131,7 +131,7 @@
             <!-- Select Kelas -->
             <div>
                 <label for="id_kelas" class="block text-sm font-semibold text-gray-700 mb-1.5">Kelas</label>
-                <select name="id_kelas" id="id_kelas" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#13527D] text-sm text-gray-700" required>
+                <select name="id_kelas" id="id_kelas" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-sm text-gray-700" required>
                     <option value="">-- Pilih Kelas --</option>
                     @foreach ($kelas as $k)
                         <option value="{{ $k->id_rooms }}" {{ old('id_kelas', $jadwal->id_rooms) == $k->id_rooms ? 'selected' : '' }}>
@@ -146,7 +146,7 @@
                 <a href="{{ route('jadwal.index') }}" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2.5 rounded-xl text-sm font-medium transition">
                     Batal
                 </a>
-                <button type="submit" id="btn-submit-jadwal" class="bg-[#13527D] hover:bg-[#0E3D5D] text-white px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm">
+                <button type="submit" id="btn-submit-jadwal" class="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm">
                     💾 Update Jadwal
                 </button>
             </div>

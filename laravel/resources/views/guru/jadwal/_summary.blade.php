@@ -1,7 +1,7 @@
 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 print:hidden">
     @foreach([
         ['fa-calendar-day', 'bg-amber-50', 'text-amber-600', 'Hari Ini', $hariIni ?? '-', '', true],
-        ['fa-clock', 'bg-sky-50', 'text-[#13527D]', 'Total Sesi / Pekan', $totalSesi ?? 0, ' Sesi', false],
+        ['fa-clock', 'bg-sky-50', 'text-primary', 'Total Sesi / Pekan', $totalSesi ?? 0, ' Sesi', false],
         ['fa-book', 'bg-emerald-50', 'text-emerald-600', 'Mata Pelajaran', $totalMapel ?? 0, ' Pelajaran', false],
         ['fa-door-open', 'bg-purple-50', 'text-purple-600', 'Kelas Diampu', $totalKelas ?? 0, ' Kelas', false],
     ] as [$ikon, $warnaLatar, $warnaTeks, $label, $nilai, $satuan, $tampilkanIndikator])

@@ -161,9 +161,9 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
     final double progressValue = _totalSoal > 0 ? (_currentIndex + 1) / _totalSoal : 0.25;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1D5A86),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
@@ -195,7 +195,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFC0C0C0),
+                  color: AppColors.border,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2.2),
                 ),
@@ -205,7 +205,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : currentQuestion == null
               ? Center(
                   child: Container(
@@ -214,7 +214,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.02),
@@ -230,13 +230,13 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                           width: 68,
                           height: 68,
                           decoration: const BoxDecoration(
-                            color: Color(0xFFEFF6FF),
+                            color: AppColors.primaryLight,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.assignment_late_outlined,
                             size: 34,
-                            color: Color(0xFF1D5A86),
+                            color: AppColors.primary,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -245,7 +245,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -255,7 +255,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                             height: 1.4,
                           ),
                         ),
@@ -263,7 +263,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                         ElevatedButton(
                           onPressed: () => Navigator.pop(context),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1D5A86),
+                            backgroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -313,14 +313,14 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
             // Teks "Soal 5 dari 20"
             RichText(
               text: TextSpan(
-                style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B)),
+                style: const TextStyle(fontSize: 14, color: AppColors.textPrimary),
                 children: [
                   const TextSpan(text: 'Soal '),
                   TextSpan(
                     text: '${_currentIndex + 1}',
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF1D5A86),
+                      color: AppColors.primary,
                       fontSize: 15,
                     ),
                   ),
@@ -333,7 +333,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
               decoration: BoxDecoration(
-                color: const Color(0xFFF59E0B), // Vibrant amber orange
+                color: AppColors.accent, // Vibrant amber orange
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -356,8 +356,8 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
           child: LinearProgressIndicator(
             value: progressValue,
             minHeight: 6,
-            backgroundColor: const Color(0xFFE2E8F0),
-            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF1D5A86)),
+            backgroundColor: AppColors.border,
+            valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
           ),
         ),
       ],
@@ -378,7 +378,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -397,7 +397,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
+                  color: AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -405,7 +405,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1D5A86),
+                    color: AppColors.primary,
                   ),
                 ),
               ),
@@ -414,7 +414,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                 style: const TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textMuted,
                 ),
               ),
             ],
@@ -427,7 +427,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
             style: const TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
               height: 1.45,
             ),
           ),
@@ -452,9 +452,9 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppColors.background,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         children: [
@@ -463,7 +463,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
             style: TextStyle(
               fontSize: 10.5,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
               letterSpacing: 0.8,
             ),
           ),
@@ -483,9 +483,9 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildLegendDot(const Color(0xFF1D5A86), 'Dimakan Budi (3)'),
+              _buildLegendDot(AppColors.primary, 'Dimakan Budi (3)'),
               const SizedBox(width: 16),
-              _buildLegendDot(const Color(0xFFE2E8F0), 'Sisa Semangka (5)', textColor: const Color(0xFF64748B)),
+              _buildLegendDot(AppColors.border, 'Sisa Semangka (5)', textColor: AppColors.textSecondary),
             ],
           ),
         ],
@@ -493,7 +493,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
     );
   }
 
-  Widget _buildLegendDot(Color color, String label, {Color textColor = const Color(0xFF1E293B)}) {
+  Widget _buildLegendDot(Color color, String label, {Color textColor = AppColors.textPrimary}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -503,7 +503,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
-            border: Border.all(color: const Color(0xFFCBD5E1), width: 0.5),
+            border: Border.all(color: AppColors.border, width: 0.5),
           ),
         ),
         const SizedBox(width: 6),
@@ -527,9 +527,9 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
       width: double.infinity,
       height: 130,
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF7ED),
+        color: AppColors.warningLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFED7AA)),
+        border: Border.all(color: AppColors.warningLight),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -553,12 +553,12 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                 children: [
                   Text(
                     '1 Buah Semangka Segar',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF9A3412)),
+                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: AppColors.accentDeep),
                   ),
                   SizedBox(height: 2),
                   Text(
                     'Dipotong menjadi 8 bagian sama rata',
-                    style: TextStyle(fontSize: 11, color: Color(0xFFC2410C)),
+                    style: TextStyle(fontSize: 11, color: AppColors.accentDeep),
                   ),
                 ],
               ),
@@ -618,7 +618,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
           style: TextStyle(
             fontSize: 12.5,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF64748B),
+            color: AppColors.textSecondary,
           ),
         ),
         const SizedBox(height: 12),
@@ -643,13 +643,13 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: isSelected ? const Color(0xFF1D5A86) : const Color(0xFFE2E8F0),
+                    color: isSelected ? AppColors.primary : AppColors.border,
                     width: isSelected ? 1.8 : 1,
                   ),
                   boxShadow: [
                     BoxShadow(
                       color: isSelected
-                          ? const Color(0xFF1D5A86).withValues(alpha: 0.06)
+                          ? AppColors.primary.withValues(alpha: 0.06)
                           : Colors.black.withValues(alpha: 0.02),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
@@ -663,14 +663,14 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF1D5A86) : const Color(0xFFEFF6FF),
+                        color: isSelected ? AppColors.primary : AppColors.primaryLight,
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
                       child: Text(
                         key,
                         style: TextStyle(
-                          color: isSelected ? Colors.white : const Color(0xFF1D5A86),
+                          color: isSelected ? Colors.white : AppColors.primary,
                           fontWeight: FontWeight.w800,
                           fontSize: 14,
                         ),
@@ -685,7 +685,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                          color: const Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                       ),
                     ),
@@ -696,7 +696,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                         width: 22,
                         height: 22,
                         decoration: const BoxDecoration(
-                          color: Color(0xFF1D5A86),
+                          color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.check, size: 14, color: Colors.white),
@@ -707,7 +707,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                         height: 22,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: const Color(0xFFCBD5E1), width: 1.8),
+                          border: Border.all(color: AppColors.border, width: 1.8),
                         ),
                       ),
                   ],
@@ -743,21 +743,21 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                     }
                   : null,
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFFCBD5E1)),
+                side: const BorderSide(color: AppColors.border),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 backgroundColor: Colors.white,
               ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.arrow_back_rounded, size: 15, color: Color(0xFF1D5A86)),
+                  Icon(Icons.arrow_back_rounded, size: 15, color: AppColors.primary),
                   SizedBox(width: 4),
                   Text(
                     'Sebelumnya',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF1D5A86),
+                      color: AppColors.primary,
                     ),
                   ),
                 ],
@@ -783,8 +783,8 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                 });
               },
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFFFDE68A), width: 1.5),
-                backgroundColor: isRagu ? const Color(0xFFFEF3C7) : const Color(0xFFFFFBEB),
+                side: const BorderSide(color: AppColors.accentBright, width: 1.5),
+                backgroundColor: isRagu ? AppColors.warningLight : AppColors.warningLight,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               child: Row(
@@ -793,7 +793,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                   Icon(
                     Icons.bookmark_border_rounded,
                     size: 15,
-                    color: isRagu ? const Color(0xFFB45309) : const Color(0xFFD97706),
+                    color: isRagu ? AppColors.accentDeep : AppColors.accentDeep,
                   ),
                   const SizedBox(width: 4),
                   Text(
@@ -801,7 +801,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      color: isRagu ? const Color(0xFFB45309) : const Color(0xFFD97706),
+                      color: isRagu ? AppColors.accentDeep : AppColors.accentDeep,
                     ),
                   ),
                 ],
@@ -827,7 +827,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1D5A86),
+                backgroundColor: AppColors.primary,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
@@ -869,11 +869,11 @@ class PieDiagram8Painter extends CustomPainter {
     final double radius = size.width * 0.44;
 
     final paintBlue = Paint()
-      ..color = const Color(0xFF1D5A86)
+      ..color = AppColors.primary
       ..style = PaintingStyle.fill;
 
     final paintGrey = Paint()
-      ..color = const Color(0xFFE2E8F0)
+      ..color = AppColors.border
       ..style = PaintingStyle.fill;
 
     final paintBorder = Paint()

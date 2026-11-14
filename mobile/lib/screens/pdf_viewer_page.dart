@@ -80,7 +80,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
+      backgroundColor: AppColors.surfaceAlt,
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
@@ -126,13 +126,13 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
                     const SizedBox(height: 14),
                     const Text(
                       'Tidak dapat memuat dokumen PDF',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1E293B)),
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       _errorMessage!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12.5, color: Color(0xFF64748B)),
+                      style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
@@ -185,7 +185,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
                         SizedBox(height: 14),
                         Text(
                           'Membuka dokumen PDF...',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
                         ),
                       ],
                     ),
@@ -212,12 +212,12 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.zoom_out_rounded, size: 22, color: Color(0xFF475569)),
+                  icon: const Icon(Icons.zoom_out_rounded, size: 22, color: AppColors.textSecondary),
                   tooltip: 'Perkecil',
                   onPressed: () => _pdfViewerController.zoomLevel = (_pdfViewerController.zoomLevel - 0.25).clamp(1.0, 3.0),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.zoom_in_rounded, size: 22, color: Color(0xFF475569)),
+                  icon: const Icon(Icons.zoom_in_rounded, size: 22, color: AppColors.textSecondary),
                   tooltip: 'Perbesar',
                   onPressed: () => _pdfViewerController.zoomLevel = (_pdfViewerController.zoomLevel + 0.25).clamp(1.0, 3.0),
                 ),

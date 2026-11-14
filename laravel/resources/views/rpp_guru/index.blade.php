@@ -4,12 +4,12 @@
 
 @section('header_actions')
     <button type="button" onclick="openModalTambahRpp()"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-            style="background: var(--binaro-navy);">
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+            >
         <i class="fas fa-plus text-[11px]"></i> Buat Modul Ajar
     </button>
     <button type="button" onclick="window.print()"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition print:hidden">
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition print:hidden">
         <i class="fas fa-print text-[11px]"></i> Cetak Rekap
     </button>
 @endsection
@@ -83,26 +83,26 @@
         <!-- Tabs -->
         <div class="flex items-center gap-2 overflow-x-auto text-xs font-semibold py-1">
             <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'semua'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap {{ ($tab ?? 'semua') === 'semua' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80' }}">
+               class="px-4 py-2 rounded-xl transition whitespace-nowrap {{ ($tab ?? 'semua') === 'semua' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80' }}">
                 Semua RPP ({{ $kpiGuru['total'] }})
             </a>
             <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'menunggu'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'menunggu' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-amber-700 hover:bg-amber-50 border border-amber-200' }}">
+               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'menunggu' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-white text-amber-700 hover:bg-amber-50 border border-amber-200' }}">
                 <i class="fas fa-clock text-[11px] {{ ($tab ?? '') === 'menunggu' ? 'text-white' : 'text-amber-500' }}"></i>
                 <span>Menunggu Persetujuan Admin ({{ $kpiGuru['menunggu_review'] }})</span>
             </a>
             <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'disetujui'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'disetujui' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200' }}">
+               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'disetujui' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200' }}">
                 <i class="fas fa-check-circle text-[11px] {{ ($tab ?? '') === 'disetujui' ? 'text-white' : 'text-emerald-500' }}"></i>
                 <span>Disetujui Admin / Siap Ajar ({{ $kpiGuru['siap_ajar'] }})</span>
             </a>
             <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'revisi'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'revisi' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-rose-700 hover:bg-rose-50 border border-rose-200' }}">
+               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'revisi' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-white text-rose-700 hover:bg-rose-50 border border-rose-200' }}">
                 <i class="fas fa-triangle-exclamation text-[11px] {{ ($tab ?? '') === 'revisi' ? 'text-white' : 'text-rose-500' }}"></i>
                 <span>Perlu Revisi ({{ $kpiGuru['perlu_revisi'] }})</span>
             </a>
             <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'draft'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap {{ ($tab ?? '') === 'draft' ? 'bg-[#13527D] text-white font-bold shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80' }}">
+               class="px-4 py-2 rounded-xl transition whitespace-nowrap {{ ($tab ?? '') === 'draft' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80' }}">
                 Draf ({{ $kpiGuru['draft'] }})
             </a>
         </div>
@@ -125,7 +125,7 @@
                 <i class="fas fa-search absolute left-3.5 top-3 text-slate-400 text-xs"></i>
                 <input type="text" name="search" value="{{ request('search') }}"
                        placeholder="Cari judul RPP, KD, topik materi pembelajaran..."
-                       class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-[#13527D] transition">
+                       class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-primary transition">
             </div>
 
             <!-- Dropdown Filter Jadwal -->
@@ -133,7 +133,7 @@
                 <div class="relative">
                     <i class="fas fa-calendar-alt absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                     <select name="hari" onchange="this.form.submit()"
-                            class="w-full pl-8 pr-8 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-[#13527D] transition appearance-none font-medium text-slate-700 cursor-pointer">
+                            class="w-full pl-8 pr-8 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-primary transition appearance-none font-medium text-slate-700 cursor-pointer">
                         <option value="semua">Filter Jadwal: Semua Hari Aktif</option>
                         <option value="Senin" {{ request('hari') == 'Senin' ? 'selected' : '' }}>Senin (Jam Pagi & Siang)</option>
                         <option value="Selasa" {{ request('hari') == 'Selasa' ? 'selected' : '' }}>Selasa (Jam Sains)</option>
@@ -149,7 +149,7 @@
             <div class="md:col-span-2">
                 <div class="relative">
                     <select name="id_rooms" onchange="this.form.submit()"
-                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-[#13527D] transition appearance-none font-medium text-slate-700 cursor-pointer">
+                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-primary transition appearance-none font-medium text-slate-700 cursor-pointer">
                         <option value="">Semua Kelas</option>
                         @foreach($kelasList as $kelas)
                             <option value="{{ $kelas->id_rooms }}" {{ request('id_rooms') == $kelas->id_rooms ? 'selected' : '' }}>
@@ -165,7 +165,7 @@
             <div class="md:col-span-2">
                 <div class="relative">
                     <select name="id_mapel" onchange="this.form.submit()"
-                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-[#13527D] transition appearance-none font-medium text-slate-700 cursor-pointer">
+                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-primary transition appearance-none font-medium text-slate-700 cursor-pointer">
                         <option value="">Semua Mapel</option>
                         @foreach($mapelList as $mapel)
                             <option value="{{ $mapel->id_mapel }}" {{ request('id_mapel') == $mapel->id_mapel ? 'selected' : '' }}>
@@ -179,7 +179,7 @@
 
             <!-- Action Buttons: Reset / Submit -->
             <div class="md:col-span-1 flex items-center gap-1.5 justify-end">
-                <button type="submit" title="Terapkan Filter" class="p-2 w-9 h-9 rounded-xl bg-[#13527D] text-white hover:bg-[#0E3D5D] transition flex items-center justify-center text-xs">
+                <button type="submit" title="Terapkan Filter" class="p-2 w-9 h-9 rounded-xl bg-primary text-white hover:bg-primary-hover transition flex items-center justify-center text-xs">
                     <i class="fas fa-filter"></i>
                 </button>
                 @if(request()->hasAny(['search', 'hari', 'id_rooms', 'id_mapel']))
@@ -256,8 +256,8 @@
                         @endif
 
                         <!-- Right Subject & Class Badge -->
-                        <span class="text-xs font-bold text-[#13527D]">
-                            {{ $rpp->mataPelajaran->nama_mapel ?? 'Mata Pelajaran' }} &bull; {{ $rpp->kelas->pararel ?? 'Kelas 4B' }}
+                        <span class="text-xs font-bold text-primary">
+                            {{ $rpp->mataPelajaran->nama_mapel ?? 'Mata Pelajaran' }} &bull; {{ $rpp->kelas->pararel ?? '-' }}
                         </span>
                     </div>
 
@@ -308,7 +308,7 @@
                             @endif
                         </div>
                         <div class="text-[11px] {{ $isDraft ? 'text-amber-700' : 'text-sky-700' }} mt-0.5 truncate">
-                            {{ $rpp->ruang ?? 'Ruang Kelas 4B (Gedung Melati)' }}
+                            {{ $rpp->ruang ?? '-' }}
                         </div>
                     </div>
                 </div>
@@ -328,7 +328,7 @@
 
                     <!-- Title & Meta -->
                     <div class="flex-1 min-w-0">
-                        <h3 class="text-sm font-extrabold text-slate-900 leading-snug hover:text-[#13527D] transition cursor-pointer" onclick="openModalDetailRpp({{ $rpp->id_rpp }})">
+                        <h3 class="text-sm font-extrabold text-slate-900 leading-snug hover:text-primary transition cursor-pointer" onclick="openModalDetailRpp({{ $rpp->id_rpp }})">
                             {{ $rpp->judul_rpp }}
                         </h3>
                         <p class="text-[11px] text-slate-500 font-medium mt-1 flex items-center gap-1.5 flex-wrap">
@@ -439,7 +439,7 @@
                         @else
                             <div class="flex items-center gap-2">
                                 <button type="button" onclick="openModalEditRpp({{ json_encode($rpp) }})"
-                                        class="px-4 py-2 rounded-xl bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                                        class="px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
                                     <i class="fas fa-paper-plane text-[11px]"></i>
                                     <span>Lanjutkan & Kirim ke Admin</span>
                                 </button>
@@ -467,7 +467,7 @@
                         Coba sesuaikan kata kunci pencarian atau buat rencana pembelajaran baru untuk semester ini.
                     </p>
                 </div>
-                <button type="button" onclick="openModalTambahRpp()" class="px-4 py-2 bg-[#13527D] text-white rounded-xl text-xs font-bold">
+                <button type="button" onclick="openModalTambahRpp()" class="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold">
                     <i class="fas fa-plus mr-1"></i> Buat Modul Ajar Baru
                 </button>
             </div>

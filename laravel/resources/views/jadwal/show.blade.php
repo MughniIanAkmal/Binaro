@@ -123,7 +123,7 @@
                 </a>
 
                 <div class="flex items-center gap-2">
-                    <a href="{{ route('jadwal.edit', $jadwal->id_jadwal) }}" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium transition flex items-center gap-2 shadow-sm">
+                    <a href="{{ route('jadwal.edit', $jadwal->id_jadwal) }}" class="bg-amber-500 hover:bg-accent-deep text-white px-5 py-2.5 rounded-xl text-sm font-medium transition flex items-center gap-2 shadow-sm">
                         <i class="fas fa-pen text-xs"></i> Edit Jadwal
                     </a>
 

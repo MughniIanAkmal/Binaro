@@ -8,7 +8,7 @@
 @endsection
 
 @section('header_actions')
-    <a href="{{ route('guru.data.create') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition" style="background: var(--binaro-navy);">
+    <a href="{{ route('guru.data.create') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary" >
         <i class="fas fa-plus"></i> Tambah Guru
     </a>
 @endsection
@@ -22,7 +22,7 @@
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                     <input type="text" name="search" value="{{ request('search', request('q')) }}" placeholder="Cari nama, NIP, email..."
-                           class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:border-[#13527D]">
+                           class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:border-primary">
                 </div>
                 <button type="submit" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">
                     Cari
@@ -64,7 +64,7 @@
                         <td class="p-3.5 font-mono text-slate-600">{{ $item->username ?? '-' }}</td>
                         <td class="p-3.5 text-center">
                             <div class="inline-flex gap-1.5">
-                                <a href="{{ route('guru.data.edit', $item->id_guru) }}" class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded text-xs font-semibold transition">
+                                <a href="{{ route('guru.data.edit', $item->id_guru) }}" class="px-2.5 py-1 bg-amber-500 hover:bg-accent-deep text-white rounded text-xs font-semibold transition">
                                     <i class="fas fa-edit mr-1"></i>Edit
                                 </a>
                                 <form action="{{ route('guru.data.destroy', $item->id_guru) }}" method="POST" class="inline"
@@ -80,7 +80,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="p-8 text-center text-slate-400">Belum ada data guru terdaftar.</td>
+                        <td colspan="6" class="p-2"><x-empty-state icon="fa-inbox" title="Belum ada data guru terdaftar." /></td>
                     </tr>
                     @endforelse
                 </tbody>

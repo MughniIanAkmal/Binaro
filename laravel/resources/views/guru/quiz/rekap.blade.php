@@ -5,7 +5,7 @@
 
 @section('header_actions')
     <form method="GET" action="{{ route('guru.quiz.rekap') }}" class="flex items-center gap-2">
-        <select name="quiz_id" onchange="this.form.submit()" class="px-4 h-10 bg-white border border-[#E6EBF2] rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-[#13527D]">
+        <select name="quiz_id" onchange="this.form.submit()" class="px-4 h-10 bg-white border border-line rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-primary">
             <option value="">-- Pilih Kuis --</option>
             @foreach($quizzes as $q)
                 <option value="{{ $q->id_quiz }}" {{ $selectedQuizId == $q->id_quiz ? 'selected' : '' }}>
@@ -23,8 +23,8 @@
         <form action="{{ route('rekap_ujian.kirim_semua', $selectedQuizId) }}" method="POST" onsubmit="return confirm('Tampilkan nilai ujian ini ke seluruh siswa?')">
             @csrf
             <button type="submit"
-                    class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-                    style="background: var(--binaro-navy);">
+                    class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+                    >
                 <i class="fas fa-bullhorn text-[11px]"></i> Tampilkan Nilai
             </button>
         </form>

@@ -4,7 +4,7 @@
 
 @section('header_actions')
     <a href="{{ route('siswa.dashboard') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
         <i class="fas fa-arrow-left text-[11px]"></i> Beranda
     </a>
 @endsection
@@ -21,7 +21,7 @@
         $jk = $siswa->jenis_kelamin === 'L' ? 'Laki-laki' : ($siswa->jenis_kelamin === 'P' ? 'Perempuan' : '-');
     @endphp
 
-    <div class="bg-white rounded-2xl shadow-sm border border-[#E6EBF2] overflow-hidden">
+    <div class="bg-white rounded-2xl shadow-sm border border-line overflow-hidden">
         @include('siswa.profile._identity')
 
         <div class="p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-6">

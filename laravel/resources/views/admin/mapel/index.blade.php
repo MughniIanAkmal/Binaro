@@ -4,7 +4,7 @@
 @section('page_subtitle', 'Kelola master data mata pelajaran ' . config('binaro.nama_sekolah') . '. Anda dapat menambahkan mata pelajaran baru, memonitor, dan menghapus mapel.')
 
 @section('header_actions')
-    <button type="button" onclick="openCreateModal()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition" style="background: var(--binaro-navy);">
+    <button type="button" onclick="openCreateModal()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary" >
         <i class="fas fa-plus"></i> Tambah Mapel
     </button>
 @endsection
@@ -20,7 +20,7 @@
                 <div class="text-3xl font-black text-slate-900 mt-1">{{ $total }}</div>
                 <span class="text-[11px] text-slate-500 font-medium">Terdaftar di sistem</span>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-sky-50 text-[#13527D] flex items-center justify-center text-xl font-bold">
+            <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary flex items-center justify-center text-xl font-bold">
                 <i class="fas fa-book-bookmark"></i>
             </div>
         </div>
@@ -56,9 +56,9 @@
                 <div class="relative flex-1">
                     <i class="fas fa-search absolute left-3.5 top-3 text-slate-400 text-xs"></i>
                     <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama mata pelajaran atau deskripsi..."
-                           class="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] bg-white">
+                           class="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-primary bg-white">
                 </div>
-                <button type="submit" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
                     <i class="fas fa-magnifying-glass"></i> Cari
                 </button>
                 @if($search)
@@ -94,7 +94,7 @@
                         </td>
                         <td class="py-3.5 px-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-9 h-9 rounded-xl bg-sky-50 text-[#13527D] flex items-center justify-center font-bold text-sm shrink-0">
+                                <div class="w-9 h-9 rounded-xl bg-sky-50 text-primary flex items-center justify-center font-bold text-sm shrink-0">
                                     <i class="fas fa-book-open"></i>
                                 </div>
                                 <div>
@@ -161,7 +161,7 @@
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
         <div class="flex justify-between items-center mb-4">
             <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-xl bg-sky-100 text-[#13527D] flex items-center justify-center text-base font-bold">
+                <div class="w-9 h-9 rounded-xl bg-sky-100 text-primary flex items-center justify-center text-base font-bold">
                     <i class="fas fa-book-bookmark"></i>
                 </div>
                 <div>
@@ -182,7 +182,7 @@
                 <input type="text" name="nama_mapel" required maxlength="100"
                        placeholder="Contoh: Matematika, IPA, PJOK, Seni Budaya..."
                        oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\&\-\(\)\/\.]/g, '');"
-                       class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition">
+                       class="w-full px-3 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition">
                 <span class="text-[10px] text-slate-400 mt-1 block">Maksimal 100 karakter.</span>
             </div>
             <div>
@@ -191,7 +191,7 @@
                 </label>
                 <textarea name="deskripsi" rows="3" maxlength="1000"
                           placeholder="Tuliskan cakupan mata pelajaran atau keterangan tambahan..."
-                          class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition"></textarea>
+                          class="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition"></textarea>
             </div>
             <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
                 <button type="button" onclick="closeCreateModal()"
@@ -199,7 +199,7 @@
                     Batal
                 </button>
                 <button type="submit"
-                        class="px-4 py-2 bg-[#13527D] text-white rounded-xl font-bold hover:bg-[#0E3D5D] transition shadow-sm flex items-center gap-1.5">
+                        class="px-4 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition shadow-sm flex items-center gap-1.5">
                     <i class="fas fa-save"></i> Simpan Mapel
                 </button>
             </div>

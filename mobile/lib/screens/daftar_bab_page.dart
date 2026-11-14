@@ -75,13 +75,13 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: _buildAppBar(),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : RefreshIndicator(
               onRefresh: _fetchBabData,
-              color: const Color(0xFF1D5A86),
+              color: AppColors.primary,
               backgroundColor: Colors.white,
               displacement: 28,
               child: SingleChildScrollView(
@@ -110,7 +110,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          border: Border.all(color: AppColors.border),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.02),
@@ -126,13 +126,13 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                               width: 68,
                               height: 68,
                               decoration: const BoxDecoration(
-                                color: Color(0xFFEFF6FF),
+                                color: AppColors.primaryLight,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
                                 Icons.menu_book_outlined,
                                 size: 34,
-                                color: Color(0xFF1D5A86),
+                                color: AppColors.primary,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -141,7 +141,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF1E293B),
+                                color: AppColors.textPrimary,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -151,7 +151,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Color(0xFF64748B),
+                                color: AppColors.textSecondary,
                                 height: 1.4,
                               ),
                             ),
@@ -176,7 +176,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
     final String namaMapel = _headerMapel['nama'] ?? 'Matematika';
 
     return AppBar(
-      backgroundColor: const Color(0xFF1D5A86),
+      backgroundColor: AppColors.primary,
       elevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
@@ -188,7 +188,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
           Container(
             padding: const EdgeInsets.all(7),
             decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B),
+              color: AppColors.accent,
               borderRadius: BorderRadius.circular(10),
             ),
             child: const Icon(Icons.calculate_rounded, color: Colors.white, size: 20),
@@ -204,7 +204,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                   fontSize: 9.5,
                   letterSpacing: 0.8,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFFFBBF24),
+                  color: AppColors.accentBright,
                 ),
               ),
               const SizedBox(height: 1),
@@ -222,30 +222,6 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: Stack(
-            alignment: Alignment.topRight,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 26),
-                onPressed: () {},
-              ),
-              Positioned(
-                right: 12,
-                top: 12,
-                child: Container(
-                  width: 9,
-                  height: 9,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF59E0B),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
           padding: const EdgeInsets.only(right: 16, left: 2),
           child: GestureDetector(
             onTap: () {
@@ -261,7 +237,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: const Color(0xFFC0C0C0),
+                color: AppColors.border,
                 shape: BoxShape.circle,
                 border: Border.all(color: Colors.white, width: 2.2),
               ),
@@ -281,7 +257,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -297,7 +273,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B),
+              color: AppColors.accent,
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(Icons.calculate_rounded, color: Colors.white, size: 26),
@@ -311,7 +287,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFFEF3C7),
+                    color: AppColors.warningLight,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -319,7 +295,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                     style: const TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFFD97706),
+                      color: AppColors.accentDeep,
                     ),
                   ),
                 ),
@@ -329,7 +305,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ],
@@ -339,7 +315,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             decoration: BoxDecoration(
-              color: const Color(0xFFFEF3C7),
+              color: AppColors.warningLight,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -347,7 +323,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFFD97706),
+                color: AppColors.accentDeep,
               ),
             ),
           ),
@@ -363,7 +339,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: const Color(0xFF1D5A86),
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -409,19 +385,19 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
 
     // Warna border dan nomor
     final Color borderColor = isLocked
-        ? (nomor % 2 == 1 ? const Color(0xFFFDE68A) : const Color(0xFFBFDBFE))
-        : (nomor % 2 == 1 ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86));
+        ? (nomor % 2 == 1 ? AppColors.accentBright : AppColors.primaryLight)
+        : (nomor % 2 == 1 ? AppColors.accent : AppColors.primary);
 
     final Color badgeBgColor = isLocked
-        ? (nomor % 2 == 1 ? const Color(0xFFFEF3C7) : const Color(0xFFDBEAFE))
-        : (nomor % 2 == 1 ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86));
+        ? (nomor % 2 == 1 ? AppColors.warningLight : AppColors.primaryLight)
+        : (nomor % 2 == 1 ? AppColors.accent : AppColors.primary);
 
     final Color badgeTextColor = isLocked
-        ? (nomor % 2 == 1 ? const Color(0xFFD97706) : const Color(0xFF1D5A86))
+        ? (nomor % 2 == 1 ? AppColors.accentDeep : AppColors.primary)
         : Colors.white;
 
     // Warna tombol "Buka >"
-    final Color btnColor = (nomor % 2 == 1) ? const Color(0xFF1D5A86) : const Color(0xFFF59E0B);
+    final Color btnColor = (nomor % 2 == 1) ? AppColors.primary : AppColors.accent;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -472,7 +448,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                     style: const TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFFD97706),
+                      color: AppColors.accentDeep,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -481,7 +457,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                   style: TextStyle(
                     fontSize: 14.5,
                     fontWeight: FontWeight.w800,
-                    color: isLocked ? const Color(0xFF64748B) : const Color(0xFF1E293B),
+                    color: isLocked ? AppColors.textSecondary : AppColors.textPrimary,
                   ),
                 ),
               ],
@@ -492,7 +468,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
           if (isLocked)
             const Padding(
               padding: EdgeInsets.only(right: 8),
-              child: Icon(Icons.lock_outline_rounded, color: Color(0xFF94A3B8), size: 22),
+              child: Icon(Icons.lock_outline_rounded, color: AppColors.textMuted, size: 22),
             )
           else
             InkWell(

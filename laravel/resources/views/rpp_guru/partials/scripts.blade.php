@@ -486,7 +486,7 @@
         .then(data => {
             document.getElementById('detail-title').innerHTML = `<i class="fas fa-file-lines text-amber-300"></i> ${data.judul_rpp}`;
             document.getElementById('detail-subtitle').innerText = `${data.guru ? data.guru.nama_guru : 'Guru Binaro'} • NIP. ${data.guru ? (data.guru.nip || '-') : '-'}`;
-            document.getElementById('detail-mapel').innerText = `${data.mata_pelajaran ? data.mata_pelajaran.nama_mapel : '-'} (${data.kelas ? data.kelas.pararel : 'Kelas 4B'})`;
+            document.getElementById('detail-mapel').innerText = `${data.mata_pelajaran ? data.mata_pelajaran.nama_mapel : '-'} (${data.kelas ? data.kelas.pararel : '-'})`;
             document.getElementById('detail-fase-modul').innerText = `${data.fase || 'Fase B'} • ${data.modul_ke || ('Modul #' + data.id_rpp)}`;
 
             // Tampilkan JP dengan detail durasi
@@ -518,7 +518,7 @@
 
             const dlBtn = document.getElementById('detail-download-btn-container');
             dlBtn.innerHTML = `
-                <a href="/guru/rpp/${data.id_rpp}/download" target="_blank" class="px-4 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                <a href="/guru/rpp/${data.id_rpp}/download" target="_blank" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
                     <i class="fas fa-print"></i> Cetak / Simpan PDF
                 </a>
             `;

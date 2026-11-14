@@ -23,8 +23,8 @@
         <i class="fas fa-pen-to-square text-[11px]"></i> Edit Ujian
     </a>
     <button onclick="openModal('modal-tambah-soal')"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-            style="background: var(--binaro-navy);">
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+            >
         <i class="fas fa-plus text-[11px]"></i> Tambah Soal
     </button>
 @endsection
@@ -47,11 +47,11 @@
                     <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-sky-100 text-sky-800">Sisa {{ 100 - $totalBobot }} Poin</span>
                 @endif
             </div>
-            <div class="text-lg font-bold {{ $totalBobot >= 100 ? 'text-emerald-700' : 'text-[#13527D]' }} mt-0.5">
+            <div class="text-lg font-bold {{ $totalBobot >= 100 ? 'text-emerald-700' : 'text-primary' }} mt-0.5">
                 {{ $totalBobot }} <span class="text-xs font-semibold text-slate-400">/ 100 Poin</span>
             </div>
             <div class="w-full h-1.5 bg-slate-100 rounded-full mt-2 overflow-hidden">
-                <div class="h-full {{ $totalBobot >= 100 ? 'bg-emerald-600' : 'bg-[#13527D]' }}" style="width: {{ min(100, $totalBobot) }}%"></div>
+                <div class="h-full {{ $totalBobot >= 100 ? 'bg-emerald-600' : 'bg-primary' }}" style="width: {{ min(100, $totalBobot) }}%"></div>
             </div>
         </div>
 
@@ -65,7 +65,7 @@
                 $menitPerSoal = floor($detikPerSoal / 60);
                 $sisaDetik = $detikPerSoal % 60;
             @endphp
-            <div class="text-[10px] font-semibold text-[#13527D] mt-0.5 flex items-center gap-1">
+            <div class="text-[10px] font-semibold text-primary mt-0.5 flex items-center gap-1">
                 <i class="fas fa-stopwatch text-[9px]"></i>
                 @if($soalCount > 0)
                     <span>Rata-rata: {{ $menitPerSoal > 0 ? $menitPerSoal . 'm ' : '' }}{{ $sisaDetik > 0 ? $sisaDetik . 's' : '' }} / soal</span>
@@ -108,7 +108,7 @@
     <div class="space-y-4">
         <div class="flex items-center justify-between border-b border-slate-200">
             <div class="flex items-center gap-4">
-                <button type="button" onclick="switchTab('tab-soal')" id="btn-tab-soal" class="py-2.5 px-3 text-xs font-bold border-b-2 border-[#13527D] text-[#13527D] transition flex items-center gap-1.5">
+                <button type="button" onclick="switchTab('tab-soal')" id="btn-tab-soal" class="py-2.5 px-3 text-xs font-bold border-b-2 border-primary text-primary transition flex items-center gap-1.5">
                     <i class="fas fa-list-check"></i>
                     <span>Daftar Soal Ujian ({{ $quiz->soal->count() }})</span>
                 </button>
@@ -118,7 +118,7 @@
                 </button>
             </div>
 
-            <button onclick="openModal('modal-tambah-soal')" class="text-xs font-semibold text-[#13527D] hover:underline flex items-center gap-1">
+            <button onclick="openModal('modal-tambah-soal')" class="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
                 <i class="fas fa-plus-circle"></i> Tambah Soal Baru
             </button>
         </div>
@@ -129,7 +129,7 @@
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 space-y-3.5 hover:border-slate-300 transition">
                 <div class="flex items-start justify-between gap-4">
                     <div class="flex items-start gap-3">
-                        <span class="w-7 h-7 rounded-lg bg-[#13527D]/10 text-[#13527D] text-xs font-bold flex items-center justify-center shrink-0">
+                        <span class="w-7 h-7 rounded-lg bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">
                             {{ $index + 1 }}
                         </span>
                         <div class="space-y-1">
@@ -157,7 +157,7 @@
                             </span>
                         @endif
 
-                        <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-[#13527D] border border-blue-200 text-[11px] font-bold">
+                        <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-primary border border-blue-200 text-[11px] font-bold">
                             Bobot: {{ $soal->bobot_nilai ?? 10 }} Poin
                         </span>
 
@@ -220,7 +220,7 @@
                 </div>
                 <h3 class="text-sm font-bold text-slate-800">Belum Ada Soal di Ujian Ini</h3>
                 <p class="text-xs text-slate-400 mt-1 max-w-md mx-auto">Tambahkan butir soal pilihan ganda, tentukan bobot nilai masing-masing, dan lampirkan gambar pendukung jika diperlukan.</p>
-                <button onclick="openModal('modal-tambah-soal')" class="inline-flex items-center gap-1.5 mt-4 px-4 py-2 bg-[#13527D] text-white text-xs font-semibold rounded-xl hover:bg-[#0E3D5D] transition shadow-sm">
+                <button onclick="openModal('modal-tambah-soal')" class="inline-flex items-center gap-1.5 mt-4 px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary-hover transition shadow-sm">
                     <i class="fas fa-plus"></i> Tambah Soal Pertama
                 </button>
             </div>
@@ -232,7 +232,7 @@
             <!-- Sasaran Siswa -->
             <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 space-y-3">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fas fa-bullseye text-[#13527D]"></i>
+                    <i class="fas fa-bullseye text-primary"></i>
                     Sasaran Peserta Ujian:
                 </h3>
                 @if(($quiz->target_tipe ?? 'semua') === 'semua')
@@ -303,7 +303,7 @@
                         </form>
                         @endif
                         <a href="{{ route('rekap_ujian.index', ['quiz_id' => $quiz->id_quiz]) }}" class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition">
-                            <i class="fas fa-chart-line text-[#13527D]"></i>
+                            <i class="fas fa-chart-line text-primary"></i>
                             <span>Rekap Lengkap</span>
                         </a>
                     </div>
@@ -332,7 +332,7 @@
                                 <td class="py-3 px-4 text-slate-600">
                                     {{ $hasil->siswa->kelas->nama_kelas ?? '-' }}
                                 </td>
-                                <td class="py-3 px-4 text-center font-bold text-sm text-[#13527D]">
+                                <td class="py-3 px-4 text-center font-bold text-sm text-primary">
                                     {{ (int)($hasil->nilai_akhir ?? $hasil->skor_nilai ?? $hasil->nilai ?? 0) }}
                                 </td>
                                 <td class="py-3 px-4 text-center">
@@ -398,7 +398,7 @@
     <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 border border-slate-200 my-8">
         <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
             <div class="flex items-center gap-2">
-                <span class="w-7 h-7 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center font-bold text-xs"><i class="fas fa-plus"></i></span>
+                <span class="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs"><i class="fas fa-plus"></i></span>
                 <h3 class="text-sm font-bold text-slate-900">Tambah Soal Ujian Baru</h3>
             </div>
             <button onclick="closeModal('modal-tambah-soal')" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
@@ -410,7 +410,7 @@
             <!-- Info Batas Bobot Soal -->
             <div class="p-3 bg-gradient-to-r from-slate-50 to-sky-50 rounded-xl border border-slate-200 flex items-center justify-between text-xs">
                 <div class="flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-md bg-[#13527D] text-white flex items-center justify-center text-[11px] font-bold">
+                    <span class="w-6 h-6 rounded-md bg-primary text-white flex items-center justify-center text-[11px] font-bold">
                         <i class="fas fa-scale-balanced"></i>
                     </span>
                     <span class="text-slate-700">Total Bobot Saat Ini: <strong>{{ $totalBobot }} / 100 Poin</strong></span>
@@ -445,13 +445,13 @@
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-700">Bobot Nilai:</span>
                     <div class="flex items-center gap-1.5">
-                        <input type="number" id="add-bobot-nilai" name="bobot_nilai" value="{{ min(10, max(1, 100 - $totalBobot)) }}" min="1" max="100" required oninput="handleModalAddBobot(this)" class="w-16 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
+                        <input type="number" id="add-bobot-nilai" name="bobot_nilai" value="{{ min(10, max(1, 100 - $totalBobot)) }}" min="1" max="100" required oninput="handleModalAddBobot(this)" class="w-16 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-primary">
                         <span class="text-xs text-slate-500 font-semibold">Poin</span>
                     </div>
                 </div>
                 <div class="flex items-center justify-between sm:justify-end gap-2">
                     <span class="text-xs font-bold text-slate-700">Tingkat Kesulitan:</span>
-                    <select name="tingkat_kesulitan" class="px-2.5 py-1 text-xs font-bold bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D]">
+                    <select name="tingkat_kesulitan" class="px-2.5 py-1 text-xs font-bold bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-primary">
                         <option value="mudah">🟢 Mudah</option>
                         <option value="sedang" selected>🟡 Sedang</option>
                         <option value="sulit">🔴 Sulit</option>
@@ -462,7 +462,7 @@
             <!-- Teks Pertanyaan -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Pertanyaan Soal <span class="text-rose-500">*</span></label>
-                <textarea name="pertanyaan" rows="3" required maxlength="2000" placeholder="Tuliskan pertanyaan ujian secara lengkap (maksimal 2000 karakter)..." class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition"></textarea>
+                <textarea name="pertanyaan" rows="3" required maxlength="2000" placeholder="Tuliskan pertanyaan ujian secara lengkap (maksimal 2000 karakter)..." class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition"></textarea>
             </div>
 
             <!-- Upload Gambar Pendukung (Opsional) -->
@@ -481,7 +481,7 @@
                 <label class="block text-xs font-bold text-slate-700">Pilihan Jawaban & Tandai Kunci Jawaban yang Benar <span class="text-rose-500">*</span></label>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     @foreach(['A', 'B', 'C', 'D'] as $huruf)
-                    <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 focus-within:border-[#13527D] focus-within:bg-white">
+                    <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 focus-within:border-primary focus-within:bg-white">
                         <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
                             <input type="radio" name="kunci_jawaban" value="{{ $huruf }}" {{ $huruf === 'A' ? 'checked' : '' }} class="text-emerald-600 focus:ring-0">
                             <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center">{{ $huruf }}</span>
@@ -498,7 +498,7 @@
                 <button type="button" onclick="closeModal('modal-tambah-soal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
                     Batal
                 </button>
-                <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-[#13527D] hover:bg-[#0E3D5D] rounded-xl transition shadow-sm">
+                <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition shadow-sm">
                     Simpan Soal
                 </button>
             </div>
@@ -543,13 +543,13 @@
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-700">Bobot Nilai:</span>
                     <div class="flex items-center gap-1.5">
-                        <input type="number" id="edit-bobot-nilai" name="bobot_nilai" min="1" max="100" required oninput="handleModalEditBobot(this)" class="w-16 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-[#13527D]">
+                        <input type="number" id="edit-bobot-nilai" name="bobot_nilai" min="1" max="100" required oninput="handleModalEditBobot(this)" class="w-16 px-2 py-1 text-xs font-bold text-center border border-slate-300 rounded-lg bg-white focus:outline-none focus:border-primary">
                         <span class="text-xs text-slate-500 font-semibold">Poin</span>
                     </div>
                 </div>
                 <div class="flex items-center justify-between sm:justify-end gap-2">
                     <span class="text-xs font-bold text-slate-700">Tingkat Kesulitan:</span>
-                    <select id="edit-tingkat-kesulitan" name="tingkat_kesulitan" class="px-2.5 py-1 text-xs font-bold bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D]">
+                    <select id="edit-tingkat-kesulitan" name="tingkat_kesulitan" class="px-2.5 py-1 text-xs font-bold bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-primary">
                         <option value="mudah">🟢 Mudah</option>
                         <option value="sedang">🟡 Sedang</option>
                         <option value="sulit">🔴 Sulit</option>
@@ -560,7 +560,7 @@
             <!-- Teks Pertanyaan -->
             <div>
                 <label class="block text-xs font-bold text-slate-700 mb-1">Pertanyaan Soal <span class="text-rose-500">*</span></label>
-                <textarea id="edit-pertanyaan" name="pertanyaan" rows="3" required maxlength="2000" placeholder="Tuliskan pertanyaan ujian secara lengkap (maksimal 2000 karakter)..." class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition"></textarea>
+                <textarea id="edit-pertanyaan" name="pertanyaan" rows="3" required maxlength="2000" placeholder="Tuliskan pertanyaan ujian secara lengkap (maksimal 2000 karakter)..." class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition"></textarea>
             </div>
 
             <!-- Gambar Pendukung -->
@@ -595,7 +595,7 @@
                 <label class="block text-xs font-bold text-slate-700">Pilihan Jawaban & Tandai Kunci Jawaban yang Benar <span class="text-rose-500">*</span></label>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     @foreach(['A', 'B', 'C', 'D'] as $huruf)
-                    <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 focus-within:border-[#13527D] focus-within:bg-white">
+                    <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 focus-within:border-primary focus-within:bg-white">
                         <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
                             <input type="radio" id="edit-kunci-{{ $huruf }}" name="kunci_jawaban" value="{{ $huruf }}" class="text-emerald-600 focus:ring-0">
                             <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center">{{ $huruf }}</span>
@@ -611,7 +611,7 @@
                 <button type="button" onclick="closeModal('modal-edit-soal')" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
                     Batal
                 </button>
-                <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-[#13527D] hover:bg-[#0E3D5D] rounded-xl transition shadow-sm">
+                <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition shadow-sm">
                     Simpan Perubahan
                 </button>
             </div>
@@ -631,9 +631,9 @@ function switchTab(tabId) {
 
     document.getElementById(tabId).classList.remove('hidden');
     if (tabId === 'tab-soal') {
-        document.getElementById('btn-tab-soal').className = 'py-2.5 px-3 text-xs font-bold border-b-2 border-[#13527D] text-[#13527D] transition flex items-center gap-1.5';
+        document.getElementById('btn-tab-soal').className = 'py-2.5 px-3 text-xs font-bold border-b-2 border-primary text-primary transition flex items-center gap-1.5';
     } else {
-        document.getElementById('btn-tab-peserta').className = 'py-2.5 px-3 text-xs font-bold border-b-2 border-[#13527D] text-[#13527D] transition flex items-center gap-1.5';
+        document.getElementById('btn-tab-peserta').className = 'py-2.5 px-3 text-xs font-bold border-b-2 border-primary text-primary transition flex items-center gap-1.5';
     }
 }
 

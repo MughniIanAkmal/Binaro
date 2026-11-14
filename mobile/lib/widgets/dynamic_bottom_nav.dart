@@ -1,3 +1,4 @@
+import '../utils/constants.dart';
 import 'package:flutter/material.dart';
 import '../screens/dashboard_page.dart';
 import '../screens/mapel_page.dart';
@@ -58,7 +59,7 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
     ),
     NavItem(
       index: 2,
-      label: 'Mapel',
+      label: 'Pembelajaran',
       icon: Icons.menu_book_outlined,
       activeIcon: Icons.menu_book_rounded,
     ),
@@ -141,7 +142,7 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
               ),
             ],
           ),
-          backgroundColor: const Color(0xFF1D5A86),
+          backgroundColor: AppColors.primary,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           duration: const Duration(seconds: 2),
@@ -181,7 +182,7 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
         Container(
           height: 64 + bottomPadding,
           decoration: const BoxDecoration(
-            color: Color(0xFF1D5A86),
+            color: AppColors.primary,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             boxShadow: [
               BoxShadow(
@@ -279,14 +280,14 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: const LinearGradient(
-                  colors: [Color(0xFFFBBF24), Color(0xFFF59E0B), Color(0xFFD97706)],
+                  colors: [AppColors.accentBright, AppColors.accent, AppColors.accentDeep],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
                 border: Border.all(color: Colors.white, width: 3),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFF59E0B).withValues(alpha: 0.55),
+                    color: AppColors.accent.withValues(alpha: 0.55),
                     blurRadius: 16,
                     spreadRadius: 2,
                     offset: const Offset(0, 4),
@@ -353,7 +354,7 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
               activeItem.label,
               key: ValueKey<String>(activeItem.label),
               style: const TextStyle(
-                color: Color(0xFFFBBF24),
+                color: AppColors.accentBright,
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.3,

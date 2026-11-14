@@ -4,8 +4,8 @@
 
 @section('header_actions')
     <a href="{{ route('guru.notifikasi_pr.create') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-       style="background: var(--binaro-navy);">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+       >
         <i class="fas fa-plus text-[11px]"></i> Tambah PR Baru
     </a>
 @endsection
@@ -22,7 +22,7 @@
                 <div class="text-xs font-bold text-slate-600 mt-0.5">Total Tugas PR</div>
                 <div class="text-[11px] text-slate-400">Semua mata pelajaran</div>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-sky-50 text-[#13527D] flex items-center justify-center text-xl font-bold">
+            <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary flex items-center justify-center text-xl font-bold">
                 <i class="fas fa-book-reader"></i>
             </div>
         </div>
@@ -70,12 +70,12 @@
             <!-- Tabs -->
             <div class="flex items-center gap-2">
                 <a href="{{ route('guru.notifikasi_pr.index', array_merge(request()->query(), ['tab' => 'pr'])) }}"
-                   class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $activeTab === 'pr' ? 'bg-[#13527D] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $activeTab === 'pr' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
                     <i class="fas fa-list-check"></i>
                     <span>Daftar Tugas PR ({{ $prs->total() }})</span>
                 </a>
                 <a href="{{ route('guru.notifikasi_pr.index', array_merge(request()->query(), ['tab' => 'notifikasi'])) }}"
-                   class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $activeTab === 'notifikasi' ? 'bg-[#13527D] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $activeTab === 'notifikasi' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
                     <i class="fas fa-bell"></i>
                     <span>Riwayat Notifikasi Terkirim ({{ $notifikasis->total() }})</span>
                 </a>
@@ -87,9 +87,9 @@
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                     <input type="text" name="search" value="{{ $search }}" placeholder="Cari PR, mapel, atau pesan..."
-                           class="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:border-[#13527D] w-48 sm:w-60">
+                           class="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:border-primary w-48 sm:w-60">
                 </div>
-                <select name="mapel_id" onchange="this.form.submit()" class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:border-[#13527D]">
+                <select name="mapel_id" onchange="this.form.submit()" class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:border-primary">
                     <option value="">Semua Mapel</option>
                     @foreach($mapels as $m)
                         <option value="{{ $m->id_mapel }}" {{ $mapelFilter == $m->id_mapel ? 'selected' : '' }}>
@@ -131,12 +131,12 @@
                         </td>
                         <td class="py-3 px-4">
                             <div class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                                <a href="{{ route('guru.notifikasi_pr.show', $pr->id_pr) }}" class="hover:text-[#13527D] hover:underline">
+                                <a href="{{ route('guru.notifikasi_pr.show', $pr->id_pr) }}" class="hover:text-primary hover:underline">
                                     {{ $pr->nama_pr }}
                                 </a>
                             </div>
                             <div class="flex items-center gap-2 mt-1">
-                                <span class="bg-sky-50 text-[#13527D] font-bold text-[10px] px-2 py-0.5 rounded border border-sky-100">
+                                <span class="bg-sky-50 text-primary font-bold text-[10px] px-2 py-0.5 rounded border border-sky-100">
                                     {{ $pr->mataPelajaran->nama_mapel ?? 'Mata Pelajaran' }}
                                 </span>
                                 <span class="text-[10px] text-slate-400">
@@ -178,7 +178,7 @@
                                 </a>
                                 <!-- Edit -->
                                 <a href="{{ route('guru.notifikasi_pr.edit', $pr->id_pr) }}"
-                                   class="p-1.5 bg-sky-50 hover:bg-sky-100 text-[#13527D] rounded-lg transition" title="Edit PR">
+                                   class="p-1.5 bg-sky-50 hover:bg-sky-100 text-primary rounded-lg transition" title="Edit PR">
                                     <i class="fas fa-pen-to-square text-xs"></i>
                                 </a>
                                 <!-- Delete -->
@@ -201,7 +201,7 @@
                             </div>
                             <p class="font-bold text-slate-700">Belum ada Pekerjaan Rumah (PR) yang ditambahkan.</p>
                             <p class="text-slate-400 text-xs mt-1">Mulai dengan membuat PR baru dan kirimkan notifikasi kepada siswa.</p>
-                            <a href="{{ route('guru.notifikasi_pr.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-[#13527D] text-white text-xs font-bold rounded-xl hover:bg-[#0E3D5D] transition">
+                            <a href="{{ route('guru.notifikasi_pr.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-primary-hover transition">
                                 <i class="fas fa-plus"></i> Tambah PR Sekarang
                             </a>
                         </td>
@@ -240,7 +240,7 @@
                         </td>
                         <td class="py-3 px-4">
                             <div class="font-bold text-slate-900 flex items-center gap-1.5">
-                                <i class="fas fa-users text-[#13527D] text-[11px]"></i>
+                                <i class="fas fa-users text-primary text-[11px]"></i>
                                 {{ $grup['label'] }}
                             </div>
                             <div class="text-[10px] text-slate-400 mt-0.5">
@@ -248,7 +248,7 @@
                             </div>
                             @if($grup['total'] > 1)
                             <button type="button" onclick="openSiswaModal({{ $gi }})"
-                                class="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 text-[#13527D] font-bold hover:bg-sky-100 transition text-[11px] border border-sky-100">
+                                class="mt-1.5 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 text-primary font-bold hover:bg-sky-100 transition text-[11px] border border-sky-100">
                                 <i class="fas fa-list-ul text-[10px]"></i>
                                 Lihat {{ $grup['total'] }} siswa
                             </button>
@@ -256,7 +256,7 @@
                         </td>
                         <td class="py-3 px-4">
                             @if($grup['pr'])
-                                <a href="{{ route('guru.notifikasi_pr.show', $grup['id_pr']) }}" class="font-bold text-[#13527D] hover:underline block truncate max-w-xs">
+                                <a href="{{ route('guru.notifikasi_pr.show', $grup['id_pr']) }}" class="font-bold text-primary hover:underline block truncate max-w-xs">
                                     {{ $grup['pr']->nama_pr }}
                                 </a>
                                 <span class="text-[10px] text-slate-400">{{ $grup['pr']->mataPelajaran->nama_mapel ?? '' }}</span>
@@ -279,7 +279,7 @@
                                     </span>
                                 @endif
                             @else
-                                <span class="bg-sky-50 text-[#13527D] font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                                <span class="bg-sky-50 text-primary font-extrabold text-[10px] px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                                     <i class="fas fa-check-double text-[9px]"></i> {{ $grup['dibaca'] }} / {{ $grup['total'] }} dibaca
                                 </span>
                             @endif
@@ -292,7 +292,7 @@
                             <div class="flex items-center justify-center gap-1">
                                 @if($grup['total'] > 1)
                                 <button type="button" onclick="openSiswaModal({{ $gi }})"
-                                        class="p-1.5 bg-sky-50 hover:bg-sky-100 text-[#13527D] rounded-lg transition" title="Lihat daftar siswa penerima">
+                                        class="p-1.5 bg-sky-50 hover:bg-sky-100 text-primary rounded-lg transition" title="Lihat daftar siswa penerima">
                                     <i class="fas fa-users text-xs"></i>
                                 </button>
                                 @endif
@@ -346,7 +346,7 @@
                 </div>
                 <div class="flex justify-between">
                     <span class="text-slate-400">Tugas PR:</span>
-                    <span id="detail-pr" class="font-bold text-[#13527D]"></span>
+                    <span id="detail-pr" class="font-bold text-primary"></span>
                 </div>
                 <div class="flex justify-between">
                     <span class="text-slate-400">Waktu Kirim:</span>
@@ -376,7 +376,7 @@
 <!-- MODAL 3: DAFTAR SISWA PENERIMA PER BATCH -->
 <div id="modal-daftar-siswa" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
     <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
-        <div class="bg-[#13527D] px-6 py-4 text-white flex items-center justify-between shrink-0">
+        <div class="bg-primary px-6 py-4 text-white flex items-center justify-between shrink-0">
             <div>
                 <h3 class="font-bold text-sm flex items-center gap-2">
                     <i class="fas fa-users text-sky-300"></i> <span id="siswa-modal-title">Daftar Siswa Penerima</span>
@@ -391,7 +391,7 @@
             <div class="relative">
                 <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                 <input type="text" id="siswa-modal-search" oninput="filterSiswaModal()" placeholder="Cari nama / NISN..."
-                    class="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-[#13527D]">
+                    class="w-full pl-8 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl text-slate-700 focus:outline-none focus:border-primary">
             </div>
         </div>
         <div class="p-4 overflow-y-auto flex-1">
@@ -462,7 +462,7 @@ function renderSiswaList(keyword) {
             : '<span class="bg-amber-50 text-amber-700 font-bold text-[10px] px-2 py-0.5 rounded-full">Belum dibaca</span>';
         return '<li class="flex items-center justify-between gap-3 py-2.5">'
             + '<div class="flex items-center gap-2.5 min-w-0">'
-            + '<div class="w-8 h-8 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center text-xs font-black shrink-0">' + escHtml((s.nama || '?').substring(0, 2).toUpperCase()) + '</div>'
+            + '<div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-xs font-black shrink-0">' + escHtml((s.nama || '?').substring(0, 2).toUpperCase()) + '</div>'
             + '<div class="min-w-0"><div class="font-bold text-xs text-slate-900 truncate">' + escHtml(s.nama) + '</div>'
             + '<div class="text-[10px] text-slate-400">NISN: ' + escHtml(s.nisn) + ' • Kelas ' + escHtml(s.kelas) + ' • ' + escHtml(s.waktu) + '</div></div></div>'
             + '<div class="flex items-center gap-1.5 shrink-0">' + badge

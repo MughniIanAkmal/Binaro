@@ -8,7 +8,7 @@
         <form action="{{ route('absensi.scan-qr') }}" method="POST" class="flex gap-2">
             @csrf
             <input type="text" name="kode_barcode" placeholder="Scan Barcode / Input ID..." required
-                   class="px-4 h-10 text-[12px] font-bold text-slate-700 border border-[#E6EBF2] rounded-xl bg-white focus:outline-none focus:border-[#13527D]">
+                   class="px-4 h-10 text-[12px] font-bold text-slate-700 border border-line rounded-xl bg-white focus:outline-none focus:border-primary">
             <button type="submit" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">
                 <i class="fas fa-qrcode text-[11px]"></i> Scan QR
             </button>
@@ -16,14 +16,14 @@
     @endif
     @if(session('user_type') === 'guru')
         <button onclick="openSettingsModal()"
-                class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-                style="background: var(--binaro-navy);">
+                class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+                >
             <i class="fas fa-clock text-[11px]"></i> Pengaturan Waktu
         </button>
     @else
         <a href="{{ route('admin.absensi.settings') }}"
-           class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-           style="background: var(--binaro-navy);">
+           class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+           >
             <i class="fas fa-clock text-[11px]"></i> Pengaturan Jam Absen
         </a>
     @endif
@@ -171,7 +171,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="p-8 text-center text-slate-400">Tidak ada data siswa ditemukan.</td>
+                        <td colspan="7" class="p-2"><x-empty-state icon="fa-inbox" title="Tidak ada data siswa ditemukan." /></td>
                     </tr>
                     @endforelse
                 </tbody>

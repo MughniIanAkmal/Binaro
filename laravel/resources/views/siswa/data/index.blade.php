@@ -11,8 +11,8 @@
 
 @section('header_actions')
     <a href="{{ route('siswa.data.create') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-       style="background: var(--binaro-navy);">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+       >
         <i class="fas fa-plus text-[11px]"></i> Tambah Siswa
     </a>
 @endsection
@@ -20,12 +20,12 @@
 @section('content')
 <div class="space-y-5 max-w-6xl mx-auto">
     <div class="card overflow-hidden">
-        <div class="p-4 border-b border-[#E6EBF2] flex justify-between items-center flex-wrap gap-3">
+        <div class="p-4 border-b border-line flex justify-between items-center flex-wrap gap-3">
             <form action="{{ route('siswa.data.index') }}" method="GET" class="flex gap-2 items-center">
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                     <input type="text" name="search" value="{{ request('search', request('q')) }}" placeholder="Cari nama, NIS, email..."
-                           class="pl-8 pr-3 py-2 bg-slate-50 border border-[#E6EBF2] rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#13527D] focus:border-transparent outline-none transition">
+                           class="pl-8 pr-3 py-2 bg-slate-50 border border-line rounded-xl text-xs font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
                 </div>
                 <button type="submit" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
                     Cari
@@ -42,7 +42,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-[#F8FAFD] text-[10px] font-extrabold tracking-[0.08em] text-slate-400 uppercase border-b border-[#E6EBF2]">
+                    <tr class="bg-[#F8FAFD] text-[10px] font-extrabold tracking-[0.08em] text-slate-400 uppercase border-b border-line">
                         <th class="p-3.5 pl-6">No</th>
                         <th class="p-3.5">Nama Siswa</th>
                         <th class="p-3.5">NISN</th>
@@ -68,7 +68,7 @@
                         <td class="p-3.5 text-center">
                             <div class="inline-flex gap-1.5">
                                 <a href="{{ route('siswa.data.edit', $item->id_siswa) }}"
-                                   class="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold transition">
+                                   class="px-2.5 py-1 bg-amber-500 hover:bg-accent-deep text-white rounded-lg text-xs font-semibold transition">
                                     <i class="fas fa-edit mr-1"></i>Edit
                                 </a>
                                 <form action="{{ route('siswa.data.destroy', $item->id_siswa) }}" method="POST" class="inline"
@@ -84,14 +84,14 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="p-8 text-center text-slate-400">Belum ada data siswa terdaftar.</td>
+                        <td colspan="6" class="p-2"><x-empty-state icon="fa-inbox" title="Belum ada data siswa terdaftar." /></td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
-        <div class="p-4 border-t border-[#E6EBF2]">
+        <div class="p-4 border-t border-line">
             {{ $siswa->links() }}
         </div>
     </div>

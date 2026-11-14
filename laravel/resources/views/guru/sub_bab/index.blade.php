@@ -11,12 +11,12 @@
 
 @section('header_actions')
     <a href="{{ route('guru.bab.index', $bab->mataPelajaran->id_mapel) }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
         <i class="fas fa-arrow-left text-[11px]"></i> Kembali ke Bab
     </a>
     <button onclick="openModalAction('tambah', 'sub_bab', { idMapel: {{ $bab->mataPelajaran->id_mapel }}, idBab: {{ $bab->id_bab }}, namaMapel: '{{ addslashes($bab->mataPelajaran->nama_mapel) }}', namaBab: '{{ addslashes($bab->nama_bab) }}', locked: true })"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-            style="background: var(--binaro-navy);">
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+            >
         <i class="fas fa-plus text-[11px]"></i> Tambah Sub-Bab
     </button>
 @endsection
@@ -29,13 +29,13 @@
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 hover:border-slate-300 transition">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div class="flex items-start gap-3.5">
-                    <span class="w-8 h-8 rounded-lg bg-[#13527D]/10 text-[#13527D] text-xs font-bold flex items-center justify-center shrink-0">
+                    <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary text-xs font-bold flex items-center justify-center shrink-0">
                         {{ $index + 1 }}
                     </span>
                     <div>
                         <div class="flex items-center gap-2">
                             <a href="{{ route('guru.materi.sub_bab', $subBab->id_sub_bab) }}" class="block group/link">
-                                <h3 class="text-sm font-bold text-slate-900 group-hover/link:text-[#13527D] group-hover/link:underline transition">{{ $subBab->nama_sub_bab }}</h3>
+                                <h3 class="text-sm font-bold text-slate-900 group-hover/link:text-primary group-hover/link:underline transition">{{ $subBab->nama_sub_bab }}</h3>
                             </a>
                             @if($subBab->is_locked)
                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200" title="Siswa tidak dapat mengakses sub-bab ini">
@@ -76,7 +76,7 @@
                                 <i class="fas fa-unlock-alt"></i> Buka Akses
                             </button>
                         @else
-                            <button type="submit" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5" title="Kunci sub-bab agar siswa belum bisa mengakses sub-bab ini di aplikasi">
+                            <button type="submit" class="px-3 py-1.5 bg-amber-500 hover:bg-accent-deep text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5" title="Kunci sub-bab agar siswa belum bisa mengakses sub-bab ini di aplikasi">
                                 <i class="fas fa-lock"></i> Kunci Akses
                             </button>
                         @endif
@@ -87,7 +87,7 @@
                         <i class="fas fa-plus"></i> Tambah Materi
                     </button>   
 
-                    <a href="{{ route('guru.materi.sub_bab', $subBab->id_sub_bab) }}" class="px-3.5 py-1.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">
+                    <a href="{{ route('guru.materi.sub_bab', $subBab->id_sub_bab) }}" class="px-3.5 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">
                         <i class="fas fa-eye"></i> Buka Materi ({{ $subBab->materi->count() }})
                     </a>
 

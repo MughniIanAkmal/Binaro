@@ -1,5 +1,5 @@
 <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-3 print:hidden">
-    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2"><i class="fas fa-circle-info text-[#13527D]"></i><span>Catatan Jadwal Mengajar</span></h3>
+    <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2"><i class="fas fa-circle-info text-primary"></i><span>Catatan Jadwal Mengajar</span></h3>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
         <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
             <span class="font-bold text-slate-800 flex items-center gap-1.5 text-xs"><i class="fas fa-clock text-sky-500"></i> Ketepatan Waktu</span>

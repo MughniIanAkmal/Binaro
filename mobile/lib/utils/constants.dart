@@ -8,26 +8,28 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // Network configuration
-  static const String baseUrl = 'http://10.10.191.200:8000/api';
+  static const String baseUrl = 'http://192.168.18.187:8000/api';
   static const Duration timeoutDuration = Duration(seconds: 10);
 
-  // Storage keys / Default fallback IDs
-  static const int defaultSiswaId = 7;
-  static const String defaultSiswaNama = 'Budi Santoso';
-  static const String defaultSiswaKelas = 'Kelas 5 • SDN Kalitapen 01';
+  // Storage keys / Default fallback ID (0 = belum ada sesi valid)
+  static const int defaultSiswaId = 0;
+  static const String defaultSiswaNama = 'Siswa';
+  static const String defaultSiswaKelas = 'SDN Kalitapen 01';
 }
 
-/// Centralized application colors palette following standard Flutter naming conventions.
+/// Token warna Binaro — satu-satunya tempat nilai hex boleh berada.
+/// Rujukan: docs/design-system.md §1.2 (keputusan D1: primary #13527D).
 class AppColors {
   // Primary brand palette
-  static const Color primary = Color(0xFF1D5A86);
-  static const Color primaryDark = Color(0xFF154566);
-  static const Color primaryLight = Color(0xFFE8F1F8);
+  static const Color primary = Color(0xFF13527D);
+  static const Color primaryDark = Color(0xFF0E3D5D);
+  static const Color primarySoft = Color(0xFF1E5D88);
+  static const Color primaryLight = Color(0xFFEFF6FF);
 
-  // Secondary brand palette
-  static const Color secondary = Color(0xFFFFA000);
-  static const Color secondaryDark = Color(0xFFE68A00);
-  static const Color secondaryLight = Color(0xFFFFF7ED);
+  // Accent palette
+  static const Color accent = Color(0xFFF59E0B);
+  static const Color accentBright = Color(0xFFFBBF24);
+  static const Color accentDeep = Color(0xFFD97706);
 
   // Background and surface
   static const Color background = Color(0xFFF8FAFC);
@@ -52,4 +54,7 @@ class AppColors {
   static const Color errorLight = Color(0xFFFEE2E2);
   static const Color info = Color(0xFF0284C7);
   static const Color infoLight = Color(0xFFE0F2FE);
+
+  // Warna gelap khusus (latar login / gradien overlay)
+  static const Color navy950 = Color(0xFF0B2A44);
 }

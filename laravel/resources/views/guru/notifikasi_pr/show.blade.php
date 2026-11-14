@@ -8,12 +8,12 @@
 
 @section('header_actions')
     <a href="{{ route('guru.notifikasi_pr.index') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
         <i class="fas fa-arrow-left text-[11px]"></i> Kembali
     </a>
     <a href="{{ route('guru.notifikasi_pr.edit', $pr->id_pr) }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-       style="background: var(--binaro-navy);">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+       >
         <i class="fas fa-pen-to-square text-[11px]"></i> Edit PR
     </a>
 @endsection
@@ -26,7 +26,7 @@
         <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4 border-b border-slate-100 pb-4">
             <div class="space-y-1">
                 <div class="flex flex-wrap items-center gap-2">
-                    <span class="bg-sky-100 text-[#13527D] font-extrabold text-xs px-2.5 py-0.5 rounded-lg">
+                    <span class="bg-sky-100 text-primary font-extrabold text-xs px-2.5 py-0.5 rounded-lg">
                         {{ $pr->mataPelajaran->nama_mapel ?? 'Mata Pelajaran' }}
                     </span>
                     @php
@@ -78,7 +78,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
                 <h3 class="font-extrabold text-sm text-slate-900 flex items-center gap-2">
-                    <i class="fas fa-users-line text-[#13527D]"></i>
+                    <i class="fas fa-users-line text-primary"></i>
                     Siswa Penerima Notifikasi ({{ $totalNotif }})
                 </h3>
                 <p class="text-xs text-slate-500">Status keterbacaan pesan tugas ini pada akun siswa</p>

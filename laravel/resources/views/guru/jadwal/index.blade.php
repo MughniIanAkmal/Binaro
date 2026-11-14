@@ -2,7 +2,7 @@
 
 @section('header_actions')
     <button type="button" onclick="window.print()"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition print:hidden">
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition print:hidden">
         <i class="fas fa-print text-[11px]"></i> Cetak Jadwal
     </button>
 @endsection

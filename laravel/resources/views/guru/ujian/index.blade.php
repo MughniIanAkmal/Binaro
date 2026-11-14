@@ -2,8 +2,8 @@
 
 @section('header_actions')
     <a href="{{ route('guru.ujian.create') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-       style="background: var(--binaro-navy);">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+       >
         <i class="fas fa-plus text-[11px]"></i> Buat Ujian Baru
     </a>
 @endsection
@@ -13,7 +13,7 @@
     <!-- Statistik Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-4">
-            <div class="w-12 h-12 rounded-xl bg-blue-50 text-[#13527D] flex items-center justify-center text-lg font-bold">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-primary flex items-center justify-center text-lg font-bold">
                 <i class="fas fa-file-signature"></i>
             </div>
             <div>
@@ -53,14 +53,14 @@
                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
                         <i class="fas fa-magnifying-glass text-xs"></i>
                     </span>
-                    <input type="text" name="search" id="search-ujian" value="{{ $search }}" placeholder="Ketik kata kunci ujian..." maxlength="100" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition">
+                    <input type="text" name="search" id="search-ujian" value="{{ $search }}" placeholder="Ketik kata kunci ujian..." maxlength="100" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s]/g, '')" class="w-full pl-9 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition">
                 </div>
             </div>
 
             <!-- Filter Level -->
             <div class="md:col-span-3">
                 <label class="block text-[11px] font-bold text-slate-600 mb-1">Tingkat Kesulitan</label>
-                <select name="level" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition">
+                <select name="level" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition">
                     <option value="">Semua Level</option>
                     <option value="mudah" {{ $level === 'mudah' ? 'selected' : '' }}>🟢 Mudah</option>
                     <option value="sedang" {{ $level === 'sedang' ? 'selected' : '' }}>🟡 Sedang</option>
@@ -71,7 +71,7 @@
             <!-- Filter Mapel -->
             <div class="md:col-span-3">
                 <label class="block text-[11px] font-bold text-slate-600 mb-1">Mata Pelajaran</label>
-                <select name="mapel_id" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition">
+                <select name="mapel_id" class="w-full px-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition">
                     <option value="">Semua Mapel</option>
                     @foreach($mapels as $mapel)
                         <option value="{{ $mapel->id_mapel }}" {{ (string)$mapelId === (string)$mapel->id_mapel ? 'selected' : '' }}>
@@ -83,7 +83,7 @@
 
             <!-- Buttons -->
             <div class="md:col-span-2 flex items-center gap-2">
-                <button type="submit" class="flex-1 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-xl transition text-center shadow-sm">
+                <button type="submit" class="flex-1 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-xl transition text-center shadow-sm">
                     Filter
                 </button>
                 @if($search || $level || $mapelId)
@@ -210,7 +210,7 @@
                                         </button>
                                     </form>
                                 @endif
-                                <a href="{{ route('guru.ujian.show', $ujian->id_quiz) }}" class="p-1.5 px-2.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-[#13527D] font-semibold text-[11px] transition flex items-center gap-1" title="Lihat & Kelola Soal">
+                                <a href="{{ route('guru.ujian.show', $ujian->id_quiz) }}" class="p-1.5 px-2.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-primary font-semibold text-[11px] transition flex items-center gap-1" title="Lihat & Kelola Soal">
                                     <i class="fas fa-eye"></i> Detail / Soal
                                 </a>
                                 <a href="{{ route('rekap_ujian.index', ['quiz_id' => $ujian->id_quiz]) }}" class="p-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition" title="Rekap Nilai Siswa">
@@ -237,7 +237,7 @@
                             </div>
                             <p class="font-bold text-slate-700 text-sm">Belum Ada Ujian Online</p>
                             <p class="text-xs text-slate-400 mt-1">Mulai buat ujian baru untuk menguji kemampuan dan pemahaman siswa.</p>
-                            <a href="{{ route('guru.ujian.create') }}" class="inline-flex items-center gap-1.5 mt-4 px-4 py-2 bg-[#13527D] text-white text-xs font-semibold rounded-xl hover:bg-[#0E3D5D] transition">
+                            <a href="{{ route('guru.ujian.create') }}" class="inline-flex items-center gap-1.5 mt-4 px-4 py-2 bg-primary text-white text-xs font-semibold rounded-xl hover:bg-primary-hover transition">
                                 <i class="fas fa-plus"></i> Buat Ujian Pertama
                             </a>
                         </td>

@@ -10,7 +10,7 @@
 
 @section('header_actions')
     <a href="{{ route('guru.ujian.show', $quiz->id_quiz) }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
         <i class="fas fa-arrow-left text-[11px]"></i> Edit Soal
     </a>
 @endsection
@@ -34,7 +34,7 @@
         <!-- SECTION 1: Informasi Dasar Ujian -->
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-5">
             <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-                <span class="w-7 h-7 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center font-bold text-xs"><i class="fas fa-sliders"></i></span>
+                <span class="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs"><i class="fas fa-sliders"></i></span>
                 <div>
                     <h2 class="text-sm font-bold text-slate-800">Informasi & Pengaturan Ujian</h2>
                     <p class="text-[11px] text-slate-400">Atur judul ujian, mata pelajaran, tingkat kesulitan, dan alokasi waktu.</p>
@@ -47,9 +47,9 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">
                         Judul Ujian <span class="text-rose-500">*</span>
                     </label>
-                    <input type="text" name="judul_quiz" id="edit-ujian-judul-quiz" value="{{ old('judul_quiz', $quiz->judul_quiz) }}" required maxlength="100" placeholder="Contoh: Penilaian Harian Matematika Operasi Hitung" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, ''); document.getElementById('counter-edit-ujian-judul').textContent = this.value.length + '/100';" class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition font-medium">
+                    <input type="text" name="judul_quiz" id="edit-ujian-judul-quiz" value="{{ old('judul_quiz', $quiz->judul_quiz) }}" required maxlength="100" placeholder="Contoh: Penilaian Harian Matematika Operasi Hitung" oninput="this.value = this.value.replace(/[^a-zA-Z\s]/g, ''); document.getElementById('counter-edit-ujian-judul').textContent = this.value.length + '/100';" class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition font-medium">
                     <div class="flex items-center justify-between mt-1 text-[10px]">
-                        <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf dan spasi (angka dan simbol tidak diperbolehkan).</span>
+                        <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-primary"></i>Hanya huruf dan spasi (angka dan simbol tidak diperbolehkan).</span>
                         <span id="counter-edit-ujian-judul" class="font-bold text-slate-600">{{ strlen(old('judul_quiz', $quiz->judul_quiz)) }}/100</span>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">
                         Mata Pelajaran <span class="text-rose-500">*</span>
                     </label>
-                    <select name="id_mapel" required class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition font-medium">
+                    <select name="id_mapel" required class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition font-medium">
                         <option value="">-- Pilih Mata Pelajaran --</option>
                         @foreach($mapels as $mapel)
                             <option value="{{ $mapel->id_mapel }}" {{ old('id_mapel', $quiz->id_mapel) == $mapel->id_mapel ? 'selected' : '' }}>
@@ -76,7 +76,7 @@
                         Durasi Ujian (Menit) <span class="text-rose-500">*</span>
                     </label>
                     <div class="relative">
-                        <input type="number" id="input-durasi-menit" name="durasi_menit" value="{{ old('durasi_menit', $quiz->durasi_menit ?? 60) }}" min="5" max="300" required oninput="calculateWaktuPerSoal()" class="w-full pl-3.5 pr-14 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition font-medium">
+                        <input type="number" id="input-durasi-menit" name="durasi_menit" value="{{ old('durasi_menit', $quiz->durasi_menit ?? 60) }}" min="5" max="300" required oninput="calculateWaktuPerSoal()" class="w-full pl-3.5 pr-14 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition font-medium">
                         <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-xs text-slate-400 font-semibold pointer-events-none">Menit</span>
                     </div>
                 </div>
@@ -86,7 +86,7 @@
                     <div class="p-4 bg-gradient-to-r from-sky-50 to-indigo-50/60 rounded-2xl border border-sky-200 shadow-xs">
                         <div class="flex items-center justify-between pb-2 border-b border-sky-200/60">
                             <span class="text-xs font-bold text-slate-800 flex items-center gap-2">
-                                <i class="fas fa-stopwatch text-[#13527D]"></i>
+                                <i class="fas fa-stopwatch text-primary"></i>
                                 <span>Kalkulasi Otomatis Alokasi Waktu per Soal</span>
                             </span>
                             <span class="text-[10px] font-semibold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-full border border-sky-200">
@@ -97,7 +97,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 items-center">
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-600 mb-1">Durasi Total Ujian:</label>
-                                <div class="text-xs font-extrabold text-[#13527D] bg-white px-3 py-2 rounded-xl border border-sky-200 flex items-center justify-between">
+                                <div class="text-xs font-extrabold text-primary bg-white px-3 py-2 rounded-xl border border-sky-200 flex items-center justify-between">
                                     <span id="badge-durasi-menit">{{ $quiz->durasi_menit ?? 60 }}</span>
                                     <span class="text-[10px] font-semibold text-slate-400">Menit</span>
                                 </div>
@@ -106,19 +106,19 @@
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-600 mb-1">Target / Jumlah Soal:</label>
                                 <div class="relative">
-                                    <input type="number" id="calc-input-soal" min="1" max="200" value="{{ $quiz->soal->count() > 0 ? $quiz->soal->count() : 20 }}" oninput="calculateWaktuPerSoal()" class="w-full pl-3 pr-12 py-2 text-xs font-bold text-slate-800 bg-white border border-sky-200 rounded-xl focus:outline-none focus:border-[#13527D]">
+                                    <input type="number" id="calc-input-soal" min="1" max="200" value="{{ $quiz->soal->count() > 0 ? $quiz->soal->count() : 20 }}" oninput="calculateWaktuPerSoal()" class="w-full pl-3 pr-12 py-2 text-xs font-bold text-slate-800 bg-white border border-sky-200 rounded-xl focus:outline-none focus:border-primary">
                                     <span class="absolute inset-y-0 right-0 pr-3 flex items-center text-[10px] text-slate-400 font-semibold pointer-events-none">Soal</span>
                                 </div>
                             </div>
 
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-600 mb-1">Rata-rata Waktu Tiap Soal:</label>
-                                <div class="p-2 bg-white rounded-xl border-2 border-[#13527D] shadow-xs flex items-center justify-between">
+                                <div class="p-2 bg-white rounded-xl border-2 border-primary shadow-xs flex items-center justify-between">
                                     <div>
-                                        <span id="result-waktu-per-soal" class="text-xs font-black text-[#13527D]">3 Menit</span>
+                                        <span id="result-waktu-per-soal" class="text-xs font-black text-primary">3 Menit</span>
                                         <span id="result-detik-per-soal" class="block text-[10px] font-bold text-slate-500">(180 Detik / Soal)</span>
                                     </div>
-                                    <div class="w-8 h-8 rounded-lg bg-[#13527D] text-white flex items-center justify-center text-xs">
+                                    <div class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-xs">
                                         <i class="fas fa-hourglass-half"></i>
                                     </div>
                                 </div>
@@ -131,7 +131,7 @@
                                 Rumus: <strong class="text-slate-800">Durasi ÷ Jumlah Soal = Waktu per Butir Soal</strong>
                             </span>
                             @if($quiz->soal->count() > 0)
-                            <button type="button" onclick="document.getElementById('calc-input-soal').value = {{ $quiz->soal->count() }}; calculateWaktuPerSoal();" class="text-[10px] font-bold text-[#13527D] hover:underline flex items-center gap-1 self-start sm:self-auto">
+                            <button type="button" onclick="document.getElementById('calc-input-soal').value = {{ $quiz->soal->count() }}; calculateWaktuPerSoal();" class="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 self-start sm:self-auto">
                                 <i class="fas fa-arrows-rotate"></i>
                                 <span>Reset ke jumlah soal saat ini ({{ $quiz->soal->count() }} soal)</span>
                             </button>
@@ -180,7 +180,7 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">
                         Deskripsi / Petunjuk Pengerjaan <span class="text-slate-400 font-normal">(Opsional)</span>
                     </label>
-                    <textarea name="deskripsi" rows="2" maxlength="1000" placeholder="Tuliskan petunjuk pengerjaan ujian bagi siswa (maksimal 1000 karakter)..." class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D] focus:bg-white transition">{{ old('deskripsi', $quiz->deskripsi) }}</textarea>
+                    <textarea name="deskripsi" rows="2" maxlength="1000" placeholder="Tuliskan petunjuk pengerjaan ujian bagi siswa (maksimal 1000 karakter)..." class="w-full px-3.5 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-primary focus:bg-white transition">{{ old('deskripsi', $quiz->deskripsi) }}</textarea>
                 </div>
             </div>
         </div>
@@ -188,7 +188,7 @@
         <!-- SECTION 2: Target Peserta Ujian -->
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4">
             <div class="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-                <span class="w-7 h-7 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center font-bold text-xs"><i class="fas fa-users"></i></span>
+                <span class="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs"><i class="fas fa-users"></i></span>
                 <div>
                     <h2 class="text-sm font-bold text-slate-800">Target Peserta Ujian</h2>
                     <p class="text-[11px] text-slate-400">Pilih apakah ujian ditujukan untuk seluruh siswa atau hanya siswa-siswa tertentu.</p>
@@ -201,16 +201,16 @@
             @endphp
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label class="flex items-center p-3.5 rounded-xl border border-slate-200 bg-white hover:border-[#13527D] cursor-pointer transition">
-                    <input type="radio" name="target_tipe" value="semua" class="w-4 h-4 text-[#13527D] focus:ring-0 mr-3 accent-[#13527D] target-radio" {{ $curTargetTipe === 'semua' ? 'checked' : '' }} onchange="toggleTargetSiswa(false)">
+                <label class="flex items-center p-3.5 rounded-xl border border-slate-200 bg-white hover:border-primary cursor-pointer transition">
+                    <input type="radio" name="target_tipe" value="semua" class="w-4 h-4 text-primary focus:ring-0 mr-3 accent-primary target-radio" {{ $curTargetTipe === 'semua' ? 'checked' : '' }} onchange="toggleTargetSiswa(false)">
                     <div>
                         <span class="block text-xs font-bold text-slate-800">Semua Siswa</span>
                         <span class="block text-[10px] text-slate-500">Seluruh siswa aktif dapat mengerjakan ujian ini</span>
                     </div>
                 </label>
 
-                <label class="flex items-center p-3.5 rounded-xl border border-slate-200 bg-white hover:border-[#13527D] cursor-pointer transition">
-                    <input type="radio" name="target_tipe" value="pilihan" class="w-4 h-4 text-[#13527D] focus:ring-0 mr-3 accent-[#13527D] target-radio" {{ $curTargetTipe === 'pilihan' ? 'checked' : '' }} onchange="toggleTargetSiswa(true)">
+                <label class="flex items-center p-3.5 rounded-xl border border-slate-200 bg-white hover:border-primary cursor-pointer transition">
+                    <input type="radio" name="target_tipe" value="pilihan" class="w-4 h-4 text-primary focus:ring-0 mr-3 accent-primary target-radio" {{ $curTargetTipe === 'pilihan' ? 'checked' : '' }} onchange="toggleTargetSiswa(true)">
                     <div>
                         <span class="block text-xs font-bold text-slate-800">Pilih Siswa Tertentu</span>
                         <span class="block text-[10px] text-slate-500">Hanya siswa-siswa terpilih yang dapat mengakses</span>
@@ -223,7 +223,7 @@
                 <div class="flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-700">Daftar Pilihan Siswa:</span>
                     <div class="flex items-center gap-2">
-                        <button type="button" onclick="checkAllSiswa(true)" class="text-[11px] text-[#13527D] hover:underline font-semibold">Pilih Semua</button>
+                        <button type="button" onclick="checkAllSiswa(true)" class="text-[11px] text-primary hover:underline font-semibold">Pilih Semua</button>
                         <span class="text-slate-300">|</span>
                         <button type="button" onclick="checkAllSiswa(false)" class="text-[11px] text-rose-600 hover:underline font-semibold">Batal Pilih</button>
                     </div>
@@ -235,14 +235,14 @@
                     <div class="bg-slate-50/80 rounded-xl p-3 border border-slate-200">
                         <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-200">
                             <span class="font-bold text-xs text-slate-800">Kelas {{ $kelas->nama_kelas }} ({{ $kelas->siswas->count() }} Siswa)</span>
-                            <button type="button" onclick="checkClassSiswa('kelas-{{ $kelas->id_kelas }}')" class="text-[10px] font-semibold text-[#13527D] hover:underline">
+                            <button type="button" onclick="checkClassSiswa('kelas-{{ $kelas->id_kelas }}')" class="text-[10px] font-semibold text-primary hover:underline">
                                 Pilih 1 Kelas Ini
                             </button>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                             @forelse($kelas->siswas as $siswa)
                             <label class="flex items-center gap-2 p-2 rounded-lg bg-white border border-slate-100 hover:border-slate-300 cursor-pointer text-xs transition">
-                                <input type="checkbox" name="target_siswa[]" value="{{ $siswa->id_siswa }}" class="rounded text-[#13527D] focus:ring-0 siswa-cb kelas-{{ $kelas->id_kelas }}" {{ in_array($siswa->id_siswa, $curSelectedSiswa) ? 'checked' : '' }}>
+                                <input type="checkbox" name="target_siswa[]" value="{{ $siswa->id_siswa }}" class="rounded text-primary focus:ring-0 siswa-cb kelas-{{ $kelas->id_kelas }}" {{ in_array($siswa->id_siswa, $curSelectedSiswa) ? 'checked' : '' }}>
                                 <span class="truncate font-medium text-slate-700" title="{{ $siswa->nm_siswa }}">{{ $siswa->nm_siswa }}</span>
                             </label>
                             @empty
@@ -259,7 +259,7 @@
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-100">
                 <div class="flex items-center gap-2.5">
-                    <span class="w-7 h-7 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center font-bold text-xs"><i class="fas fa-list-check"></i></span>
+                    <span class="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs"><i class="fas fa-list-check"></i></span>
                     <div>
                         <h2 class="text-sm font-bold text-slate-800">Daftar Soal Ujian, Gambar Pendukung & Bobot Nilai</h2>
                         <p class="text-[11px] text-slate-400">Sunting butir pertanyaan, bobot poin tiap soal, atau tambahkan butir soal baru.</p>
@@ -274,7 +274,7 @@
             <div id="bobot-indicator-card" class="p-4 rounded-2xl border transition-all duration-300 bg-gradient-to-r from-slate-50 to-sky-50/50 border-slate-200">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-200/80">
                     <div class="flex items-center gap-2.5">
-                        <div id="bobot-icon-badge" class="w-9 h-9 rounded-xl bg-[#13527D] text-white flex items-center justify-center text-sm shadow-xs transition shrink-0">
+                        <div id="bobot-icon-badge" class="w-9 h-9 rounded-xl bg-primary text-white flex items-center justify-center text-sm shadow-xs transition shrink-0">
                             <i class="fas fa-scale-balanced"></i>
                         </div>
                         <div>
@@ -312,7 +312,7 @@
                         <span id="bobot-percent-text" class="text-slate-700">0% dari 100 Poin</span>
                     </div>
                     <div class="w-full h-3 bg-slate-200/80 rounded-full overflow-hidden p-0.5 shadow-inner">
-                        <div id="bobot-progress-bar" class="h-full rounded-full transition-all duration-300 bg-[#13527D]" style="width: 0%;"></div>
+                        <div id="bobot-progress-bar" class="h-full rounded-full transition-all duration-300 bg-primary" style="width: 0%;"></div>
                     </div>
                 </div>
 
@@ -328,7 +328,7 @@
             </div>
 
             <div class="text-center pt-2">
-                <button type="button" onclick="addQuestionCard()" class="inline-flex items-center gap-2 px-4 py-2 border-2 border-dashed border-slate-300 hover:border-[#13527D] hover:text-[#13527D] text-slate-500 text-xs font-semibold rounded-xl transition">
+                <button type="button" onclick="addQuestionCard()" class="inline-flex items-center gap-2 px-4 py-2 border-2 border-dashed border-slate-300 hover:border-primary hover:text-primary text-slate-500 text-xs font-semibold rounded-xl transition">
                     <i class="fas fa-plus-circle"></i> Tambah Satu Soal Lagi
                 </button>
             </div>
@@ -339,7 +339,7 @@
             <a href="{{ route('guru.ujian.show', $quiz->id_quiz) }}" class="px-5 py-2.5 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition shadow-sm">
                 Batal
             </a>
-            <button type="submit" class="px-6 py-2.5 text-xs font-bold text-white bg-[#13527D] hover:bg-[#0E3D5D] rounded-xl transition shadow-md hover:shadow-lg flex items-center gap-2">
+            <button type="submit" class="px-6 py-2.5 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-xl transition shadow-md hover:shadow-lg flex items-center gap-2">
                 <i class="fas fa-check"></i>
                 <span>Simpan Perubahan</span>
             </button>
@@ -446,17 +446,17 @@ function updateBobotIndicator(total) {
     } else {
         // NORMAL / BELUM MENCAPAI 100 POINT
         indicatorCard.className += 'bg-gradient-to-r from-slate-50 to-sky-50/50 border-slate-200';
-        iconBadge.className += 'bg-[#13527D] text-white';
+        iconBadge.className += 'bg-primary text-white';
         statusBadge.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700';
         statusBadge.textContent = `${total} / 100 Poin`;
         sisaDisplay.className = 'text-sm font-black text-emerald-600';
-        progressBar.className += 'bg-[#13527D]';
+        progressBar.className += 'bg-primary';
 
         if (total > 0) {
             alertBox.className = 'mt-3 p-2.5 bg-blue-50/70 border border-blue-200 rounded-xl text-[11px] text-blue-800 flex items-center justify-between gap-2';
             alertBox.innerHTML = `
                 <div class="flex items-center gap-2">
-                    <i class="fas fa-info-circle text-[#13527D]"></i>
+                    <i class="fas fa-info-circle text-primary"></i>
                     <span>Tersisa <strong>${sisa} Poin</strong> untuk mencapai bobot ideal 100 poin.</span>
                 </div>
                 <span class="text-[10px] font-semibold text-blue-600 bg-white px-2 py-0.5 rounded-md border border-blue-200">Maksimal 100 Poin</span>
@@ -533,13 +533,13 @@ function addQuestionCard(defaultData = null) {
             ${idSoalInput}
             <div class="flex items-center justify-between pb-3 border-b border-slate-200">
                 <div class="flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-lg bg-[#13527D] text-white flex items-center justify-center font-bold text-xs soal-number">${questionCount}</span>
+                    <span class="w-6 h-6 rounded-lg bg-primary text-white flex items-center justify-center font-bold text-xs soal-number">${questionCount}</span>
                     <span class="text-xs font-bold text-slate-800">Pertanyaan Soal</span>
                 </div>
                 <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
-                    <div class="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 focus-within:border-[#13527D]">
+                    <div class="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 focus-within:border-primary">
                         <label class="text-[11px] font-bold text-slate-600">Bobot:</label>
-                        <input type="number" name="soal[${idx}][bobot_nilai]" value="${defaultBobot}" min="1" max="100" oninput="handleBobotChange(this)" onchange="handleBobotChange(this)" class="w-14 px-1.5 py-0.5 text-xs font-bold text-center border border-slate-200 rounded focus:outline-none focus:border-[#13527D] soal-bobot-input">
+                        <input type="number" name="soal[${idx}][bobot_nilai]" value="${defaultBobot}" min="1" max="100" oninput="handleBobotChange(this)" onchange="handleBobotChange(this)" class="w-14 px-1.5 py-0.5 text-xs font-bold text-center border border-slate-200 rounded focus:outline-none focus:border-primary soal-bobot-input">
                         <span class="text-[10px] text-slate-400 font-semibold">Poin</span>
                     </div>
                     <button type="button" onclick="removeQuestionCard(${idx})" class="text-slate-400 hover:text-rose-600 text-xs transition p-1" title="Hapus Soal Ini">
@@ -550,7 +550,7 @@ function addQuestionCard(defaultData = null) {
 
             <div>
                 <label class="block text-xs font-semibold text-slate-700 mb-1">Teks Pertanyaan <span class="text-rose-500">*</span></label>
-                <textarea name="soal[${idx}][pertanyaan]" rows="2" maxlength="2000" placeholder="Tuliskan pertanyaan soal (maksimal 2000 karakter)..." class="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#13527D]">${defaultData ? defaultData.pertanyaan : ''}</textarea>
+                <textarea name="soal[${idx}][pertanyaan]" rows="2" maxlength="2000" placeholder="Tuliskan pertanyaan soal (maksimal 2000 karakter)..." class="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-primary">${defaultData ? defaultData.pertanyaan : ''}</textarea>
             </div>
 
             <!-- Gambar Pendukung Soal (Opsional) -->
@@ -580,7 +580,7 @@ function addQuestionCard(defaultData = null) {
                 <label class="block text-[11px] font-bold text-slate-700">Pilihan Jawaban (Pilih Kunci Jawaban yang Benar):</label>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
                     <!-- Opsi A -->
-                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-[#13527D]">
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-primary">
                         <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
                             <input type="radio" name="soal[${idx}][kunci_jawaban]" value="A" ${!defaultData || defaultData.kunci === 'A' ? 'checked' : ''} class="text-emerald-600 focus:ring-0">
                             <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center justify-center">A</span>
@@ -589,7 +589,7 @@ function addQuestionCard(defaultData = null) {
                     </div>
 
                     <!-- Opsi B -->
-                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-[#13527D]">
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-primary">
                         <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
                             <input type="radio" name="soal[${idx}][kunci_jawaban]" value="B" ${defaultData && defaultData.kunci === 'B' ? 'checked' : ''} class="text-emerald-600 focus:ring-0">
                             <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center justify-center">B</span>
@@ -598,7 +598,7 @@ function addQuestionCard(defaultData = null) {
                     </div>
 
                     <!-- Opsi C -->
-                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-[#13527D]">
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-primary">
                         <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
                             <input type="radio" name="soal[${idx}][kunci_jawaban]" value="C" ${defaultData && defaultData.kunci === 'C' ? 'checked' : ''} class="text-emerald-600 focus:ring-0">
                             <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center justify-center">C</span>
@@ -607,7 +607,7 @@ function addQuestionCard(defaultData = null) {
                     </div>
 
                     <!-- Opsi D -->
-                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-[#13527D]">
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-slate-200 focus-within:border-primary">
                         <label class="flex items-center gap-1.5 cursor-pointer shrink-0">
                             <input type="radio" name="soal[${idx}][kunci_jawaban]" value="D" ${defaultData && defaultData.kunci === 'D' ? 'checked' : ''} class="text-emerald-600 focus:ring-0">
                             <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-bold flex items-center justify-center">D</span>

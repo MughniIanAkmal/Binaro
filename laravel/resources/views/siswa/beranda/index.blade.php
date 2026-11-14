@@ -4,8 +4,8 @@
 
 @section('header_actions')
     <a href="{{ route('siswa.mapel.index') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-       style="background: var(--binaro-navy);">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+       >
         <i class="fas fa-book-open text-[11px]"></i> Mulai Belajar
     </a>
 @endsection
@@ -42,8 +42,8 @@
             </div>
 
             <a href="{{ route('siswa.ujian.index') }}"
-               class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-[12.5px] font-extrabold shadow-sm hover:bg-sky-50 transition shrink-0"
-               style="color: var(--binaro-navy);">
+               class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-[12.5px] font-extrabold shadow-sm hover:bg-sky-50 transition shrink-0 text-primary"
+               >
                 <i class="fas fa-clipboard-question text-[12px]"></i> Buka Ujian Online
             </a>
         </div>
@@ -55,7 +55,7 @@
         {{-- Tugas aktif --}}
         <div class="card p-5">
             <div class="flex items-start justify-between gap-3">
-                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0" style="background: var(--binaro-navy);">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0 bg-primary" >
                     <i class="fas fa-clipboard-list text-[13px]"></i>
                 </div>
                 <div class="text-right min-w-0">
@@ -63,7 +63,7 @@
                     <div class="text-[26px] leading-tight font-extrabold text-slate-900 mt-0.5">{{ $jumlahTugasAktif }} <span class="text-[15px] font-bold text-slate-500">PR</span></div>
                 </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-[#EFF2F7] flex items-center justify-between gap-2 text-[11px]">
+            <div class="mt-4 pt-3 border-t border-line flex items-center justify-between gap-2 text-[11px]">
                 <span class="font-bold text-slate-700">Total {{ $tugas_total ?? 0 }} Tugas</span>
                 <span class="text-slate-400 truncate">Semester ini</span>
             </div>
@@ -80,7 +80,7 @@
                     <div class="text-[26px] leading-tight font-extrabold text-slate-900 mt-0.5">{{ $jumlahMapel }}</div>
                 </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-[#EFF2F7] flex items-center justify-between gap-2 text-[11px]">
+            <div class="mt-4 pt-3 border-t border-line flex items-center justify-between gap-2 text-[11px]">
                 <span class="font-bold text-emerald-600"><i class="fas fa-circle text-[6px] align-middle mr-1"></i>Tersedia</span>
                 <span class="text-slate-400 truncate">Kelas {{ $kelasSiswa }}</span>
             </div>
@@ -97,7 +97,7 @@
                     <div class="text-[26px] leading-tight font-extrabold text-slate-900 mt-0.5">&nbsp;</div>
                 </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-[#EFF2F7] flex items-center justify-between gap-2 text-[11px]">
+            <div class="mt-4 pt-3 border-t border-line flex items-center justify-between gap-2 text-[11px]">
                 <span class="font-bold text-amber-600"><i class="fas fa-circle text-[6px] align-middle mr-1"></i>Siap Dikerjakan</span>
                 <span class="text-slate-400 truncate">Lihat daftar</span>
             </div>
@@ -114,7 +114,7 @@
                     <div class="text-[26px] leading-tight font-extrabold text-slate-900 mt-0.5">{{ str_replace('Kelas ', '', $kelasSiswa) }}</div>
                 </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-[#EFF2F7] flex items-center justify-between gap-2 text-[11px]">
+            <div class="mt-4 pt-3 border-t border-line flex items-center justify-between gap-2 text-[11px]">
                 <span class="font-bold text-teal-600"><i class="fas fa-circle text-[6px] align-middle mr-1"></i>Aktif</span>
                 <span class="text-slate-400 truncate">TA {{ now()->month >= 7 ? now()->year.'/'.(now()->year + 1) : (now()->year - 1).'/'.now()->year }}</span>
             </div>
@@ -131,22 +131,22 @@
                     <h3 class="text-[15px] font-extrabold text-slate-900">Tugas &amp; PR Mendatang</h3>
                     <p class="text-[11.5px] text-slate-400 mt-0.5">Tugas yang belum melewati tenggat, diurutkan dari yang terdekat</p>
                 </div>
-                <span class="inline-flex items-center gap-2 px-3 h-10 rounded-xl bg-[#F4F7FB] border border-[#E6EBF2] text-[11px] font-bold text-slate-600">
+                <span class="inline-flex items-center gap-2 px-3 h-10 rounded-xl bg-[#F4F7FB] border border-line text-[11px] font-bold text-slate-600">
                     <i class="fas fa-calendar text-[10px] text-slate-400"></i> {{ $jumlahTugasAktif }} Tugas Aktif
                 </span>
             </div>
 
             <div class="space-y-3">
                 @forelse($tugasAktif as $item)
-                    <div class="rounded-xl border border-[#E6EBF2] bg-white p-4 flex items-center gap-4 hover:border-slate-300 transition">
-                        <div class="w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 bg-[#F4F7FB] text-slate-700 border border-[#E6EBF2]">
+                    <div class="rounded-xl border border-line bg-white p-4 flex items-center gap-4 hover:border-slate-300 transition">
+                        <div class="w-12 h-12 rounded-xl flex flex-col items-center justify-center shrink-0 bg-[#F4F7FB] text-slate-700 border border-line">
                             <i class="fas fa-book text-[15px]"></i>
                         </div>
 
                         <div class="flex-1 min-w-0">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <h4 class="text-[13.5px] font-extrabold text-slate-900 truncate">{{ $item['judul'] ?? '-' }}</h4>
-                                <span class="px-2 py-0.5 rounded-md bg-[#EAF1F8] text-[9px] font-extrabold tracking-[0.08em] uppercase" style="color: var(--binaro-navy);">{{ $item['mapel'] ?? '-' }}</span>
+                                <span class="px-2 py-0.5 rounded-md bg-[#EAF1F8] text-[9px] font-extrabold tracking-[0.08em] uppercase text-primary" >{{ $item['mapel'] ?? '-' }}</span>
                             </div>
                             <div class="mt-1 flex items-center gap-2 flex-wrap text-[11px] text-slate-500">
                                 <span class="font-semibold text-slate-600"><i class="fas fa-clock text-[10px] mr-1"></i>Tenggat: {{ $item['deadline'] ?? '-' }}</span>
@@ -154,19 +154,19 @@
                         </div>
 
                         <a href="{{ route('siswa.notifikasi_pr.index') }}"
-                           class="inline-flex items-center gap-1.5 px-4 h-10 rounded-xl text-[12px] font-bold text-white transition hover:opacity-90 shrink-0"
-                           style="background: var(--binaro-navy);">
+                           class="inline-flex items-center gap-1.5 px-4 h-10 rounded-xl text-[12px] font-bold text-white transition hover:opacity-90 shrink-0 bg-primary"
+                           >
                             Buka <i class="fas fa-arrow-right text-[9px]"></i>
                         </a>
                     </div>
                 @empty
-                    <div class="rounded-xl border border-dashed border-[#E6EBF2] bg-[#FBFCFE] py-14 px-6 text-center">
+                    <div class="rounded-xl border border-dashed border-line bg-[#FBFCFE] py-14 px-6 text-center">
                         <div class="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center mx-auto text-emerald-500">
                             <i class="fas fa-check"></i>
                         </div>
                         <h4 class="mt-3 text-[13px] font-bold text-slate-700">Tidak ada tugas mendatang</h4>
                         <p class="mt-1 text-[11.5px] text-slate-400">Semua tugas sudah lewat tenggat. Manfaatkan waktu untuk membaca materi.</p>
-                        <a href="{{ route('siswa.mapel.index') }}" class="inline-flex items-center gap-1.5 mt-4 px-4 h-10 rounded-xl text-[12px] font-bold text-white" style="background: var(--binaro-navy);">
+                        <a href="{{ route('siswa.mapel.index') }}" class="inline-flex items-center gap-1.5 mt-4 px-4 h-10 rounded-xl text-[12px] font-bold text-white bg-primary" >
                             <i class="fas fa-book-open text-[10px]"></i> Mulai Belajar
                         </a>
                     </div>
@@ -174,7 +174,7 @@
             </div>
 
             @if($tugas_total ?? 0 > $jumlahTugasAktif)
-                <div class="mt-4 pt-4 border-t border-[#EFF2F7] flex items-center justify-between gap-3 flex-wrap">
+                <div class="mt-4 pt-4 border-t border-line flex items-center justify-between gap-3 flex-wrap">
                     <span class="text-[11px] text-slate-400">
                         <i class="fas fa-clock-rotate-left text-slate-400 mr-1"></i>
                         {{ ($tugas_total ?? 0) - $jumlahTugasAktif }} tugas lainnya sudah lewat tenggat
@@ -193,22 +193,22 @@
                     <h3 class="text-[15px] font-extrabold text-slate-900">Mata Pelajaran</h3>
                     <p class="text-[11.5px] text-slate-400 mt-0.5">Materi yang tersedia untukmu</p>
                 </div>
-                <span class="px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-100 text-[10.5px] font-extrabold shrink-0" style="color: var(--binaro-navy);">
+                <span class="px-2.5 py-1 rounded-lg bg-sky-50 border border-sky-100 text-[10.5px] font-extrabold shrink-0 text-primary" >
                     {{ $jumlahMapel }} Mapel
                 </span>
             </div>
 
             <div class="space-y-2.5">
                 @forelse(array_slice($mapel ?? [], 0, 5) as $item)
-                    <div class="rounded-xl border border-[#E6EBF2] bg-white p-3.5 hover:border-slate-300 transition">
+                    <div class="rounded-xl border border-line bg-white p-3.5 hover:border-slate-300 transition">
                         <div class="flex items-start justify-between gap-2">
                             <div class="min-w-0">
                                 <h4 class="text-[12.5px] font-extrabold text-slate-900 truncate">{{ $item['nama'] ?? '-' }}</h4>
                                 <p class="text-[10.5px] text-slate-400 mt-0.5 truncate">{{ $item['materi'] ?? '' }}</p>
                             </div>
                             <a href="{{ route('siswa.materi.index', $item['id_mapel']) }}"
-                               class="shrink-0 inline-flex items-center px-3 h-10 rounded-xl text-[10.5px] font-extrabold text-white transition hover:opacity-90"
-                               style="background: var(--binaro-navy);">
+                               class="shrink-0 inline-flex items-center px-3 h-10 rounded-xl text-[10.5px] font-extrabold text-white transition hover:opacity-90 bg-primary"
+                               >
                                 Buka
                             </a>
                         </div>
@@ -217,7 +217,7 @@
                         </div>
                     </div>
                 @empty
-                    <div class="rounded-xl border border-dashed border-[#E6EBF2] bg-[#FBFCFE] py-10 px-5 text-center">
+                    <div class="rounded-xl border border-dashed border-line bg-[#FBFCFE] py-10 px-5 text-center">
                         <div class="w-11 h-11 rounded-full bg-slate-100 flex items-center justify-center mx-auto text-slate-300">
                             <i class="fas fa-book-open"></i>
                         </div>
@@ -227,16 +227,16 @@
                 @endforelse
             </div>
 
-            <div class="mt-4 pt-4 border-t border-[#EFF2F7] space-y-2">
+            <div class="mt-4 pt-4 border-t border-line space-y-2">
                 <a href="{{ route('siswa.jadwal_mapel.index') }}"
-                   class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-[#E6EBF2] bg-[#FBFCFE] hover:bg-slate-50 transition group">
+                   class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-line bg-[#FBFCFE] hover:bg-slate-50 transition group">
                     <span class="flex items-center gap-2 text-[11.5px] font-bold text-slate-700">
-                        <i class="fas fa-calendar-days text-[12px]" style="color: var(--binaro-navy);"></i> Lihat Jadwal Pelajaran
+                        <i class="fas fa-calendar-days text-[12px] text-primary" ></i> Lihat Jadwal Pelajaran
                     </span>
                     <i class="fas fa-arrow-right text-[9px] text-slate-400 group-hover:text-slate-700 transition"></i>
                 </a>
                 <a href="{{ route('siswa.notifikasi_pr.index') }}"
-                   class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-[#E6EBF2] bg-white hover:bg-slate-50 transition group">
+                   class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl border border-line bg-white hover:bg-slate-50 transition group">
                     <span class="flex items-center gap-2 text-[11.5px] font-bold text-slate-700">
                         <i class="fas fa-bell text-[12px] text-amber-500"></i> Semua Notifikasi PR
                     </span>

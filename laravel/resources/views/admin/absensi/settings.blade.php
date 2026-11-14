@@ -14,7 +14,7 @@
         <i class="fas fa-clipboard-check text-slate-500"></i>
         <span>Lihat Rekap Absensi</span>
     </a>
-    <a href="{{ route('jadwal.index') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition" style="background: var(--binaro-navy);">
+    <a href="{{ route('jadwal.index') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary" >
         <i class="fas fa-calendar-days"></i>
         <span>Kelola Jadwal</span>
     </a>
@@ -27,7 +27,7 @@
     <div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
             <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-lg bg-sky-50 text-[#13527D] flex items-center justify-center text-sm font-bold shadow-xs">
+                <div class="w-9 h-9 rounded-lg bg-sky-50 text-primary flex items-center justify-center text-sm font-bold shadow-xs">
                     <i class="fas fa-timeline"></i>
                 </div>
                 <div>
@@ -104,7 +104,7 @@
         <div class="p-5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
                 <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <i class="fas fa-sliders text-[#13527D]"></i> Formulir Konfigurasi Waktu Presensi
+                    <i class="fas fa-sliders text-primary"></i> Formulir Konfigurasi Waktu Presensi
                 </h2>
                 <p class="text-xs text-slate-500 mt-0.5">Ubah parameter jam sesuai tata tertib operasional {{ config('binaro.nama_sekolah') }}.</p>
             </div>
@@ -127,7 +127,7 @@
                     <div class="relative">
                         <input type="time" name="batas_awal" id="input_batas_awal" required value="{{ old('batas_awal', $batasAwal) }}"
                                oninput="syncPreview()"
-                               class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:border-[#13527D] focus:bg-white focus:ring-1 focus:ring-[#13527D] transition">
+                               class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary transition">
                     </div>
                     <p class="text-xs text-slate-500 leading-relaxed">
                         Default: <strong>07:00</strong>. Kedatangan sebelum jam ini dikategorikan datang lebih awal.
@@ -142,7 +142,7 @@
                     <div class="relative">
                         <input type="time" name="batas_tepat" id="input_batas_tepat" required value="{{ old('batas_tepat', $batasTepat) }}"
                                oninput="syncPreview()"
-                               class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:border-[#13527D] focus:bg-white focus:ring-1 focus:ring-[#13527D] transition">
+                               class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary transition">
                     </div>
                     <p class="text-xs text-slate-500 leading-relaxed">
                         Default: <strong>08:00</strong>. Antara Jam Awal hingga jam ini dihitung hadir tepat waktu.
@@ -157,7 +157,7 @@
                     <div class="relative">
                         <input type="time" name="batas_tutup" id="input_batas_tutup" required value="{{ old('batas_tutup', $batasTutup) }}"
                                oninput="syncPreview()"
-                               class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:border-[#13527D] focus:bg-white focus:ring-1 focus:ring-[#13527D] transition">
+                               class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm font-bold text-slate-800 focus:outline-none focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary transition">
                     </div>
                     <p class="text-xs text-slate-500 leading-relaxed">
                         Presensi setelah Jam Tepat s/d jam ini adalah <strong>Terlambat</strong>. Menjadi <strong>batas maksimal jam selesai di Jadwal Pelajaran</strong>.
@@ -187,7 +187,7 @@
                 <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition">
                     Kembali ke Dashboard
                 </a>
-                <button type="submit" id="btn-save-settings" class="px-5 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center gap-2">
+                <button type="submit" id="btn-save-settings" class="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-lg shadow-sm transition flex items-center gap-2">
                     <i class="fas fa-floppy-disk"></i>
                     <span>Simpan Pengaturan Jam</span>
                 </button>

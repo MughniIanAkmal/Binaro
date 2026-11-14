@@ -8,7 +8,7 @@
 
 @section('header_actions')
     <a href="{{ route('guru.notifikasi_pr.index') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
         <i class="fas fa-arrow-left text-[11px]"></i> Kembali
     </a>
 @endsection
@@ -21,7 +21,7 @@
         <!-- Card 1: Informasi Tugas PR -->
         <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
             <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
-                <div class="w-9 h-9 rounded-xl bg-sky-50 text-[#13527D] flex items-center justify-center font-bold text-sm">
+                <div class="w-9 h-9 rounded-xl bg-sky-50 text-primary flex items-center justify-center font-bold text-sm">
                     <i class="fas fa-book-open"></i>
                 </div>
                 <div>
@@ -39,9 +39,9 @@
                     <input type="text" name="nama_pr" id="nama_pr" value="{{ old('nama_pr') }}" required maxlength="100"
                            oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\-_.,()]/g, ''); document.getElementById('counter-pr-nama').textContent = this.value.length + '/100'; updateLivePreview();"
                            placeholder="Contoh: Latihan Soal Cerita Operasi Hitung Campuran"
-                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-primary">
                     <div class="flex items-center justify-between mt-1 text-[10px]">
-                        <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, spasi, dan tanda baca (- . , _ ()). Simbol dilarang.</span>
+                        <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-primary"></i>Hanya huruf, angka, spasi, dan tanda baca (- . , _ ()). Simbol dilarang.</span>
                         <span id="counter-pr-nama" class="font-bold text-slate-600">{{ strlen(old('nama_pr', '')) }}/100</span>
                     </div>
                 </div>
@@ -52,7 +52,7 @@
                         Mata Pelajaran <span class="text-rose-500">*</span>
                     </label>
                     <select name="id_mapel" id="id_mapel" required onchange="updateLivePreview()"
-                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-primary">
                         <option value="">-- Pilih Mata Pelajaran --</option>
                         @foreach($mapels as $mapel)
                             <option value="{{ $mapel->id_mapel }}" {{ old('id_mapel') == $mapel->id_mapel ? 'selected' : '' }}>
@@ -74,7 +74,7 @@
                                    min="{{ date('Y-m-d') }}"
                                    value="{{ old('tanggal_tenggat', $defaultTanggal ?? date('Y-m-d', strtotime('+1 day'))) }}" required
                                    onchange="syncDateTimeAndPreview()"
-                                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-primary">
                         </div>
 
                         <!-- Jam Pengumpulan (07:00 - 14:00 WIB) -->
@@ -88,7 +88,7 @@
                             <div class="flex items-center gap-1.5">
                                 <!-- Pilih Jam 07 s/d 14 -->
                                 <select id="select_jam" onchange="syncDateTimeAndPreview()"
-                                        class="w-1/2 px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                                        class="w-1/2 px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-primary">
                                     @for($h = 7; $h <= 14; $h++)
                                         @php $hh = sprintf('%02d', $h); @endphp
                                         <option value="{{ $hh }}" {{ $hh == '07' ? 'selected' : '' }}>
@@ -99,7 +99,7 @@
                                 <span class="font-extrabold text-slate-400">:</span>
                                 <!-- Pilih Menit 00-59 -->
                                 <select id="select_menit" onchange="syncDateTimeAndPreview()"
-                                        class="w-1/2 px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                                        class="w-1/2 px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-primary">
                                     @foreach(['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'] as $mm)
                                         <option value="{{ $mm }}" {{ $mm == '30' ? 'selected' : '' }}>
                                             {{ $mm }}
@@ -118,7 +118,7 @@
 
                     <!-- Info Ketentuan Jam Operasi Sekolah -->
                     <div class="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center gap-2">
-                        <i class="fas fa-school text-[#13527D] shrink-0"></i>
+                        <i class="fas fa-school text-primary shrink-0"></i>
                         <span><strong>Jam Operasi Sekolah:</strong> Pukul <strong>07:00 - 14:00 WIB</strong> (Hari Minggu libur). Tidak dapat memilih hari dan jam yang sudah lewat.</span>
                     </div>
 
@@ -136,7 +136,7 @@
                     </label>
                     <textarea name="deskripsi" id="deskripsi" rows="4" maxlength="1000"
                               placeholder="Tuliskan petunjuk pengerjaan tugas, nomor halaman buku paket, atau instruksi khusus untuk siswa (maksimal 1000 karakter)..."
-                              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">{{ old('deskripsi') }}</textarea>
+                              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">{{ old('deskripsi') }}</textarea>
                 </div>
             </div>
         </div>
@@ -157,7 +157,7 @@
                 <!-- Toggle Kirim Notifikasi -->
                 <label class="relative inline-flex items-center cursor-pointer">
                     <input type="checkbox" name="kirim_notifikasi" id="kirim_notifikasi" value="1" checked onchange="toggleNotifSection(this.checked)" class="sr-only peer">
-                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#13527D]"></div>
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     <span class="ml-2.5 text-xs font-bold text-slate-700">Kirim Notifikasi Sekarang</span>
                 </label>
             </div>
@@ -167,22 +167,22 @@
                 <div>
                     <label class="block text-xs font-bold text-slate-700 mb-1.5">Sasaran Siswa Penerima</label>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                        <label class="border-2 border-[#13527D]/30 bg-sky-50/50 rounded-xl p-3 flex items-center gap-2.5 cursor-pointer hover:bg-sky-50 transition" id="lbl-target-semua">
-                            <input type="radio" name="target_tipe" value="semua" checked onchange="handleTargetChange(this.value)" class="text-[#13527D]">
+                        <label class="border-2 border-primary/30 bg-sky-50/50 rounded-xl p-3 flex items-center gap-2.5 cursor-pointer hover:bg-sky-50 transition" id="lbl-target-semua">
+                            <input type="radio" name="target_tipe" value="semua" checked onchange="handleTargetChange(this.value)" class="text-primary">
                             <div>
                                 <div class="font-bold text-slate-900 text-xs">Semua Siswa</div>
                                 <div class="text-[10px] text-slate-500">Kirim ke seluruh siswa terdaftar</div>
                             </div>
                         </label>
                         <label class="border border-slate-200 rounded-xl p-3 flex items-center gap-2.5 cursor-pointer hover:bg-slate-50 transition" id="lbl-target-kelas">
-                            <input type="radio" name="target_tipe" value="kelas" onchange="handleTargetChange(this.value)" class="text-[#13527D]">
+                            <input type="radio" name="target_tipe" value="kelas" onchange="handleTargetChange(this.value)" class="text-primary">
                             <div>
                                 <div class="font-bold text-slate-900 text-xs">Berdasarkan Kelas</div>
                                 <div class="text-[10px] text-slate-500">Pilih rombel / kelas spesifik</div>
                             </div>
                         </label>
                         <label class="border border-slate-200 rounded-xl p-3 flex items-center gap-2.5 cursor-pointer hover:bg-slate-50 transition" id="lbl-target-siswa">
-                            <input type="radio" name="target_tipe" value="siswa" onchange="handleTargetChange(this.value)" class="text-[#13527D]">
+                            <input type="radio" name="target_tipe" value="siswa" onchange="handleTargetChange(this.value)" class="text-primary">
                             <div>
                                 <div class="font-bold text-slate-900 text-xs">Pilih Siswa Tertentu</div>
                                 <div class="text-[10px] text-slate-500">Pilih individu siswa secara manual</div>
@@ -194,7 +194,7 @@
                 <!-- Dropdown Pilih Kelas (Tampil jika target 'kelas') -->
                 <div id="target-kelas-container" class="hidden">
                     <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Kelas Sasaran <span class="text-rose-500">*</span></label>
-                    <select name="target_kelas" id="target_kelas" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <select name="target_kelas" id="target_kelas" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-primary">
                         <option value="">-- Pilih Kelas --</option>
                         @foreach($kelas as $k)
                             <option value="{{ $k->id_rooms }}">{{ $k->pararel }} ({{ $k->siswas_count }} Siswa)</option>
@@ -208,7 +208,7 @@
                     <div class="max-h-48 overflow-y-auto border border-slate-200 rounded-xl p-2.5 space-y-1 bg-slate-50">
                         @foreach($siswas as $s)
                         <label class="flex items-center gap-2.5 p-1.5 hover:bg-white rounded-lg text-xs cursor-pointer">
-                            <input type="checkbox" name="target_siswa[]" value="{{ $s->id_siswa }}" class="rounded text-[#13527D]">
+                            <input type="checkbox" name="target_siswa[]" value="{{ $s->id_siswa }}" class="rounded text-primary">
                             <span class="font-bold text-slate-800">{{ $s->nm_siswa }}</span>
                             <span class="text-[10px] text-slate-400">NISN: {{ $s->nisn }} &bull; {{ $s->kelas->pararel ?? 'Siswa' }}</span>
                         </label>
@@ -220,12 +220,12 @@
                 <div>
                     <div class="flex items-center justify-between mb-1">
                         <label for="pesan_kustom" class="text-xs font-bold text-slate-700">Pesan Notifikasi yang Dikirimkan</label>
-                        <button type="button" onclick="resetDefaultPesan()" class="text-[10px] font-bold text-[#13527D] hover:underline">
+                        <button type="button" onclick="resetDefaultPesan()" class="text-[10px] font-bold text-primary hover:underline">
                             <i class="fas fa-magic mr-1"></i> Format Otomatis
                         </button>
                     </div>
                     <textarea name="pesan_kustom" id="pesan_kustom" rows="3"
-                              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]"
+                              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary"
                               placeholder="Pesan otomatis akan dibentuk sesuai judul PR dan tenggat waktu..."></textarea>
                 </div>
 
@@ -236,7 +236,7 @@
                     </div>
                     <div class="bg-white p-3 rounded-lg border border-amber-200/80 shadow-xs space-y-1">
                         <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-extrabold text-[#13527D]" id="preview-tag-mapel">[Mata Pelajaran]</span>
+                            <span class="text-[10px] font-extrabold text-primary" id="preview-tag-mapel">[Mata Pelajaran]</span>
                             <span class="text-[9px] text-slate-400">Baru Saja</span>
                         </div>
                         <p class="text-xs font-medium text-slate-800 leading-relaxed" id="preview-text-body">
@@ -252,7 +252,7 @@
             <a href="{{ route('guru.notifikasi_pr.index') }}" class="px-5 py-2.5 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 transition">
                 Batal
             </a>
-            <button type="submit" class="px-6 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-extrabold shadow-md hover:shadow-lg transition flex items-center gap-2">
+            <button type="submit" class="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-extrabold shadow-md hover:shadow-lg transition flex items-center gap-2">
                 <i class="fas fa-save"></i>
                 <span id="btn-submit-text">Simpan Tugas PR & Kirimkan</span>
             </button>
@@ -274,7 +274,7 @@ function handleTargetChange(tipe) {
     ['semua', 'kelas', 'siswa'].forEach(t => {
         const lbl = document.getElementById('lbl-target-' + t);
         if (t === tipe) {
-            lbl.className = 'border-2 border-[#13527D]/40 bg-sky-50/50 rounded-xl p-3 flex items-center gap-2.5 cursor-pointer';
+            lbl.className = 'border-2 border-primary/40 bg-sky-50/50 rounded-xl p-3 flex items-center gap-2.5 cursor-pointer';
         } else {
             lbl.className = 'border border-slate-200 rounded-xl p-3 flex items-center gap-2.5 cursor-pointer hover:bg-slate-50 transition';
         }

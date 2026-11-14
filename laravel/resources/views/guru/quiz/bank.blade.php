@@ -13,8 +13,8 @@
         <i class="fas fa-file-excel text-[11px]"></i> Import Excel / CSV
     </button>
     <button onclick="openModal('modal-add-soal')"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-            style="background: var(--binaro-navy);">
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+            >
         <i class="fas fa-plus text-[11px]"></i> Tambah Soal
     </button>
 @endsection
@@ -27,7 +27,7 @@
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
             <div class="flex items-start justify-between gap-3">
                 <div class="flex items-start gap-3">
-                    <span class="w-6 h-6 bg-[#13527D]/10 text-[#13527D] text-xs font-bold rounded-lg flex items-center justify-center shrink-0">
+                    <span class="w-6 h-6 bg-primary/10 text-primary text-xs font-bold rounded-lg flex items-center justify-center shrink-0">
                         {{ $idx + 1 }}
                     </span>
                     <p class="text-xs font-bold text-slate-800 pt-0.5 leading-relaxed">
@@ -73,7 +73,7 @@
             @csrf
             <div>
                 <label class="block font-semibold text-slate-700 mb-1">Pertanyaan</label>
-                <textarea name="pertanyaan" required rows="2" maxlength="1000" placeholder="Tuliskan soal (maksimal 1000 karakter)..." class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]"></textarea>
+                <textarea name="pertanyaan" required rows="2" maxlength="1000" placeholder="Tuliskan soal (maksimal 1000 karakter)..." class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"></textarea>
             </div>
             <div class="grid grid-cols-2 gap-2">
                 <div>
@@ -104,7 +104,7 @@
             </div>
             <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <button type="button" onclick="closeModal('modal-add-soal')" class="px-3 py-2 border border-slate-200 text-slate-600 rounded-lg">Batal</button>
-                <button type="submit" class="px-3 py-2 bg-[#13527D] text-white font-semibold rounded-lg">Simpan Soal</button>
+                <button type="submit" class="px-3 py-2 bg-primary text-white font-semibold rounded-lg">Simpan Soal</button>
             </div>
         </form>
     </div>
@@ -121,14 +121,14 @@
             @csrf
             <div class="p-3 bg-emerald-50/60 border border-emerald-200 rounded-lg space-y-2">
                 <p class="font-bold text-emerald-900">Format Template Soal Excel / CSV:</p>
-                <a href="{{ route('guru.quiz.template.download') }}" class="inline-flex items-center gap-1.5 text-xs text-[#13527D] font-bold hover:underline">
+                <a href="{{ route('guru.quiz.template.download') }}" class="inline-flex items-center gap-1.5 text-xs text-primary font-bold hover:underline">
                     <i class="fas fa-file-excel text-emerald-600"></i> Download Template Excel (.xlsx)
                 </a>
             </div>
 
             <div>
                 <label class="block font-bold text-slate-700 mb-1">Unggah File Soal Excel / CSV (.xlsx / .xls / .csv) <span class="text-rose-500">*</span></label>
-                <input type="file" name="file_excel" id="bank-file-excel" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" required onchange="validateBankExcel(this)" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-[#13527D]">
+                <input type="file" name="file_excel" id="bank-file-excel" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" required onchange="validateBankExcel(this)" class="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 focus:outline-none focus:border-primary">
                 <p class="text-[10px] text-slate-500 mt-1">Menerima format spreadsheet Excel (.xlsx, .xls) atau CSV (.csv). Maksimal 50 soal per file. Format file selain Excel/CSV ditolak.</p>
             </div>
 

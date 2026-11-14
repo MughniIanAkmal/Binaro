@@ -81,9 +81,9 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
           };
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1D5A86),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
@@ -115,7 +115,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFC0C0C0),
+                  color: AppColors.border,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2.2),
                 ),
@@ -125,7 +125,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _resultData.isEmpty
               ? Center(
                   child: Container(
@@ -134,7 +134,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.02),
@@ -150,13 +150,13 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                           width: 68,
                           height: 68,
                           decoration: const BoxDecoration(
-                            color: Color(0xFFEFF6FF),
+                            color: AppColors.primaryLight,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.pending_actions_outlined,
                             size: 34,
-                            color: Color(0xFF1D5A86),
+                            color: AppColors.primary,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -165,7 +165,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -175,7 +175,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                             height: 1.4,
                           ),
                         ),
@@ -183,7 +183,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                         ElevatedButton(
                           onPressed: () => Navigator.pop(context),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1D5A86),
+                            backgroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -196,7 +196,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                 )
               : RefreshIndicator(
                   onRefresh: _fetchResult,
-                  color: const Color(0xFF1D5A86),
+                  color: AppColors.primary,
                   backgroundColor: Colors.white,
                   displacement: 28,
                   child: SingleChildScrollView(
@@ -233,7 +233,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                                     Navigator.pop(context);
                                   },
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF1D5A86),
+                                    backgroundColor: AppColors.primary,
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                                   ),
@@ -272,16 +272,16 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: const Color(0xFFEFF6FF),
+            color: AppColors.primaryLight,
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: const Color(0xFFDBEAFE)),
+            border: Border.all(color: AppColors.primaryLight),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDBEAFE),
+                  color: AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text('⏳', style: TextStyle(fontSize: 22)),
@@ -296,7 +296,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -304,7 +304,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                       'Jawabanmu telah tersimpan rapi di sistem.',
                       style: TextStyle(
                         fontSize: 11.5,
-                        color: Color(0xFF64748B),
+                        color: AppColors.textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -323,7 +323,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: const Color(0xFFE2E8F0)),
+            border: Border.all(color: AppColors.border),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.02),
@@ -338,13 +338,13 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                 width: 72,
                 height: 72,
                 decoration: const BoxDecoration(
-                  color: Color(0xFFFFFBEB),
+                  color: AppColors.warningLight,
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
                   Icons.hourglass_top_rounded,
                   size: 38,
-                  color: Color(0xFFD97706),
+                  color: AppColors.accentDeep,
                 ),
               ),
               const SizedBox(height: 16),
@@ -353,7 +353,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -364,7 +364,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12.5,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                     height: 1.45,
                   ),
                 ),
@@ -373,21 +373,21 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
+                  color: AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: const Color(0xFFBFDBFE)),
+                  border: Border.all(color: AppColors.primaryLight),
                 ),
                 child: const Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.info_outline_rounded, size: 14, color: Color(0xFF1D5A86)),
+                    Icon(Icons.info_outline_rounded, size: 14, color: AppColors.primary),
                     SizedBox(width: 6),
                     Text(
                       'Status: Menunggu Pengumuman Guru',
                       style: TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1D5A86),
+                        color: AppColors.primary,
                       ),
                     ),
                   ],
@@ -414,7 +414,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Colors.white),
             ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1D5A86),
+              backgroundColor: AppColors.primary,
               elevation: 0,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
@@ -429,12 +429,12 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
           child: OutlinedButton(
             onPressed: () => Navigator.pop(context),
             style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Color(0xFFCBD5E1)),
+              side: const BorderSide(color: AppColors.border),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
             ),
             child: const Text(
               'Kembali ke Daftar Ujian',
-              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: Color(0xFF475569)),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textSecondary),
             ),
           ),
         ),
@@ -450,9 +450,9 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFBEB), // Cream yellow background
+        color: AppColors.warningLight, // Cream yellow background
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFFEF3C7)),
+        border: Border.all(color: AppColors.warningLight),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -467,7 +467,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFFEF3C7),
+              color: AppColors.warningLight,
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Text('🎉', style: TextStyle(fontSize: 22)),
@@ -482,7 +482,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -490,7 +490,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                   'Ujian telah selesai dikumpulkan tepat waktu!',
                   style: TextStyle(
                     fontSize: 11.5,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -512,7 +512,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -527,20 +527,20 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
-              color: const Color(0xFFDCFCE7), // Soft green
+              color: AppColors.successLight, // Soft green
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.check_circle_rounded, color: Color(0xFF16A34A), size: 16),
+                const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 16),
                 const SizedBox(width: 6),
                 Text(
                   labelKkm,
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF15803D),
+                    color: AppColors.success,
                   ),
                 ),
               ],
@@ -561,8 +561,8 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                   child: CircularProgressIndicator(
                     value: nilai / 100.0,
                     strokeWidth: 12,
-                    backgroundColor: const Color(0xFFF1F5F9),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF1D5A86)),
+                    backgroundColor: AppColors.surfaceAlt,
+                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
                     strokeCap: StrokeCap.round,
                   ),
                 ),
@@ -574,7 +574,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                       style: const TextStyle(
                         fontSize: 38,
                         fontWeight: FontWeight.w900,
-                        color: Color(0xFF1D5A86),
+                        color: AppColors.primary,
                         height: 1.1,
                       ),
                     ),
@@ -582,7 +582,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                       'dari 100',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF94A3B8),
+                        color: AppColors.textMuted,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -599,7 +599,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
             ),
           ),
         ],
@@ -618,7 +618,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFF1D5A86), // Deep blue
+              color: AppColors.primary, // Deep blue
               borderRadius: BorderRadius.circular(18),
             ),
             child: Column(
@@ -630,7 +630,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.check_rounded, color: Color(0xFF1D5A86), size: 20),
+                  child: const Icon(Icons.check_rounded, color: AppColors.primary, size: 20),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -661,7 +661,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B), // Vibrant orange
+              color: AppColors.accent, // Vibrant orange
               borderRadius: BorderRadius.circular(18),
             ),
             child: Column(
@@ -673,7 +673,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.close_rounded, color: Color(0xFFF59E0B), size: 20),
+                  child: const Icon(Icons.close_rounded, color: AppColors.accent, size: 20),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -704,7 +704,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
-              color: const Color(0xFF1D5A86), // Deep blue
+              color: AppColors.primary, // Deep blue
               borderRadius: BorderRadius.circular(18),
             ),
             child: Column(
@@ -716,7 +716,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.access_time_rounded, color: Color(0xFF1D5A86), size: 20),
+                  child: const Icon(Icons.access_time_rounded, color: AppColors.primary, size: 20),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -758,7 +758,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -776,10 +776,10 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
+                  color: AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.assignment_outlined, color: Color(0xFF1D5A86), size: 22),
+                child: const Icon(Icons.assignment_outlined, color: AppColors.primary, size: 22),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -791,7 +791,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                       style: TextStyle(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF94A3B8),
+                        color: AppColors.textMuted,
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -801,7 +801,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                       style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -809,7 +809,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                       guru,
                       style: const TextStyle(
                         fontSize: 11.5,
-                        color: Color(0xFF64748B),
+                        color: AppColors.textSecondary,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -824,9 +824,9 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: AppColors.background,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: AppColors.border),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -836,11 +836,11 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                   width: 38,
                   height: 38,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFDBEAFE),
+                    color: AppColors.primaryLight,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 2),
                   ),
-                  child: const Icon(Icons.person, color: Color(0xFF1D5A86), size: 24),
+                  child: const Icon(Icons.person, color: AppColors.primary, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -849,14 +849,14 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                     children: [
                       const Row(
                         children: [
-                          Icon(Icons.chat_bubble_outline_rounded, size: 14, color: Color(0xFF1D5A86)),
+                          Icon(Icons.chat_bubble_outline_rounded, size: 14, color: AppColors.primary),
                           SizedBox(width: 5),
                           Text(
                             'Catatan Guru',
                             style: TextStyle(
                               fontSize: 11.5,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFF1D5A86),
+                              color: AppColors.primary,
                             ),
                           ),
                         ],
@@ -866,7 +866,7 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
                         '"$catatan"',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF334155),
+                          color: AppColors.textPrimary,
                           fontStyle: FontStyle.italic,
                           height: 1.4,
                         ),

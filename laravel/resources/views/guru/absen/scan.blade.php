@@ -43,7 +43,7 @@
             <!-- Tombol Simpan & Kunci Absensi -->
             <button type="button" onclick="kunciAbsensiHariIni()" 
                     id="btnKunciAbsen"
-                    class="{{ $isLocked ? 'bg-slate-300 text-slate-600 cursor-not-allowed' : 'bg-amber-500 hover:bg-amber-600 text-slate-950' }} text-xs font-extrabold px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition">
+                    class="{{ $isLocked ? 'bg-slate-300 text-slate-600 cursor-not-allowed' : 'bg-amber-500 hover:bg-accent-deep text-slate-950' }} text-xs font-extrabold px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition">
                 <i class="fas {{ $isLocked ? 'fa-lock' : 'fa-lock' }} text-xs"></i>
                 <span id="labelKunciAbsen">{{ $isLocked ? 'Absensi Terkunci' : 'Simpan & Kunci Absensi' }}</span>
             </button>
@@ -64,7 +64,7 @@
                     Wali Kelas: {{ $guru->nama_guru ? explode(',', $guru->nama_guru)[0] : '-' }}
                 </p>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-sky-50 text-[#13527D] flex items-center justify-center text-xl shrink-0">
+            <div class="w-12 h-12 rounded-2xl bg-sky-50 text-primary flex items-center justify-center text-xl shrink-0">
                 <i class="fas fa-users"></i>
             </div>
         </div>
@@ -140,7 +140,7 @@
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                         <h3 class="font-extrabold text-sm text-slate-900">Pemindai Barcode / QR</h3>
                     </div>
-                    <span class="bg-sky-50 text-[#13527D] border border-sky-100 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">
+                    <span class="bg-sky-50 text-primary border border-sky-100 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">
                         Kamera Aktif
                     </span>
                 </div>
@@ -201,7 +201,7 @@
                         <div class="relative flex-1">
                             <input type="text" id="kodeManual" list="daftarNamaSiswa" 
                                    placeholder="Ketik Nama atau NISN Siswa..."
-                                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/90 rounded-xl text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#13527D] transition">
+                                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200/90 rounded-xl text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary transition">
                             <datalist id="daftarNamaSiswa">
                                 @foreach ($daftarNama as $n)
                                 <option value="{{ $n['nama'] }}">{{ $n['kelas'] }} ({{ $n['nisn'] }})</option>
@@ -209,7 +209,7 @@
                             </datalist>
                         </div>
                         <button type="submit" 
-                                class="bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-sm transition">
+                                class="bg-primary hover:bg-primary-hover text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow-sm transition">
                             Cari
                         </button>
                     </form>
@@ -230,12 +230,12 @@
 
                 <!-- Info Siswa Terpindai -->
                 <div id="boxSiswaTerpindai" class="bg-slate-50 border border-slate-200/70 rounded-xl p-3.5 flex items-center gap-3.5">
-                    <div class="w-12 h-12 rounded-xl bg-slate-200 overflow-hidden flex items-center justify-center font-bold text-base text-[#13527D] shrink-0 border border-white shadow-sm">
+                    <div class="w-12 h-12 rounded-xl bg-slate-200 overflow-hidden flex items-center justify-center font-bold text-base text-primary shrink-0 border border-white shadow-sm">
                         <span id="lastScanAvatar">{{ strtoupper(substr($terakhirPindai['nama'] ?? 'BS', 0, 2)) }}</span>
                     </div>
                     <div class="min-w-0 flex-1">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-extrabold text-[#13527D] bg-sky-100 px-1.5 py-0.2 rounded">
+                            <span class="text-[10px] font-extrabold text-primary bg-sky-100 px-1.5 py-0.2 rounded">
                                 No. <span id="lastScanNo">{{ $terakhirPindai['no_urut'] ?? '08' }}</span>
                             </span>
                             <h4 id="lastScanNama" class="font-extrabold text-sm text-slate-900 truncate">
@@ -280,7 +280,7 @@
 
                 <!-- Tombol Konfirmasi Hadir -->
                 <button type="button" id="btnKonfirmasiHadir" onclick="konfirmasiHadirManual()"
-                        class="w-full bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-sm transition">
+                        class="w-full bg-primary hover:bg-primary-hover text-white text-xs font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-sm transition">
                     <i class="fas fa-circle-check text-sm"></i>
                     <span>Konfirmasi Hadir (Tekan Enter)</span>
                 </button>
@@ -304,14 +304,14 @@
                         <i class="fas fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                         <input type="text" id="searchSiswa" onkeyup="filterDaftarSiswa()" 
                                placeholder="Cari nama / NISN..."
-                               class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200/90 rounded-xl text-xs text-slate-700 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#13527D] transition">
+                               class="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200/90 rounded-xl text-xs text-slate-700 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary transition">
                     </div>
                 </div>
 
                 <!-- Filter Tabs: Semua, Hadir, Izin, Sakit, Belum Absen -->
                 <div class="flex flex-wrap items-center gap-2 pt-1 border-b border-slate-100 pb-3 text-xs">
                     <button type="button" onclick="setTabFilter('semua')" id="tabSemua" 
-                            class="px-3 py-1.5 rounded-lg font-bold bg-[#13527D] text-white shadow-sm transition">
+                            class="px-3 py-1.5 rounded-lg font-bold bg-primary text-white shadow-sm transition">
                         Semua (<span id="cntTabSemua">{{ $totalSiswa }}</span>)
                     </button>
                     <button type="button" onclick="setTabFilter('Hadir')" id="tabHadir" 
@@ -349,7 +349,7 @@
                             </span>
 
                             <!-- Avatar -->
-                            <div class="w-9 h-9 rounded-xl bg-slate-100 text-[#13527D] font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200">
+                            <div class="w-9 h-9 rounded-xl bg-slate-100 text-primary font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200">
                                 {{ strtoupper(substr($item['nama'], 0, 2)) }}
                             </div>
 
@@ -433,7 +433,7 @@
                     <span id="footerCountText">
                         Menampilkan {{ min(6, $totalSiswa) }} dari {{ $totalSiswa }} siswa ({{ max(0, $totalSiswa - 6) }} siswa lainnya telah terverifikasi hadir)
                     </span>
-                    <button type="button" onclick="bukaSemuaSiswa()" class="text-xs font-bold text-[#13527D] hover:underline flex items-center gap-1">
+                    <button type="button" onclick="bukaSemuaSiswa()" class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
                         <span>Buka Semua Daftar Siswa</span>
                         <i class="fas fa-chevron-right text-[10px]"></i>
                     </button>
@@ -448,7 +448,7 @@
     <!-- 4. Bottom Banner: Sinkronisasi Presensi Otomatis & Lihat Rekap 1 Bulan Penuh -->
     <div class="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-sky-50 text-[#13527D] flex items-center justify-center text-xl shrink-0">
+            <div class="w-12 h-12 rounded-2xl bg-sky-50 text-primary flex items-center justify-center text-xl shrink-0">
                 <i class="fas fa-arrows-rotate"></i>
             </div>
             <div>
@@ -460,7 +460,7 @@
         </div>
 
         <button type="button" onclick="openModalBulanPenuh()" 
-                class="bg-sky-50/70 hover:bg-sky-100/70 text-[#13527D] border border-sky-200/80 font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition shrink-0">
+                class="bg-sky-50/70 hover:bg-sky-100/70 text-primary border border-sky-200/80 font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2 transition shrink-0">
             <i class="far fa-calendar text-xs"></i>
             <span>Lihat Rekap 1 Bulan Penuh</span>
         </button>
@@ -501,19 +501,19 @@
 
             <!-- Format 2: PDF Resmi -->
             <a href="{{ route('guru.absen.export.pdf') }}" target="_blank"
-               class="p-4 rounded-xl border border-slate-200 hover:border-[#13527D] hover:bg-sky-50/40 transition flex items-center gap-4 group">
-                <div class="w-12 h-12 rounded-xl bg-sky-100 text-[#13527D] flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition">
+               class="p-4 rounded-xl border border-slate-200 hover:border-primary hover:bg-sky-50/40 transition flex items-center gap-4 group">
+                <div class="w-12 h-12 rounded-xl bg-sky-100 text-primary flex items-center justify-center text-2xl shrink-0 group-hover:scale-105 transition">
                     <i class="fas fa-file-pdf"></i>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <h4 class="font-extrabold text-sm text-slate-900 group-hover:text-[#13527D] transition">
+                    <h4 class="font-extrabold text-sm text-slate-900 group-hover:text-primary transition">
                         Dokumen PDF Resmi (Kop Sekolah)
                     </h4>
                     <p class="text-xs text-slate-500 mt-0.5">
                         Siap cetak & tanda tangan Kepala Sekolah & Wali Kelas dengan kop surat resmi.
                     </p>
                 </div>
-                <i class="fas fa-arrow-up-right-from-square text-slate-400 group-hover:text-[#13527D]"></i>
+                <i class="fas fa-arrow-up-right-from-square text-slate-400 group-hover:text-primary"></i>
             </a>
         </div>
 
@@ -621,7 +621,7 @@
 
             <div>
                 <label class="block font-bold text-slate-700 mb-1.5">Pilih Status Kehadiran</label>
-                <select id="editPilihStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-[#13527D]">
+                <select id="editPilihStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-primary">
                     <option value="Hadir">Hadir</option>
                     <option value="Izin">Izin</option>
                     <option value="Sakit">Sakit</option>
@@ -632,7 +632,7 @@
             <div>
                 <label class="block font-bold text-slate-700 mb-1.5">Keterangan Tambahan</label>
                 <input type="text" id="editKeterangan" placeholder="Contoh: Hadir Tepat Waktu / Izin Lomba..."
-                       class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-[#13527D]">
+                       class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-primary">
             </div>
         </div>
 
@@ -640,7 +640,7 @@
             <button onclick="closeModalEditSiswa()" class="px-3 py-1.5 text-xs font-bold text-slate-500 hover:bg-slate-100 rounded-lg">
                 Batal
             </button>
-            <button onclick="simpanPerubahanStatus()" class="px-4 py-1.5 bg-[#13527D] text-white text-xs font-bold rounded-lg hover:bg-[#0E3D5D] transition">
+            <button onclick="simpanPerubahanStatus()" class="px-4 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:bg-primary-hover transition">
                 Simpan
             </button>
         </div>
@@ -656,7 +656,7 @@
     const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]').content;
 
     let statusPilihanScan = 'Hadir';
-    let siswaTerpindaiId = {{ $terakhirPindai['id_siswa'] ?? 7 }};
+    let siswaTerpindaiId = {{ (int) ($terakhirPindai['id_siswa'] ?? 0) }};
     let sibuk = false;
     let scanner = null;
     let isMirror = false; // Default non-mirror setiap halaman scan dibuka; tidak disimpan antar sesi
@@ -824,7 +824,7 @@
             const btn = document.getElementById('tab' + t);
             if (!btn) return;
             if ((t === 'Semua' && tab === 'semua') || (t === 'Belum' && tab === 'Belum Absen') || t === tab) {
-                btn.className = 'px-3 py-1.5 rounded-lg font-bold bg-[#13527D] text-white shadow-sm transition';
+                btn.className = 'px-3 py-1.5 rounded-lg font-bold bg-primary text-white shadow-sm transition';
             } else {
                 btn.className = 'px-3 py-1.5 rounded-lg font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
             }

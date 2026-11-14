@@ -17,6 +17,7 @@ dependencies:
   webview_flutter_platform_interface: ^2.15.1
   webview_flutter_android: 4.12.1
   syncfusion_flutter_pdfviewer: ^35.1.43
+  shared_preferences: ^2.3.2
 
 dependency_overrides:
   url_launcher_android: 6.3.28
@@ -31,4 +32,17 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/
+  fonts:
+    - family: Plus Jakarta Sans
+      fonts:
+        - asset: assets/fonts/PlusJakartaSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/PlusJakartaSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/PlusJakartaSans-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/PlusJakartaSans-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/PlusJakartaSans-ExtraBold.ttf
+          weight: 800
 

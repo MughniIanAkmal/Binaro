@@ -1,11 +1,13 @@
 import 'dart:convert';
+import '../widgets/common.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'daftar_bab_page.dart';
 import 'mapel_page.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
-import 'profile_page.dart';
+import '../widgets/dynamic_bottom_nav.dart';
+import '../widgets/state_views.dart';
 import 'ujian_page.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -18,13 +20,13 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  int _currentIndex = 0;
   bool _isLoading = true;
+  bool _hasError = false;
+  String _pesanError = '';
 
   // Data state
   Map<String, dynamic> _siswa = {};
   List<dynamic> _tugasList = [];
-  int _tugasTotal = 0;
   List<dynamic> _mapelList = [];
 
   // URL API Laravel dari AppConstants
@@ -35,15 +37,34 @@ class _DashboardPageState extends State<DashboardPage> {
     super.initState();
     // Default initial data from login
     _siswa = {
-      'nama': widget.user?['nm_siswa'] ?? 'Budi Santoso',
-      'kelas': '${widget.user?['kelas'] ?? 'Kelas 5'} • SDN Kalitapen 01',
+      'nama': widget.user?['nm_siswa'] ?? AppConstants.defaultSiswaNama,
+      'kelas': widget.user?['kelas'] != null
+          ? '${widget.user?['kelas']} • ${AppConstants.defaultSiswaKelas}'
+          : AppConstants.defaultSiswaKelas,
       'foto_profil': widget.user?['foto_profil'],
     };
     _fetchDashboardData();
   }
 
   Future<void> _fetchDashboardData() async {
-    final int siswaId = widget.user?['id_siswa'] ?? AppConstants.defaultSiswaId;
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+    });
+
+    final int siswaId =
+        widget.user?['id_siswa'] ?? AppConstants.defaultSiswaId;
+    if (siswaId <= 0) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+          _pesanError = 'Sesi tidak valid. Silakan keluar lalu login kembali.';
+        });
+      }
+      return;
+    }
+
     try {
       final response = await http
           .get(
@@ -59,172 +80,94 @@ class _DashboardPageState extends State<DashboardPage> {
           setState(() {
             _siswa = data['siswa'] ?? _siswa;
             _tugasList = data['tugas'] ?? [];
-            _tugasTotal = data['tugas_total'] ?? _tugasList.length;
             _mapelList = data['mata_pelajaran'] ?? [];
             _isLoading = false;
           });
           return;
         }
       }
-    } catch (_) {}
-
-    if (mounted) {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+          _pesanError =
+              'Server menjawab dengan status ${response.statusCode}. Periksa koneksi lalu coba lagi.';
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+          _pesanError =
+              'Tidak dapat terhubung ke server. Periksa koneksi lalu coba lagi.';
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: _buildAppBar(),
       body: _isLoading
           ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF1D5A86)),
+              child: CircularProgressIndicator(color: AppColors.primary),
             )
-          : RefreshIndicator(
-              onRefresh: _fetchDashboardData,
-              color: const Color(0xFF1D5A86),
-              backgroundColor: Colors.white,
-              displacement: 28,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
+          : _hasError
+              ? ErrorState(
+                  message: _pesanError,
+                  onRetry: _fetchDashboardData,
+                )
+              : RefreshIndicator(
+                  onRefresh: _fetchDashboardData,
+                  color: AppColors.primary,
+                  backgroundColor: Colors.white,
+                  displacement: 28,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Greeting & Logo Box
+                        _buildGreetingSection(),
+
+                        const SizedBox(height: 22),
+
+                        // Menu Section (Mapel, Ujian, Jadwal)
+                        _buildMenuSection(),
+
+                        const SizedBox(height: 24),
+
+                        // Tugas & PR Mendatang Section
+                        _buildTugasSection(),
+
+                        const SizedBox(height: 24),
+
+                        // Mata Pelajaran Section
+                        _buildMataPelajaranSection(),
+
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Greeting & Logo Box
-                    _buildGreetingSection(),
-
-                    const SizedBox(height: 22),
-
-                    // Menu Section (Mapel, Ujian, Jadwal)
-                    _buildMenuSection(),
-
-                    const SizedBox(height: 24),
-
-                    // Tugas & PR Mendatang Section
-                    _buildTugasSection(),
-
-                    const SizedBox(height: 24),
-
-                    // Mata Pelajaran Section
-                    _buildMataPelajaranSection(),
-
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
-            ),
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: DynamicBottomNav(
+        currentIndex: 0,
+        user: widget.user ?? _siswa,
+      ),
     );
   }
 
   // ---------------------------------------------------------------------------
   // 1. TOP APP BAR
   // ---------------------------------------------------------------------------
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: const Color(0xFF1D5A86),
-      elevation: 0,
-      automaticallyImplyLeading: false,
-      titleSpacing: 16,
-      title: Row(
-        children: [
-          // Orange logo toga badge
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.school_rounded,
-              color: Colors.white,
-              size: 22,
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Title texts
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'SAHABAT BELAJAR',
-                style: TextStyle(
-                  fontSize: 10,
-                  letterSpacing: 0.8,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFFFBBF24),
-                ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                'Beranda',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        // Bell notification icon with badge
-        Stack(
-          alignment: Alignment.topRight,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.notifications_none_rounded,
-                  color: Colors.white, size: 26),
-              onPressed: () {},
-            ),
-            Positioned(
-              right: 12,
-              top: 12,
-              child: Container(
-                width: 9,
-                height: 9,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF59E0B),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-          ],
-        ),
-        // Placeholder Avatar Lingkaran Abu-abu dengan Border Putih (sesuai screenshot)
-        Padding(
-          padding: const EdgeInsets.only(right: 16, left: 6),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                SmoothPageRoute(
-                  page: ProfilePage(user: widget.user ?? _siswa),
-                  type: TransitionType.sharedAxis,
-                ),
-              );
-            },
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: const Color(0xFFC0C0C0),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2.2),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  PreferredSizeWidget _buildAppBar() => const BinaroAppBar(title: 'Beranda');
 
   // ---------------------------------------------------------------------------
   // 2. GREETING SECTION
@@ -234,11 +177,11 @@ class _DashboardPageState extends State<DashboardPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Halo, ${_siswa['nama'] ?? 'Budi Santoso'}!',
+          'Halo, ${_siswa['nama'] ?? AppConstants.defaultSiswaNama}!',
           style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 6),
@@ -247,15 +190,15 @@ class _DashboardPageState extends State<DashboardPage> {
             const Icon(
               Icons.school_rounded,
               size: 15,
-              color: Color(0xFF1D5A86),
+              color: AppColors.primary,
             ),
             const SizedBox(width: 6),
             Text(
-              _siswa['kelas'] ?? 'Kelas 5 • SDN Kalitapen 01',
+              _siswa['kelas'] ?? AppConstants.defaultSiswaKelas,
               style: const TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
               ),
             ),
           ],
@@ -276,7 +219,7 @@ class _DashboardPageState extends State<DashboardPage> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -284,9 +227,9 @@ class _DashboardPageState extends State<DashboardPage> {
           children: [
             Expanded(
               child: _buildMenuButton(
-                title: 'Mapel',
+                title: 'Pembelajaran',
                 icon: Icons.menu_book_rounded,
-                color: const Color(0xFF1D5A86),
+                color: AppColors.primary,
                 onTap: () {
                   Navigator.push(
                     context,
@@ -303,8 +246,16 @@ class _DashboardPageState extends State<DashboardPage> {
               child: _buildMenuButton(
                 title: 'Ujian',
                 icon: Icons.quiz_outlined,
-                color: const Color(0xFFF59E0B),
-                onTap: () {},
+                color: AppColors.accent,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    SmoothPageRoute(
+                      page: UjianPage(user: widget.user ?? _siswa),
+                      type: TransitionType.sharedAxis,
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 12),
@@ -312,8 +263,8 @@ class _DashboardPageState extends State<DashboardPage> {
               child: _buildMenuButton(
                 title: 'Jadwal',
                 icon: Icons.calendar_month_outlined,
-                color: const Color(0xFF1D5A86),
-                onTap: () {},
+                color: AppColors.primary,
+                onTap: _showJadwalSegeraHadir,
               ),
             ),
           ],
@@ -375,7 +326,7 @@ class _DashboardPageState extends State<DashboardPage> {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF1E293B),
+            color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -388,48 +339,54 @@ class _DashboardPageState extends State<DashboardPage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: AppColors.border),
             ),
             child: const Column(
               children: [
-                Icon(Icons.assignment_turned_in_outlined, size: 36, color: Color(0xFF16A34A)),
+                Icon(Icons.assignment_turned_in_outlined, size: 36, color: AppColors.success),
                 SizedBox(height: 8),
                 Text(
                   'Tidak ada tugas atau PR aktif saat ini.',
-                  style: TextStyle(fontSize: 13, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
                 ),
               ],
             ),
           )
         else ...[
           ..._tugasList.map((t) => _buildTugasCard(Map<String, dynamic>.from(t as Map))),
-          const SizedBox(height: 12),
-          // Link Lihat Semua Tugas
-          Center(
-            child: TextButton(
-              onPressed: () {},
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF1D5A86),
-                textStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('Lihat Semua Tugas ($_tugasTotal)'),
-                  const SizedBox(width: 4),
-                  const Icon(Icons.arrow_forward_rounded, size: 16),
-                ],
-              ),
-            ),
-          ),
         ],
       ],
     );
   }
 
+  /// Menu Jadwal belum tersedia — beri tahu pengguna, jangan diam saja.
+  void _showJadwalSegeraHadir() {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.calendar_month_rounded, color: Colors.white, size: 20),
+            SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Fitur Jadwal Pelajaran segera hadir!',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   Widget _buildTugasCard(Map<String, dynamic> tugas) {
     final bool isOrange = tugas['warna'] == 'orange';
-    final Color barColor = isOrange ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86);
+    final Color barColor = isOrange ? AppColors.accent : AppColors.primary;
     final String mapel = tugas['mapel'] ?? 'UMUM';
     final String judul = tugas['judul'] ?? '-';
     final String deadline = tugas['deadline'] ?? '-';
@@ -446,7 +403,7 @@ class _DashboardPageState extends State<DashboardPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -467,10 +424,10 @@ class _DashboardPageState extends State<DashboardPage> {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEFF6FF),
+                    color: AppColors.primaryLight,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(iconData, color: const Color(0xFF1D5A86), size: 24),
+                  child: Icon(iconData, color: AppColors.primary, size: 24),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -483,8 +440,8 @@ class _DashboardPageState extends State<DashboardPage> {
                           fontSize: 11,
                           fontWeight: FontWeight.w800,
                           color: isOrange
-                              ? const Color(0xFFF59E0B)
-                              : const Color(0xFF1D5A86),
+                              ? AppColors.accent
+                              : AppColors.primary,
                           letterSpacing: 0.5,
                         ),
                       ),
@@ -494,7 +451,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         style: const TextStyle(
                           fontSize: 14.5,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF1E293B),
+                          color: AppColors.textPrimary,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -576,7 +533,7 @@ class _DashboardPageState extends State<DashboardPage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
             TextButton(
@@ -594,7 +551,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 style: TextStyle(
                   fontSize: 13.5,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1D5A86),
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -610,12 +567,12 @@ class _DashboardPageState extends State<DashboardPage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: AppColors.border),
             ),
             child: const Center(
               child: Text(
                 'Belum ada mata pelajaran yang tersedia.',
-                style: TextStyle(fontSize: 13, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
               ),
             ),
           )
@@ -641,8 +598,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildMapelCard(Map<String, dynamic> mapel) {
     final bool isOrange = mapel['warna'] == 'orange';
-    final Color accentColor = isOrange ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86);
-    final Color badgeBg = isOrange ? const Color(0xFFFEF3C7) : const Color(0xFFDBEAFE);
+    final Color accentColor = isOrange ? AppColors.accent : AppColors.primary;
+    final Color badgeBg = isOrange ? AppColors.warningLight : AppColors.primaryLight;
 
     IconData iconData = Icons.grid_view_rounded;
     if (mapel['tipe_icon'] == 'science') {
@@ -672,7 +629,7 @@ class _DashboardPageState extends State<DashboardPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -724,7 +681,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -734,7 +691,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 mapel['materi_info'] ?? '-',
                 style: const TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF94A3B8),
+                  color: AppColors.textMuted,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -753,7 +710,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF64748B),
+                      color: AppColors.textSecondary,
                     ),
                   ),
                   Text(
@@ -785,106 +742,6 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   // ---------------------------------------------------------------------------
-  // 6. BOTTOM NAVIGATION BAR (Beranda, Ujian, Mapel, Jadwal, Profil)
+  // 6. BOTTOM NAVIGATION BAR — memakai DynamicBottomNav bersama (satu-satunya nav)
   // ---------------------------------------------------------------------------
-  Widget _buildBottomNav() {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF1D5A86),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 10,
-            offset: Offset(0, -3),
-          ),
-        ],
-      ),
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildNavItem(0, Icons.home_rounded, 'Beranda'),
-              _buildNavItem(1, Icons.quiz_outlined, 'Ujian'),
-              _buildNavItem(2, Icons.menu_book_rounded, 'Mapel'),
-              _buildNavItem(3, Icons.calendar_month_outlined, 'Jadwal'),
-              _buildNavItem(4, Icons.account_circle_outlined, 'Profil'),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildNavItem(int index, IconData icon, String label) {
-    final bool isSelected = _currentIndex == index;
-    final Color color = isSelected ? const Color(0xFFF59E0B) : Colors.white70;
-
-    return InkWell(
-      onTap: () {
-        setState(() => _currentIndex = index);
-        if (index == 1) {
-          // Buka Halaman Ujian Online
-          Navigator.push(
-            context,
-            SmoothPageRoute(
-              page: UjianPage(user: widget.user ?? _siswa),
-              type: TransitionType.fadeThrough,
-            ),
-          ).then((_) {
-            if (mounted) {
-              setState(() => _currentIndex = 0);
-            }
-          });
-        } else if (index == 2) {
-          // Buka Halaman Daftar Mapel
-          Navigator.push(
-            context,
-            SmoothPageRoute(
-              page: MapelPage(user: widget.user ?? _siswa),
-              type: TransitionType.fadeThrough,
-            ),
-          ).then((_) {
-            if (mounted) {
-              setState(() => _currentIndex = 0);
-            }
-          });
-        } else if (index == 4) {
-          // Buka Halaman Profil Siswa dengan transisi halus
-          Navigator.push(
-            context,
-            SmoothPageRoute(
-              page: ProfilePage(user: widget.user ?? _siswa),
-              type: TransitionType.fadeThrough,
-            ),
-          ).then((_) {
-            if (mounted) {
-              setState(() => _currentIndex = 0);
-            }
-          });
-        }
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
