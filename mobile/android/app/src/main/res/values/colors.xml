@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Warna brand Binaro (docs/design-system.md §1.2) -->
+    <color name="ic_launcher_background">#13527D</color>
+    <color name="binaro_canvas">#F8FAFC</color>
+</resources>

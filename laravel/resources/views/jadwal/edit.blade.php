@@ -147,7 +147,7 @@
                     Batal
                 </a>
                 <button type="submit" id="btn-submit-jadwal" class="bg-primary hover:bg-primary-hover text-white px-5 py-2.5 rounded-xl text-sm font-bold transition flex items-center gap-2 shadow-sm">
-                    💾 Update Jadwal
+                    <i class="fas fa-floppy-disk"></i> Update Jadwal
                 </button>
             </div>
         </form>

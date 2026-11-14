@@ -120,23 +120,23 @@ Lihat `docs/design-system.md` bagian 9: **D1** warna primary `#13527D`, **D2** f
 
 ### T12. Logo & aset brand — effort: M (butuh desain)
 
-- [ ] Buat logo Binaro (SVG master + PNG ekspor) — bisa dimulai dari mark yang ada (topi wisuda / kotak amber).
-- [ ] Pasang di: sidebar 3 portal web, login web (ganti huruf "B" gradien), app bar mobile (ganti ikon Material), splash.
-- [ ] **Verifikasi:** tidak ada lagi ikon library yang berperan sebagai logo.
+- [x] Buat logo Binaro (SVG master + PNG ekspor) — bisa dimulai dari mark yang ada (topi wisuda / kotak amber).
+- [x] Pasang di: sidebar 3 portal web, login web (ganti huruf "B" gradien), app bar mobile (ganti ikon Material), splash.
+- [x] **Verifikasi:** tidak ada lagi ikon library yang berperan sebagai logo.
 
 ### T13. Favicon, app icon, splash — effort: S
 
-- [ ] Web: tambah `<link rel="icon">` di 3 layout + halaman cetak.
-- [ ] Mobile: generate adaptive icon (warna `primary`) dari logo; isi `launch_background.xml` + logo (hapus komentar template).
-- [ ] **Verifikasi:** tab browser menampilkan favicon; install APK: ikon & splash ber-brand.
+- [x] Web: tambah `<link rel="icon">` di 3 layout + halaman cetak.
+- [x] Mobile: generate adaptive icon (warna `primary`) dari logo; isi `launch_background.xml` + logo (hapus komentar template).
+- [x] **Verifikasi:** tab browser menampilkan favicon; install APK: ikon & splash ber-brand.
 
 ### T14. Rapikan identitas tersebar — effort: S
 
-- [ ] Samakan casing wordmark "Binaro" di semua portal (siswa saat ini "BINARO").
-- [ ] Sinkron versi: hapus `v1.2.0-SD` (`profile_page.dart:28`) → tampilkan dari `AppConstants.appVersion` = pubspec.
-- [ ] Satukan Font Awesome 6.4.0 → 6.5.1 di `rpp_guru/cetak.blade.php:6`, `guru/absen/cetak_pdf.blade.php:9`.
-- [ ] Ganti emoji ikon (🟢🔴🟡 web ujian, 👤 mobile `ujian_page.dart:587`) dengan ikon library.
-- [ ] **Verifikasi:** grep emoji di UI = 0; versi tampil konsisten.
+- [x] Samakan casing wordmark "Binaro" di semua portal (siswa saat ini "BINARO").
+- [x] Sinkron versi: hapus `v1.2.0-SD` (`profile_page.dart:28`) → tampilkan dari `AppConstants.appVersion` = pubspec.
+- [x] Satukan Font Awesome 6.4.0 → 6.5.1 di `rpp_guru/cetak.blade.php:6`, `guru/absen/cetak_pdf.blade.php:9`.
+- [x] Ganti emoji ikon (🟢🔴🟡 web ujian, 👤 mobile `ujian_page.dart:587`) dengan ikon library.
+- [x] **Verifikasi:** grep emoji di UI = 0; versi tampil konsisten.
 
 ---
 

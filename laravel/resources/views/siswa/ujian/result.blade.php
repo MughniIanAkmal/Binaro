@@ -133,11 +133,11 @@
             <div class="space-y-1">
                 <h3 class="text-base font-black text-slate-900">
                     @if($hasil->nilai_akhir >= 85)
-                        🌟 Sangat Baik & Membanggakan!
+                        <i class="fas fa-star text-amber-400"></i>  Sangat Baik & Membanggakan!
                     @elseif($hasil->nilai_akhir >= config('binaro.kkm'))
-                        👍 Baik & Memenuhi Target KKM!
+                        <i class="fas fa-thumbs-up text-emerald-500"></i>  Baik & Memenuhi Target KKM!
                     @else
-                        💪 Tetap Semangat, Ayo Bimbingan Remedial!
+                        <i class="fas fa-bolt text-amber-500"></i>  Tetap Semangat, Ayo Bimbingan Remedial!
                     @endif
                 </h3>
                 <p class="text-xs text-slate-500">
@@ -278,15 +278,15 @@
                     @endphp
                     @if($kesulitan === 'mudah')
                     <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        🟢 Mudah
+                        <i class="fas fa-circle text-emerald-500"></i>  Mudah
                     </span>
                     @elseif($kesulitan === 'sulit' || $kesulitan === 'susah')
                     <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-rose-50 text-rose-700 border border-rose-200">
-                        🔴 Sulit
+                        <i class="fas fa-circle text-rose-500"></i>  Sulit
                     </span>
                     @else
                     <span class="px-2.5 py-1 rounded-full text-[10px] font-black bg-amber-50 text-amber-700 border border-amber-200">
-                        🟡 Sedang
+                        <i class="fas fa-circle text-amber-400"></i>  Sedang
                     </span>
                     @endif
 

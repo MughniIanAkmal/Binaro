@@ -9,6 +9,8 @@
 
     <title>Login - Binaro</title>
 
+    <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-binaro.svg') }}">
+
     @vite(['resources/css/tokens.css'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -497,9 +499,7 @@
 
             <div class="logo">
 
-                <div class="logo-icon">
-                    B
-                </div>
+                <img src="{{ asset('images/logo-binaro.svg') }}" alt="Logo Binaro" class="logo-icon" style="background:none; box-shadow:none; border-radius:13px;">
 
                 <div>
                     <h1>Binaro</h1>
@@ -519,15 +519,15 @@
 
             <ul class="feature-list">
                 <li>
-                    <span class="feature-badge">📅</span>
+                    <span class="feature-badge"><i class="fas fa-calendar-days"></i></span>
                     Jadwal & Absensi Terpadu
                 </li>
                 <li>
-                    <span class="feature-badge">📚</span>
+                    <span class="feature-badge"><i class="fas fa-book-open"></i></span>
                     Materi & Notifikasi PR
                 </li>
                 <li>
-                    <span class="feature-badge">📝</span>
+                    <span class="feature-badge"><i class="fas fa-file-pen"></i></span>
                     Ujian Online & Nilai
                 </li>
             </ul>
@@ -544,7 +544,7 @@
 
 
             <div class="login-title">
-                Selamat Datang 👋
+                Selamat Datang <i class="fas fa-hand"></i>
             </div>
 
             <div class="login-subtitle">
@@ -646,7 +646,7 @@
 
 
             <div class="access-text" id="access-text">
-                🔒 Akses untuk Siswa, Guru, dan Admin • {{ config('binaro.nama_sekolah') }}
+                <i class="fas fa-lock"></i> Akses untuk Siswa, Guru, dan Admin • {{ config('binaro.nama_sekolah') }}
             </div>
 
 

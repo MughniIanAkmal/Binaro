@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../utils/constants.dart';
 
 /// App bar baku Binaro: logo kotak amber + kicker "SAHABAT BELAJAR" + judul.
@@ -36,17 +37,10 @@ class BinaroAppBar extends StatelessWidget implements PreferredSizeWidget {
       titleSpacing: showBack ? 0 : 16,
       title: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: AppColors.accent,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(
-              Icons.school_rounded,
-              color: Colors.white,
-              size: 22,
-            ),
+          SvgPicture.asset(
+            'assets/images/logo_binaro_dark.svg',
+            width: 40,
+            height: 40,
           ),
           const SizedBox(width: 12),
           Column(

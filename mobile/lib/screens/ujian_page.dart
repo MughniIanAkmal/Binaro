@@ -560,13 +560,19 @@ class _UjianPageState extends State<UjianPage> {
           const SizedBox(height: 4),
 
           // Guru Pengampu
-          Text(
-            '👤 Guru: $guru',
-            style: const TextStyle(
-              fontSize: 11.5,
-              color: AppColors.textSecondary,
-              fontWeight: FontWeight.w500,
-            ),
+          Row(
+            children: [
+              const Icon(Icons.person_rounded, size: 14, color: AppColors.textSecondary),
+              const SizedBox(width: 4),
+              Text(
+                'Guru: $guru',
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  color: AppColors.textSecondary,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
 
