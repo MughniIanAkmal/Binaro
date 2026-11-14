@@ -9,6 +9,7 @@
 
     <title>Login - Binaro</title>
 
+    @vite(['resources/css/tokens.css'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -23,7 +24,7 @@
 
         body {
             font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #0B2A44 0%, #13527D 55%, #1E7FA8 100%);
+            background: linear-gradient(135deg, var(--color-navy-950) 0%, var(--color-primary) 55%, var(--color-primary-soft) 100%);
             min-height: 100vh;
 
             display: flex;
@@ -60,7 +61,7 @@
         body::after {
             width: 360px;
             height: 360px;
-            background: #F2A007;
+            background: var(--color-accent);
             bottom: -140px;
             left: -120px;
             opacity: 0.22;
@@ -101,7 +102,7 @@
             background:
                 linear-gradient(rgba(14, 61, 93, 0.72), rgba(19, 82, 125, 0.88)),
                 url("{{ asset('images/sekolah.jpg') }}"),
-                #13527D;
+                var(--color-primary);
 
             background-size: cover;
             background-position: center;
@@ -150,7 +151,7 @@
             width: 46px;
             height: 46px;
 
-            background: linear-gradient(135deg, #F2A007, #F7C948);
+            background: linear-gradient(135deg, var(--color-accent), var(--color-accent-bright));
 
             border-radius: 13px;
 
@@ -160,7 +161,7 @@
 
             font-size: 22px;
             font-weight: 800;
-            color: #0E3D5D;
+            color: var(--color-primary-hover);
 
             box-shadow: 0 6px 16px rgba(242, 160, 7, 0.4);
         }
@@ -247,7 +248,7 @@
         .login-title {
             font-size: 26px;
             font-weight: 800;
-            color: #0E3D5D;
+            color: var(--color-primary-hover);
 
             margin-bottom: 4px;
         }
@@ -293,7 +294,7 @@
 
             font-size: 13px;
             font-weight: 600;
-            color: #0E3D5D;
+            color: var(--color-primary-hover);
             font-family: inherit;
 
             outline: none;
@@ -308,7 +309,7 @@
 
 
         .input-box:focus {
-            border-color: #13527D;
+            border-color: var(--color-primary);
             background: #fff;
 
             box-shadow:
@@ -329,7 +330,7 @@
 
             border-radius: 12px;
 
-            background: linear-gradient(135deg, #13527D 0%, #1E7FA8 100%);
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-soft) 100%);
 
             color: white;
 

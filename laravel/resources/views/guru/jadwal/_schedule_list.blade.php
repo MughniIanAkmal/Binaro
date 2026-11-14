@@ -14,10 +14,10 @@
                 $sesiHari = $jadwalPerHari[$hari] ?? collect();
                 $isHariIni = (($hariIni ?? '') === $hari);
             @endphp
-            <div class="kartu-hari bg-white rounded-2xl border {{ $isHariIni ? 'border-[#13527D]' : 'border-slate-200' }} shadow-sm overflow-hidden" data-hari="{{ $hari }}" style="{{ $isHariIni ? 'box-shadow: 0 0 0 3px rgba(19,82,125,0.08);' : '' }}">
+            <div class="kartu-hari bg-white rounded-2xl border {{ $isHariIni ? 'border-primary' : 'border-slate-200' }} shadow-sm overflow-hidden" data-hari="{{ $hari }}" style="{{ $isHariIni ? 'box-shadow: 0 0 0 3px rgba(19,82,125,0.08);' : '' }}">
                 <div class="px-6 py-4 {{ $isHariIni ? 'bg-gradient-to-r from-sky-50 to-white' : 'bg-slate-50/60' }} border-b border-slate-100 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm" style="{{ $isHariIni ? 'background:#13527D; color:white;' : 'background:white; color:#475569; border:1px solid #e2e8f0;' }}"><i class="fas fa-calendar-day"></i></div>
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm" style="{{ $isHariIni ? 'background:var(--color-primary); color:white;' : 'background:white; color:#475569; border:1px solid #e2e8f0;' }}"><i class="fas fa-calendar-day"></i></div>
                         <div>
                             <div class="flex items-center gap-2">
                                 <h2 class="text-base font-black text-slate-900">{{ $hari }}</h2>
@@ -52,7 +52,7 @@
                                 <div class="p-4 rounded-xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50/50 transition flex flex-col gap-3 shadow-sm">
                                     <div class="flex items-center justify-between gap-2">
                                         <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-[11px] font-mono font-bold"><i class="far fa-clock text-slate-400 text-[10px]"></i><span>{{ $jamRange }} WIB</span></div>
-                                        <span class="text-[10px] font-bold text-white bg-[#13527D] px-2 py-1 rounded-md">Jam Ke-{{ $idx + 1 }}</span>
+                                        <span class="text-[10px] font-bold text-white bg-primary px-2 py-1 rounded-md">Jam Ke-{{ $idx + 1 }}</span>
                                     </div>
                                     <div class="flex items-start gap-3">
                                         <div class="w-10 h-10 rounded-xl border flex items-center justify-center text-sm shrink-0" style="{{ $colorStyle }}"><i class="fas {{ $iconMapel }}"></i></div>

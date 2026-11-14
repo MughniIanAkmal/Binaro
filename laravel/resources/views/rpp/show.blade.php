@@ -9,13 +9,13 @@
 
 @section('header_actions')
     <a href="{{ session('user_type') === 'guru' ? route('guru.rpp.index') : route('rpp.index') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
         <i class="fas fa-arrow-left text-[11px]"></i> Kembali
     </a>
     @if($rpp->file_rpp)
         <a href="{{ route('rpp.download', $rpp->id_rpp) }}"
-           class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-           style="background: var(--binaro-navy);">
+           class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+           >
             <i class="fas fa-download text-[11px]"></i> Unduh Berkas
         </a>
     @endif

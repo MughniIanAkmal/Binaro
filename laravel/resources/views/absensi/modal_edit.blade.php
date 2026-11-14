@@ -2,7 +2,7 @@
 <div id="editModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold text-sm text-slate-900">Ubah Presensi: <span id="modalSiswaName" class="text-[#13527D]"></span></h3>
+            <h3 class="font-bold text-sm text-slate-900">Ubah Presensi: <span id="modalSiswaName" class="text-primary"></span></h3>
             <button type="button" onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
         </div>
         <form action="{{ route('absensi.manual') }}" method="POST" enctype="multipart/form-data" class="space-y-4 text-xs">
@@ -23,7 +23,7 @@
                 <label class="block font-bold text-slate-700 mb-1">Keterangan Tambahan</label>
                 <input type="text" name="keterangan" id="modalKeterangan" placeholder="Contoh: Surat Dokter Terlampir / Acara Keluarga" 
                        maxlength="255"
-                       class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]">
+                       class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary">
                 <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 255 karakter</p>
             </div>
             <div>
@@ -33,7 +33,7 @@
             </div>
             <div class="flex justify-end gap-2 pt-2">
                 <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
-                <button type="submit" class="px-4 py-2 bg-[#13527D] text-white rounded-lg font-bold hover:bg-[#0E3D5D]">Simpan Presensi</button>
+                <button type="submit" class="px-4 py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary-hover">Simpan Presensi</button>
             </div>
         </form>
     </div>

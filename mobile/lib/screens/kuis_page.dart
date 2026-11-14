@@ -176,12 +176,12 @@ class _KuisPageState extends State<KuisPage> {
                   width: 76,
                   height: 76,
                   decoration: BoxDecoration(
-                    color: isHigh ? const Color(0xFFFEF3C7) : const Color(0xFFEFF6FF),
+                    color: isHigh ? AppColors.warningLight : AppColors.primaryLight,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     isHigh ? Icons.emoji_events_rounded : Icons.star_rounded,
-                    color: isHigh ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86),
+                    color: isHigh ? AppColors.accent : AppColors.primary,
                     size: 44,
                   ),
                 ),
@@ -191,7 +191,7 @@ class _KuisPageState extends State<KuisPage> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -200,7 +200,7 @@ class _KuisPageState extends State<KuisPage> {
                   'Kamu telah menyelesaikan latihan kuis ini dengan baik.',
                   style: TextStyle(
                     fontSize: 13,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -210,9 +210,9 @@ class _KuisPageState extends State<KuisPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
+                    color: AppColors.background,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                    border: Border.all(color: AppColors.border),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -220,30 +220,30 @@ class _KuisPageState extends State<KuisPage> {
                       Column(
                         children: [
                           const Text('Nilai Akhir',
-                              style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                              style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                           const SizedBox(height: 4),
                           Text(
                             '$score',
                             style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.w900,
-                              color: isHigh ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86),
+                              color: isHigh ? AppColors.accent : AppColors.primary,
                             ),
                           ),
                         ],
                       ),
-                      Container(height: 36, width: 1, color: const Color(0xFFCBD5E1)),
+                      Container(height: 36, width: 1, color: AppColors.border),
                       Column(
                         children: [
                           const Text('Jawaban Benar',
-                              style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                              style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                           const SizedBox(height: 4),
                           Text(
                             '$benar / $total',
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF16A34A),
+                              color: AppColors.success,
                             ),
                           ),
                         ],
@@ -263,7 +263,7 @@ class _KuisPageState extends State<KuisPage> {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1D5A86),
+                      backgroundColor: AppColors.primary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                     ),
@@ -296,9 +296,9 @@ class _KuisPageState extends State<KuisPage> {
         'Hitung total semua potongan semangka sebagai penyebut (angka bawah) ya!';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1D5A86),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
@@ -315,30 +315,6 @@ class _KuisPageState extends State<KuisPage> {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Stack(
-              alignment: Alignment.topRight,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 26),
-                  onPressed: () {},
-                ),
-                Positioned(
-                  right: 12,
-                  top: 12,
-                  child: Container(
-                    width: 9,
-                    height: 9,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF59E0B),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
             padding: const EdgeInsets.only(right: 16),
             child: GestureDetector(
               onTap: () {
@@ -354,7 +330,7 @@ class _KuisPageState extends State<KuisPage> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFC0C0C0),
+                  color: AppColors.border,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2.2),
                 ),
@@ -364,7 +340,7 @@ class _KuisPageState extends State<KuisPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : currentQuestion == null
               ? Center(
                   child: Container(
@@ -373,7 +349,7 @@ class _KuisPageState extends State<KuisPage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.02),
@@ -389,13 +365,13 @@ class _KuisPageState extends State<KuisPage> {
                           width: 68,
                           height: 68,
                           decoration: const BoxDecoration(
-                            color: Color(0xFFEFF6FF),
+                            color: AppColors.primaryLight,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.quiz_outlined,
                             size: 34,
-                            color: Color(0xFF1D5A86),
+                            color: AppColors.primary,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -404,7 +380,7 @@ class _KuisPageState extends State<KuisPage> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -414,7 +390,7 @@ class _KuisPageState extends State<KuisPage> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                             height: 1.4,
                           ),
                         ),
@@ -461,7 +437,7 @@ class _KuisPageState extends State<KuisPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -478,10 +454,10 @@ class _KuisPageState extends State<KuisPage> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
+                  color: AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(Icons.grid_view_rounded, size: 18, color: Color(0xFF1D5A86)),
+                child: const Icon(Icons.grid_view_rounded, size: 18, color: AppColors.primary),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -490,7 +466,7 @@ class _KuisPageState extends State<KuisPage> {
                   style: const TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -501,20 +477,20 @@ class _KuisPageState extends State<KuisPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEFF6FF),
+                  color: AppColors.primaryLight,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.access_time_rounded, size: 14, color: Color(0xFF1D5A86)),
+                    const Icon(Icons.access_time_rounded, size: 14, color: AppColors.primary),
                     const SizedBox(width: 4),
                     Text(
                       _formattedTime,
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1D5A86),
+                        color: AppColors.primary,
                       ),
                     ),
                   ],
@@ -532,11 +508,11 @@ class _KuisPageState extends State<KuisPage> {
                   children: List.generate(_totalSoal, (index) {
                     Color segColor;
                     if (index == _currentIndex) {
-                      segColor = const Color(0xFF1D5A86); // Soal aktif: biru gelap
+                      segColor = AppColors.primary; // Soal aktif: biru gelap
                     } else if (_selectedAnswers.containsKey(index)) {
-                      segColor = const Color(0xFFF59E0B); // Sudah dijawab: oranye
+                      segColor = AppColors.accent; // Sudah dijawab: oranye
                     } else {
-                      segColor = const Color(0xFFDBEAFE); // Belum dijawab: biru muda
+                      segColor = AppColors.primaryLight; // Belum dijawab: biru muda
                     }
 
                     return Expanded(
@@ -558,7 +534,7 @@ class _KuisPageState extends State<KuisPage> {
                 style: const TextStyle(
                   fontSize: 11.5,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1D5A86),
+                  color: AppColors.primary,
                 ),
               ),
             ],
@@ -582,7 +558,7 @@ class _KuisPageState extends State<KuisPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -602,7 +578,7 @@ class _KuisPageState extends State<KuisPage> {
                 width: 28,
                 height: 28,
                 decoration: const BoxDecoration(
-                  color: Color(0xFF1D5A86),
+                  color: AppColors.primary,
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
@@ -622,7 +598,7 @@ class _KuisPageState extends State<KuisPage> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                     height: 1.45,
                   ),
                 ),
@@ -649,9 +625,9 @@ class _KuisPageState extends State<KuisPage> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F9FF), // Light pastel sky blue
+        color: AppColors.infoLight, // Light pastel sky blue
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE0F2FE)),
+        border: Border.all(color: AppColors.infoLight),
       ),
       child: Column(
         children: [
@@ -671,7 +647,7 @@ class _KuisPageState extends State<KuisPage> {
             style: const TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1D5A86),
+              color: AppColors.primary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -714,13 +690,13 @@ class _KuisPageState extends State<KuisPage> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: isSelected ? const Color(0xFFF59E0B) : const Color(0xFFE2E8F0),
+                  color: isSelected ? AppColors.accent : AppColors.border,
                   width: isSelected ? 1.8 : 1,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: isSelected
-                        ? const Color(0xFFF59E0B).withValues(alpha: 0.08)
+                        ? AppColors.accent.withValues(alpha: 0.08)
                         : Colors.black.withValues(alpha: 0.02),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
@@ -734,14 +710,14 @@ class _KuisPageState extends State<KuisPage> {
                     width: 34,
                     height: 34,
                     decoration: BoxDecoration(
-                      color: isSelected ? const Color(0xFFF59E0B) : const Color(0xFFEFF6FF),
+                      color: isSelected ? AppColors.accent : AppColors.primaryLight,
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
                     child: Text(
                       key,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : const Color(0xFF1D5A86),
+                        color: isSelected ? Colors.white : AppColors.primary,
                         fontWeight: FontWeight.w800,
                         fontSize: 14,
                       ),
@@ -756,7 +732,7 @@ class _KuisPageState extends State<KuisPage> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                        color: const Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
@@ -767,7 +743,7 @@ class _KuisPageState extends State<KuisPage> {
                       width: 22,
                       height: 22,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFF59E0B),
+                        color: AppColors.accent,
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.check, size: 14, color: Colors.white),
@@ -778,7 +754,7 @@ class _KuisPageState extends State<KuisPage> {
                       height: 22,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: const Color(0xFFCBD5E1), width: 1.8),
+                        border: Border.all(color: AppColors.border, width: 1.8),
                       ),
                     ),
                 ],
@@ -797,23 +773,23 @@ class _KuisPageState extends State<KuisPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFBEB), // Cream yellow
+        color: AppColors.warningLight, // Cream yellow
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFFDE68A)),
+        border: Border.all(color: AppColors.accentBright),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.lightbulb_rounded, color: Color(0xFFD97706), size: 18),
+          const Icon(Icons.lightbulb_rounded, color: AppColors.accentDeep, size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: RichText(
               text: TextSpan(
-                style: const TextStyle(fontSize: 12, color: Color(0xFF78350F), height: 1.45),
+                style: const TextStyle(fontSize: 12, color: AppColors.accentDeep, height: 1.45),
                 children: [
                   const TextSpan(
                     text: 'Tips: ',
-                    style: TextStyle(fontWeight: FontWeight.w800, color: Color(0xFFB45309)),
+                    style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.accentDeep),
                   ),
                   TextSpan(
                     text: tips,
@@ -848,21 +824,21 @@ class _KuisPageState extends State<KuisPage> {
                     }
                   : null,
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Color(0xFFCBD5E1)),
+                side: const BorderSide(color: AppColors.border),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 backgroundColor: Colors.white,
               ),
               child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.arrow_back_rounded, size: 16, color: Color(0xFF1D5A86)),
+                  Icon(Icons.arrow_back_rounded, size: 16, color: AppColors.primary),
                   SizedBox(width: 6),
                   Text(
                     'Sebelumnya',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF1D5A86),
+                      color: AppColors.primary,
                     ),
                   ),
                 ],
@@ -887,7 +863,7 @@ class _KuisPageState extends State<KuisPage> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1D5A86),
+                backgroundColor: AppColors.primary,
                 elevation: 0,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
@@ -930,10 +906,10 @@ class WatermelonPainter extends CustomPainter {
     const double separateDistance = 14.0; // Jarak potongan Budi yang diambil
 
     // Warna semangka
-    const Color fleshColor = Color(0xFFEF4444); // Merah daging semangka
-    const Color rindLightColor = Color(0xFFBBF7D0); // Garis putih kehijauan dalam
-    const Color rindDarkColor = Color(0xFF15803D); // Kulit hijau gelap
-    const Color seedColor = Color(0xFF1E293B); // Biji hitam
+    const Color fleshColor = AppColors.error; // Merah daging semangka
+    const Color rindLightColor = AppColors.successLight; // Garis putih kehijauan dalam
+    const Color rindDarkColor = AppColors.success; // Kulit hijau gelap
+    const Color seedColor = AppColors.textPrimary; // Biji hitam
 
     // Paint objek
     final fleshPaint = Paint()
@@ -991,7 +967,7 @@ class WatermelonPainter extends CustomPainter {
       if (isSelectedSlice) {
         final badgeCenter = Offset(sliceCenter.dx + radius * 0.45, sliceCenter.dy - radius * 0.45);
         final badgePaint = Paint()
-          ..color = const Color(0xFFF59E0B)
+          ..color = AppColors.accent
           ..style = PaintingStyle.fill;
 
         canvas.drawRRect(

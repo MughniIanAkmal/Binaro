@@ -4,7 +4,7 @@
 @section('page_subtitle', 'Kelola alokasi waktu dan jadwal pembelajaran rombel kelas ' . config('binaro.nama_sekolah') . '.')
 
 @section('header_actions')
-    <a href="{{ route('jadwal.create') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition" style="background: var(--binaro-navy);">
+    <a href="{{ route('jadwal.create') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary" >
         <i class="fas fa-plus"></i> Tambah Jadwal
     </a>
 @endsection
@@ -49,7 +49,7 @@
                                     <a href="{{ route('jadwal.show', $jadwal->id_jadwal) }}" class="bg-sky-600 hover:bg-sky-700 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition inline-flex items-center gap-1 shadow-sm" title="Lihat Detail">
                                         <i class="fas fa-eye text-[11px]"></i> Detail
                                     </a>
-                                    <a href="{{ route('jadwal.edit', $jadwal->id_jadwal) }}" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition inline-flex items-center gap-1 shadow-sm" title="Edit Jadwal">
+                                    <a href="{{ route('jadwal.edit', $jadwal->id_jadwal) }}" class="bg-amber-500 hover:bg-accent-deep text-white px-2.5 py-1.5 rounded-md text-xs font-medium transition inline-flex items-center gap-1 shadow-sm" title="Edit Jadwal">
                                         <i class="fas fa-pen text-[11px]"></i> Edit
                                     </a>
                                     <form action="{{ route('jadwal.destroy', $jadwal->id_jadwal) }}" method="POST" class="inline-block" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal mata pelajaran ini?');">

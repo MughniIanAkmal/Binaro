@@ -13,12 +13,12 @@
 
 @section('header_actions')
     <a href="{{ route('guru.sub_bab.index', $subBab->bab->id_bab) }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
         <i class="fas fa-arrow-left text-[11px]"></i> Kembali
     </a>
     <button onclick="openModalAction('tambah', 'materi', { idMapel: {{ $subBab->bab->mataPelajaran->id_mapel }}, idBab: {{ $subBab->bab->id_bab }}, idSubBab: {{ $subBab->id_sub_bab }}, namaMapel: '{{ addslashes($subBab->bab->mataPelajaran->nama_mapel) }}', namaBab: '{{ addslashes($subBab->bab->nama_bab) }}', namaSubBab: '{{ addslashes($subBab->nama_sub_bab) }}', locked: true })"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-            style="background: var(--binaro-navy);">
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+            >
         <i class="fas fa-plus text-[11px]"></i> Tambah Konten Materi
     </button>
 @endsection
@@ -50,7 +50,7 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <button onclick="editMateriDirect({{ $materi->id_materi }})" class="p-1.5 text-slate-500 hover:text-[#13527D] hover:bg-slate-100 rounded-lg transition" title="Edit Materi">
+                    <button onclick="editMateriDirect({{ $materi->id_materi }})" class="p-1.5 text-slate-500 hover:text-primary hover:bg-slate-100 rounded-lg transition" title="Edit Materi">
                         <i class="fas fa-edit text-xs"></i>
                     </button>
                     <form action="{{ route('guru.materi.destroy', $materi->id_materi) }}" method="POST" onsubmit="return confirm('Hapus materi ini?');" class="inline">
@@ -116,10 +116,10 @@
                     @else
                     <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2 text-slate-700 truncate">
-                            <i class="fas fa-link text-[#13527D]"></i>
+                            <i class="fas fa-link text-primary"></i>
                             <span class="truncate">{{ $videoUrl }}</span>
                         </div>
-                        <a href="{{ $videoUrl }}" target="_blank" class="px-3 py-1 bg-[#13527D] text-white rounded-md font-semibold text-[11px] shrink-0">
+                        <a href="{{ $videoUrl }}" target="_blank" class="px-3 py-1 bg-primary text-white rounded-md font-semibold text-[11px] shrink-0">
                             Buka Link Video <i class="fas fa-external-link-alt ml-1"></i>
                         </a>
                     </div>
@@ -148,11 +148,11 @@
                                 </button>
                                 
                                 <div class="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-black text-slate-800">
-                                    Halaman <span id="pdf-page-num-{{ $materi->id_materi }}" class="text-[#13527D]">1</span> / <span id="pdf-page-count-{{ $materi->id_materi }}">-</span>
+                                    Halaman <span id="pdf-page-num-{{ $materi->id_materi }}" class="text-primary">1</span> / <span id="pdf-page-count-{{ $materi->id_materi }}">-</span>
                                 </div>
 
                                 <button type="button" id="pdf-next-{{ $materi->id_materi }}"
-                                        class="px-3 py-1.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs">
+                                        class="px-3 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-xs">
                                     Berikutnya <i class="fas fa-chevron-right text-[10px]"></i>
                                 </button>
 
@@ -182,7 +182,7 @@
                         <!-- Canvas Viewport -->
                         <div class="relative w-full min-h-[500px] max-h-[750px] overflow-auto rounded-2xl border border-slate-200 bg-slate-100/80 p-4 text-center flex items-center justify-center shadow-inner">
                             <div id="pdf-spinner-{{ $materi->id_materi }}" class="absolute inset-0 flex flex-col items-center justify-center bg-slate-100/90 z-10 text-xs font-bold text-slate-500 gap-2">
-                                <i class="fas fa-circle-notch fa-spin text-2xl text-[#13527D]"></i>
+                                <i class="fas fa-circle-notch fa-spin text-2xl text-primary"></i>
                                 <span>Memuat Dokumen PDF...</span>
                             </div>
 
@@ -331,7 +331,7 @@
                             </div>
 
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('guru.quiz.bank', $materi->quiz->id_quiz) }}" class="px-3.5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">
+                                <a href="{{ route('guru.quiz.bank', $materi->quiz->id_quiz) }}" class="px-3.5 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">
                                     <i class="fas fa-tasks"></i> Kelola Bank Soal
                                 </a>
                                 <a href="{{ route('guru.quiz.rekap', ['quiz_id' => $materi->quiz->id_quiz]) }}" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center gap-1.5">

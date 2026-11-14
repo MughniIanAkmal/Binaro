@@ -43,7 +43,7 @@
     .card-sub{font-size:14px;color:#4f5d79;text-align:center;line-height:1.5;margin:12px 0 18px}
     .card-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
     .card-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;padding:0 18px;border:1px solid #d5d9e2;background:#fff;color:#1f2937;font-size:15px;font-weight:700;text-decoration:none;cursor:pointer}
-    .card-btn.primary{background:#13527D;color:#fff;border-color:#13527D}
+    .card-btn.primary{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}
     .card-btn.secondary{background:#f1f1f1}
     .sr-only{position:absolute;left:-9999px}
     .tools input[type="search"],.tools button[type="submit"]{display:none}

@@ -2,7 +2,7 @@
 <div id="modal-detail-rpp" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
         <!-- Header -->
-        <div class="bg-[#13527D] text-white p-5 flex items-center justify-between shrink-0">
+        <div class="bg-primary text-white p-5 flex items-center justify-between shrink-0">
             <div>
                 <h3 class="text-base font-bold flex items-center gap-2" id="detail-title">
                     <i class="fas fa-file-lines text-amber-300"></i> Detail Modul Ajar

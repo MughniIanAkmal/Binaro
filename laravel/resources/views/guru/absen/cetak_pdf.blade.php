@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekap Presensi Siswa {{ $namaKelas }} - {{ \Carbon\Carbon::parse($today)->translatedFormat('d F Y') }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @media print {
@@ -28,7 +28,7 @@
             <a href="{{ route('guru.absen.export.excel') }}" class="font-sans-ui text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
                 <i class="fas fa-file-excel"></i> Unduh File Excel (.csv)
             </a>
-            <button onclick="window.print()" class="font-sans-ui text-xs font-bold bg-[#13527D] hover:bg-[#0E3D5D] text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
+            <button onclick="window.print()" class="font-sans-ui text-xs font-bold bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm transition">
                 <i class="fas fa-print"></i> Cetak / Simpan PDF
             </button>
         </div>
@@ -40,12 +40,12 @@
         <!-- Kop Surat Resmi -->
         <div class="flex items-center justify-between pb-4 border-b-4 border-double border-slate-900 mb-6 text-center">
             <div class="w-20 text-center">
-                <i class="fas fa-graduation-cap text-5xl text-[#13527D]"></i>
+                <i class="fas fa-graduation-cap text-5xl text-primary"></i>
             </div>
             <div class="flex-1 px-4">
                 <h3 class="text-sm font-bold uppercase tracking-wider">{{ config('binaro.kabupaten_kop') }}</h3>
                 <h3 class="text-sm font-bold uppercase tracking-wider">{{ config('binaro.dinas_kop') }}</h3>
-                <h1 class="text-xl font-black uppercase tracking-wide text-[#13527D] my-0.5">{{ strtoupper(config('binaro.nama_sekolah')) }}</h1>
+                <h1 class="text-xl font-black uppercase tracking-wide text-primary my-0.5">{{ strtoupper(config('binaro.nama_sekolah')) }}</h1>
                 <p class="text-xs italic text-slate-600">{{ config('binaro.alamat_kop') }}</p>
                 <p class="text-[11px] font-semibold text-slate-700">NPSN: {{ config('binaro.npsn') }} • AKREDITASI A • KURIKULUM MERDEKA</p>
             </div>

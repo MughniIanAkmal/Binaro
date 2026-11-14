@@ -52,7 +52,7 @@
     <!-- ================= SCORE & SUMMARY CARD ================= -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         <!-- Left: Circular Gauge Card (5/12) -->
-        <div class="lg:col-span-5 bg-white rounded-3xl p-6 sm:p-8 border border-[#E6EBF2]/90 shadow-sm flex flex-col justify-between items-center text-center space-y-4">
+        <div class="lg:col-span-5 bg-white rounded-3xl p-6 sm:p-8 border border-line/90 shadow-sm flex flex-col justify-between items-center text-center space-y-4">
             <div>
                 @if($isLulus)
                 <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -99,10 +99,10 @@
         </div>
 
         <!-- Right: Breakdown & Meta Info (7/12) -->
-        <div class="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-[#E6EBF2]/90 shadow-sm flex flex-col justify-between space-y-6">
+        <div class="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-line/90 shadow-sm flex flex-col justify-between space-y-6">
             <div>
                 <h3 class="text-base font-black text-slate-900 flex items-center gap-2">
-                    <i class="fas fa-chart-pie text-[#13527D]"></i> Ringkasan Kuis Materi
+                    <i class="fas fa-chart-pie text-primary"></i> Ringkasan Kuis Materi
                 </h3>
                 <p class="text-xs text-slate-400 mt-0.5">Hasil pengerjaan latihan evaluasi sub-bab pembelajaran</p>
             </div>
@@ -117,14 +117,14 @@
                     <span class="text-2xl font-black text-rose-600 block">{{ $hasil->jumlah_salah }}</span>
                     <span class="text-[11px] font-bold text-rose-800 uppercase tracking-wide">Jawaban Salah</span>
                 </div>
-                <div class="p-4 rounded-2xl bg-slate-50 border border-[#E6EBF2] text-center">
+                <div class="p-4 rounded-2xl bg-slate-50 border border-line text-center">
                     <span class="text-2xl font-black text-slate-700 block">{{ count($reviewDetails) }}</span>
                     <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wide">Total Soal</span>
                 </div>
             </div>
 
             <!-- Detail List Meta -->
-            <div class="space-y-2.5 text-xs border-t border-[#EFF2F7] pt-4">
+            <div class="space-y-2.5 text-xs border-t border-line pt-4">
                 <div class="flex items-center justify-between text-slate-600">
                     <span>Mata Pelajaran:</span>
                     <span class="font-bold text-slate-900">{{ $mapelName }}</span>
@@ -147,7 +147,7 @@
                     <span>Lihat Pembahasan Soal</span>
                 </a>
                 <a href="{{ $backUrl }}"
-                   class="w-full sm:flex-1 py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+                   class="w-full sm:flex-1 py-3 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
                     <i class="fas fa-arrow-left text-xs"></i>
                     <span>Kembali ke Materi Belajar</span>
                 </a>
@@ -157,9 +157,9 @@
 
     <!-- ================= PEMBAHASAN SOAL LENGKAP ================= -->
     <div id="section-pembahasan" class="space-y-4 pt-4">
-        <div class="bg-white rounded-2xl p-4 border border-[#E6EBF2]/90 shadow-xs flex items-center justify-between">
+        <div class="bg-white rounded-2xl p-4 border border-line/90 shadow-xs flex items-center justify-between">
             <h4 class="text-sm font-black text-slate-900 flex items-center gap-2">
-                <i class="fas fa-list-check text-[#13527D]"></i> Pembahasan Butir Soal Kuis Materi
+                <i class="fas fa-list-check text-primary"></i> Pembahasan Butir Soal Kuis Materi
             </h4>
             <span class="text-xs text-slate-500 font-bold">{{ count($reviewDetails) }} Soal Lengkap</span>
         </div>
@@ -170,7 +170,7 @@
             $userAns = $item['user_answer'];
             $key = $item['kunci_jawaban'];
         @endphp
-        <div class="bg-white p-5 sm:p-6 rounded-3xl border border-[#E6EBF2]/90 shadow-xs space-y-4">
+        <div class="bg-white p-5 sm:p-6 rounded-3xl border border-line/90 shadow-xs space-y-4">
             <div class="flex items-start justify-between gap-3">
                 <div class="flex items-start gap-3">
                     <span class="w-8 h-8 rounded-xl text-xs font-black flex items-center justify-center shrink-0 {{ $isCorrect === true ? 'bg-emerald-600 text-white' : ($isCorrect === false ? 'bg-rose-600 text-white' : 'bg-slate-700 text-white') }}">
@@ -183,7 +183,7 @@
 
                         <!-- Gambar Soal Jika Ada -->
                         @if(!empty($item['gambar']))
-                        <div class="p-2 bg-slate-50 rounded-xl border border-[#E6EBF2] max-w-md">
+                        <div class="p-2 bg-slate-50 rounded-xl border border-line max-w-md">
                             <img src="{{ asset('storage/' . $item['gambar']) }}" alt="Gambar Soal {{ $idx + 1 }}" class="rounded-lg max-h-60 object-contain">
                         </div>
                         @endif
@@ -213,7 +213,7 @@
                 @php
                     $isCorrectKey = ($optKey === $key);
                     $isUserChoice = ($optKey === $userAns);
-                    $style = 'bg-slate-50 border-[#E6EBF2] text-slate-700';
+                    $style = 'bg-slate-50 border-line text-slate-700';
                     if ($isCorrectKey) {
                         $style = 'bg-emerald-50 border-2 border-emerald-400 text-emerald-900 font-bold';
                     } elseif ($isUserChoice && !$isCorrect) {
@@ -236,7 +236,7 @@
 
     <!-- Bottom Return CTA -->
     <div class="text-center pt-4">
-        <a href="{{ $backUrl }}" class="px-6 py-3 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-2 shadow-sm">
+        <a href="{{ $backUrl }}" class="px-6 py-3 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition inline-flex items-center gap-2 shadow-sm">
             <i class="fas fa-book-open"></i>
             <span>Kembali ke Materi Belajar</span>
         </a>

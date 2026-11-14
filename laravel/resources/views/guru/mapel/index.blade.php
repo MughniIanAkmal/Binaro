@@ -7,19 +7,19 @@
     <!-- Grid Card Mata Pelajaran -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         @forelse($mapels as $mapel)
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 hover:border-[#13527D] hover:shadow-md transition group p-5 flex flex-col justify-between">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 hover:border-primary hover:shadow-md transition group p-5 flex flex-col justify-between">
             <div>
                 <div class="flex items-start justify-between mb-4">
-                    <div class="w-12 h-12 rounded-xl bg-[#13527D]/10 text-[#13527D] group-hover:bg-[#13527D] group-hover:text-white transition flex items-center justify-center text-xl font-bold">
+                    <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition flex items-center justify-center text-xl font-bold">
                         <i class="fas fa-book-bookmark"></i>
                     </div>
-                    <span class="px-2.5 py-1 bg-slate-100 text-slate-600 group-hover:bg-[#13527D]/10 group-hover:text-[#13527D] rounded-full text-[11px] font-bold transition">
+                    <span class="px-2.5 py-1 bg-slate-100 text-slate-600 group-hover:bg-primary/10 group-hover:text-primary rounded-full text-[11px] font-bold transition">
                         {{ $mapel->bab_count ?? $mapel->bab()->count() }} Bab
                     </span>
                 </div>
 
                 <a href="{{ route('guru.bab.index', $mapel->id_mapel) }}" class="block group/link">
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-[#13527D] group-hover/link:underline transition">
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-primary group-hover/link:underline transition">
                         {{ $mapel->nama_mapel }}
                     </h3>
                 </a>
@@ -32,7 +32,7 @@
                 <span class="text-[11px] text-slate-400 font-medium">
                     <i class="fas fa-layer-group text-slate-400 mr-1"></i> Struktur Materi
                 </span>
-                <a href="{{ route('guru.bab.index', $mapel->id_mapel) }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#13527D] group-hover:translate-x-0.5 transition">
+                <a href="{{ route('guru.bab.index', $mapel->id_mapel) }}" class="inline-flex items-center gap-1.5 text-xs font-bold text-primary group-hover:translate-x-0.5 transition">
                     Buka Bab <i class="fas fa-arrow-right text-[10px]"></i>
                 </a>
             </div>

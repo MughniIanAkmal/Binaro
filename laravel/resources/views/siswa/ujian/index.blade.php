@@ -2,7 +2,7 @@
 
 @section('header_actions')
     <a href="{{ route('siswa.mapel.index') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
         <i class="fas fa-book-open text-[11px]"></i> Materi
     </a>
 @endsection
@@ -10,11 +10,11 @@
 @section('content')
 <div class="max-w-7xl mx-auto space-y-5 pb-10">
     <!-- Filter & Navigation Bar -->
-    <div class="bg-white rounded-2xl p-4 border border-[#E6EBF2]/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="bg-white rounded-2xl p-4 border border-line/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <!-- Tabs -->
         <div class="flex gap-2 w-full sm:w-auto">
             <button type="button" onclick="switchUjianTab('tersedia')" id="tab-btn-tersedia"
-                    class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#13527D] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition">
+                    class="flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-primary text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition">
                 <i class="fas fa-clipboard-list text-sm"></i>
                 <span>Ujian Tersedia</span>
                 <span class="px-2 py-0.5 rounded-full text-[10px] bg-white/20 font-black">
@@ -34,7 +34,7 @@
         <!-- Search Bar -->
         <div class="relative w-full sm:w-72">
             <input type="text" id="search-ujian-input" onkeyup="filterUjianCards()" placeholder="Cari nama ujian atau mapel..."
-                   class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-[#E6EBF2] rounded-xl text-xs font-medium focus:ring-2 focus:ring-[#13527D] focus:border-transparent outline-none transition">
+                   class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-line rounded-xl text-xs font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
             <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
         </div>
     </div>
@@ -51,12 +51,12 @@
                 $durasi = $quiz->durasi_menit ?? 60;
                 $level = strtolower($quiz->tingkat_level ?? 'sedang');
             @endphp
-            <div class="ujian-card bg-white rounded-2xl p-6 border border-[#E6EBF2]/90 shadow-sm hover:shadow-md hover:border-[#13527D]/40 transition flex flex-col justify-between group"
+            <div class="ujian-card bg-white rounded-2xl p-6 border border-line/90 shadow-sm hover:shadow-md hover:border-primary/40 transition flex flex-col justify-between group"
                  data-title="{{ strtolower($quiz->judul_quiz) }}" data-mapel="{{ strtolower($mapelName) }}">
                 <div class="space-y-4">
                     <!-- Badges -->
                     <div class="flex items-center justify-between gap-2">
-                        <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-50 text-[#13527D] border border-sky-100 flex items-center gap-1.5 truncate max-w-[180px]">
+                        <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-50 text-primary border border-sky-100 flex items-center gap-1.5 truncate max-w-[180px]">
                             <i class="fas fa-book-open text-[10px]"></i> {{ $mapelName }}
                         </span>
 
@@ -77,7 +77,7 @@
 
                     <!-- Judul & Guru -->
                     <div>
-                        <h3 class="text-base font-black text-slate-900 group-hover:text-[#13527D] transition leading-snug line-clamp-2">
+                        <h3 class="text-base font-black text-slate-900 group-hover:text-primary transition leading-snug line-clamp-2">
                             {{ $quiz->judul_quiz }}
                         </h3>
                         <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1.5">
@@ -92,7 +92,7 @@
                     </div>
 
                     <!-- Meta Info Box (Waktu, Soal, Status) -->
-                    <div class="grid grid-cols-2 gap-2 bg-slate-50/80 p-3 rounded-xl border border-[#EFF2F7] text-xs font-bold text-slate-600">
+                    <div class="grid grid-cols-2 gap-2 bg-slate-50/80 p-3 rounded-xl border border-line text-xs font-bold text-slate-600">
                         <div class="flex items-center gap-2">
                             <div class="w-7 h-7 rounded-lg bg-sky-100/70 text-sky-700 flex items-center justify-center text-xs">
                                 <i class="fas fa-stopwatch"></i>
@@ -116,7 +116,7 @@
                 </div>
 
                 <!-- Action Button: Open Petunjuk Modal -->
-                    <div class="pt-5 border-t border-[#EFF2F7] mt-4">
+                    <div class="pt-5 border-t border-line mt-4">
                     <button type="button"
                             onclick="openPetunjukModal({
                                 id: {{ $quiz->id_quiz }},
@@ -131,7 +131,7 @@
                                 sulits: {{ $quiz->sulit_count ?? 0 }},
                                 playUrl: '{{ route('siswa.ujian.play', $quiz->id_quiz) }}'
                             })"
-                            class="w-full py-3 bg-[#13527D] hover:bg-[#0E3D5D] active:scale-[0.99] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
+                            class="w-full py-3 bg-primary hover:bg-primary-hover active:scale-[0.99] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm">
                         <i class="fas fa-play text-[10px]"></i>
                         <span>Mulai Ujian</span>
                         <i class="fas fa-arrow-right text-[11px] ml-1"></i>
@@ -142,8 +142,8 @@
         </div>
         @else
         <!-- Empty State Tersedia -->
-        <div class="bg-white rounded-3xl p-12 border border-[#E6EBF2] text-center max-w-xl mx-auto space-y-4 shadow-xs">
-            <div class="w-20 h-20 rounded-3xl bg-sky-50 text-[#13527D] flex items-center justify-center text-3xl mx-auto shadow-inner">
+        <div class="bg-white rounded-3xl p-12 border border-line text-center max-w-xl mx-auto space-y-4 shadow-xs">
+            <div class="w-20 h-20 rounded-3xl bg-sky-50 text-primary flex items-center justify-center text-3xl mx-auto shadow-inner">
                 <i class="fas fa-clipboard-check"></i>
             </div>
             <h3 class="text-base font-black text-slate-900">Belum Ada Ujian Online Tersedia</h3>
@@ -172,11 +172,11 @@
                 $isLulus = $nilai >= config('binaro.kkm');
                 $isPublished = (bool)($hasil?->status_kirim ?? false);
             @endphp
-            <div class="ujian-card bg-white rounded-2xl p-6 border border-[#E6EBF2]/90 shadow-sm flex flex-col justify-between"
+            <div class="ujian-card bg-white rounded-2xl p-6 border border-line/90 shadow-sm flex flex-col justify-between"
                  data-title="{{ strtolower($quiz->judul_quiz) }}" data-mapel="{{ strtolower($mapelName) }}">
                 <div class="space-y-3.5">
                     <div class="flex items-center justify-between">
-                        <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-50 text-[#13527D] border border-sky-100">
+                        <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-sky-50 text-primary border border-sky-100">
                             {{ $mapelName }}
                         </span>
                         @if($isPublished)
@@ -203,7 +203,7 @@
 
                     <!-- Score Card Mini -->
                     @if($isPublished)
-                    <div class="bg-slate-50 rounded-xl p-3.5 border border-[#EFF2F7] flex items-center justify-between">
+                    <div class="bg-slate-50 rounded-xl p-3.5 border border-line flex items-center justify-between">
                         <span class="text-xs font-bold text-slate-600">Nilai Akhir Ujian:</span>
                         <span class="text-lg font-black {{ $isLulus ? 'text-emerald-600' : 'text-rose-600' }}">
                             {{ round($nilai) }} <span class="text-xs text-slate-400 font-medium">/ 100</span>
@@ -219,9 +219,9 @@
                     @endif
                 </div>
 
-                <div class="pt-4 border-t border-[#EFF2F7] mt-4">
+                <div class="pt-4 border-t border-line mt-4">
                     <a href="{{ route('siswa.ujian.result', $quiz->id_quiz) }}"
-                       class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-[#13527D] rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                       class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-primary rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
                         <i class="fas fa-eye text-xs"></i>
                         <span>{{ $isPublished ? 'Lihat Hasil & Evaluasi' : 'Lihat Status Ujian' }}</span>
                     </a>
@@ -230,7 +230,7 @@
             @endforeach
         </div>
         @else
-        <div class="bg-white rounded-3xl p-12 border border-[#E6EBF2] text-center max-w-xl mx-auto space-y-3 shadow-xs">
+        <div class="bg-white rounded-3xl p-12 border border-line text-center max-w-xl mx-auto space-y-3 shadow-xs">
             <div class="w-16 h-16 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center text-2xl mx-auto">
                 <i class="fas fa-hourglass-start"></i>
             </div>
@@ -242,7 +242,7 @@
 
     <!-- Section Nilai Ujian Terakhir (Desktop Card Banner) -->
     @if($latestHasil && $latestHasil->quiz)
-    <div class="bg-white rounded-3xl p-6 border border-[#E6EBF2]/90 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <div class="bg-white rounded-3xl p-6 border border-line/90 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div class="flex items-center gap-4">
             <div class="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 text-amber-500 flex items-center justify-center text-2xl shrink-0 shadow-xs">
                 <i class="fas fa-award"></i>
@@ -266,11 +266,11 @@
         <div class="flex items-center gap-4 shrink-0 w-full md:w-auto justify-between md:justify-end">
             <div class="text-right">
                 <span class="text-[10px] uppercase font-extrabold text-slate-400 block tracking-wider">Skor Kamu</span>
-                <span class="text-2xl font-black text-[#13527D]">{{ round($latestHasil->nilai_akhir) }}</span>
+                <span class="text-2xl font-black text-primary">{{ round($latestHasil->nilai_akhir) }}</span>
                 <span class="text-xs font-bold text-slate-400">/ 100</span>
             </div>
             <a href="{{ route('siswa.ujian.result', $latestHasil->id_quiz) }}"
-               class="px-5 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs">
+               class="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-xs">
                 <span>Detail Hasil</span>
                 <i class="fas fa-chevron-right text-[10px]"></i>
             </a>
@@ -281,15 +281,15 @@
 
 <!-- ================= MODAL POP-UP: PETUNJUK UJIAN ================= -->
 <div id="modal-petunjuk-ujian" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-    <div class="bg-white rounded-3xl w-full max-w-2xl my-auto shadow-2xl border border-[#E6EBF2] transform transition-all flex flex-col max-h-[90vh] overflow-hidden">
+    <div class="bg-white rounded-3xl w-full max-w-2xl my-auto shadow-2xl border border-line transform transition-all flex flex-col max-h-[90vh] overflow-hidden">
         <!-- Header Modal (Sticky / Non-shrinking) -->
-        <div class="p-5 sm:p-6 pb-4 border-b border-[#EFF2F7] flex items-center justify-between shrink-0 bg-white">
+        <div class="p-5 sm:p-6 pb-4 border-b border-line flex items-center justify-between shrink-0 bg-white">
             <div class="flex items-center gap-3.5">
-                <div class="w-12 h-12 rounded-2xl bg-[#13527D] text-white flex items-center justify-center text-xl shadow-md shrink-0">
+                <div class="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center text-xl shadow-md shrink-0">
                     <i class="fas fa-file-signature"></i>
                 </div>
                 <div>
-                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-50 text-[#13527D] border border-sky-100">
+                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-sky-50 text-primary border border-sky-100">
                         Konfirmasi Pelaksanaan Ujian
                     </span>
                     <h3 id="modal-ujian-judul" class="text-base sm:text-lg font-black text-slate-900 mt-0.5 leading-tight">
@@ -312,7 +312,7 @@
             <!-- 4 Grid Ringkasan Petunjuk (Waktu, Durasi, Kesusahan Soal, Jumlah Soal) -->
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <!-- 1. Waktu / Status -->
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-[#EFF2F7] text-center space-y-1">
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-line text-center space-y-1">
                     <div class="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mx-auto text-xs">
                         <i class="fas fa-calendar-check"></i>
                     </div>
@@ -321,7 +321,7 @@
                 </div>
 
                 <!-- 2. Durasi -->
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-[#EFF2F7] text-center space-y-1">
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-line text-center space-y-1">
                     <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto text-xs">
                         <i class="fas fa-clock"></i>
                     </div>
@@ -330,7 +330,7 @@
                 </div>
 
                 <!-- 3. Kesusahan Soal -->
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-[#EFF2F7] text-center space-y-1">
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-line text-center space-y-1">
                     <div class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center mx-auto text-xs">
                         <i class="fas fa-gauge-high"></i>
                     </div>
@@ -339,7 +339,7 @@
                 </div>
 
                 <!-- 4. Jumlah Soal -->
-                <div class="bg-slate-50 p-3.5 rounded-2xl border border-[#EFF2F7] text-center space-y-1">
+                <div class="bg-slate-50 p-3.5 rounded-2xl border border-line text-center space-y-1">
                     <div class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto text-xs">
                         <i class="fas fa-list-ol"></i>
                     </div>
@@ -351,7 +351,7 @@
             <!-- PILIH TINGKAT KESULITAN SOAL YANG INGIN DIKERJAKAN -->
             <div class="bg-gradient-to-r from-sky-50 to-indigo-50/70 border border-sky-200/80 rounded-2xl p-4 space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <h4 class="text-xs font-black text-[#13527D] flex items-center gap-1.5">
+                    <h4 class="text-xs font-black text-primary flex items-center gap-1.5">
                         <i class="fas fa-sliders"></i> Pilih Kesusahan Soal yang Ingin Dikerjakan:
                     </h4>
                     <span class="text-[10px] font-bold text-sky-800 bg-sky-100 px-2 py-0.5 rounded-full border border-sky-200">
@@ -362,7 +362,7 @@
                     Pilih tingkat kesulitan butir soal ujian yang ingin Anda kerjakan:
                 </p>
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-                    <label class="p-3 rounded-xl border border-[#E6EBF2] bg-white cursor-pointer flex flex-col justify-between transition hover:border-emerald-400 kes-modal-card" id="card-kes-mudah">
+                    <label class="p-3 rounded-xl border border-line bg-white cursor-pointer flex flex-col justify-between transition hover:border-emerald-400 kes-modal-card" id="card-kes-mudah">
                         <div class="flex items-center justify-between">
                             <input type="radio" name="modal_kesulitan" value="mudah" onchange="updateModalKesulitan(this.value)" class="text-emerald-600 focus:ring-0">
                             <span class="text-[9px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">Mudah</span>
@@ -371,7 +371,7 @@
                         <span class="text-[10px] text-slate-500 font-semibold" id="label-count-mudah">0 Soal</span>
                     </label>
 
-                    <label class="p-3 rounded-xl border-2 border-[#13527D] bg-sky-50/50 cursor-pointer flex flex-col justify-between transition hover:border-amber-400 kes-modal-card" id="card-kes-sedang">
+                    <label class="p-3 rounded-xl border-2 border-primary bg-sky-50/50 cursor-pointer flex flex-col justify-between transition hover:border-amber-400 kes-modal-card" id="card-kes-sedang">
                         <div class="flex items-center justify-between">
                             <input type="radio" name="modal_kesulitan" value="sedang" checked onchange="updateModalKesulitan(this.value)" class="text-amber-600 focus:ring-0">
                             <span class="text-[9px] font-extrabold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">Sedang</span>
@@ -380,7 +380,7 @@
                         <span class="text-[10px] text-slate-500 font-semibold" id="label-count-sedang">0 Soal</span>
                     </label>
 
-                    <label class="p-3 rounded-xl border border-[#E6EBF2] bg-white cursor-pointer flex flex-col justify-between transition hover:border-rose-400 kes-modal-card" id="card-kes-sulit">
+                    <label class="p-3 rounded-xl border border-line bg-white cursor-pointer flex flex-col justify-between transition hover:border-rose-400 kes-modal-card" id="card-kes-sulit">
                         <div class="flex items-center justify-between">
                             <input type="radio" name="modal_kesulitan" value="sulit" onchange="updateModalKesulitan(this.value)" class="text-rose-600 focus:ring-0">
                             <span class="text-[9px] font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded">Sulit</span>
@@ -393,7 +393,7 @@
 
             <!-- Tata Tertib & Petunjuk Pengerjaan -->
             <div class="bg-sky-50/70 border border-sky-100 rounded-2xl p-4 space-y-2">
-                <h4 class="text-xs font-black text-[#13527D] flex items-center gap-1.5">
+                <h4 class="text-xs font-black text-primary flex items-center gap-1.5">
                     <i class="fas fa-circle-info"></i> Petunjuk & Peraturan Ujian:
                 </h4>
                 <ul class="text-xs text-slate-700 space-y-1.5 list-disc list-inside">
@@ -407,13 +407,13 @@
         </div>
 
         <!-- Tombol Aksi (Sticky Footer di Bagian Bawah Modal) -->
-        <div class="p-4 sm:px-6 sm:py-4 bg-slate-50/90 border-t border-[#EFF2F7] flex items-center justify-end gap-3 shrink-0 rounded-b-3xl">
+        <div class="p-4 sm:px-6 sm:py-4 bg-slate-50/90 border-t border-line flex items-center justify-end gap-3 shrink-0 rounded-b-3xl">
             <button type="button" onclick="closePetunjukModal()"
-                    class="px-5 py-2.5 rounded-xl border border-[#E6EBF2] hover:bg-slate-100 text-slate-700 text-xs font-bold transition">
+                    class="px-5 py-2.5 rounded-xl border border-line hover:bg-slate-100 text-slate-700 text-xs font-bold transition">
                 Batal
             </button>
             <a id="modal-ujian-btn-mulai" href="#"
-               class="px-6 py-2.5 rounded-xl bg-[#13527D] hover:bg-[#0E3D5D] active:scale-[0.99] text-white text-xs font-black shadow-md flex items-center gap-2 transition">
+               class="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary-hover active:scale-[0.99] text-white text-xs font-black shadow-md flex items-center gap-2 transition">
                 <span>Mulai Kerjakan Sekarang</span>
                 <i class="fas fa-arrow-right text-[11px]"></i>
             </a>
@@ -431,12 +431,12 @@
         if (tab === 'tersedia') {
             cTersedia.classList.remove('hidden');
             cSelesai.classList.add('hidden');
-            btnTersedia.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#13527D] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition';
+            btnTersedia.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-primary text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition';
             btnSelesai.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 text-xs font-bold flex items-center justify-center gap-2.5 transition';
         } else {
             cTersedia.classList.add('hidden');
             cSelesai.classList.remove('hidden');
-            btnSelesai.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-[#13527D] text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition';
+            btnSelesai.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-primary text-white shadow-xs text-xs font-black flex items-center justify-center gap-2.5 transition';
             btnTersedia.className = 'flex-1 sm:flex-initial px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200/70 text-xs font-bold flex items-center justify-center gap-2.5 transition';
         }
     }
@@ -503,14 +503,14 @@
             return;
         }
         document.querySelectorAll('.kes-modal-card').forEach(el => {
-            el.classList.remove('border-2', 'border-[#13527D]', 'border-emerald-500', 'border-amber-500', 'border-rose-500', 'bg-sky-50/50');
-            el.classList.add('border-[#E6EBF2]', 'bg-white');
+            el.classList.remove('border-2', 'border-primary', 'border-emerald-500', 'border-amber-500', 'border-rose-500', 'bg-sky-50/50');
+            el.classList.add('border-line', 'bg-white');
         });
 
         const activeCard = document.getElementById('card-kes-' + val);
         if (activeCard) {
-            activeCard.classList.remove('border-[#E6EBF2]', 'bg-white');
-            activeCard.classList.add('border-2', 'border-[#13527D]', 'bg-sky-50/50');
+            activeCard.classList.remove('border-line', 'bg-white');
+            activeCard.classList.add('border-2', 'border-primary', 'bg-sky-50/50');
         }
 
         const btn = document.getElementById('modal-ujian-btn-mulai');

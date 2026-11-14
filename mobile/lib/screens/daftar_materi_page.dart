@@ -87,9 +87,9 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1D5A86),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
@@ -104,30 +104,6 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Stack(
-              alignment: Alignment.topRight,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 26),
-                  onPressed: () {},
-                ),
-                Positioned(
-                  right: 12,
-                  top: 12,
-                  child: Container(
-                    width: 9,
-                    height: 9,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF59E0B),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.only(right: 16, left: 2),
             child: GestureDetector(
@@ -144,7 +120,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFC0C0C0),
+                  color: AppColors.border,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2.2),
                 ),
@@ -154,10 +130,10 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : RefreshIndicator(
               onRefresh: _fetchMateriList,
-              color: const Color(0xFF1D5A86),
+              color: AppColors.primary,
               backgroundColor: Colors.white,
               displacement: 28,
               child: SingleChildScrollView(
@@ -173,7 +149,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 14),
@@ -186,7 +162,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          border: Border.all(color: AppColors.border),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.02),
@@ -202,13 +178,13 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                               width: 68,
                               height: 68,
                               decoration: const BoxDecoration(
-                                color: Color(0xFFEFF6FF),
+                                color: AppColors.primaryLight,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
                                 Icons.menu_book_outlined,
                                 size: 34,
-                                color: Color(0xFF1D5A86),
+                                color: AppColors.primary,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -217,7 +193,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF1E293B),
+                                color: AppColors.textPrimary,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -227,7 +203,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Color(0xFF64748B),
+                                color: AppColors.textSecondary,
                                 height: 1.4,
                               ),
                             ),
@@ -270,8 +246,8 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
     }
 
     final bool isOrange = isKuis || (materi['warna'] == 'orange') || (nomor == 2);
-    final Color borderColor = isOrange ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86);
-    final Color badgeBgColor = isOrange ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86);
+    final Color borderColor = isOrange ? AppColors.accent : AppColors.primary;
+    final Color badgeBgColor = isOrange ? AppColors.accent : AppColors.primary;
 
     void navigateToDestination() {
       if (isKuis) {
@@ -332,12 +308,12 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: isOrange ? const Color(0xFFF59E0B) : const Color(0xFFEFF6FF),
+                        color: isOrange ? AppColors.accent : AppColors.primaryLight,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(
                         _getMateriIcon(tipe),
-                        color: isOrange ? Colors.white : const Color(0xFF1D5A86),
+                        color: isOrange ? Colors.white : AppColors.primary,
                         size: 24,
                       ),
                     ),
@@ -374,7 +350,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                                   Icon(
                                     _getMetaIcon(tipe),
                                     size: 13,
-                                    color: const Color(0xFF64748B),
+                                    color: AppColors.textSecondary,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
@@ -382,7 +358,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                                     style: const TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
-                                      color: Color(0xFF64748B),
+                                      color: AppColors.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -397,7 +373,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                             style: const TextStyle(
                               fontSize: 14.5,
                               fontWeight: FontWeight.w800,
-                              color: Color(0xFF1E293B),
+                              color: AppColors.textPrimary,
                               height: 1.25,
                             ),
                           ),
@@ -414,7 +390,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                   deskripsi,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                     height: 1.35,
                   ),
                 ),
@@ -447,12 +423,12 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                                   height: 44,
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
-                                      colors: [Color(0xFFFFA000), Color(0xFFF59E0B)],
+                                      colors: [AppColors.accent, AppColors.accent],
                                     ),
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: const Color(0xFFFFA000).withValues(alpha: 0.55),
+                                        color: AppColors.accent.withValues(alpha: 0.55),
                                         blurRadius: 10,
                                         offset: const Offset(0, 3),
                                       ),
@@ -478,7 +454,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                   child: ElevatedButton(
                     onPressed: navigateToDestination,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isOrange ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86),
+                      backgroundColor: isOrange ? AppColors.accent : AppColors.primary,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

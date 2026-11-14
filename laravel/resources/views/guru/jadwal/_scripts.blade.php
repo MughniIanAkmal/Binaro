@@ -7,7 +7,7 @@
         });
         var activeBtn = document.getElementById('tab-btn-' + hari);
         if (activeBtn) {
-            activeBtn.style.backgroundColor = '#13527D';
+            activeBtn.style.backgroundColor = 'var(--color-primary)';
             activeBtn.style.color = 'white';
             activeBtn.style.boxShadow = '0 1px 3px rgba(0,0,0,0.15)';
         }

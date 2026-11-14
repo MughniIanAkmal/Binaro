@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dashboard_page.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
+import '../utils/session.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -29,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
     final password = _passwordController.text.trim();
 
     if (nisn.isEmpty || password.isEmpty) {
-      _showSnackbar('NISN dan Password wajib diisi!', isError: true);
+      _showSnackbar('NISN dan Kata Sandi wajib diisi!', isError: true);
       return;
     }
 
@@ -56,6 +57,7 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response.statusCode == 200 && data['success'] == true) {
         final userData = data['data']?['user'] ?? {};
+        await AppSession.save(Map<String, dynamic>.from(userData));
         final namaSiswa = userData['nm_siswa'] ?? 'Siswa';
         _showSnackbar('Login Berhasil! Selamat datang, $namaSiswa');
 
@@ -71,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       } else {
         final errorMsg =
-            data['message'] ?? 'Login gagal. Periksa NISN & Password.';
+            data['message'] ?? 'Login gagal. Periksa NISN & Kata Sandi.';
         _showSnackbar(errorMsg, isError: true);
       }
     } catch (e) {
@@ -110,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F263B),
+      backgroundColor: AppColors.navy950,
       body: Stack(
         children: [
           // 1. GAMBAR LATAR BELAKANG ATAS + GRADIENT OVERLAY
@@ -126,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                   'https://images.unsplash.com/photo-1580582932707-520aed937b7b?q=80&w=1000&auto=format&fit=crop',
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
-                    color: const Color(0xFF132F4C),
+                    color: AppColors.navy950,
                   ),
                 ),
                 Container(
@@ -135,9 +137,9 @@ class _LoginPageState extends State<LoginPage> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        const Color(0xFF0B1E2E).withValues(alpha: 0.70),
-                        const Color(0xFF16324F).withValues(alpha: 0.85),
-                        const Color(0xFF0D253A).withValues(alpha: 0.95),
+                        AppColors.navy950.withValues(alpha: 0.70),
+                        AppColors.navy950.withValues(alpha: 0.85),
+                        AppColors.navy950.withValues(alpha: 0.95),
                       ],
                     ),
                   ),
@@ -158,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1E6091),
+                      color: AppColors.primarySoft,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -197,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                       'Selamat datang di Binaro pembelajaran SD Negeri Kalitapen 1! '
                       'Silakan login untuk mengakses berbagai informasi pembelajaran, seperti '
                       'jadwal mata pelajaran, materi pembelajaran, notifikasi PR, dan ujian. '
-                      'Ayo, login sekarang dan lanjutkan perjalanan akademik Anda dengan lebih terstruktur dan efisien!',
+                      'Ayo, login sekarang dan lanjutkan perjalanan akademik kamu dengan lebih terstruktur dan efisien!',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12.5,
@@ -233,7 +235,7 @@ class _LoginPageState extends State<LoginPage> {
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF111827),
+                            color: AppColors.textPrimary,
                           ),
                         ),
 
@@ -261,7 +263,7 @@ class _LoginPageState extends State<LoginPage> {
                         // Field 3: Password
                         _buildInputField(
                           controller: _passwordController,
-                          hint: 'Password',
+                          hint: 'Kata Sandi',
                           icon: Icons.lock_outline_rounded,
                           isPassword: true,
                           obscureText: _obscurePassword,
@@ -331,18 +333,18 @@ class _LoginPageState extends State<LoginPage> {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: const TextStyle(fontSize: 15, color: Color(0xFF1F2937)),
+      style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF9CA3AF), fontSize: 14.5),
-        prefixIcon: Icon(icon, color: const Color(0xFF374151), size: 22),
+        hintStyle: const TextStyle(color: AppColors.textMuted, fontSize: 14.5),
+        prefixIcon: Icon(icon, color: AppColors.textSecondary, size: 22),
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
                   obscureText
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
-                  color: const Color(0xFF9CA3AF),
+                  color: AppColors.textMuted,
                   size: 20,
                 ),
                 onPressed: onToggleVisibility,
@@ -354,11 +356,11 @@ class _LoginPageState extends State<LoginPage> {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF869AB8), width: 1.5),
+          borderSide: const BorderSide(color: AppColors.border, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF1D5A86), width: 2),
+          borderSide: const BorderSide(color: AppColors.primary, width: 2),
         ),
       ),
     );

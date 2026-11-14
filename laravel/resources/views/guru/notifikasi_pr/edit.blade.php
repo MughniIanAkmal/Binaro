@@ -8,7 +8,7 @@
 
 @section('header_actions')
     <a href="{{ route('guru.notifikasi_pr.index') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-[#E6EBF2] hover:bg-slate-50 transition">
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
         <i class="fas fa-arrow-left text-[11px]"></i> Kembali
     </a>
 @endsection
@@ -36,7 +36,7 @@
         <!-- Card 1: Data PR -->
         <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
             <div class="flex items-center gap-3 pb-3 border-b border-slate-100">
-                <div class="w-9 h-9 rounded-xl bg-sky-50 text-[#13527D] flex items-center justify-center font-bold text-sm">
+                <div class="w-9 h-9 rounded-xl bg-sky-50 text-primary flex items-center justify-center font-bold text-sm">
                     <i class="fas fa-pen-to-square"></i>
                 </div>
                 <div>
@@ -53,9 +53,9 @@
                     </label>
                     <input type="text" name="nama_pr" id="nama_pr" value="{{ old('nama_pr', $pr->nama_pr) }}" required maxlength="100"
                            oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\-_.,()]/g, ''); document.getElementById('counter-pr-nama-edit').textContent = this.value.length + '/100';"
-                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                           class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-primary">
                     <div class="flex items-center justify-between mt-1 text-[10px]">
-                        <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, spasi, dan tanda baca (- . , _ ()). Simbol dilarang.</span>
+                        <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-primary"></i>Hanya huruf, angka, spasi, dan tanda baca (- . , _ ()). Simbol dilarang.</span>
                         <span id="counter-pr-nama-edit" class="font-bold text-slate-600">{{ strlen(old('nama_pr', $pr->nama_pr)) }}/100</span>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                         Mata Pelajaran <span class="text-rose-500">*</span>
                     </label>
                     <select name="id_mapel" id="id_mapel" required
-                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-primary">
                         @foreach($mapels as $mapel)
                             <option value="{{ $mapel->id_mapel }}" {{ old('id_mapel', $pr->id_mapel) == $mapel->id_mapel ? 'selected' : '' }}>
                                 {{ $mapel->nama_mapel }}
@@ -94,7 +94,7 @@
                                    min="{{ date('Y-m-d') }}"
                                    value="{{ $currTanggal }}" required
                                    onchange="syncEditDateTime()"
-                                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                                   class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-primary">
                         </div>
 
                         <!-- Jam Pengumpulan (07:00 - 14:00 WIB) -->
@@ -108,7 +108,7 @@
                             <div class="flex items-center gap-1.5">
                                 <!-- Pilih Jam 07 s/d 14 -->
                                 <select id="select_jam" onchange="syncEditDateTime()"
-                                        class="w-1/2 px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                                        class="w-1/2 px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-primary">
                                     @for($h = 7; $h <= 14; $h++)
                                         @php $hh = sprintf('%02d', $h); @endphp
                                         <option value="{{ $hh }}" {{ $hh == $currJam ? 'selected' : '' }}>
@@ -119,7 +119,7 @@
                                 <span class="font-extrabold text-slate-400">:</span>
                                 <!-- Pilih Menit 00-59 -->
                                 <select id="select_menit" onchange="syncEditDateTime()"
-                                        class="w-1/2 px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-[#13527D]">
+                                        class="w-1/2 px-2.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:border-primary">
                                     @foreach(['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55'] as $mm)
                                         <option value="{{ $mm }}" {{ (int)$mm === (int)$currMenit || (abs((int)$mm - (int)$currMenit) < 3 && $currMenit != '55' && $currMenit != '00') ? 'selected' : '' }}>
                                             {{ $mm }}
@@ -151,7 +151,7 @@
                     </label>
                     <textarea name="deskripsi" id="deskripsi" rows="4" maxlength="1000"
                               placeholder="Tuliskan petunjuk pengerjaan tugas, nomor halaman buku paket, atau instruksi khusus untuk siswa (maksimal 1000 karakter)..."
-                              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">{{ old('deskripsi', $pr->deskripsi) }}</textarea>
+                              class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">{{ old('deskripsi', $pr->deskripsi) }}</textarea>
                 </div>
             </div>
         </div>
@@ -180,7 +180,7 @@
                 <label for="pesan_update" class="block text-xs font-bold text-slate-700">Pesan Pembaruan untuk Siswa</label>
                 <textarea name="pesan_update" id="pesan_update" rows="3"
                           placeholder="Contoh: Perhatian: Tenggat pengumpulan tugas diperpanjang sampai... Silakan periksa kembali instruksi soal."
-                          class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]"></textarea>
+                          class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary"></textarea>
                 <p class="text-[10px] text-slate-400">Jika dikosongkan, format pesan otomatis akan dibuatkan sistem.</p>
             </div>
         </div>
@@ -190,7 +190,7 @@
             <a href="{{ route('guru.notifikasi_pr.index') }}" class="px-5 py-2.5 border border-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 transition">
                 Batal
             </a>
-            <button type="submit" class="px-6 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-xl text-xs font-extrabold shadow-md hover:shadow-lg transition flex items-center gap-2">
+            <button type="submit" class="px-6 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-extrabold shadow-md hover:shadow-lg transition flex items-center gap-2">
                 <i class="fas fa-save"></i>
                 <span>Simpan Perubahan</span>
             </button>

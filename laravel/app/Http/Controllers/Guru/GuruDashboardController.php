@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
 use App\Models\Absen;
 use App\Models\Guru;
+use App\Models\Jadwal;
 use App\Models\MataPelajaran;
 use App\Models\Materi;
 use App\Models\Pr;
@@ -12,6 +13,16 @@ use Carbon\Carbon;
 
 class GuruDashboardController extends Controller
 {
+    private const HARI_INDONESIA = [
+        'Sunday' => 'Minggu',
+        'Monday' => 'Senin',
+        'Tuesday' => 'Selasa',
+        'Wednesday' => 'Rabu',
+        'Thursday' => 'Kamis',
+        'Friday' => 'Jumat',
+        'Saturday' => 'Sabtu',
+    ];
+
     public function index()
     {
         if (session('user_type') !== 'guru') {
@@ -35,6 +46,24 @@ class GuruDashboardController extends Controller
         $mapels = MataPelajaran::withCount('bab')->latest('id_mapel')->take(3)->get();
         $prs = Pr::with('mataPelajaran')->latest('id_pr')->take(2)->get();
 
-        return view('guru.dashboard', compact('guru', 'totalMapel', 'totalMateri', 'totalPr', 'prAktif', 'mapels', 'prs'));
+        $hariIni = self::HARI_INDONESIA[now()->format('l')] ?? now()->format('l');
+        $jadwalHariIni = Jadwal::where('id_guru', $guru->id_guru)
+            ->where('hari', $hariIni)
+            ->orderBy('jam')
+            ->get();
+        $mapelById = MataPelajaran::whereIn('id_mapel', $jadwalHariIni->pluck('id_mapel'))
+            ->pluck('nama_mapel', 'id_mapel');
+
+        return view('guru.dashboard', compact(
+            'guru',
+            'totalMapel',
+            'totalMateri',
+            'totalPr',
+            'prAktif',
+            'mapels',
+            'prs',
+            'jadwalHariIni',
+            'mapelById',
+        ));
     }
 }

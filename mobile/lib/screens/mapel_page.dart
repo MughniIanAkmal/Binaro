@@ -1,11 +1,11 @@
 import 'dart:convert';
+import '../widgets/common.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../widgets/dynamic_bottom_nav.dart';
 import 'daftar_bab_page.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
-import 'profile_page.dart';
 
 class MapelPage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -79,13 +79,13 @@ class _MapelPageState extends State<MapelPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: _buildAppBar(),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : RefreshIndicator(
               onRefresh: _fetchMapelData,
-              color: const Color(0xFF1D5A86),
+              color: AppColors.primary,
               backgroundColor: Colors.white,
               displacement: 28,
               child: SingleChildScrollView(
@@ -120,18 +120,18 @@ class _MapelPageState extends State<MapelPage> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          border: Border.all(color: AppColors.border),
                         ),
                         child: Column(
                           children: [
-                            const Icon(Icons.search_off_rounded, size: 44, color: Color(0xFF94A3B8)),
+                            const Icon(Icons.search_off_rounded, size: 44, color: AppColors.textMuted),
                             const SizedBox(height: 10),
                             Text(
                               _searchQuery.isNotEmpty
                                   ? 'Tidak ada mata pelajaran yang cocok dengan "$_searchQuery"'
                                   : 'Belum ada data mata pelajaran.',
                               textAlign: TextAlign.center,
-                              style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), fontWeight: FontWeight.w600),
+                              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
                             ),
                           ],
                         ),
@@ -159,100 +159,7 @@ class _MapelPageState extends State<MapelPage> {
   // ---------------------------------------------------------------------------
   // APPBAR
   // ---------------------------------------------------------------------------
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      backgroundColor: const Color(0xFF1D5A86),
-      elevation: 0,
-      automaticallyImplyLeading: false,
-      titleSpacing: 16,
-      title: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.school_rounded, color: Colors.white, size: 22),
-          ),
-          const SizedBox(width: 12),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'SAHABAT BELAJAR',
-                style: TextStyle(
-                  fontSize: 10,
-                  letterSpacing: 0.8,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFFFBBF24),
-                ),
-              ),
-              SizedBox(height: 2),
-              Text(
-                'Mata Pelajaran',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: Stack(
-            alignment: Alignment.topRight,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 26),
-                onPressed: () {},
-              ),
-              Positioned(
-                right: 12,
-                top: 12,
-                child: Container(
-                  width: 9,
-                  height: 9,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF59E0B),
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 16, left: 2),
-          child: GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                SmoothPageRoute(
-                  page: ProfilePage(user: widget.user),
-                  type: TransitionType.sharedAxis,
-                ),
-              );
-            },
-            child: Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                color: const Color(0xFFC0C0C0),
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.white, width: 2.2),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  PreferredSizeWidget _buildAppBar() => const BinaroAppBar(title: 'Pembelajaran');
 
   // ---------------------------------------------------------------------------
   // HEADER DAFTAR MAPEL
@@ -260,7 +167,7 @@ class _MapelPageState extends State<MapelPage> {
   Widget _buildHeaderSection() {
     return Row(
       children: [
-        const Icon(Icons.menu_book_rounded, color: Color(0xFF1D5A86), size: 28),
+        const Icon(Icons.menu_book_rounded, color: AppColors.primary, size: 28),
         const SizedBox(width: 10),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,7 +177,7 @@ class _MapelPageState extends State<MapelPage> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 2),
@@ -279,7 +186,7 @@ class _MapelPageState extends State<MapelPage> {
               style: const TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w500,
-                color: Color(0xFF64748B),
+                color: AppColors.textSecondary,
               ),
             ),
           ],
@@ -296,7 +203,7 @@ class _MapelPageState extends State<MapelPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -309,8 +216,8 @@ class _MapelPageState extends State<MapelPage> {
         onChanged: (val) => setState(() => _searchQuery = val),
         decoration: const InputDecoration(
           hintText: 'Cari mata pelajaran...',
-          hintStyle: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)),
-          prefixIcon: Icon(Icons.search_rounded, color: Color(0xFF94A3B8), size: 22),
+          hintStyle: TextStyle(fontSize: 13, color: AppColors.textMuted),
+          prefixIcon: Icon(Icons.search_rounded, color: AppColors.textMuted, size: 22),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 13),
         ),
@@ -355,10 +262,10 @@ class _MapelPageState extends State<MapelPage> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1D5A86) : Colors.white,
+          color: isSelected ? AppColors.primary : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? const Color(0xFF1D5A86) : const Color(0xFFE2E8F0),
+            color: isSelected ? AppColors.primary : AppColors.border,
           ),
         ),
         child: Row(
@@ -367,7 +274,7 @@ class _MapelPageState extends State<MapelPage> {
             Icon(
               icon,
               size: 16,
-              color: isSelected ? Colors.white : const Color(0xFF64748B),
+              color: isSelected ? Colors.white : AppColors.textSecondary,
             ),
             const SizedBox(width: 6),
             Text(
@@ -375,14 +282,14 @@ class _MapelPageState extends State<MapelPage> {
               style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.white : const Color(0xFF64748B),
+                color: isSelected ? Colors.white : AppColors.textSecondary,
               ),
             ),
             const SizedBox(width: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: isSelected ? Colors.white.withValues(alpha: 0.25) : const Color(0xFFF1F5F9),
+                color: isSelected ? Colors.white.withValues(alpha: 0.25) : AppColors.surfaceAlt,
                 shape: BoxShape.circle,
               ),
               child: Text(
@@ -390,7 +297,7 @@ class _MapelPageState extends State<MapelPage> {
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w800,
-                  color: isSelected ? Colors.white : const Color(0xFF64748B),
+                  color: isSelected ? Colors.white : AppColors.textSecondary,
                 ),
               ),
             ),
@@ -415,7 +322,7 @@ class _MapelPageState extends State<MapelPage> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1D5A86), // Dark Blue container
+        color: AppColors.primary, // Dark Blue container
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -442,7 +349,7 @@ class _MapelPageState extends State<MapelPage> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Icon(_getIcon(tipeIcon), color: const Color(0xFF1D5A86), size: 24),
+                      child: Icon(_getIcon(tipeIcon), color: AppColors.primary, size: 24),
                     ),
                     const SizedBox(width: 14),
                     // Nama Mapel & Bab
@@ -490,7 +397,7 @@ class _MapelPageState extends State<MapelPage> {
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFFFBBF24),
+                        color: AppColors.accentBright,
                       ),
                     ),
                   ],
@@ -503,7 +410,7 @@ class _MapelPageState extends State<MapelPage> {
                     value: progress,
                     minHeight: 6,
                     backgroundColor: Colors.white.withValues(alpha: 0.35),
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFF59E0B)),
+                    valueColor: const AlwaysStoppedAnimation<Color>(AppColors.accent),
                   ),
                 ),
               ],
@@ -523,14 +430,14 @@ class _MapelPageState extends State<MapelPage> {
                 // Info Jadwal
                 Row(
                   children: [
-                    const Icon(Icons.access_time_rounded, color: Color(0xFF64748B), size: 16),
+                    const Icon(Icons.access_time_rounded, color: AppColors.textSecondary, size: 16),
                     const SizedBox(width: 6),
                     Text(
                       jadwal,
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -550,7 +457,7 @@ class _MapelPageState extends State<MapelPage> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF1D5A86),
+                      color: AppColors.primary,
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: const Row(
@@ -604,9 +511,9 @@ class _MapelPageState extends State<MapelPage> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F7FF),
+        color: AppColors.infoLight,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFD6E8FC)),
+        border: Border.all(color: AppColors.primaryLight),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -614,7 +521,7 @@ class _MapelPageState extends State<MapelPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(
-              color: Color(0xFFF59E0B),
+              color: AppColors.accent,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.lightbulb_rounded, color: Colors.white, size: 20),
@@ -629,7 +536,7 @@ class _MapelPageState extends State<MapelPage> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1D5A86),
+                    color: AppColors.primary,
                   ),
                 ),
                 SizedBox(height: 2),
@@ -637,7 +544,7 @@ class _MapelPageState extends State<MapelPage> {
                   'Selesaikan 2 materi lagi hari ini untuk mendapatkan lencana Bintang Cilik!',
                   style: TextStyle(
                     fontSize: 11.5,
-                    color: Color(0xFF475569),
+                    color: AppColors.textSecondary,
                     height: 1.35,
                   ),
                 ),

@@ -8,8 +8,8 @@
             @csrf
             <button type="submit"
                     onclick="return confirm('Tandai semua {{ $belumDibaca }} notifikasi sebagai sudah dibaca?')"
-                    class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition whitespace-nowrap"
-                    style="background: var(--binaro-navy);">
+                    class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition whitespace-nowrap bg-primary"
+                    >
                 <i class="fas fa-check-double text-[11px]"></i> Tandai Semua Dibaca
             </button>
         </form>
@@ -22,18 +22,18 @@
     {{-- KPI Cards --}}
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <a href="{{ route('siswa.notifikasi_pr.index', array_filter(['filter' => 'semua', 'search' => $search])) }}"
-           class="bg-white p-4 rounded-2xl border {{ $filter === 'semua' ? 'border-[#13527D] ring-2 ring-[#13527D]/20 shadow-md' : 'border-[#E6EBF2]' }} shadow-sm flex items-center justify-between hover:border-[#13527D] transition group cursor-pointer block">
+           class="bg-white p-4 rounded-2xl border {{ $filter === 'semua' ? 'border-primary ring-2 ring-primary/20 shadow-md' : 'border-line' }} shadow-sm flex items-center justify-between hover:border-primary transition group cursor-pointer block">
             <div>
                 <div class="text-2xl font-black text-slate-900">{{ $totalNotif }}</div>
                 <div class="text-[11px] font-bold text-slate-500 mt-0.5">Total Notifikasi</div>
             </div>
-            <div class="w-10 h-10 rounded-xl bg-sky-50 text-[#13527D] flex items-center justify-center text-lg group-hover:scale-105 transition-transform">
+            <div class="w-10 h-10 rounded-xl bg-sky-50 text-primary flex items-center justify-center text-lg group-hover:scale-105 transition-transform">
                 <i class="fas fa-bell"></i>
             </div>
         </a>
 
         <a href="{{ route('siswa.notifikasi_pr.index', array_filter(['filter' => 'belum_dibaca', 'search' => $search])) }}"
-           class="bg-white p-4 rounded-2xl border {{ $filter === 'belum_dibaca' ? 'border-amber-400 ring-2 ring-amber-400/20 shadow-md' : 'border-[#E6EBF2]' }} shadow-sm flex items-center justify-between hover:border-amber-400 transition group cursor-pointer block"
+           class="bg-white p-4 rounded-2xl border {{ $filter === 'belum_dibaca' ? 'border-amber-400 ring-2 ring-amber-400/20 shadow-md' : 'border-line' }} shadow-sm flex items-center justify-between hover:border-amber-400 transition group cursor-pointer block"
            title="Klik untuk melihat notifikasi yang belum dibaca">
             <div>
                 <div class="text-2xl font-black text-amber-500">{{ $belumDibaca }}</div>
@@ -45,7 +45,7 @@
         </a>
 
         <a href="{{ route('siswa.notifikasi_pr.index', array_filter(['filter' => 'sudah_dibaca', 'search' => $search])) }}"
-           class="bg-white p-4 rounded-2xl border {{ $filter === 'sudah_dibaca' ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'border-[#E6EBF2]' }} shadow-sm flex items-center justify-between hover:border-emerald-500 transition group cursor-pointer block"
+           class="bg-white p-4 rounded-2xl border {{ $filter === 'sudah_dibaca' ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'border-line' }} shadow-sm flex items-center justify-between hover:border-emerald-500 transition group cursor-pointer block"
            title="Klik untuk melihat notifikasi yang sudah dibaca">
             <div>
                 <div class="text-2xl font-black text-emerald-600">{{ $sudahDibaca }}</div>
@@ -56,7 +56,7 @@
             </div>
         </a>
 
-        <div class="bg-white p-4 rounded-2xl border border-[#E6EBF2] shadow-sm flex items-center justify-between">
+        <div class="bg-white p-4 rounded-2xl border border-line shadow-sm flex items-center justify-between">
             <div>
                 <div class="text-2xl font-black text-indigo-600">{{ $prAktif }}</div>
                 <div class="text-[11px] font-bold text-slate-500 mt-0.5">PR Aktif</div>
@@ -68,7 +68,7 @@
     </div>
 
     {{-- Filter & Search Bar --}}
-    <div class="bg-white rounded-2xl border border-[#E6EBF2] p-4 shadow-sm">
+    <div class="bg-white rounded-2xl border border-line p-4 shadow-sm">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             {{-- Tab Filter --}}
             <div class="flex items-center gap-1.5 flex-wrap">
@@ -78,7 +78,7 @@
                     'sudah_dibaca'=> ['Sudah Dibaca', 'fas fa-envelope-open', $sudahDibaca],
                 ] as $key => [$label, $icon, $count])
                 <a href="{{ route('siswa.notifikasi_pr.index', array_filter(['filter' => $key, 'search' => $search])) }}"
-                   class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $filter === $key ? 'bg-[#13527D] text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
+                   class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 {{ $filter === $key ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
                     <i class="{{ $icon }} text-[10px]"></i>
                     <span>{{ $label }}</span>
                     <span class="px-1.5 py-0.5 rounded-full {{ $filter === $key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500' }} text-[10px] font-extrabold">
@@ -96,7 +96,7 @@
                 <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                 <input type="text" name="search" value="{{ $search }}"
                        placeholder="Cari PR, mapel, atau pesan..."
-                       class="pl-8 pr-8 py-1.5 text-xs bg-slate-50 border border-[#E6EBF2] rounded-lg text-slate-700 focus:outline-none focus:border-[#13527D] w-52 sm:w-60">
+                       class="pl-8 pr-8 py-1.5 text-xs bg-slate-50 border border-line rounded-lg text-slate-700 focus:outline-none focus:border-primary w-52 sm:w-60">
                 @if($search)
                 <a href="{{ route('siswa.notifikasi_pr.index', ['filter' => $filter]) }}"
                    class="absolute right-2 top-2 text-slate-400 hover:text-slate-700" title="Hapus pencarian">
@@ -116,7 +116,7 @@
             $tenggatFormatted = $pr ? \Carbon\Carbon::parse($pr->tgl_tenggat)->translatedFormat('d M Y') . ', ' . \Carbon\Carbon::parse($pr->tgl_tenggat)->format('H:i') . ' WIB' : '-';
             $tenggatDiff = $pr ? \Carbon\Carbon::parse($pr->tgl_tenggat)->diffForHumans() : '-';
         @endphp
-        <div class="bg-white rounded-2xl border {{ $notif->status_baca ? 'border-[#E6EBF2]' : 'border-amber-300 shadow-md' }} overflow-hidden transition hover:shadow-md">
+        <div class="bg-white rounded-2xl border {{ $notif->status_baca ? 'border-line' : 'border-amber-300 shadow-md' }} overflow-hidden transition hover:shadow-md">
             <div class="flex items-start gap-0">
                 {{-- Indikator belum dibaca --}}
                 <div class="w-1 self-stretch {{ $notif->status_baca ? 'bg-slate-200' : 'bg-amber-400' }} rounded-l-2xl shrink-0"></div>
@@ -132,7 +132,7 @@
                                 </span>
                                 @endif
                                 @if($pr)
-                                <span class="bg-sky-100 text-[#13527D] text-[10px] font-extrabold px-2 py-0.5 rounded-lg">
+                                <span class="bg-sky-100 text-primary text-[10px] font-extrabold px-2 py-0.5 rounded-lg">
                                     {{ $pr->mataPelajaran->nama_mapel ?? 'Mapel' }}
                                 </span>
                                 @endif
@@ -158,7 +158,7 @@
                             <div class="flex flex-wrap items-center gap-3 text-[10px] text-slate-400 pt-0.5">
                                 @if($pr)
                                 <span class="flex items-center gap-1">
-                                    <i class="fas fa-calendar-alt text-[#13527D]"></i>
+                                    <i class="fas fa-calendar-alt text-primary"></i>
                                     Tenggat: <strong class="text-slate-600 ml-0.5">{{ $tenggatFormatted }}</strong>
                                 </span>
                                 @endif
@@ -186,7 +186,7 @@
                             </form>
                             @endif
                             <a href="{{ route('siswa.notifikasi_pr.show', $notif->id_notifikasi) }}"
-                               class="px-3 py-1.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-[11px] font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                               class="px-3 py-1.5 bg-primary hover:bg-primary-hover text-white text-[11px] font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
                                 <i class="fas fa-eye text-[10px]"></i> Lihat Detail
                             </a>
                         </div>
@@ -195,7 +195,7 @@
             </div>
         </div>
         @empty
-        <div class="bg-white rounded-2xl border border-[#E6EBF2] p-12 text-center shadow-sm">
+        <div class="bg-white rounded-2xl border border-line p-12 text-center shadow-sm">
             <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-300 flex items-center justify-center mx-auto mb-4 text-3xl">
                 <i class="fas fa-bell-slash"></i>
             </div>
@@ -212,7 +212,7 @@
             </h3>
             <p class="text-[11px] text-slate-400">
                 @if($filter !== 'semua')
-                    <a href="{{ route('siswa.notifikasi_pr.index') }}" class="text-[#13527D] hover:underline font-medium">Lihat semua notifikasi</a>
+                    <a href="{{ route('siswa.notifikasi_pr.index') }}" class="text-primary hover:underline font-medium">Lihat semua notifikasi</a>
                 @else
                     Guru belum mengirimkan notifikasi tugas PR kepada kamu.
                 @endif

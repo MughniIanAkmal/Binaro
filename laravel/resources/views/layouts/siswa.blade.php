@@ -5,24 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Portal Siswa - Binaro' }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root {
-            --binaro-navy: #13527D;
-            --binaro-navy-soft: #1E5D88;
-            --binaro-line: #E6EBF2;
-            --binaro-canvas: #F8FAFC;
-        }
-        body { font-family: 'Plus Jakarta Sans', 'Instrument Sans', sans-serif; background-color: var(--binaro-canvas); }
+        body { font-family: 'Plus Jakarta Sans', 'Instrument Sans', sans-serif; background-color: var(--color-canvas); }
         .nav-item { transition: background-color .15s ease, color .15s ease; }
-        .nav-item-active { background-color: var(--binaro-navy); color: #fff; font-weight: 700; box-shadow: 0 6px 14px -8px rgba(19, 82, 125, .8); }
+        .nav-item-active { background-color: var(--color-primary); color: #fff; font-weight: 700; box-shadow: 0 6px 14px -8px rgba(19, 82, 125, .8); }
         .nav-item-active i { color: #fff !important; }
-        .card { background: #fff; border: 1px solid var(--binaro-line); border-radius: 1rem; }
-        .hero-gradient { background: linear-gradient(115deg, #0E3D5D 0%, #13527D 55%, #1E5D88 100%); }
+        .card { background: #fff; border: 1px solid var(--color-line); border-radius: 1rem; }
+        .hero-gradient { background: linear-gradient(115deg, var(--color-primary-hover) 0%, var(--color-primary) 55%, var(--color-primary-soft) 100%); }
         .scroll-thin::-webkit-scrollbar { width: 6px; }
         .scroll-thin::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 99px; }
     </style>
@@ -66,11 +60,11 @@
 <div class="flex min-h-screen">
 
     {{-- ================= SIDEBAR ================= --}}
-    <aside class="w-[268px] shrink-0 bg-white border-r border-[#E6EBF2] fixed inset-y-0 left-0 z-30 hidden sm:flex flex-col">
+    <aside class="w-[268px] shrink-0 bg-white border-r border-line fixed inset-y-0 left-0 z-30 hidden sm:flex flex-col">
         {{-- Brand --}}
         <div class="px-5 pt-6 pb-5">
             <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm" style="background: var(--binaro-navy);">
+                <div class="w-11 h-11 rounded-2xl flex items-center justify-center shadow-sm bg-primary" >
                     <i class="fas fa-graduation-cap text-white text-lg"></i>
                 </div>
                 <div class="leading-tight">
@@ -96,7 +90,7 @@
                 <a href="{{ route('siswa.ujian.index') }}"
                    class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] {{ request()->routeIs('siswa.ujian.*') ? 'nav-item-active' : 'text-slate-600 hover:bg-slate-50' }}">
                     <i class="fas fa-clipboard-question w-4 text-center text-[13px] {{ request()->routeIs('siswa.ujian.*') ? '' : 'text-slate-400' }}"></i>
-                    <span>Ujian Online</span>
+                    <span>Ujian</span>
                 </a>
                 <a href="{{ route('siswa.jadwal_mapel.index') }}"
                    class="nav-item flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] {{ request()->routeIs('siswa.jadwal*') ? 'nav-item-active' : 'text-slate-600 hover:bg-slate-50' }}">
@@ -121,7 +115,7 @@
 
         {{-- Kartu siswa --}}
         <div class="p-3">
-            <div class="rounded-2xl border border-[#E6EBF2] bg-[#FAFBFD] px-4 py-3.5">
+            <div class="rounded-2xl border border-line bg-[#FAFBFD] px-4 py-3.5">
                 <div class="flex items-center gap-2">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                     <span class="text-[10px] font-extrabold tracking-[0.1em] text-slate-500 uppercase">Kelas {{ $navKelas }}</span>
@@ -144,7 +138,7 @@
 
         {{-- ===== HEADER: satu-satunya sumber judul & aksi halaman ===== --}}
 
-        <header class="bg-white border-b border-[#E6EBF2] sticky top-0 z-20">
+        <header class="bg-white border-b border-line sticky top-0 z-20">
             <div class="px-4 sm:px-7 h-[88px] flex items-center justify-between gap-5">
                 <div class="min-w-0 flex-1">
                     <nav class="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 whitespace-nowrap overflow-hidden">
@@ -172,8 +166,8 @@
                     <div class="flex items-center gap-2 overflow-x-auto">
                         @yield('header_actions')
                     </div>
-                    <div class="flex items-center gap-2.5 pl-3 ml-1 border-l border-[#E6EBF2]">
-                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-extrabold shrink-0" style="background: var(--binaro-navy);">
+                    <div class="flex items-center gap-2.5 pl-3 ml-1 border-l border-line">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-extrabold shrink-0 bg-primary" >
                             {{ $navInisial }}
                         </div>
                         <div class="leading-tight hidden xl:block">
@@ -188,34 +182,16 @@
         {{-- Flash --}}
         <div class="px-4 sm:px-7">
             @if(session('success'))
-                <div class="mt-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <i class="fas fa-circle-check text-emerald-600"></i>
-                        <span class="font-semibold">{{ session('success') }}</span>
-                    </div>
-                    <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700"><i class="fas fa-xmark"></i></button>
-                </div>
-            @endif
+        <x-alert type="success" class="mt-5">{{ session('success') }}</x-alert>
+        @endif
 
             @if(session('error'))
-                <div class="mt-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <i class="fas fa-circle-exclamation text-rose-600"></i>
-                        <span class="font-semibold">{{ session('error') }}</span>
-                    </div>
-                    <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700"><i class="fas fa-xmark"></i></button>
-                </div>
-            @endif
+        <x-alert type="error" class="mt-5">{{ session('error') }}</x-alert>
+        @endif
 
             @if(session('info'))
-                <div class="mt-5 p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-800 text-xs flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <i class="fas fa-circle-info text-sky-600"></i>
-                        <span class="font-semibold">{{ session('info') }}</span>
-                    </div>
-                    <button onclick="this.parentElement.remove()" class="text-sky-500 hover:text-sky-700"><i class="fas fa-xmark"></i></button>
-                </div>
-            @endif
+        <x-alert type="info" class="mt-5">{{ session('info') }}</x-alert>
+        @endif
 
             @if(isset($errors) && $errors->any())
                 <div class="mt-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">

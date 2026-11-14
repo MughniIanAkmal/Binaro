@@ -49,17 +49,17 @@
             <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                 <!-- Table Header Filter -->
                 <div class="p-4 border-b border-slate-200 flex gap-3 items-center flex-wrap">
-                    <a href="{{ route('rpp.index') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ !request('status') ? 'bg-[#13527D] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Semua</a>
-                    <a href="{{ route('rpp.index', ['status' => 'menunggu_review']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 {{ request('status') == 'menunggu_review' ? 'bg-[#13527D] text-white' : 'bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100' }}">
+                    <a href="{{ route('rpp.index') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ !request('status') ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Semua</a>
+                    <a href="{{ route('rpp.index', ['status' => 'menunggu_review']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 {{ request('status') == 'menunggu_review' ? 'bg-primary text-white' : 'bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100' }}">
                         <i class="fas fa-inbox text-[11px] text-amber-500"></i>
                         <span>Permintaan Guru (Menunggu Review)</span>
                         @if(($kpi['perlu_review'] ?? 0) > 0)
                             <span class="bg-amber-400 text-slate-900 text-[10px] font-black px-1.5 py-0.2 rounded-full">{{ $kpi['perlu_review'] }}</span>
                         @endif
                     </a>
-                    <a href="{{ route('rpp.index', ['status' => 'terverifikasi']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'terverifikasi' ? 'bg-[#13527D] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Terverifikasi (Disetujui)</a>
-                    <a href="{{ route('rpp.index', ['status' => 'perlu_revisi']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'perlu_revisi' ? 'bg-[#13527D] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Perlu Revisi</a>
-                    <a href="{{ route('rpp.index', ['status' => 'draft']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'draft' ? 'bg-[#13527D] text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Draf Guru</a>
+                    <a href="{{ route('rpp.index', ['status' => 'terverifikasi']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'terverifikasi' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Terverifikasi (Disetujui)</a>
+                    <a href="{{ route('rpp.index', ['status' => 'perlu_revisi']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'perlu_revisi' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Perlu Revisi</a>
+                    <a href="{{ route('rpp.index', ['status' => 'draft']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'draft' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Draf Guru</a>
                 </div>
 
                 <!-- Table Content -->
@@ -155,7 +155,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr><td colspan="7" class="p-8 text-center text-slate-400">Tidak ada data RPP ditemukan.</td></tr>
+                            <tr><td colspan="7" class="p-2"><x-empty-state icon="fa-inbox" title="Tidak ada data RPP ditemukan." /></td></tr>
                             @endforelse
                         </tbody>
                     </table>
@@ -193,7 +193,7 @@
                     <div>
                         <label class="block font-bold text-slate-700 mb-1">Catatan Evaluasi / Revisi</label>
                         <textarea name="catatan" id="catatanRevisi" rows="3" placeholder="Tuliskan catatan perbaikan atau feedback untuk guru..."
-                                  class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]"></textarea>
+                                  class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"></textarea>
                     </div>
                     <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
                         <button type="button" onclick="closeStatusModal()" class="px-4 py-2 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-100">Batal</button>

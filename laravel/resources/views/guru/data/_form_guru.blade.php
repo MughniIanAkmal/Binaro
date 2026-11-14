@@ -7,7 +7,7 @@
             <input type="text" name="nama" required maxlength="100" value="{{ old('nama', data_get($g, 'nama_guru', data_get($g, 'nama', ''))) }}"
                    placeholder="Contoh: Budi Santoso"
                    oninput="this.value=this.value.replace(/[^A-Za-z\s]/g,'')"
-                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-primary bg-white">
             <p class="text-[10px] text-slate-400 mt-1">Hanya huruf dan spasi, tanpa angka atau simbol.</p>
             @error('nama') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
@@ -17,7 +17,7 @@
             <input type="text" name="nip" value="{{ old('nip', data_get($g, 'nip', '')) }}"
                    placeholder="Contoh: 19800101001"
                    inputmode="numeric" pattern="[0-9]{0,15}" maxlength="15" oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)"
-                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-primary bg-white">
             <p class="text-[10px] text-slate-400 mt-1">Hanya angka, maksimal 15 digit.</p>
             @error('nip') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
@@ -28,7 +28,7 @@
             <label class="block font-bold text-slate-700 mb-1">Email <span class="text-rose-500">*</span></label>
             <input type="email" name="email" required maxlength="100" value="{{ old('email', data_get($g, 'email', '')) }}"
                    placeholder="Contoh: guru@sekolah.sch.id"
-                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-primary bg-white">
             <p class="text-[10px] text-slate-400 mt-1">Wajib mengandung tanda @, contoh: nama@email.com.</p>
             @error('email') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
@@ -38,7 +38,7 @@
             <input type="text" name="no_hp" value="{{ old('no_hp', data_get($g, 'no_hp', '')) }}"
                    placeholder="Contoh: 081234567890"
                    inputmode="numeric" pattern="[0-9]{0,12}" maxlength="12" oninput="this.value=this.value.replace(/\D/g,'').slice(0,12)"
-                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-primary bg-white">
             <p class="text-[10px] text-slate-400 mt-1">Hanya angka, maksimal 12 digit.</p>
             @error('no_hp') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
@@ -47,7 +47,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
             <label class="block font-bold text-slate-700 mb-1">Jenis Kelamin</label>
-            <select name="jenis_kelamin" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+            <select name="jenis_kelamin" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-primary bg-white">
                 <option value="">-- Pilih Jenis Kelamin --</option>
                 <option value="L" {{ old('jenis_kelamin', data_get($g, 'jenis_kelamin', '')) == 'L' ? 'selected' : '' }}>Laki-laki</option>
                 <option value="P" {{ old('jenis_kelamin', data_get($g, 'jenis_kelamin', '')) == 'P' ? 'selected' : '' }}>Perempuan</option>
@@ -59,7 +59,7 @@
             <label class="block font-bold text-slate-700 mb-1">Username Login</label>
             <input type="text" name="username" maxlength="50" value="{{ old('username', data_get($g, 'username', '')) }}"
                    placeholder="Username untuk login"
-                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-primary bg-white">
             @error('username') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
     </div>
@@ -67,7 +67,7 @@
     <div>
         <label class="block font-bold text-slate-700 mb-1">Alamat Tempat Tinggal</label>
         <textarea name="alamat" rows="2" maxlength="500" placeholder="Alamat lengkap guru (maksimal 500 karakter)..."
-                  class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">{{ old('alamat', data_get($g, 'alamat', '')) }}</textarea>
+                  class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-primary bg-white">{{ old('alamat', data_get($g, 'alamat', '')) }}</textarea>
         @error('alamat') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
     </div>
 
@@ -75,14 +75,14 @@
         <div>
             <label class="block font-bold text-slate-700 mb-1">Password {{ $g ? '(Kosongkan jika tidak diubah)' : '*' }}</label>
             <input type="password" name="password" {{ $g ? '' : 'required' }} placeholder="Minimal 6 karakter"
-                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-primary bg-white">
             @error('password') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
 
         <div>
             <label class="block font-bold text-slate-700 mb-1">Konfirmasi Password</label>
             <input type="password" name="password_confirmation" {{ $g ? '' : 'required' }} placeholder="Ketik ulang password"
-                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#13527D] bg-white">
+                   class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-primary bg-white">
         </div>
     </div>
 </div>

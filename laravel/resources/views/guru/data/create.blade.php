@@ -28,7 +28,7 @@
                 <a href="{{ route('guru.data.index') }}" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50">
                     Batal
                 </a>
-                <button type="submit" class="px-5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white rounded-lg text-xs font-bold transition shadow-sm">
+                <button type="submit" class="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold transition shadow-sm">
                     Simpan Data Guru
                 </button>
             </div>

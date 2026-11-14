@@ -82,9 +82,9 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
     final String footer = _petunjukData['footer'] ?? 'Ada kendala saat membuka soal? Beritahu guru pengawasmu';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1D5A86),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
@@ -116,7 +116,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFC0C0C0),
+                  color: AppColors.border,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2.2),
                 ),
@@ -126,7 +126,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _petunjukData.isEmpty
               ? Center(
                   child: Container(
@@ -135,7 +135,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: AppColors.border),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withValues(alpha: 0.02),
@@ -151,13 +151,13 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                           width: 68,
                           height: 68,
                           decoration: const BoxDecoration(
-                            color: Color(0xFFEFF6FF),
+                            color: AppColors.primaryLight,
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
                             Icons.assignment_late_outlined,
                             size: 34,
-                            color: Color(0xFF1D5A86),
+                            color: AppColors.primary,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -166,7 +166,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF1E293B),
+                            color: AppColors.textPrimary,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -176,7 +176,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                             height: 1.4,
                           ),
                         ),
@@ -184,7 +184,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                         ElevatedButton(
                           onPressed: () => Navigator.pop(context),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1D5A86),
+                            backgroundColor: AppColors.primary,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -210,7 +210,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF64748B),
+                      color: AppColors.textSecondary,
                       letterSpacing: 0.6,
                     ),
                   ),
@@ -250,8 +250,8 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                             }
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isReady ? const Color(0xFF1D5A86) : const Color(0xFF94A3B8),
-                        disabledBackgroundColor: const Color(0xFF94A3B8).withValues(alpha: 0.5),
+                        backgroundColor: _isReady ? AppColors.primary : AppColors.textMuted,
+                        disabledBackgroundColor: AppColors.textMuted.withValues(alpha: 0.5),
                         elevation: 0,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
@@ -284,7 +284,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                       footer,
                       style: const TextStyle(
                         fontSize: 11.5,
-                        color: Color(0xFF94A3B8),
+                        color: AppColors.textMuted,
                         fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.center,
@@ -306,7 +306,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -321,7 +321,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: const Color(0xFF1D5A86),
+              color: AppColors.primary,
               borderRadius: BorderRadius.circular(16),
             ),
             child: const Icon(Icons.calculate_outlined, color: Colors.white, size: 28),
@@ -336,7 +336,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEFF6FF),
+                    color: AppColors.primaryLight,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -344,7 +344,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFF1D5A86),
+                      color: AppColors.primary,
                       letterSpacing: 0.4,
                     ),
                   ),
@@ -357,7 +357,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                   style: const TextStyle(
                     fontSize: 15.5,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -367,7 +367,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                   'Guru: $guru',
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -399,8 +399,8 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
         // 1. Waktu
         _buildSummaryItem(
           icon: Icons.access_time_filled_rounded,
-          iconBg: const Color(0xFFEFF6FF),
-          iconColor: const Color(0xFF1D5A86),
+          iconBg: AppColors.primaryLight,
+          iconColor: AppColors.primary,
           label: 'Waktu',
           value: '$waktu Menit',
         ),
@@ -408,8 +408,8 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
         // 2. Soal
         _buildSummaryItem(
           icon: Icons.format_list_bulleted_rounded,
-          iconBg: const Color(0xFFFFFBEB),
-          iconColor: const Color(0xFFF59E0B),
+          iconBg: AppColors.warningLight,
+          iconColor: AppColors.accent,
           label: 'Soal',
           value: '$soal Butir',
         ),
@@ -417,8 +417,8 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
         // 3. Target KKM
         _buildSummaryItem(
           icon: Icons.emoji_events_rounded,
-          iconBg: const Color(0xFFDCFCE7),
-          iconColor: const Color(0xFF16A34A),
+          iconBg: AppColors.successLight,
+          iconColor: AppColors.success,
           label: 'Target KKM',
           value: '$kkm',
         ),
@@ -426,8 +426,8 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
         // 4. Koreksi
         _buildSummaryItem(
           icon: Icons.auto_awesome_rounded,
-          iconBg: const Color(0xFFF3E8FF),
-          iconColor: const Color(0xFF9333EA),
+          iconBg: AppColors.infoLight,
+          iconColor: AppColors.info,
           label: 'Koreksi',
           value: koreksi,
         ),
@@ -447,7 +447,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -476,7 +476,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                   label,
                   style: const TextStyle(
                     fontSize: 10.5,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -486,7 +486,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                   style: const TextStyle(
                     fontSize: 13.5,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
               ],
@@ -506,7 +506,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -521,14 +521,14 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
           // Header Petunjuk Pengerjaan
           const Row(
             children: [
-              Icon(Icons.menu_book_rounded, color: Color(0xFF1D5A86), size: 20),
+              Icon(Icons.menu_book_rounded, color: AppColors.primary, size: 20),
               SizedBox(width: 8),
               Text(
                 'Petunjuk Pengerjaan',
                 style: TextStyle(
                   fontSize: 14.5,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFF1E293B),
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
@@ -541,11 +541,11 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
             final String teks = item['teks'] ?? '';
             final String warna = item['warna'] ?? 'blue';
 
-            Color circleColor = const Color(0xFF1D5A86);
+            Color circleColor = AppColors.primary;
             if (warna == 'orange' || no == 2) {
-              circleColor = const Color(0xFFF59E0B);
+              circleColor = AppColors.accent;
             } else if (warna == 'green' || no == 3) {
-              circleColor = const Color(0xFF16A34A);
+              circleColor = AppColors.success;
             }
 
             return Padding(
@@ -576,7 +576,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                       teks,
                       style: const TextStyle(
                         fontSize: 13,
-                        color: Color(0xFF334155),
+                        color: AppColors.textPrimary,
                         fontWeight: FontWeight.w600,
                         height: 1.4,
                       ),
@@ -598,16 +598,16 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFFBEB), // Soft yellow
+        color: AppColors.warningLight, // Soft yellow
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFFDE68A)),
+        border: Border.all(color: AppColors.accentBright),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B),
+              color: AppColors.accent,
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.sentiment_very_satisfied_rounded, color: Colors.white, size: 24),
@@ -622,7 +622,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF92400E),
+                    color: AppColors.accentDeep,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -630,7 +630,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
                   pesan,
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Color(0xFFB45309),
+                    color: AppColors.accentDeep,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -659,7 +659,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: _isReady ? const Color(0xFF1D5A86) : const Color(0xFFE2E8F0),
+            color: _isReady ? AppColors.primary : AppColors.border,
             width: _isReady ? 1.5 : 1,
           ),
           boxShadow: [
@@ -676,10 +676,10 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
               width: 22,
               height: 22,
               decoration: BoxDecoration(
-                color: _isReady ? const Color(0xFF16A34A) : Colors.transparent,
+                color: _isReady ? AppColors.success : Colors.transparent,
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: _isReady ? const Color(0xFF16A34A) : const Color(0xFFCBD5E1),
+                  color: _isReady ? AppColors.success : AppColors.border,
                   width: 2,
                 ),
               ),
@@ -693,7 +693,7 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
               style: TextStyle(
                 fontSize: 13.5,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
           ],

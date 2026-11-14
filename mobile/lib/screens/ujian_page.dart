@@ -1,11 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dashboard_page.dart';
 import 'hasil_ujian_page.dart';
-import 'mapel_page.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
+import '../widgets/dynamic_bottom_nav.dart';
 import 'petunjuk_ujian_page.dart';
 import 'profile_page.dart';
 
@@ -26,7 +25,6 @@ class _UjianPageState extends State<UjianPage> {
 
   bool _isLoading = true;
   int _activeTab = 0; // 0 = Tersedia, 1 = Selesai
-  final int _bottomNavIndex = 1; // Tab Ujian aktif
 
   Map<String, dynamic> _banner = {
     'judul': 'Penilaian Semester Siswa',
@@ -93,9 +91,9 @@ class _UjianPageState extends State<UjianPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1D5A86),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         leadingWidth: 0,
         leading: const SizedBox.shrink(),
@@ -107,7 +105,7 @@ class _UjianPageState extends State<UjianPage> {
               width: 38,
               height: 38,
               decoration: const BoxDecoration(
-                color: Color(0xFFF59E0B),
+                color: AppColors.accent,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.school_rounded, color: Colors.white, size: 22),
@@ -121,7 +119,7 @@ class _UjianPageState extends State<UjianPage> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFFF59E0B),
+                    color: AppColors.accent,
                     letterSpacing: 0.8,
                   ),
                 ),
@@ -140,30 +138,6 @@ class _UjianPageState extends State<UjianPage> {
         ),
         actions: [
           Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Stack(
-              alignment: Alignment.topRight,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 26),
-                  onPressed: () {},
-                ),
-                Positioned(
-                  right: 12,
-                  top: 12,
-                  child: Container(
-                    width: 9,
-                    height: 9,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF59E0B),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Padding(
             padding: const EdgeInsets.only(right: 16),
             child: GestureDetector(
               onTap: () {
@@ -179,7 +153,7 @@ class _UjianPageState extends State<UjianPage> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFC0C0C0),
+                  color: AppColors.border,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2.2),
                 ),
@@ -189,10 +163,10 @@ class _UjianPageState extends State<UjianPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : RefreshIndicator(
               onRefresh: _fetchUjianData,
-              color: const Color(0xFF1D5A86),
+              color: AppColors.primary,
               backgroundColor: Colors.white,
               displacement: 28,
               child: SingleChildScrollView(
@@ -259,7 +233,10 @@ class _UjianPageState extends State<UjianPage> {
                 ),
               ),
             ),
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: DynamicBottomNav(
+        currentIndex: 1,
+        user: widget.user,
+      ),
     );
   }
 
@@ -272,7 +249,7 @@ class _UjianPageState extends State<UjianPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -292,7 +269,7 @@ class _UjianPageState extends State<UjianPage> {
                   style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -300,7 +277,7 @@ class _UjianPageState extends State<UjianPage> {
                   _banner['subjudul'] ?? 'Baca soal dengan teliti dan jangan lupa berdoa ya!',
                   style: const TextStyle(
                     fontSize: 11.5,
-                    color: Color(0xFF64748B),
+                    color: AppColors.textSecondary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -314,10 +291,10 @@ class _UjianPageState extends State<UjianPage> {
             width: 52,
             height: 52,
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
+              color: AppColors.primaryLight,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: const Icon(Icons.psychology_outlined, color: Color(0xFF1D5A86), size: 28),
+            child: const Icon(Icons.psychology_outlined, color: AppColors.primary, size: 28),
           ),
         ],
       ),
@@ -331,7 +308,7 @@ class _UjianPageState extends State<UjianPage> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: const Color(0xFF1D5A86), // Deep blue container
+        color: AppColors.primary, // Deep blue container
         borderRadius: BorderRadius.circular(24),
       ),
       child: Row(
@@ -365,7 +342,7 @@ class _UjianPageState extends State<UjianPage> {
                     Icon(
                       Icons.description_outlined,
                       size: 15,
-                      color: _activeTab == 0 ? const Color(0xFF1D5A86) : Colors.white70,
+                      color: _activeTab == 0 ? AppColors.primary : Colors.white70,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -373,7 +350,7 @@ class _UjianPageState extends State<UjianPage> {
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
-                        color: _activeTab == 0 ? const Color(0xFF1D5A86) : Colors.white,
+                        color: _activeTab == 0 ? AppColors.primary : Colors.white,
                       ),
                     ),
                   ],
@@ -411,7 +388,7 @@ class _UjianPageState extends State<UjianPage> {
                     Icon(
                       Icons.check_circle_outline_rounded,
                       size: 15,
-                      color: _activeTab == 1 ? const Color(0xFF1D5A86) : Colors.white70,
+                      color: _activeTab == 1 ? AppColors.primary : Colors.white70,
                     ),
                     const SizedBox(width: 6),
                     Text(
@@ -419,7 +396,7 @@ class _UjianPageState extends State<UjianPage> {
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w700,
-                        color: _activeTab == 1 ? const Color(0xFF1D5A86) : Colors.white,
+                        color: _activeTab == 1 ? AppColors.primary : Colors.white,
                       ),
                     ),
                   ],
@@ -457,7 +434,7 @@ class _UjianPageState extends State<UjianPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -479,7 +456,7 @@ class _UjianPageState extends State<UjianPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                 decoration: BoxDecoration(
-                  color: isMatematika ? const Color(0xFFEFF6FF) : const Color(0xFFECFDF5),
+                  color: isMatematika ? AppColors.primaryLight : AppColors.successLight,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
@@ -488,7 +465,7 @@ class _UjianPageState extends State<UjianPage> {
                     Icon(
                       isMatematika ? Icons.calculate_outlined : Icons.eco_outlined,
                       size: 13,
-                      color: isMatematika ? const Color(0xFF1D5A86) : const Color(0xFF059669),
+                      color: isMatematika ? AppColors.primary : AppColors.success,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -496,7 +473,7 @@ class _UjianPageState extends State<UjianPage> {
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w800,
-                        color: isMatematika ? const Color(0xFF1D5A86) : const Color(0xFF059669),
+                        color: isMatematika ? AppColors.primary : AppColors.success,
                       ),
                     ),
                   ],
@@ -507,14 +484,14 @@ class _UjianPageState extends State<UjianPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                 decoration: BoxDecoration(
-                  color: canStart ? const Color(0xFFDCFCE7) : const Color(0xFFF1F5F9),
+                  color: canStart ? AppColors.successLight : AppColors.surfaceAlt,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (canStart) ...[
-                      const Icon(Icons.circle, size: 7, color: Color(0xFF16A34A)),
+                      const Icon(Icons.circle, size: 7, color: AppColors.success),
                       const SizedBox(width: 4),
                     ],
                     Text(
@@ -522,7 +499,7 @@ class _UjianPageState extends State<UjianPage> {
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
-                        color: canStart ? const Color(0xFF15803D) : const Color(0xFF64748B),
+                        color: canStart ? AppColors.success : AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -533,10 +510,10 @@ class _UjianPageState extends State<UjianPage> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                 decoration: BoxDecoration(
-                  color: canStart ? const Color(0xFFFFFBEB) : const Color(0xFFF8FAFC),
+                  color: canStart ? AppColors.warningLight : AppColors.background,
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: canStart ? const Color(0xFFFDE68A) : const Color(0xFFE2E8F0),
+                    color: canStart ? AppColors.accentBright : AppColors.border,
                     width: 0.8,
                   ),
                 ),
@@ -546,7 +523,7 @@ class _UjianPageState extends State<UjianPage> {
                     Icon(
                       Icons.calendar_today_outlined,
                       size: 11,
-                      color: canStart ? const Color(0xFFD97706) : const Color(0xFF64748B),
+                      color: canStart ? AppColors.accentDeep : AppColors.textSecondary,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -554,7 +531,7 @@ class _UjianPageState extends State<UjianPage> {
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
-                        color: canStart ? const Color(0xFFB45309) : const Color(0xFF64748B),
+                        color: canStart ? AppColors.accentDeep : AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -570,14 +547,14 @@ class _UjianPageState extends State<UjianPage> {
             style: const TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
             ),
           ),
           if (subJudul != null) ...[
             const SizedBox(height: 2),
             Text(
               subJudul,
-              style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+              style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
             ),
           ],
           const SizedBox(height: 4),
@@ -587,7 +564,7 @@ class _UjianPageState extends State<UjianPage> {
             '👤 Guru: $guru',
             style: const TextStyle(
               fontSize: 11.5,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -597,9 +574,9 @@ class _UjianPageState extends State<UjianPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8FAFC),
+              color: AppColors.background,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE2E8F0)),
+              border: Border.all(color: AppColors.border),
             ),
             child: Wrap(
               spacing: 8,
@@ -609,30 +586,30 @@ class _UjianPageState extends State<UjianPage> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.access_time_rounded, size: 14, color: Color(0xFF64748B)),
+                    const Icon(Icons.access_time_rounded, size: 14, color: AppColors.textSecondary),
                     const SizedBox(width: 4),
                     Text(
                       '$durasi Menit',
                       style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF475569),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
                 ),
-                const Text('•', style: TextStyle(color: Color(0xFFCBD5E1))),
+                const Text('•', style: TextStyle(color: AppColors.border)),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.format_list_bulleted_rounded, size: 14, color: Color(0xFF64748B)),
+                    const Icon(Icons.format_list_bulleted_rounded, size: 14, color: AppColors.textSecondary),
                     const SizedBox(width: 4),
                     Text(
                       '$totalSoal Soal $tipeSoal',
                       style: const TextStyle(
                         fontSize: 11.5,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF475569),
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
@@ -658,7 +635,7 @@ class _UjianPageState extends State<UjianPage> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1D5A86),
+                      backgroundColor: AppColors.primary,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -681,21 +658,21 @@ class _UjianPageState extends State<UjianPage> {
                 : OutlinedButton(
                     onPressed: null,
                     style: OutlinedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF1F5F9),
-                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      backgroundColor: AppColors.surfaceAlt,
+                      side: const BorderSide(color: AppColors.border),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.lock_outline_rounded, size: 14, color: Color(0xFF94A3B8)),
+                        const Icon(Icons.lock_outline_rounded, size: 14, color: AppColors.textMuted),
                         const SizedBox(width: 6),
                         Text(
                           tombolText,
                           style: const TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF94A3B8),
+                            color: AppColors.textMuted,
                           ),
                         ),
                       ],
@@ -719,10 +696,10 @@ class _UjianPageState extends State<UjianPage> {
     final bool isPublished = exam['is_published'] == true;
     final int? nilai = exam['nilai'];
     final String badgeNilai = isPublished ? '★ ${nilai ?? 0}' : 'Menunggu Nilai';
-    final Color badgeBgColor = isPublished ? const Color(0xFFF59E0B) : const Color(0xFFEFF6FF);
-    final Color badgeTextColor = isPublished ? Colors.white : const Color(0xFF1D5A86);
+    final Color badgeBgColor = isPublished ? AppColors.accent : AppColors.primaryLight;
+    final Color badgeTextColor = isPublished ? Colors.white : AppColors.primary;
     final IconData badgeIcon = isPublished ? Icons.star_rounded : Icons.hourglass_top_rounded;
-    final Border? badgeBorder = isPublished ? null : Border.all(color: const Color(0xFFBFDBFE));
+    final Border? badgeBorder = isPublished ? null : Border.all(color: AppColors.primaryLight);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -730,7 +707,7 @@ class _UjianPageState extends State<UjianPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -750,7 +727,7 @@ class _UjianPageState extends State<UjianPage> {
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF1D5A86),
+                    color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -759,13 +736,13 @@ class _UjianPageState extends State<UjianPage> {
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1E293B),
+                    color: AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   '$tanggal • $keterangan',
-                  style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+                  style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -827,7 +804,7 @@ class _UjianPageState extends State<UjianPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppColors.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -843,10 +820,10 @@ class _UjianPageState extends State<UjianPage> {
             width: 64,
             height: 64,
             decoration: const BoxDecoration(
-              color: Color(0xFFEFF6FF),
+              color: AppColors.primaryLight,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 32, color: const Color(0xFF1D5A86)),
+            child: Icon(icon, size: 32, color: AppColors.primary),
           ),
           const SizedBox(height: 16),
           Text(
@@ -854,7 +831,7 @@ class _UjianPageState extends State<UjianPage> {
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1E293B),
+              color: AppColors.textPrimary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -864,7 +841,7 @@ class _UjianPageState extends State<UjianPage> {
             textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 12.5,
-              color: Color(0xFF64748B),
+              color: AppColors.textSecondary,
               height: 1.4,
             ),
           ),
@@ -895,7 +872,7 @@ class _UjianPageState extends State<UjianPage> {
               style: TextStyle(
                 fontSize: 14.5,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF1E293B),
+                color: AppColors.textPrimary,
               ),
             ),
             TextButton(
@@ -907,7 +884,7 @@ class _UjianPageState extends State<UjianPage> {
                 style: TextStyle(
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
-                  color: Color(0xFF1D5A86),
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -930,7 +907,7 @@ class _UjianPageState extends State<UjianPage> {
           child: Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF1D5A86), // Deep blue
+              color: AppColors.primary, // Deep blue
               borderRadius: BorderRadius.circular(18),
             ),
             child: Row(
@@ -958,7 +935,7 @@ class _UjianPageState extends State<UjianPage> {
                         style: const TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF93C5FD), // Light pastel blue
+                          color: AppColors.primaryLight, // Light pastel blue
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -987,7 +964,7 @@ class _UjianPageState extends State<UjianPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF59E0B),
+                    color: AppColors.accent,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -1021,9 +998,9 @@ class _UjianPageState extends State<UjianPage> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF), // Soft light blue
+        color: AppColors.primaryLight, // Soft light blue
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFDBEAFE)),
+        border: Border.all(color: AppColors.primaryLight),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1032,7 +1009,7 @@ class _UjianPageState extends State<UjianPage> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: const BoxDecoration(
-              color: Color(0xFFF59E0B),
+              color: AppColors.accent,
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.lightbulb_rounded, color: Colors.white, size: 20),
@@ -1048,7 +1025,7 @@ class _UjianPageState extends State<UjianPage> {
                   style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFF1D5A86),
+                    color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -1056,7 +1033,7 @@ class _UjianPageState extends State<UjianPage> {
                   _tips,
                   style: const TextStyle(
                     fontSize: 11.5,
-                    color: Color(0xFF334155),
+                    color: AppColors.textPrimary,
                     height: 1.4,
                   ),
                 ),
@@ -1064,94 +1041,6 @@ class _UjianPageState extends State<UjianPage> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // 6. BOTTOM NAVIGATION BAR
-  // ---------------------------------------------------------------------------
-  Widget _buildBottomNav() {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF1D5A86),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10,
-            offset: Offset(0, -2),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(0, Icons.home_rounded, 'Beranda'),
-          _buildNavItem(1, Icons.assignment_rounded, 'Ujian'),
-          _buildNavItem(2, Icons.menu_book_rounded, 'Mapel'),
-          _buildNavItem(3, Icons.calendar_today_rounded, 'Jadwal'),
-          _buildNavItem(4, Icons.person_rounded, 'Profil'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNavItem(int index, IconData icon, String label) {
-    final bool isSelected = (_bottomNavIndex == index);
-    final Color color = isSelected ? const Color(0xFFF59E0B) : Colors.white70;
-
-    return InkWell(
-      onTap: () {
-        if (index == _bottomNavIndex) return;
-
-        if (index == 0) {
-          // Balik ke Beranda
-          Navigator.pushReplacement(
-            context,
-            SmoothPageRoute(
-              page: DashboardPage(user: widget.user),
-              type: TransitionType.fadeThrough,
-            ),
-          );
-        } else if (index == 2) {
-          // Buka Mapel
-          Navigator.pushReplacement(
-            context,
-            SmoothPageRoute(
-              page: MapelPage(user: widget.user),
-              type: TransitionType.fadeThrough,
-            ),
-          );
-        } else if (index == 4) {
-          // Buka Profil
-          Navigator.pushReplacement(
-            context,
-            SmoothPageRoute(
-              page: ProfilePage(user: widget.user),
-              type: TransitionType.fadeThrough,
-            ),
-          );
-        }
-      },
-      borderRadius: BorderRadius.circular(16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: color, size: 24),
-            const SizedBox(height: 3),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -4,7 +4,7 @@
 
 @section('header_actions')
     <form method="GET" action="{{ route('guru.materi.index') }}" class="flex items-center gap-2">
-        <select name="mapel_id" onchange="this.form.submit()" class="px-4 h-10 bg-white border border-[#E6EBF2] rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-[#13527D]">
+        <select name="mapel_id" onchange="this.form.submit()" class="px-4 h-10 bg-white border border-line rounded-xl text-[12px] font-bold text-slate-700 focus:outline-none focus:border-primary">
             <option value="">-- Pilih Mata Pelajaran --</option>
             @foreach($mapels as $mapel)
                 <option value="{{ $mapel->id_mapel }}" {{ $selectedMapelId == $mapel->id_mapel ? 'selected' : '' }}>
@@ -26,7 +26,7 @@
     <!-- Action Bar -->
     <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold text-slate-800">Daftar Bab & Konten</h2>
-        <button onclick="openModal('modal-add-bab')" class="px-3 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-medium rounded-lg transition flex items-center gap-2">
+        <button onclick="openModal('modal-add-bab')" class="px-3 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-medium rounded-lg transition flex items-center gap-2">
             <i class="fas fa-plus"></i> Tambah Bab Baru
         </button>
     </div>
@@ -38,14 +38,14 @@
             <!-- Bab Header -->
             <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <span class="w-7 h-7 bg-[#13527D]/10 text-[#13527D] text-xs font-bold rounded-lg flex items-center justify-center">
+                    <span class="w-7 h-7 bg-primary/10 text-primary text-xs font-bold rounded-lg flex items-center justify-center">
                         {{ $babIndex + 1 }}
                     </span>
                     <h3 class="text-sm font-bold text-slate-800">{{ $bab->nama_bab }}</h3>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="openModalAddSubBab({{ $bab->id_bab }}, '{{ $bab->nama_bab }}')" class="px-2.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5">
-                        <i class="fas fa-plus text-[10px] text-[#13527D]"></i> Sub-Bab
+                        <i class="fas fa-plus text-[10px] text-primary"></i> Sub-Bab
                     </button>
                     <form action="{{ route('guru.materi.destroy.bab', $bab->id_bab) }}" method="POST" onsubmit="return confirm('Hapus Bab ini beserta seluruh materi di dalamnya?')">
                         @csrf
@@ -67,7 +67,7 @@
                             <h4 class="text-xs font-semibold text-slate-700">{{ $sub->nama_sub_bab }}</h4>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button onclick="openModalAddMateri({{ $sub->id_sub_bab }}, '{{ $sub->nama_sub_bab }}')" class="text-[11px] text-[#13527D] hover:underline font-medium flex items-center gap-1">
+                            <button onclick="openModalAddMateri({{ $sub->id_sub_bab }}, '{{ $sub->nama_sub_bab }}')" class="text-[11px] text-primary hover:underline font-medium flex items-center gap-1">
                                 <i class="fas fa-plus text-[9px]"></i> Tambah Materi
                             </button>
                             <form action="{{ route('guru.materi.destroy.sub-bab', $sub->id_sub_bab) }}" method="POST" onsubmit="return confirm('Hapus Sub-Bab ini?')">
@@ -109,7 +109,7 @@
                                     {{ $mat->tipe_materi }}
                                 </span>
                                 @if($mat->tipe_materi === 'video' && $mat->url_video)
-                                    <a href="{{ $mat->url_video }}" target="_blank" class="text-[#13527D] hover:underline flex items-center gap-1">
+                                    <a href="{{ $mat->url_video }}" target="_blank" class="text-primary hover:underline flex items-center gap-1">
                                         <i class="fas fa-external-link-alt text-[9px]"></i> Link
                                     </a>
                                 @elseif($mat->tipe_materi === 'dokumen' && $mat->file_pdf)
@@ -118,7 +118,7 @@
                                     </a>
                                 @elseif($mat->tipe_materi === 'kuis')
                                     @if($mat->id_quiz)
-                                    <a href="{{ route('guru.quiz.bank', $mat->id_quiz) }}" class="text-[#13527D] font-bold hover:underline flex items-center gap-1">
+                                    <a href="{{ route('guru.quiz.bank', $mat->id_quiz) }}" class="text-primary font-bold hover:underline flex items-center gap-1">
                                         <i class="fas fa-edit text-[9px]"></i> Kelola Bank Soal
                                     </a>
                                     @else
@@ -140,7 +140,7 @@
         @empty
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-8 text-center">
             <p class="text-xs text-slate-500 mb-3">Belum ada Bab pada Mata Pelajaran ini.</p>
-            <button onclick="openModal('modal-add-bab')" class="px-3 py-2 bg-[#13527D] text-white text-xs font-medium rounded-lg">
+            <button onclick="openModal('modal-add-bab')" class="px-3 py-2 bg-primary text-white text-xs font-medium rounded-lg">
                 <i class="fas fa-plus"></i> Tambah Bab Pertama
             </button>
         </div>
@@ -161,15 +161,15 @@
             <input type="hidden" name="id_mapel" value="{{ $selectedMapelId }}">
             <div>
                 <label class="block font-semibold text-slate-700 mb-1">Nama Bab <span class="text-rose-500">*</span></label>
-                <input type="text" name="nama_bab" id="index-nama-bab" required maxlength="100" placeholder="Contoh: Bab 1 Operasi Hitung" oninput="sanitizeIndexInput(this, 'counter-index-bab')" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]">
+                <input type="text" name="nama_bab" id="index-nama-bab" required maxlength="100" placeholder="Contoh: Bab 1 Operasi Hitung" oninput="sanitizeIndexInput(this, 'counter-index-bab')" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary">
                 <div class="flex items-center justify-between mt-1 text-[10px]">
-                    <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
+                    <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-primary"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
                     <span id="counter-index-bab" class="font-bold text-slate-600">0/100</span>
                 </div>
             </div>
             <div class="flex justify-end gap-2">
                 <button type="button" onclick="closeModal('modal-add-bab')" class="px-3 py-2 border border-slate-200 text-slate-600 rounded-lg">Batal</button>
-                <button type="submit" class="px-3 py-2 bg-[#13527D] text-white font-semibold rounded-lg">Simpan Bab</button>
+                <button type="submit" class="px-3 py-2 bg-primary text-white font-semibold rounded-lg">Simpan Bab</button>
             </div>
         </form>
     </div>
@@ -187,15 +187,15 @@
             <input type="hidden" id="subbab-id-bab" name="id_bab">
             <div>
                 <label class="block font-semibold text-slate-700 mb-1">Nama Sub-Bab <span class="text-rose-500">*</span></label>
-                <input type="text" name="nama_sub_bab" id="index-nama-subbab" required maxlength="100" placeholder="Contoh: Sub Bab 1 Penjumlahan" oninput="sanitizeIndexInput(this, 'counter-index-subbab')" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]">
+                <input type="text" name="nama_sub_bab" id="index-nama-subbab" required maxlength="100" placeholder="Contoh: Sub Bab 1 Penjumlahan" oninput="sanitizeIndexInput(this, 'counter-index-subbab')" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary">
                 <div class="flex items-center justify-between mt-1 text-[10px]">
-                    <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
+                    <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-primary"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
                     <span id="counter-index-subbab" class="font-bold text-slate-600">0/100</span>
                 </div>
             </div>
             <div class="flex justify-end gap-2">
                 <button type="button" onclick="closeModal('modal-add-subbab')" class="px-3 py-2 border border-slate-200 text-slate-600 rounded-lg">Batal</button>
-                <button type="submit" class="px-3 py-2 bg-[#13527D] text-white font-semibold rounded-lg">Simpan Sub-Bab</button>
+                <button type="submit" class="px-3 py-2 bg-primary text-white font-semibold rounded-lg">Simpan Sub-Bab</button>
             </div>
         </form>
     </div>
@@ -213,15 +213,15 @@
             <input type="hidden" id="materi-id-subbab" name="id_sub_bab">
             <div>
                 <label class="block font-semibold text-slate-700 mb-1">Judul / Nama Materi (Video / PDF / Kuis) <span class="text-rose-500">*</span></label>
-                <input type="text" name="judul_materi" id="index-judul-materi" required maxlength="100" placeholder="Contoh: Video Penjelasan Perkalian" oninput="sanitizeIndexInput(this, 'counter-index-materi')" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]">
+                <input type="text" name="judul_materi" id="index-judul-materi" required maxlength="100" placeholder="Contoh: Video Penjelasan Perkalian" oninput="sanitizeIndexInput(this, 'counter-index-materi')" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary">
                 <div class="flex items-center justify-between mt-1 text-[10px]">
-                    <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
+                    <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-primary"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
                     <span id="counter-index-materi" class="font-bold text-slate-600">0/100</span>
                 </div>
             </div>
             <div>
                 <label class="block font-semibold text-slate-700 mb-1">Tipe Konten Materi</label>
-                <select id="tipe_materi_select" name="tipe_materi" onchange="toggleMateriFields()" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]">
+                <select id="tipe_materi_select" name="tipe_materi" onchange="toggleMateriFields()" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary">
                     <option value="video">Video (YouTube / MP4 URL)</option>
                     <option value="dokumen">Dokumen PDF (Max 10MB)</option>
                     <option value="kuis">Kuis Interaktif</option>
@@ -231,7 +231,7 @@
             <!-- Field Video -->
             <div id="field-video" class="space-y-1">
                 <label class="block font-semibold text-slate-700">URL Link Video / Kode Embed (YouTube / MP4) <span class="text-rose-500">*</span></label>
-                <input type="text" name="url_video" id="index-url-video" onblur="validateIndexVideoUrl(this)" oninput="validateIndexVideoUrl(this, true)" placeholder="https://www.youtube.com/watch?v=... atau tempelkan kode embed <iframe>" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]">
+                <input type="text" name="url_video" id="index-url-video" onblur="validateIndexVideoUrl(this)" oninput="validateIndexVideoUrl(this, true)" placeholder="https://www.youtube.com/watch?v=... atau tempelkan kode embed <iframe>" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary">
                 <p class="text-[10px] text-amber-700 font-semibold"><i class="fas fa-triangle-exclamation mr-1"></i>Hanya menerima link YouTube atau file .mp4. Kode embed <code>&lt;iframe&gt;</code> akan otomatis dibersihkan dan disesuaikan sistem.</p>
             </div>
 
@@ -245,20 +245,20 @@
             <div id="field-kuis" class="p-3 bg-emerald-50/60 border border-emerald-200 rounded-lg text-emerald-800 text-[11px] hidden space-y-2">
                 <div class="flex items-center justify-between">
                     <span class="font-bold"><i class="fas fa-circle-question mr-1"></i> Bank Soal Kuis</span>
-                    <a href="{{ route('guru.quiz.template.download') }}" class="text-[11px] font-bold text-[#13527D] hover:underline">
+                    <a href="{{ route('guru.quiz.template.download') }}" class="text-[11px] font-bold text-primary hover:underline">
                         <i class="fas fa-download mr-0.5"></i> Unduh Template Excel (.xlsx)
                     </a>
                 </div>
                 <div>
                     <label class="block font-medium text-slate-700 mb-1">Unggah Soal File Excel / CSV (.xlsx / .xls / .csv) (Opsional):</label>
-                    <input type="file" name="file_excel" id="index-file-excel" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" onchange="validateIndexExcel(this)" class="w-full px-3 py-1.5 bg-white border border-emerald-300 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                    <input type="file" name="file_excel" id="index-file-excel" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" onchange="validateIndexExcel(this)" class="w-full px-3 py-1.5 bg-white border border-emerald-300 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-primary">
                     <p class="text-[10px] text-slate-500 mt-1">Hanya menerima format spreadsheet Excel (.xlsx, .xls) atau CSV (.csv). Format selain Excel/CSV ditolak.</p>
                 </div>
             </div>
 
             <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <button type="button" onclick="closeModal('modal-add-materi')" class="px-3 py-2 border border-slate-200 text-slate-600 rounded-lg">Batal</button>
-                <button type="submit" class="px-3 py-2 bg-[#13527D] text-white font-semibold rounded-lg">Simpan Materi</button>
+                <button type="submit" class="px-3 py-2 bg-primary text-white font-semibold rounded-lg">Simpan Materi</button>
             </div>
         </form>
     </div>

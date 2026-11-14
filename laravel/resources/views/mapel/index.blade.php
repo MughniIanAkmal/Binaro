@@ -10,7 +10,7 @@
     <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
         <i class="fas fa-download"></i> Export
     </button>
-    <button onclick="openCreateModal()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition" style="background: var(--binaro-navy);">
+    <button onclick="openCreateModal()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary" >
         <i class="fas fa-plus"></i> Tambah Mapel
     </button>
 @endsection
@@ -27,7 +27,7 @@
                 <div class="text-xs text-slate-600 font-semibold mt-1">Total Mata Pelajaran</div>
                 <div class="text-[11px] text-slate-400">Terdaftar di sistem</div>
             </div>
-            <div class="w-10 h-10 rounded-full bg-[#13527D] text-white flex items-center justify-center text-sm">
+            <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center text-sm">
                 <i class="fas fa-book-open"></i>
             </div>
         </div>
@@ -41,9 +41,9 @@
                 <div class="relative flex-1 max-w-xs">
                     <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                     <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama mata pelajaran..."
-                           class="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D]">
+                           class="w-full pl-8 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:border-primary">
                 </div>
-                <button type="submit" class="px-3 py-2 bg-[#13527D] text-white rounded-lg text-xs font-semibold hover:bg-[#0E3D5D] transition">
+                <button type="submit" class="px-3 py-2 bg-primary text-white rounded-lg text-xs font-semibold hover:bg-primary-hover transition">
                     Cari
                 </button>
                 @if($search)
@@ -71,7 +71,7 @@
                         <td class="p-3.5 pl-6 text-slate-400 font-semibold">{{ $mapelList->firstItem() + $i }}</td>
                         <td class="p-3.5">
                             <div class="flex items-center gap-2">
-                                <div class="w-7 h-7 rounded-full bg-[#13527D]/10 text-[#13527D] flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+                                <div class="w-7 h-7 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px] font-bold flex-shrink-0">
                                     <i class="fas fa-book-open"></i>
                                 </div>
                                 <span class="font-bold text-slate-900">{{ $mapel->nama_mapel }}</span>
@@ -84,7 +84,7 @@
                             <div class="inline-flex items-center gap-1.5">
                                 <a href="{{ route('guru.bab.index', $mapel->id_mapel) }}"
                                    title="Kelola Bab & Materi Pembelajaran"
-                                   class="px-2.5 py-1 rounded-lg border border-[#13527D]/30 text-[#13527D] hover:bg-sky-50 flex items-center gap-1 text-[11px] font-bold transition">
+                                   class="px-2.5 py-1 rounded-lg border border-primary/30 text-primary hover:bg-sky-50 flex items-center gap-1 text-[11px] font-bold transition">
                                     <i class="fas fa-layer-group text-[10px]"></i>
                                     <span>Kelola Bab</span>
                                 </a>
@@ -140,7 +140,7 @@
                 <input type="text" name="nama_mapel" required maxlength="100"
                        oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\&\-\(\)\/\.]/g, '');"
                        placeholder="Contoh: Matematika, Bahasa Indonesia, IPA..."
-                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition">
+                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition">
                 <span class="text-[10px] text-slate-400 mt-0.5 block">Maksimal 100 karakter (huruf, angka, spasi, simbol & - ( ) / .).</span>
             </div>
             <div>
@@ -149,7 +149,7 @@
                 </label>
                 <textarea name="deskripsi" rows="3" maxlength="1000"
                           placeholder="Tuliskan deskripsi singkat mengenai cakupan materi atau tujuan mapel (maksimal 1000 karakter)..."
-                          class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition"></textarea>
+                          class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition"></textarea>
             </div>
             <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
                 <button type="button" onclick="closeCreateModal()"
@@ -157,7 +157,7 @@
                     Batal
                 </button>
                 <button type="submit"
-                        class="px-4 py-2 bg-[#13527D] text-white rounded-lg font-bold hover:bg-[#0E3D5D] transition">
+                        class="px-4 py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary-hover transition">
                     <i class="fas fa-save mr-1.5"></i> Simpan
                 </button>
             </div>
@@ -186,7 +186,7 @@
                 </label>
                 <input type="text" id="editNamaMapel" name="nama_mapel" required maxlength="100"
                        oninput="this.value = this.value.replace(/[^a-zA-Z0-9\s\&\-\(\)\/\.]/g, '');"
-                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition">
+                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition">
                 <span class="text-[10px] text-slate-400 mt-0.5 block">Maksimal 100 karakter.</span>
             </div>
             <div>
@@ -195,7 +195,7 @@
                 </label>
                 <textarea id="editDeskripsi" name="deskripsi" rows="3" maxlength="1000"
                           placeholder="Tuliskan deskripsi singkat mengenai cakupan materi atau tujuan mapel (maksimal 1000 karakter)..."
-                          class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-[#13527D] focus:ring-1 focus:ring-[#13527D]/20 transition"></textarea>
+                          class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 transition"></textarea>
             </div>
             <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
                 <button type="button" onclick="closeEditModal()"
@@ -203,7 +203,7 @@
                     Batal
                 </button>
                 <button type="submit"
-                        class="px-4 py-2 bg-amber-500 text-white rounded-lg font-bold hover:bg-amber-600 transition">
+                        class="px-4 py-2 bg-amber-500 text-white rounded-lg font-bold hover:bg-accent-deep transition">
                     <i class="fas fa-save mr-1.5"></i> Perbarui
                 </button>
             </div>

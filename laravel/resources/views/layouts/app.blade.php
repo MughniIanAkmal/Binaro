@@ -5,24 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Panel Admin - Binaro' }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root {
-            --binaro-navy: #13527D;
-            --binaro-navy-soft: #1E5D88;
-            --binaro-line: #E6EBF2;
-            --binaro-canvas: #F8FAFC;
-        }
         body { font-family: 'Plus Jakarta Sans', 'Instrument Sans', sans-serif; background-color: #F8FAFC; }
-        .sidebar-brand-bg { background-color: #13527D; }
-        .active-menu-pill { background-color: #13527D; color: #ffffff; }
+        .sidebar-brand-bg { background-color: var(--color-primary); }
+        .active-menu-pill { background-color: var(--color-primary); color: #ffffff; }
     </style>
 </head>
-<body class="text-slate-800 flex min-h-screen bg-[#F8FAFC]">
+<body class="text-slate-800 flex min-h-screen bg-canvas">
 
     <!-- Sidebar 64 (256px) Fixed Left: Desain identik dengan Portal Guru -->
     <aside class="w-64 bg-white border-r border-slate-200/90 text-slate-800 flex flex-col fixed h-screen z-20 shadow-sm">
@@ -126,11 +120,11 @@
                 </div>
             </div>
 
-            <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar portal?')">
+            <form action="{{ route('logout') }}" method="POST" onsubmit="return confirm('Yakin ingin keluar?')">
                 @csrf
                 <button type="submit" class="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/80 font-bold text-xs transition">
                     <i class="fas fa-arrow-right-from-bracket text-xs"></i>
-                    <span>Keluar Portal</span>
+                    <span>Keluar</span>
                 </button>
             </form>
         </div>
@@ -152,7 +146,7 @@
                     @else
                         <span class="shrink-0 hidden md:inline">{{ config('binaro.nama_sekolah') }}</span>
                         <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0 hidden md:inline"></i>
-                        <a href="{{ route('admin.dashboard') }}" class="font-bold text-[#13527D] hover:underline shrink-0">Panel Admin</a>
+                        <a href="{{ route('admin.dashboard') }}" class="font-bold text-primary hover:underline shrink-0">Panel Admin</a>
                         @if(View::hasSection('page_title'))
                         <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
                         <span class="text-slate-500 truncate">@yield('page_title')</span>
@@ -172,7 +166,7 @@
                 <div class="relative w-44 md:w-56 hidden sm:block">
                     <i class="fas fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
                     <input type="text" placeholder="Cari guru, siswa, jadwal..."
-                           class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-slate-700 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#13527D] transition">
+                           class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-slate-700 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary transition">
                 </div>
 
                 <!-- Semester Badge -->
@@ -196,33 +190,15 @@
 
         <!-- Flash Alerts -->
         @if(session('success'))
-        <div class="mx-8 mt-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-2.5">
-                <i class="fas fa-check-circle text-emerald-600 text-base"></i>
-                <span class="font-semibold">{{ session('success') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700"><i class="fas fa-times"></i></button>
-        </div>
+        <x-alert type="success" class="mx-8 mt-5">{{ session('success') }}</x-alert>
         @endif
 
         @if(session('error'))
-        <div class="mx-8 mt-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-2.5">
-                <i class="fas fa-circle-exclamation text-rose-600 text-base"></i>
-                <span class="font-semibold">{{ session('error') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700"><i class="fas fa-times"></i></button>
-        </div>
+        <x-alert type="error" class="mx-8 mt-5">{{ session('error') }}</x-alert>
         @endif
 
         @if(session('info'))
-        <div class="mx-8 mt-5 p-3.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-800 text-xs flex items-center justify-between shadow-sm">
-            <div class="flex items-center gap-2.5">
-                <i class="fas fa-circle-info text-sky-600 text-base"></i>
-                <span class="font-semibold">{{ session('info') }}</span>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-sky-500 hover:text-sky-700"><i class="fas fa-times"></i></button>
-        </div>
+        <x-alert type="info" class="mx-8 mt-5">{{ session('info') }}</x-alert>
         @endif
 
         @if(isset($errors) && $errors->any())

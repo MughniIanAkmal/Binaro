@@ -81,9 +81,9 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
     final int nomorBab = _babHeader['nomor'] ?? 1;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1D5A86),
+        backgroundColor: AppColors.primary,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
@@ -98,30 +98,6 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
           ),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Stack(
-              alignment: Alignment.topRight,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.notifications_none_rounded, color: Colors.white, size: 26),
-                  onPressed: () {},
-                ),
-                Positioned(
-                  right: 12,
-                  top: 12,
-                  child: Container(
-                    width: 9,
-                    height: 9,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF59E0B),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.only(right: 16, left: 2),
             child: GestureDetector(
@@ -138,7 +114,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFC0C0C0),
+                  color: AppColors.border,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 2.2),
                 ),
@@ -148,10 +124,10 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF1D5A86)))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : RefreshIndicator(
               onRefresh: _fetchSubBabData,
-              color: const Color(0xFF1D5A86),
+              color: AppColors.primary,
               backgroundColor: Colors.white,
               displacement: 28,
               child: SingleChildScrollView(
@@ -173,7 +149,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF1E293B),
+                        color: AppColors.textPrimary,
                       ),
                     ),
 
@@ -187,7 +163,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          border: Border.all(color: AppColors.border),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.02),
@@ -203,13 +179,13 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                               width: 68,
                               height: 68,
                               decoration: const BoxDecoration(
-                                color: Color(0xFFEFF6FF),
+                                color: AppColors.primaryLight,
                                 shape: BoxShape.circle,
                               ),
                               child: const Icon(
                                 Icons.layers_clear_outlined,
                                 size: 34,
-                                color: Color(0xFF1D5A86),
+                                color: AppColors.primary,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -218,7 +194,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w800,
-                                color: Color(0xFF1E293B),
+                                color: AppColors.textPrimary,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -228,7 +204,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 13,
-                                color: Color(0xFF64748B),
+                                color: AppColors.textSecondary,
                                 height: 1.4,
                               ),
                             ),
@@ -258,7 +234,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFF1D5A86),
+        color: AppColors.primary,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -275,7 +251,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: const Color(0xFFF59E0B),
+              color: AppColors.accent,
               borderRadius: BorderRadius.circular(14),
             ),
             child: Center(
@@ -301,7 +277,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                   style: const TextStyle(
                     fontSize: 10.5,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFFBBF24),
+                    color: AppColors.accentBright,
                     letterSpacing: 0.5,
                   ),
                 ),
@@ -346,10 +322,10 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
     final String tipeIcon = subBab['tipe_icon'] ?? 'fraction';
 
     // Warna Card & Tombol Buka
-    final Color borderColor = isActive ? const Color(0xFFF59E0B) : const Color(0xFF1D5A86);
+    final Color borderColor = isActive ? AppColors.accent : AppColors.primary;
     final Color btnColor = isActive
-        ? const Color(0xFFF59E0B)
-        : (nomor % 2 == 1 ? const Color(0xFF1D5A86) : const Color(0xFFF59E0B));
+        ? AppColors.accent
+        : (nomor % 2 == 1 ? AppColors.primary : AppColors.accent);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -380,15 +356,15 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                   height: 44,
                   decoration: BoxDecoration(
                     color: isActive
-                        ? const Color(0xFFF59E0B)
-                        : (isLocked ? const Color(0xFFF1F5F9) : const Color(0xFFEFF6FF)),
+                        ? AppColors.accent
+                        : (isLocked ? AppColors.surfaceAlt : AppColors.primaryLight),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
                     _getSubBabIcon(tipeIcon),
                     color: isActive
                         ? Colors.white
-                        : (isLocked ? const Color(0xFF94A3B8) : const Color(0xFF1D5A86)),
+                        : (isLocked ? AppColors.textMuted : AppColors.primary),
                     size: 22,
                   ),
                 ),
@@ -404,7 +380,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
-                          color: isActive ? const Color(0xFFF59E0B) : const Color(0xFF64748B),
+                          color: isActive ? AppColors.accent : AppColors.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -413,7 +389,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                         style: TextStyle(
                           fontSize: 14.5,
                           fontWeight: FontWeight.w800,
-                          color: isLocked ? const Color(0xFF94A3B8) : const Color(0xFF1E293B),
+                          color: isLocked ? AppColors.textMuted : AppColors.textPrimary,
                         ),
                       ),
                       if (deskripsi != null) ...[
@@ -422,7 +398,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                           deskripsi,
                           style: const TextStyle(
                             fontSize: 11.5,
-                            color: Color(0xFF64748B),
+                            color: AppColors.textSecondary,
                             fontStyle: FontStyle.italic,
                           ),
                         ),
@@ -436,7 +412,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                 if (isLocked)
                   const Padding(
                     padding: EdgeInsets.only(right: 6),
-                    child: Icon(Icons.lock_outline_rounded, color: Color(0xFF94A3B8), size: 22),
+                    child: Icon(Icons.lock_outline_rounded, color: AppColors.textMuted, size: 22),
                   )
                 else
                   InkWell(

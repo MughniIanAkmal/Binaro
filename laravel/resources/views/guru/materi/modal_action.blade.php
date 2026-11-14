@@ -2,7 +2,7 @@
 <div id="modal-learning-action" style="display: none;" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
         <!-- Modal Header with Mode Tabs -->
-        <div class="bg-[#13527D] text-white p-5 flex items-center justify-between shrink-0">
+        <div class="bg-primary text-white p-5 flex items-center justify-between shrink-0">
             <div>
                 <h3 class="text-base font-bold flex items-center gap-2" id="modal-action-title">
                     <i class="fas fa-layer-group text-sky-300"></i> Kelola Materi & Silabus
@@ -13,8 +13,8 @@
             </div>
             <div class="flex items-center gap-3">
                 <!-- Mode Switcher -->
-                <div id="modal-mode-switcher" class="bg-[#0E3D5D] p-1 rounded-xl flex items-center text-xs">
-                    <button type="button" id="tab-btn-tambah" onclick="switchActionTab('tambah')" class="px-3 py-1.5 rounded-lg font-bold bg-white text-[#13527D] shadow-sm transition">
+                <div id="modal-mode-switcher" class="bg-primary-hover p-1 rounded-xl flex items-center text-xs">
+                    <button type="button" id="tab-btn-tambah" onclick="switchActionTab('tambah')" class="px-3 py-1.5 rounded-lg font-bold bg-white text-primary shadow-sm transition">
                         <i class="fas fa-plus mr-1"></i> Tambah
                     </button>
                     <button type="button" id="tab-btn-edit" onclick="switchActionTab('edit')" class="px-3 py-1.5 rounded-lg font-semibold text-white/80 hover:text-white transition">
@@ -36,15 +36,15 @@
                 <div id="wrapper-target-selector">
                     <label class="block text-xs font-bold text-slate-700 mb-2">Pilih Target yang Ingin Ditambahkan:</label>
                     <div class="grid grid-cols-3 gap-2">
-                        <button type="button" onclick="setTambahTarget('bab')" id="target-btn-bab" class="py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-[#13527D] transition text-center flex flex-col items-center gap-1">
-                            <i class="fas fa-folder text-base text-[#13527D]"></i>
+                        <button type="button" onclick="setTambahTarget('bab')" id="target-btn-bab" class="py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-primary transition text-center flex flex-col items-center gap-1">
+                            <i class="fas fa-folder text-base text-primary"></i>
                             <span>1. Bab Baru</span>
                         </button>
-                        <button type="button" onclick="setTambahTarget('sub_bab')" id="target-btn-sub_bab" class="py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-[#13527D] transition text-center flex flex-col items-center gap-1">
+                        <button type="button" onclick="setTambahTarget('sub_bab')" id="target-btn-sub_bab" class="py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-primary transition text-center flex flex-col items-center gap-1">
                             <i class="fas fa-folder-tree text-base text-sky-600"></i>
                             <span>2. Sub-Bab</span>
                         </button>
-                        <button type="button" onclick="setTambahTarget('materi')" id="target-btn-materi" class="py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-[#13527D] transition text-center flex flex-col items-center gap-1">
+                        <button type="button" onclick="setTambahTarget('materi')" id="target-btn-materi" class="py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-primary transition text-center flex flex-col items-center gap-1">
                             <i class="fas fa-file-circle-plus text-base text-emerald-600"></i>
                             <span>3. Konten Materi</span>
                         </button>
@@ -58,7 +58,7 @@
                     <!-- Dropdown Bebas Mapel -->
                     <div id="wrapper-tambah-bab-mapel-select">
                         <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran <span class="text-rose-500">*</span></label>
-                        <select name="id_mapel" id="tambah-bab-mapel" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <select name="id_mapel" id="tambah-bab-mapel" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                             <option value="">-- Pilih Mata Pelajaran --</option>
                             @foreach(\App\Models\MataPelajaran::all() as $m)
                                 <option value="{{ $m->id_mapel }}">{{ $m->nama_mapel }}</option>
@@ -69,7 +69,7 @@
                     <!-- Badge Info Terkunci Mapel -->
                     <div id="wrapper-tambah-bab-mapel-locked" class="hidden p-3.5 bg-sky-50/70 border border-sky-200 rounded-xl flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center text-sm font-bold shrink-0">
+                            <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0">
                                 <i class="fas fa-book"></i>
                             </div>
                             <div>
@@ -85,14 +85,14 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Nama Bab <span class="text-rose-500">*</span></label>
-                        <input type="text" name="nama_bab" id="tambah-nama-bab" required maxlength="100" placeholder="Contoh: Bab 1 Operasi Hitung Bilangan Cacah" oninput="sanitizeInputAlphanumeric(this, 'counter-tambah-bab')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <input type="text" name="nama_bab" id="tambah-nama-bab" required maxlength="100" placeholder="Contoh: Bab 1 Operasi Hitung Bilangan Cacah" oninput="sanitizeInputAlphanumeric(this, 'counter-tambah-bab')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                         <div class="flex items-center justify-between mt-1 text-[10px]">
-                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
+                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-primary"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
                             <span id="counter-tambah-bab" class="font-bold text-slate-600">0/100</span>
                         </div>
                     </div>
                     <div class="flex justify-end pt-2">
-                        <button type="submit" class="px-5 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-xl shadow-sm transition">
+                        <button type="submit" class="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl shadow-sm transition">
                             Simpan Bab
                         </button>
                     </div>
@@ -106,7 +106,7 @@
                     <div id="wrapper-tambah-subbab-selects" class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Mata Pelajaran <span class="text-rose-500">*</span></label>
-                            <select id="tambah-subbab-mapel" onchange="loadBabsForSelect(this.value, 'tambah-subbab-bab')" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <select id="tambah-subbab-mapel" onchange="loadBabsForSelect(this.value, 'tambah-subbab-bab')" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                                 <option value="">-- Pilih Mata Pelajaran --</option>
                                 @foreach(\App\Models\MataPelajaran::all() as $m)
                                     <option value="{{ $m->id_mapel }}">{{ $m->nama_mapel }}</option>
@@ -115,7 +115,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Bab Induk <span class="text-rose-500">*</span></label>
-                            <select name="id_bab" id="tambah-subbab-bab" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <select name="id_bab" id="tambah-subbab-bab" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                                 <option value="">-- Pilih Mapel Terlebih Dahulu --</option>
                             </select>
                         </div>
@@ -124,7 +124,7 @@
                     <!-- Badge Info Terkunci Hierarki Sub-Bab -->
                     <div id="wrapper-tambah-subbab-locked" class="hidden p-3.5 bg-sky-50/70 border border-sky-200 rounded-xl flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center text-sm font-bold shrink-0">
+                            <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0">
                                 <i class="fas fa-folder-tree"></i>
                             </div>
                             <div>
@@ -132,7 +132,7 @@
                                 <div class="flex items-center gap-1.5 font-bold text-slate-800 text-xs">
                                     <span id="label-tambah-subbab-mapel">-</span>
                                     <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
-                                    <span id="label-tambah-subbab-bab" class="text-[#13527D]">-</span>
+                                    <span id="label-tambah-subbab-bab" class="text-primary">-</span>
                                 </div>
                             </div>
                         </div>
@@ -144,14 +144,14 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Nama Sub-Bab <span class="text-rose-500">*</span></label>
-                        <input type="text" name="nama_sub_bab" id="tambah-nama-subbab" required maxlength="100" placeholder="Contoh: Sub Bab A Penjumlahan Ribuan" oninput="sanitizeInputAlphanumeric(this, 'counter-tambah-subbab')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <input type="text" name="nama_sub_bab" id="tambah-nama-subbab" required maxlength="100" placeholder="Contoh: Sub Bab A Penjumlahan Ribuan" oninput="sanitizeInputAlphanumeric(this, 'counter-tambah-subbab')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                         <div class="flex items-center justify-between mt-1 text-[10px]">
-                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
+                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-primary"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
                             <span id="counter-tambah-subbab" class="font-bold text-slate-600">0/100</span>
                         </div>
                     </div>
                     <div class="flex justify-end pt-2">
-                        <button type="submit" class="px-5 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-xl shadow-sm transition">
+                        <button type="submit" class="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl shadow-sm transition">
                             Simpan Sub-Bab
                         </button>
                     </div>
@@ -165,7 +165,7 @@
                     <div id="wrapper-tambah-materi-selects" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-700 mb-1">1. Mapel <span class="text-rose-500">*</span></label>
-                            <select id="tambah-materi-mapel" onchange="loadBabsForSelect(this.value, 'tambah-materi-bab', 'tambah-materi-subbab')" required class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <select id="tambah-materi-mapel" onchange="loadBabsForSelect(this.value, 'tambah-materi-bab', 'tambah-materi-subbab')" required class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                                 <option value="">-- Mapel --</option>
                                 @foreach(\App\Models\MataPelajaran::all() as $m)
                                     <option value="{{ $m->id_mapel }}">{{ $m->nama_mapel }}</option>
@@ -174,13 +174,13 @@
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-700 mb-1">2. Bab <span class="text-rose-500">*</span></label>
-                            <select id="tambah-materi-bab" onchange="loadSubBabsForSelect(this.value, 'tambah-materi-subbab')" required class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <select id="tambah-materi-bab" onchange="loadSubBabsForSelect(this.value, 'tambah-materi-subbab')" required class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                                 <option value="">-- Pilih Mapel Dulu --</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-700 mb-1">3. Sub-Bab <span class="text-rose-500">*</span></label>
-                            <select name="id_sub_bab" id="tambah-materi-subbab" required class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <select name="id_sub_bab" id="tambah-materi-subbab" required class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                                 <option value="">-- Pilih Bab Dulu --</option>
                             </select>
                         </div>
@@ -189,7 +189,7 @@
                     <!-- Badge Info Terkunci Hierarki Materi -->
                     <div id="wrapper-tambah-materi-locked" class="hidden p-3.5 bg-sky-50/70 border border-sky-200 rounded-xl flex items-center justify-between text-xs">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-8 h-8 rounded-lg bg-[#13527D]/10 text-[#13527D] flex items-center justify-center text-sm font-bold shrink-0">
+                            <div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center text-sm font-bold shrink-0">
                                 <i class="fas fa-layer-group"></i>
                             </div>
                             <div>
@@ -199,7 +199,7 @@
                                     <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
                                     <span id="label-tambah-materi-bab">-</span>
                                     <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
-                                    <span id="label-tambah-materi-subbab" class="text-[#13527D]">-</span>
+                                    <span id="label-tambah-materi-subbab" class="text-primary">-</span>
                                 </div>
                             </div>
                         </div>
@@ -212,9 +212,9 @@
                     <!-- Judul Materi -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Judul / Nama Materi (Video / PDF / Kuis) <span class="text-rose-500">*</span></label>
-                        <input type="text" name="judul_materi" id="tambah-judul-materi" required maxlength="100" placeholder="Contoh: Video Penjelasan Nilai Tempat" oninput="sanitizeInputAlphanumeric(this, 'counter-tambah-materi')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <input type="text" name="judul_materi" id="tambah-judul-materi" required maxlength="100" placeholder="Contoh: Video Penjelasan Nilai Tempat" oninput="sanitizeInputAlphanumeric(this, 'counter-tambah-materi')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                         <div class="flex items-center justify-between mt-1 text-[10px]">
-                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
+                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-primary"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
                             <span id="counter-tambah-materi" class="font-bold text-slate-600">0/100</span>
                         </div>
                     </div>
@@ -224,15 +224,15 @@
                         <label class="block text-xs font-bold text-slate-700 mb-1">Tipe Konten Materi <span class="text-rose-500">*</span></label>
                         <div class="grid grid-cols-3 gap-2">
                             <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition">
-                                <input type="radio" name="tipe_materi" value="video" checked onchange="toggleTipeInput('tambah', 'video')" class="text-[#13527D] focus:ring-[#13527D]">
+                                <input type="radio" name="tipe_materi" value="video" checked onchange="toggleTipeInput('tambah', 'video')" class="text-primary focus:ring-primary">
                                 <span class="text-xs font-bold text-slate-700"><i class="fas fa-video text-sky-500 mr-1"></i> Video</span>
                             </label>
                             <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition">
-                                <input type="radio" name="tipe_materi" value="dokumen" onchange="toggleTipeInput('tambah', 'dokumen')" class="text-[#13527D] focus:ring-[#13527D]">
+                                <input type="radio" name="tipe_materi" value="dokumen" onchange="toggleTipeInput('tambah', 'dokumen')" class="text-primary focus:ring-primary">
                                 <span class="text-xs font-bold text-slate-700"><i class="fas fa-file-pdf text-rose-500 mr-1"></i> PDF</span>
                             </label>
                             <label class="flex items-center gap-2 p-3 rounded-xl border border-slate-200 cursor-pointer hover:bg-slate-50 transition">
-                                <input type="radio" name="tipe_materi" value="kuis" onchange="toggleTipeInput('tambah', 'kuis')" class="text-[#13527D] focus:ring-[#13527D]">
+                                <input type="radio" name="tipe_materi" value="kuis" onchange="toggleTipeInput('tambah', 'kuis')" class="text-primary focus:ring-primary">
                                 <span class="text-xs font-bold text-slate-700"><i class="fas fa-circle-question text-emerald-500 mr-1"></i> Kuis</span>
                             </label>
                         </div>
@@ -241,7 +241,7 @@
                     <!-- Tipe Form Input: Video -->
                     <div id="tambah-input-video" class="space-y-1.5">
                         <label class="block text-xs font-bold text-slate-700">Link URL Video / Kode Embed (YouTube & MP4) <span class="text-rose-500">*</span></label>
-                        <input type="text" name="url_video" id="tambah-url-video" onblur="validateVideoUrlInput(this)" oninput="validateVideoUrlInput(this, true)" placeholder="https://www.youtube.com/watch?v=... atau tempelkan kode embed <iframe>" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <input type="text" name="url_video" id="tambah-url-video" onblur="validateVideoUrlInput(this)" oninput="validateVideoUrlInput(this, true)" placeholder="https://www.youtube.com/watch?v=... atau tempelkan kode embed <iframe>" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                         <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] leading-relaxed flex items-start gap-2">
                             <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0"></i>
                             <span><strong>PENTING:</strong> Anda bisa langsung menempelkan tautan YouTube biasa ATAU kode embed <code>&lt;iframe&gt;</code>. Sistem akan otomatis membersihkannya agar video dapat diputar langsung di aplikasi siswa.</span>
@@ -251,7 +251,7 @@
                     <!-- Tipe Form Input: Dokumen PDF -->
                     <div id="tambah-input-dokumen" class="space-y-1 hidden">
                         <label class="block text-xs font-bold text-slate-700">Berkas Dokumen PDF <span class="text-rose-500">*</span></label>
-                        <input type="file" name="file_pdf" id="tambah-file-pdf" accept="application/pdf,.pdf" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <input type="file" name="file_pdf" id="tambah-file-pdf" accept="application/pdf,.pdf" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                         <p class="text-[10px] text-slate-400">Format wajib .pdf, batas ukuran maksimal 10 MB.</p>
                     </div>
 
@@ -261,13 +261,13 @@
                             <span class="text-xs font-bold text-emerald-800">
                                 <i class="fas fa-circle-info mr-1"></i> Bank Soal Kuis Otomatis
                             </span>
-                            <a href="{{ route('guru.quiz.template.download') }}" class="text-[11px] font-bold text-[#13527D] hover:underline flex items-center gap-1">
+                            <a href="{{ route('guru.quiz.template.download') }}" class="text-[11px] font-bold text-primary hover:underline flex items-center gap-1">
                                 <i class="fas fa-download"></i> Unduh Template Excel (.xlsx)
                             </a>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-slate-700 mb-1">Unggah Soal File Excel / CSV (.xlsx, .xls, .csv) (Opsional):</label>
-                            <input type="file" name="file_excel" id="tambah-file-excel" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" onchange="validateExcelFileOnly(this)" class="w-full px-3 py-2 bg-white border border-emerald-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <input type="file" name="file_excel" id="tambah-file-excel" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" onchange="validateExcelFileOnly(this)" class="w-full px-3 py-2 bg-white border border-emerald-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                             <p class="text-[10px] text-slate-500 mt-1">Menerima format spreadsheet Excel (.xlsx, .xls) atau CSV (.csv). File format lainnya tidak dapat diunggah.</p>
                         </div>
                     </div>
@@ -275,11 +275,11 @@
                     <!-- Deskripsi / Catatan Tambahan -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan / Catatan Materi (Opsional)</label>
-                        <textarea name="isi_materi" rows="2" placeholder="Petunjuk pengerjaan atau ringkasan..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]"></textarea>
+                        <textarea name="isi_materi" rows="2" placeholder="Petunjuk pengerjaan atau ringkasan..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary"></textarea>
                     </div>
 
                     <div class="flex justify-end pt-2">
-                        <button type="submit" class="px-5 py-2.5 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-xl shadow-sm transition">
+                        <button type="submit" class="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl shadow-sm transition">
                             Simpan Konten Materi
                         </button>
                     </div>
@@ -294,7 +294,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[11px] text-slate-500 mb-1">Pilih Mapel</label>
-                            <select id="edit-filter-mapel" onchange="loadBabsForSelect(this.value, 'edit-filter-bab', 'edit-filter-subbab', 'edit-filter-materi')" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <select id="edit-filter-mapel" onchange="loadBabsForSelect(this.value, 'edit-filter-bab', 'edit-filter-subbab', 'edit-filter-materi')" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                                 <option value="">-- Pilih Mapel --</option>
                                 @foreach(\App\Models\MataPelajaran::all() as $m)
                                     <option value="{{ $m->id_mapel }}">{{ $m->nama_mapel }}</option>
@@ -303,19 +303,19 @@
                         </div>
                         <div>
                             <label class="block text-[11px] text-slate-500 mb-1">Pilih Bab</label>
-                            <select id="edit-filter-bab" onchange="loadSubBabsForSelect(this.value, 'edit-filter-subbab', 'edit-filter-materi')" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <select id="edit-filter-bab" onchange="loadSubBabsForSelect(this.value, 'edit-filter-subbab', 'edit-filter-materi')" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                                 <option value="">-- Pilih Mapel Dahulu --</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-[11px] text-slate-500 mb-1">Pilih Sub-Bab</label>
-                            <select id="edit-filter-subbab" onchange="loadMaterisForSelect(this.value, 'edit-filter-materi')" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <select id="edit-filter-subbab" onchange="loadMaterisForSelect(this.value, 'edit-filter-materi')" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                                 <option value="">-- Pilih Bab Dahulu --</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-[11px] text-slate-500 mb-1">Pilih Materi Target</label>
-                            <select id="edit-filter-materi" onchange="fetchAndPopulateEditMateri(this.value)" class="w-full px-2.5 py-2 bg-white border border-[#13527D] rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-[#13527D]">
+                            <select id="edit-filter-materi" onchange="fetchAndPopulateEditMateri(this.value)" class="w-full px-2.5 py-2 bg-white border border-primary rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-1 focus:ring-primary">
                                 <option value="">-- Pilih Sub-Bab Dahulu --</option>
                             </select>
                         </div>
@@ -331,9 +331,9 @@
 
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Judul / Nama Materi (Video / PDF / Kuis) <span class="text-rose-500">*</span></label>
-                        <input type="text" name="judul_materi" id="edit-judul-materi" required maxlength="100" oninput="sanitizeInputAlphanumeric(this, 'counter-edit-materi')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <input type="text" name="judul_materi" id="edit-judul-materi" required maxlength="100" oninput="sanitizeInputAlphanumeric(this, 'counter-edit-materi')" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                         <div class="flex items-center justify-between mt-1 text-[10px]">
-                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-[#13527D]"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
+                            <span class="text-slate-500"><i class="fas fa-shield-halved mr-1 text-primary"></i>Hanya huruf, angka, dan spasi (tanpa simbol).</span>
                             <span id="counter-edit-materi" class="font-bold text-slate-600">0/100</span>
                         </div>
                     </div>
@@ -345,7 +345,7 @@
                             <span id="edit-current-video-url" class="truncate mr-2 font-mono text-[11px]">-</span>
                         </div>
                         <label class="block text-xs font-bold text-slate-700 mt-2">Ganti URL Video / Kode Embed (YouTube & MP4)</label>
-                        <input type="text" name="url_video" id="edit-new-video-url" onblur="validateVideoUrlInput(this)" oninput="validateVideoUrlInput(this, true)" placeholder="https://www.youtube.com/watch?v=... atau tempelkan kode embed <iframe>" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <input type="text" name="url_video" id="edit-new-video-url" onblur="validateVideoUrlInput(this)" oninput="validateVideoUrlInput(this, true)" placeholder="https://www.youtube.com/watch?v=... atau tempelkan kode embed <iframe>" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                         <div class="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] leading-relaxed flex items-start gap-2">
                             <i class="fas fa-triangle-exclamation text-amber-600 mt-0.5 shrink-0"></i>
                             <span>Hanya menerima link YouTube resmi atau file video langsung .mp4. Jika video YouTube dibatasi penyematannya oleh pemilik, siswa tetap dapat menonton melalui tombol <strong>Buka di YouTube</strong>. Link Google Drive dilarang.</span>
@@ -357,12 +357,12 @@
                         <label class="block text-xs font-bold text-slate-700">Berkas Dokumen PDF Saat Ini</label>
                         <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs flex items-center justify-between">
                             <span id="edit-current-pdf-name" class="text-slate-700 font-medium">PDF Terunggah</span>
-                            <a id="edit-current-pdf-link" href="#" target="_blank" class="text-xs font-bold text-[#13527D] hover:underline flex items-center gap-1">
+                            <a id="edit-current-pdf-link" href="#" target="_blank" class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
                                 <i class="fas fa-eye"></i> Lihat PDF
                             </a>
                         </div>
                         <label class="block text-xs font-bold text-slate-700 mt-2">Unggah PDF Pengganti (Opsional, Max 10MB)</label>
-                        <input type="file" name="file_pdf" accept="application/pdf,.pdf" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                        <input type="file" name="file_pdf" accept="application/pdf,.pdf" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                     </div>
 
                     <!-- Edit Kuis UI -->
@@ -371,7 +371,7 @@
                             <h5 class="text-xs font-bold text-emerald-800 mb-1">Informasi Kuis</h5>
                             <p class="text-xs text-slate-600" id="edit-current-quiz-info">Memuat data kuis...</p>
                             <div class="mt-3 flex gap-2">
-                                <a id="edit-btn-bank-soal" href="#" class="px-3 py-1.5 bg-[#13527D] text-white rounded-lg text-xs font-bold">
+                                <a id="edit-btn-bank-soal" href="#" class="px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold">
                                     <i class="fas fa-tasks mr-1"></i> Buka Bank Soal
                                 </a>
                                 <a href="{{ route('guru.quiz.template.download') }}" class="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-50">
@@ -382,7 +382,7 @@
 
                         <div>
                             <label class="block text-xs font-bold text-slate-700 mb-1">Timpa / Tambah Bank Soal dengan File Excel / CSV Baru:</label>
-                            <input type="file" name="file_excel" id="edit-file-excel" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" onchange="validateExcelFileOnly(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]">
+                            <input type="file" name="file_excel" id="edit-file-excel" accept=".xlsx, .xls, .csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, text/csv" onchange="validateExcelFileOnly(this)" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                             <p class="text-[10px] text-slate-400 mt-1">Menerima format spreadsheet Excel (.xlsx, .xls) atau CSV (.csv). Format file lainnya ditolak.</p>
                         </div>
                     </div>
@@ -390,7 +390,7 @@
                     <!-- Keterangan -->
                     <div>
                         <label class="block text-xs font-bold text-slate-700 mb-1">Keterangan / Deskripsi</label>
-                        <textarea name="isi_materi" id="edit-isi-materi" rows="2" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-[#13527D]"></textarea>
+                        <textarea name="isi_materi" id="edit-isi-materi" rows="2" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary"></textarea>
                     </div>
 
                     <div class="flex justify-between items-center pt-3 border-t border-slate-100">
@@ -399,7 +399,7 @@
                             <button type="button" onclick="closeModalAction()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
                                 Batal
                             </button>
-                            <button type="submit" class="px-5 py-2 bg-[#13527D] hover:bg-[#0E3D5D] text-white text-xs font-bold rounded-xl shadow-sm transition">
+                            <button type="submit" class="px-5 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl shadow-sm transition">
                                 Simpan Perubahan Materi
                             </button>
                         </div>
@@ -656,13 +656,13 @@
         if (tab === 'tambah') {
             tabTambah.classList.remove('hidden');
             tabEdit.classList.add('hidden');
-            btnTambah.className = 'px-3 py-1.5 rounded-lg font-bold bg-white text-[#13527D] shadow-sm transition';
+            btnTambah.className = 'px-3 py-1.5 rounded-lg font-bold bg-white text-primary shadow-sm transition';
             btnEdit.className = 'px-3 py-1.5 rounded-lg font-semibold text-white/80 hover:text-white transition';
             document.getElementById('modal-action-title').innerHTML = '<i class="fas fa-layer-group text-sky-300"></i> Tambah Bab / Materi Baru';
         } else {
             tabTambah.classList.add('hidden');
             tabEdit.classList.remove('hidden');
-            btnEdit.className = 'px-3 py-1.5 rounded-lg font-bold bg-white text-[#13527D] shadow-sm transition';
+            btnEdit.className = 'px-3 py-1.5 rounded-lg font-bold bg-white text-primary shadow-sm transition';
             btnTambah.className = 'px-3 py-1.5 rounded-lg font-semibold text-white/80 hover:text-white transition';
             document.getElementById('modal-action-title').innerHTML = '<i class="fas fa-pen-to-square text-sky-300"></i> Edit Materi Eksisting';
         }
@@ -677,10 +677,10 @@
             const btn = document.getElementById('target-btn-' + t);
             if (t === target) {
                 form.classList.remove('hidden');
-                btn.className = 'py-2.5 px-3 rounded-xl border-2 border-[#13527D] bg-sky-50/50 text-xs font-bold text-[#13527D] shadow-sm text-center flex flex-col items-center gap-1';
+                btn.className = 'py-2.5 px-3 rounded-xl border-2 border-primary bg-sky-50/50 text-xs font-bold text-primary shadow-sm text-center flex flex-col items-center gap-1';
             } else {
                 form.classList.add('hidden');
-                btn.className = 'py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-[#13527D] transition text-center flex flex-col items-center gap-1';
+                btn.className = 'py-2.5 px-3 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-primary transition text-center flex flex-col items-center gap-1';
             }
         });
     }

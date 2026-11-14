@@ -9,8 +9,8 @@
         <i class="fas fa-file-excel text-[11px]"></i> Export Excel
     </button>
     <button onclick="window.print()"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition"
-            style="background: var(--binaro-navy);">
+            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+            >
         <i class="fas fa-file-pdf text-[11px]"></i> Export PDF
     </button>
 @endsection
@@ -182,7 +182,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="p-8 text-center text-slate-400">Tidak ada data absensi ditemukan.</td>
+                        <td colspan="9" class="p-2"><x-empty-state icon="fa-inbox" title="Tidak ada data absensi ditemukan." /></td>
                     </tr>
                     @endforelse
                 </tbody>
