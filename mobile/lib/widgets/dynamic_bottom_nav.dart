@@ -1,4 +1,3 @@
-import '../utils/constants.dart';
 import 'package:flutter/material.dart';
 import '../screens/dashboard_page.dart';
 import '../screens/mapel_page.dart';
@@ -21,10 +20,10 @@ class NavItem {
   });
 }
 
-/// Dynamic Center Spotlight Bottom Navigation Bar
-/// Menampilkan halaman aktif selalu di posisi TENGAH dengan tombol melayang (Hero Elevated)
-/// yang menonjol dan berganti dinamis seiring halaman yang dikunjungi.
-class DynamicBottomNav extends StatefulWidget {
+/// Bottom navigation baku Binaro: lima tombol dengan posisi tetap.
+/// Halaman aktif ditandai warna kuning (aksen) di tempatnya — tanpa
+/// perpindahan posisi (revisi UI: spotlight tengah dihapus).
+class DynamicBottomNav extends StatelessWidget {
   final int currentIndex;
   final Map<String, dynamic>? user;
   final ValueChanged<int>? onNavTap;
@@ -35,14 +34,6 @@ class DynamicBottomNav extends StatefulWidget {
     this.user,
     this.onNavTap,
   });
-
-  @override
-  State<DynamicBottomNav> createState() => _DynamicBottomNavState();
-}
-
-class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late Animation<double> _pulseAnimation;
 
   static const List<NavItem> _allNavItems = [
     NavItem(
@@ -77,38 +68,19 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
     ),
   ];
 
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1600),
-    )..repeat(reverse: true);
-
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    super.dispose();
-  }
-
-  void _handleNavigation(int targetIndex) {
-    if (widget.onNavTap != null) {
-      widget.onNavTap!(targetIndex);
+  void _handleNavigation(BuildContext context, int targetIndex) {
+    if (onNavTap != null) {
+      onNavTap!(targetIndex);
       return;
     }
 
-    if (targetIndex == widget.currentIndex) return;
+    if (targetIndex == currentIndex) return;
 
     if (targetIndex == 0) {
       Navigator.pushReplacement(
         context,
         SmoothPageRoute(
-          page: DashboardPage(user: widget.user),
+          page: DashboardPage(user: user),
           type: TransitionType.fadeThrough,
         ),
       );
@@ -116,7 +88,7 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
       Navigator.pushReplacement(
         context,
         SmoothPageRoute(
-          page: UjianPage(user: widget.user),
+          page: UjianPage(user: user),
           type: TransitionType.fadeThrough,
         ),
       );
@@ -124,7 +96,7 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
       Navigator.pushReplacement(
         context,
         SmoothPageRoute(
-          page: MapelPage(user: widget.user),
+          page: MapelPage(user: user),
           type: TransitionType.fadeThrough,
         ),
       );
@@ -136,13 +108,15 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
             children: [
               Icon(Icons.calendar_month_rounded, color: Colors.white, size: 20),
               SizedBox(width: 10),
-              Text(
-                'Fitur Jadwal Pelajaran segera hadir!',
-                style: TextStyle(fontWeight: FontWeight.w600),
+              Expanded(
+                child: Text(
+                  'Fitur Jadwal Pelajaran segera hadir!',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
               ),
             ],
           ),
-          backgroundColor: AppColors.primary,
+          backgroundColor: const Color(0xFF13527D),
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           duration: const Duration(seconds: 2),
@@ -152,7 +126,7 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
       Navigator.pushReplacement(
         context,
         SmoothPageRoute(
-          page: ProfilePage(user: widget.user),
+          page: ProfilePage(user: user),
           type: TransitionType.fadeThrough,
         ),
       );
@@ -163,95 +137,93 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
   Widget build(BuildContext context) {
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
-    // Item aktif saat ini
-    final activeItem = _allNavItems.firstWhere(
-      (item) => item.index == widget.currentIndex,
-      orElse: () => _allNavItems[0],
-    );
-
-    // 4 Item lainnya yang tidak aktif
-    final remainingItems = _allNavItems.where((item) => item.index != widget.currentIndex).toList();
-    final leftItems = remainingItems.take(2).toList();
-    final rightItems = remainingItems.skip(2).take(2).toList();
-
-    return Stack(
-      clipBehavior: Clip.none,
-      alignment: Alignment.bottomCenter,
-      children: [
-        // Bilah Navigasi Dasar
-        Container(
-          height: 64 + bottomPadding,
-          decoration: const BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 16,
-                offset: Offset(0, -4),
-              ),
-            ],
+    return Container(
+      height: 68 + bottomPadding,
+      decoration: const BoxDecoration(
+        color: Color(0xFF13527D),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 16,
+            offset: Offset(0, -4),
           ),
-          child: SafeArea(
-            top: false,
-            child: Row(
-              children: [
-                // Sayap Kiri (2 Item)
-                Expanded(
-                  flex: 5,
-                  child: Row(
-                    children: leftItems.map((item) => _buildSideNavItem(item)).toList(),
-                  ),
-                ),
-
-                // Ruang Khusus Panggung Tengah
-                const SizedBox(width: 76),
-
-                // Sayap Kanan (2 Item)
-                Expanded(
-                  flex: 5,
-                  child: Row(
-                    children: rightItems.map((item) => _buildSideNavItem(item)).toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          children:
+              _allNavItems.map((item) => _buildNavItem(context, item)).toList(),
         ),
-
-        // Panggung Tengah Hero Spotlight (Melayang -18px di atas bilah)
-        Positioned(
-          top: -18,
-          child: _buildCenterHeroButton(activeItem),
-        ),
-      ],
+      ),
     );
   }
 
-  /// Tombol samping (tidak aktif)
-  Widget _buildSideNavItem(NavItem item) {
+  Widget _buildNavItem(BuildContext context, NavItem item) {
+    final bool isActive = item.index == currentIndex;
+
+    // Label: kuning saat aktif, putih pudar saat tidak.
+    final Color labelColor =
+        isActive ? const Color(0xFFF59E0B) : Colors.white70;
+
     return Expanded(
       child: InkWell(
-        onTap: () => _handleNavigation(item.index),
+        onTap: () => _handleNavigation(context, item.index),
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
+          padding: const EdgeInsets.symmetric(vertical: 4),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                item.icon,
-                color: Colors.white70,
-                size: 23,
+              // Slot ikon setinggi tetap agar item tidak bergeser saat
+              // berganti aktif/tidak (lingkaran 40dp vs ikon 24dp).
+              SizedBox(
+                height: 40,
+                width: 40,
+                child: Center(
+                  child: isActive
+                      ? Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: const LinearGradient(
+                              colors: [
+                                Color(0xFFFBBF24),
+                                Color(0xFFF59E0B),
+                                Color(0xFFD97706),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            border: Border.all(color: Colors.white, width: 3),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFFF59E0B)
+                                    .withValues(alpha: 0.45),
+                                blurRadius: 12,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            item.activeIcon,
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                        )
+                      : Icon(item.icon, color: Colors.white70, size: 24),
+                ),
               ),
-              const SizedBox(height: 3),
+              const SizedBox(height: 2),
               Text(
                 item.label,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w500,
+                style: TextStyle(
+                  color: labelColor,
+                  fontSize: 11,
+                  fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
                   letterSpacing: 0.2,
                 ),
                 maxLines: 1,
@@ -263,107 +235,4 @@ class _DynamicBottomNavState extends State<DynamicBottomNav> with SingleTickerPr
       ),
     );
   }
-
-  /// Tombol tengah melayang (Hero Spotlight)
-  Widget _buildCenterHeroButton(NavItem activeItem) {
-    return SizedBox(
-      width: 76,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Lingkaran melayang di atas bilah navigasi
-          ScaleTransition(
-            scale: _pulseAnimation,
-            child: Container(
-              width: 54,
-              height: 54,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: const LinearGradient(
-                  colors: [AppColors.accentBright, AppColors.accent, AppColors.accentDeep],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                border: Border.all(color: Colors.white, width: 3),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.accent.withValues(alpha: 0.55),
-                    blurRadius: 16,
-                    spreadRadius: 2,
-                    offset: const Offset(0, 4),
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => _handleNavigation(activeItem.index),
-                  customBorder: const CircleBorder(),
-                  child: Center(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 320),
-                      transitionBuilder: (child, animation) {
-                        return RotationTransition(
-                          turns: Tween<double>(begin: 0.85, end: 1.0).animate(
-                            CurvedAnimation(parent: animation, curve: Curves.easeOutBack),
-                          ),
-                          child: ScaleTransition(
-                            scale: animation,
-                            child: FadeTransition(
-                              opacity: animation,
-                              child: child,
-                            ),
-                          ),
-                        );
-                      },
-                      child: Icon(
-                        activeItem.activeIcon,
-                        key: ValueKey<int>(activeItem.index),
-                        color: Colors.white,
-                        size: 28,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 3),
-
-          // Label teks aktif di bawah lingkaran
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0.0, 0.3),
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: child,
-                ),
-              );
-            },
-            child: Text(
-              activeItem.label,
-              key: ValueKey<String>(activeItem.label),
-              style: const TextStyle(
-                color: AppColors.accentBright,
-                fontSize: 11,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.3,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
-
