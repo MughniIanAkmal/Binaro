@@ -8,7 +8,7 @@
             <i class="fas fa-shield-halved text-9xl"></i>
         </div>
 
-        <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="relative z-10">
             <div>
                 <div class="flex items-center gap-2 mb-2">
                     <span class="bg-amber-400 text-amber-900 font-bold text-[10px] px-2.5 py-0.5 rounded-full shadow-sm">
@@ -25,23 +25,11 @@
                     Kelola data akademik, akun guru & siswa, silabus mata pelajaran, serta pantau rekapitulasi kehadiran sekolah dalam satu dasbor terpadu.
                 </p>
             </div>
-
-            <div class="flex items-center gap-2 self-start md:self-center flex-wrap">
-                <a href="{{ route('admin.absensi.settings') }}" class="px-4 py-2 bg-amber-400 hover:bg-amber-500 rounded-xl text-xs font-black text-slate-900 transition flex items-center gap-2 shadow-sm">
-                    <i class="fas fa-clock"></i> Setting Jam Absen
-                </a>
-                <a href="{{ route('jadwal.index') }}" class="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-xs font-bold text-white transition flex items-center gap-2">
-                    <i class="fas fa-calendar-alt"></i> Jadwal Pelajaran
-                </a>
-                <a href="{{ route('admin.qr.index') }}" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 rounded-xl text-xs font-bold text-white transition flex items-center gap-2 shadow-sm">
-                    <i class="fas fa-qrcode"></i> QR Siswa
-                </a>
-            </div>
         </div>
     </div>
 
-    <!-- 4 KPI Stat Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <!-- 3 KPI Stat Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <!-- Siswa -->
         <a href="{{ route('siswa.data.index') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/60 hover:shadow-md transition group">
             <div class="flex items-center justify-between">
@@ -89,132 +77,161 @@
                 </div>
             </div>
         </a>
-
-        <!-- Jadwal Pelajaran -->
-        <a href="{{ route('jadwal.index') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/60 hover:shadow-md transition group">
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Jadwal Pelajaran</span>
-                    <div class="text-3xl font-black text-slate-900 mt-1">{{ $stats['total_jadwal'] ?? $stats['total_kelas'] }}</div>
-                    <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Kelola Jadwal <i class="fas fa-arrow-right text-[10px]"></i>
-                    </span>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 group-hover:bg-teal-600 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-            </div>
-        </a>
-    </div>
-
-    <!-- Setting Jam Absensi & Jam Operasional Sekolah Banner -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div>
-                    <h3 class="text-sm font-bold text-slate-900">
-                        Pengaturan Jam Absensi & Jam Tutup Sekolah
-                    </h3>
-                    <p class="text-xs text-slate-500">
-                        Ambang batas kehadiran siswa {{ config('binaro.nama_sekolah') }} yang tersinkronisasi otomatis dengan Jadwal Pelajaran.
-                    </p>
-                </div>
-            </div>
-            <a href="{{ route('admin.absensi.settings') }}" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-xs">
-                <i class="fas fa-sliders text-xs"></i>
-                <span>Kelola Jam Absen</span>
-            </a>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-1">
-            <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-100">
-                <span class="text-[10px] font-bold text-sky-600 uppercase block">1. Datang Lebih Awal</span>
-                <div class="text-base font-black text-sky-900 mt-0.5">&lt; {{ $absensiSetting->batas_awal ?? '07:00' }} WIB</div>
-                <p class="text-[11px] text-sky-700 mt-1">Siswa hadir sebelum jam 7.</p>
-            </div>
-            <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-100">
-                <span class="text-[10px] font-bold text-emerald-600 uppercase block">2. Tepat Waktu</span>
-                <div class="text-base font-black text-emerald-900 mt-0.5">{{ $absensiSetting->batas_awal ?? '07:00' }} - {{ $absensiSetting->batas_tepat ?? '08:00' }}</div>
-                <p class="text-[11px] text-emerald-700 mt-1">Presensi jam 7 hingga jam 8.</p>
-            </div>
-            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-100">
-                <span class="text-[10px] font-bold text-amber-600 uppercase block">3. Terlambat</span>
-                <div class="text-base font-black text-amber-900 mt-0.5">{{ $absensiSetting->batas_tepat ?? '08:00' }} - {{ $absensiSetting->batas_tutup ?? '12:00' }}</div>
-                <p class="text-[11px] text-amber-700 mt-1">Presensi jam 8 s/d jam tutup.</p>
-            </div>
-            <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-100">
-                <span class="text-[10px] font-bold text-rose-600 uppercase block">4. Sekolah Tutup / Alpa</span>
-                <div class="text-base font-black text-rose-900 mt-0.5">&gt; {{ $absensiSetting->batas_tutup ?? '12:00' }} WIB</div>
-                <p class="text-[11px] text-rose-700 mt-1">Maksimal jam pelajaran jadwal.</p>
-            </div>
-        </div>
     </div>
 
     <!-- Quick Action Shortcut Hub -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-            <div>
-                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-                    <i class="fas fa-bolt text-amber-500"></i> Pintasan Akses Utama
-                </h3>
-                <p class="text-xs text-slate-500">Akses cepat ke modul data induk dan administrasi sekolah.</p>
-            </div>
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
+        <div>
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <i class="fas fa-bolt text-amber-500"></i> Pintasan Akses Utama
+            </h3>
+            <p class="text-xs text-slate-500">Akses cepat ke modul data induk dan administrasi sekolah.</p>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-            <a href="{{ route('admin.absensi.settings') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-amber-500 hover:bg-amber-50/40 transition text-center flex flex-col items-center gap-2 group">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
-                    <i class="fas fa-clock"></i>
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+            <a href="{{ route('guru.data.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary group-hover:scale-105 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-user-tie"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-700">Jam Absen</span>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Akun Guru</span>
             </a>
 
-            <a href="{{ route('guru.data.create') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-primary hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
-                <div class="w-10 h-10 rounded-xl bg-sky-50 text-primary group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-                <span class="text-xs font-bold text-slate-700">Tambah Guru</span>
-            </a>
-
-            <a href="{{ route('siswa.data.create') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-primary hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
+            <a href="{{ route('siswa.data.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
                     <i class="fas fa-user-graduate"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-700">Tambah Siswa</span>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Akun Siswa</span>
             </a>
 
-            <a href="{{ route('mapel.index') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-primary hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
+            <a href="{{ route('jadwal.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-fuchsia-50 text-fuchsia-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-calendar-days"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Jadwal</span>
+            </a>
+
+            <a href="{{ route('mapel.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-500 group-hover:scale-105 transition flex items-center justify-center text-lg">
                     <i class="fas fa-book-open"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-700">Kelola Mapel</span>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Kelola Mapel</span>
             </a>
 
-            <a href="{{ route('rpp.index') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-primary hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
+            <a href="{{ route('rpp.index') }}" class="relative py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="relative w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
                     <i class="fas fa-file-lines"></i>
+                    @if(($stats['rpp_perlu_review'] ?? 0) > 0)
+                    <span class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white">
+                        {{ $stats['rpp_perlu_review'] }}
+                    </span>
+                    @endif
                 </div>
-                <span class="text-xs font-bold text-slate-700">Verifikasi RPP</span>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Kelola RPP</span>
             </a>
 
-            <a href="{{ route('jadwal.index') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-primary hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
-                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
-                    <i class="fas fa-calendar-alt"></i>
-                </div>
-                <span class="text-xs font-bold text-slate-700">Jadwal</span>
-            </a>
-
-            <a href="{{ route('admin.qr.index') }}" class="p-3.5 rounded-xl border border-slate-200 hover:border-primary hover:bg-slate-50 transition text-center flex flex-col items-center gap-2 group">
-                <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 group-hover:scale-105 transition flex items-center justify-center text-sm font-bold">
+            <a href="{{ route('admin.qr.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
                     <i class="fas fa-qrcode"></i>
                 </div>
-                <span class="text-xs font-bold text-slate-700">QR Siswa</span>
+                <span class="text-xs font-bold text-slate-700 leading-tight">QR Siswa</span>
+            </a>
+
+            <a href="{{ route('absensi.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Kelola Absensi</span>
+            </a>
+
+            <a href="{{ route('admin.absensi.settings') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 group-hover:scale-105 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Jam Absen</span>
             </a>
         </div>
     </div>
+
+    <!-- Rangkuman Absensi Hari Ini -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-sky-50 text-primary flex items-center justify-center text-lg font-bold">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900">Rangkuman Absensi Hari Ini</h3>
+                    <p class="text-xs text-slate-500">Rekap kehadiran siswa pada {{ now()->translatedFormat('d F Y') }}.</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+                <a href="{{ route('absensi.rekap') }}" class="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                    <i class="fas fa-table-list text-xs"></i>
+                    <span>Lihat Rekap</span>
+                </a>
+                <a href="{{ route('absensi.index') }}" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs">
+                    <i class="fas fa-sliders text-xs"></i>
+                    <span>Kelola Absensi</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div class="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200/80">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black text-emerald-700 uppercase tracking-wider">Hadir</span>
+                    <i class="fas fa-user-check text-emerald-500 text-xs"></i>
+                </div>
+                <div class="text-2xl font-black text-emerald-900 mt-1">
+                    {{ $stats['hadir_hari_ini'] }} <span class="text-xs font-bold text-emerald-600">/ {{ $stats['total_siswa'] }} siswa</span>
+                </div>
+                <p class="text-[11px] text-emerald-700 font-medium mt-0.5">Tingkat kehadiran {{ $stats['persentase_hadir'] }}%</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-amber-50/70 border border-amber-200/80">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black text-amber-700 uppercase tracking-wider">Izin & Sakit</span>
+                    <i class="fas fa-file-medical text-amber-500 text-xs"></i>
+                </div>
+                <div class="text-2xl font-black text-amber-900 mt-1">
+                    {{ $stats['izin_sakit_hari_ini'] }} <span class="text-xs font-bold text-amber-600">siswa</span>
+                </div>
+                <p class="text-[11px] text-amber-700 font-medium mt-0.5">Dengan surat keterangan</p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-rose-50/70 border border-rose-200/80">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black text-rose-700 uppercase tracking-wider">Alpa</span>
+                    <i class="fas fa-user-times text-rose-500 text-xs"></i>
+                </div>
+                <div class="text-2xl font-black text-rose-900 mt-1">
+                    {{ $stats['alpa_hari_ini'] }} <span class="text-xs font-bold text-rose-600">siswa</span>
+                </div>
+                <p class="text-[11px] text-rose-700 font-medium mt-0.5">Belum melakukan presensi</p>
+            </div>
+        </div>
+    </div>
+
+    @if(($stats['rpp_perlu_review'] ?? 0) > 0)
+    <!-- RPP Menunggu Review -->
+    <a href="{{ route('rpp.index', ['status' => 'menunggu_review']) }}"
+       class="flex items-center gap-3.5 bg-amber-50 border border-amber-200/90 rounded-2xl px-5 py-4 hover:bg-amber-100/80 transition group">
+        <div class="w-10 h-10 rounded-xl bg-amber-400 text-amber-900 flex items-center justify-center text-base font-bold shrink-0">
+            <i class="fas fa-file-circle-exclamation"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+            <p class="text-xs font-bold text-amber-900">
+                {{ $stats['rpp_perlu_review'] }} RPP menunggu review
+            </p>
+            <p class="text-[11px] text-amber-700 mt-0.5">
+                Dokumen RPP dari guru berstatus menunggu review, draf, atau perlu revisi.
+            </p>
+        </div>
+        <span class="text-[11px] font-bold text-amber-900 inline-flex items-center gap-1 shrink-0 group-hover:translate-x-0.5 transition">
+            Tinjau <i class="fas fa-arrow-right text-[10px]"></i>
+        </span>
+    </a>
+    @endif
 
     <!-- Dual Column Recent Overview: Guru & Siswa -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
