@@ -3,7 +3,7 @@ import '../widgets/common.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
+import '../utils/api_client.dart';
 import '../widgets/dynamic_bottom_nav.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'login_page.dart';
@@ -31,8 +31,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic> _rekap = {};
   Map<String, dynamic> _dataSekolah = {};
   String _versi = 'Sahabat Belajar v${AppConstants.appVersion}';
-
-  static const String _baseUrl = AppConstants.baseUrl;
 
   @override
   void initState() {
@@ -66,12 +64,8 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     try {
-      final response = await http
-          .get(
-            Uri.parse('$_baseUrl/siswa/profile?id_siswa=$siswaId'),
-            headers: {'Accept': 'application/json'},
-          )
-          .timeout(AppConstants.timeoutDuration);
+      final response =
+          await ApiClient.get('/siswa/profile?id_siswa=$siswaId');
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
@@ -486,18 +480,14 @@ class _ProfilePageState extends State<ProfilePage> {
                                       setDialogState(() => isSubmitting = true);
 
                                       try {
-                                        final res = await http.post(
-                                          Uri.parse('$_baseUrl/siswa/update-password'),
-                                          headers: {
-                                            'Content-Type': 'application/json',
-                                            'Accept': 'application/json',
-                                          },
-                                          body: jsonEncode({
+                                        final res = await ApiClient.post(
+                                          '/siswa/update-password',
+                                          body: {
                                             'id_siswa': _siswa['id_siswa'] ?? 7,
                                             'password_lama': lama,
                                             'password_baru': baru,
                                             'konfirmasi_password': konf,
-                                          }),
+                                          },
                                         );
 
                                         final jsonRes = jsonDecode(res.body);
@@ -1149,6 +1139,13 @@ class _ProfilePageState extends State<ProfilePage> {
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(ctx);
+              // Cabut token di server; kegagalan jaringan tidak menghalangi logout lokal.
+              try {
+                await ApiClient.post(
+                  '/logout',
+                  timeout: const Duration(seconds: 5),
+                );
+              } catch (_) {}
               await AppSession.clear();
               if (!mounted) return;
               Navigator.pushAndRemoveUntil(

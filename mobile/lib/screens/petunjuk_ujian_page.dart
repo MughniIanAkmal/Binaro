@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'pengerjaan_ujian_page.dart';
+import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import 'profile_page.dart';
@@ -21,8 +21,6 @@ class PetunjukUjianPage extends StatefulWidget {
 }
 
 class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
-  static const String _baseUrl = AppConstants.baseUrl;
-
   bool _isLoading = true;
   bool _isReady = false; // Checkbox "Saya sudah siap ujian!"
   Map<String, dynamic> _petunjukData = {};
@@ -37,9 +35,8 @@ class _PetunjukUjianPageState extends State<PetunjukUjianPage> {
     setState(() => _isLoading = true);
 
     try {
-      final response = await http
-          .get(Uri.parse('$_baseUrl/siswa/ujian/${widget.quizId}/petunjuk'))
-          .timeout(AppConstants.timeoutDuration);
+      final response =
+          await ApiClient.get('/siswa/ujian/${widget.quizId}/petunjuk');
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);

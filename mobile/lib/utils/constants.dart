@@ -8,10 +8,22 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // Network configuration
-  // IP LAN laptop (Wi-Fi). HP fisik harus berada di jaringan Wi-Fi yang sama.
-  // Emulator Android: ganti ke 'http://10.0.2.2:8000/api'.
-  // Cek IP terbaru: ipconfig -> "IPv4 Address" pada adapter Wi-Fi.
-  static const String baseUrl = 'http://10.125.113.215:8000/api';
+  //
+  // Default: tunnel ngrok ke server Laravel di laptop, sehingga `flutter run`
+  // langsung terhubung dari jaringan mana pun. Prasyarat (dua-duanya harus
+  // hidup bersamaan):
+  //   1. php artisan serve --host=0.0.0.0 --port=8000
+  //   2. ngrok http 8000 --url=https://pluck-secular-kebab.ngrok-free.dev
+  //
+  // Cek URL tunnel yang sedang aktif: http://127.0.0.1:4040
+  //
+  // Override tanpa mengubah kode:
+  //   flutter run --dart-define=BINARO_API_BASE_URL=http://192.168.18.187:8000/api
+  //   flutter run --dart-define=BINARO_API_BASE_URL=http://10.0.2.2:8000/api
+  static const String baseUrl = String.fromEnvironment(
+    'BINARO_API_BASE_URL',
+    defaultValue: 'https://pluck-secular-kebab.ngrok-free.dev/api',
+  );
   static const Duration timeoutDuration = Duration(seconds: 10);
 
   // Storage keys / Default fallback ID (0 = belum ada sesi valid)

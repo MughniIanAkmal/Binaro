@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'detail_materi_page.dart';
 import 'kuis_page.dart';
+import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import 'profile_page.dart';
@@ -31,8 +31,6 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
   String _breadcrumb = 'Bab 1 > Sub Bab 3';
   List<dynamic> _materiList = [];
 
-  static const String _baseUrl = AppConstants.baseUrl;
-
   @override
   void initState() {
     super.initState();
@@ -45,12 +43,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
   Future<void> _fetchMateriList() async {
     final int subBabId = widget.subBab['id_sub_bab'] ?? 12;
     try {
-      final response = await http
-          .get(
-            Uri.parse('$_baseUrl/siswa/sub-bab/$subBabId/materi'),
-            headers: {'Accept': 'application/json'},
-          )
-          .timeout(AppConstants.timeoutDuration);
+      final response = await ApiClient.get('/siswa/sub-bab/$subBabId/materi');
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);

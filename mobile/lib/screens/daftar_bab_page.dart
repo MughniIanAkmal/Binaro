@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'daftar_sub_bab_page.dart';
+import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import 'profile_page.dart';
@@ -23,8 +23,6 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
   List<dynamic> _babList = [];
   int _totalBab = 6;
 
-  static const String _baseUrl = AppConstants.baseUrl;
-
   @override
   void initState() {
     super.initState();
@@ -42,12 +40,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
   Future<void> _fetchBabData() async {
     final int mapelId = widget.mapel['id_mapel'] ?? 3;
     try {
-      final response = await http
-          .get(
-            Uri.parse('$_baseUrl/siswa/mapel/$mapelId/bab'),
-            headers: {'Accept': 'application/json'},
-          )
-          .timeout(AppConstants.timeoutDuration);
+      final response = await ApiClient.get('/siswa/mapel/$mapelId/bab');
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);

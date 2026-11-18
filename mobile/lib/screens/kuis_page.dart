@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'profile_page.dart';
+import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 
@@ -22,8 +22,6 @@ class KuisPage extends StatefulWidget {
 }
 
 class _KuisPageState extends State<KuisPage> {
-  static const String _baseUrl = AppConstants.baseUrl;
-
   bool _isLoading = true;
   String _quizTitle = 'Kuis Siswa';
   int _totalSoal = 0;
@@ -36,6 +34,7 @@ class _KuisPageState extends State<KuisPage> {
   // Timer countdown
   Timer? _countdownTimer;
   int _remainingSeconds = 900;
+  int _totalSeconds = 900;
   bool _isSubmitting = false;
 
   @override
@@ -74,14 +73,15 @@ class _KuisPageState extends State<KuisPage> {
 
   Future<void> _fetchQuizData() async {
     setState(() => _isLoading = true);
-    final String url = widget.quizId != null
-        ? '$_baseUrl/siswa/quiz/${widget.quizId}'
-        : '$_baseUrl/siswa/quiz';
+    final String path = widget.quizId != null
+        ? '/siswa/quiz/${widget.quizId}'
+        : '/siswa/quiz';
 
     try {
-      final response = await http
-          .get(Uri.parse(url))
-          .timeout(const Duration(seconds: 8));
+      final response = await ApiClient.get(
+        path,
+        timeout: const Duration(seconds: 8),
+      );
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
@@ -98,6 +98,7 @@ class _KuisPageState extends State<KuisPage> {
                   .toList();
               _currentIndex = 0;
               _remainingSeconds = data['durasi_detik'] ?? 900;
+              _totalSeconds = data['durasi_detik'] ?? 900;
               _isLoading = false;
             });
             return;
@@ -141,15 +142,15 @@ class _KuisPageState extends State<KuisPage> {
         }
       });
 
-      await http.post(
-        Uri.parse('$_baseUrl/siswa/quiz/$quizId/submit'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
+      await ApiClient.post(
+        '/siswa/quiz/$quizId/submit',
+        body: {
           'id_siswa': widget.user?['id_siswa'] ?? 1,
           'jawaban': answersPayload,
-          'waktu_menit': (900 - _remainingSeconds) ~/ 60,
-        }),
-      ).timeout(const Duration(seconds: 5));
+          'waktu_menit': (_totalSeconds - _remainingSeconds) ~/ 60,
+        },
+        timeout: const Duration(seconds: 10),
+      );
     } catch (_) {}
 
     if (!mounted) return;

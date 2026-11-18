@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'hasil_ujian_page.dart';
+import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import '../widgets/dynamic_bottom_nav.dart';
@@ -21,8 +21,6 @@ class UjianPage extends StatefulWidget {
 }
 
 class _UjianPageState extends State<UjianPage> {
-  static const String _baseUrl = AppConstants.baseUrl;
-
   bool _isLoading = true;
   int _activeTab = 0; // 0 = Tersedia, 1 = Selesai
 
@@ -48,9 +46,8 @@ class _UjianPageState extends State<UjianPage> {
     final int siswaId = widget.user?['id_siswa'] ?? AppConstants.defaultSiswaId;
 
     try {
-      final response = await http
-          .get(Uri.parse('$_baseUrl/siswa/ujian?id_siswa=$siswaId'))
-          .timeout(AppConstants.timeoutDuration);
+      final response =
+          await ApiClient.get('/siswa/ujian?id_siswa=$siswaId');
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);

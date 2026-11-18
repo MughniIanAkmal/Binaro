@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'profile_page.dart';
+import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 
@@ -20,8 +20,6 @@ class HasilUjianPage extends StatefulWidget {
 }
 
 class _HasilUjianPageState extends State<HasilUjianPage> {
-  static const String _baseUrl = AppConstants.baseUrl;
-
   bool _isLoading = true;
   Map<String, dynamic> _resultData = {};
 
@@ -36,9 +34,8 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
     final int siswaId = widget.user?['id_siswa'] ?? AppConstants.defaultSiswaId;
 
     try {
-      final response = await http
-          .get(Uri.parse('$_baseUrl/siswa/ujian/${widget.quizId}/result?id_siswa=$siswaId'))
-          .timeout(AppConstants.timeoutDuration);
+      final response = await ApiClient.get(
+          '/siswa/ujian/${widget.quizId}/result?id_siswa=$siswaId');
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
