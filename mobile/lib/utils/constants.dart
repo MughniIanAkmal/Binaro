@@ -8,7 +8,10 @@ class AppConstants {
   static const String appVersion = '1.0.0';
 
   // Network configuration
-  static const String baseUrl = 'http://192.168.18.187:8000/api';
+  // IP LAN laptop (Wi-Fi). HP fisik harus berada di jaringan Wi-Fi yang sama.
+  // Emulator Android: ganti ke 'http://10.0.2.2:8000/api'.
+  // Cek IP terbaru: ipconfig -> "IPv4 Address" pada adapter Wi-Fi.
+  static const String baseUrl = 'http://10.125.113.215:8000/api';
   static const Duration timeoutDuration = Duration(seconds: 10);
 
   // Storage keys / Default fallback ID (0 = belum ada sesi valid)
@@ -18,7 +21,7 @@ class AppConstants {
 }
 
 /// Token warna Binaro — satu-satunya tempat nilai hex boleh berada.
-/// Rujukan: docs/design-system.md §1.2 (keputusan D1: primary #13527D).
+/// Rujukan: laravel/docs/design-system.md §1.2 (keputusan D1: primary #13527D).
 class AppColors {
   // Primary brand palette
   static const Color primary = Color(0xFF13527D);
