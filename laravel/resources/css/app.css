@@ -8,7 +8,7 @@
 
 /*
 | Design token Binaro — sumber tunggal warna & font web.
-| Rujukan: docs/design-system.md (§1 Warna, §2 Tipografi).
+| Rujukan: laravel/docs/design-system.md (§1 Warna, §2 Tipografi).
 | Jangan menulis hex literal di blade; tambahkan/mutakhirkan token di sini.
 */
 @theme {

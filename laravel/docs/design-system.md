@@ -1,7 +1,7 @@
 # Design System Binaro
 
 > **Status: Draft v1** — disusun dari hasil audit UI/UX web (Laravel) & mobile (Flutter), 14 November 2026.
-> Dokumen ini adalah **sumber tunggal** untuk warna, tipografi, bentuk, ikon, komponen, dan istilah di semua platform Binaro. Terapkan pada perubahan baru; kode lama dimigrasikan mengikuti `docs/superpowers/plans/2026-11-14-perbaikan-konsistensi-uiux.md`.
+> Dokumen ini adalah **sumber tunggal** untuk warna, tipografi, bentuk, ikon, komponen, dan istilah di semua platform Binaro. Terapkan pada perubahan baru; kode lama dimigrasikan mengikuti panduan ini.
 >
 > Ruang lingkup: web (`laravel/resources/views/**`) dan mobile (`mobile/lib/**`).
 
@@ -257,4 +257,4 @@ Spesifikasi minimum; detail implementasi mengikuti pola yang sudah ada di platfo
 | D3 | Label sandi | "Kata Sandi" | "Password" |
 | D4 | Nama sekolah | Ikuti `config('binaro.nama_sekolah')` = "SDN Kalitapen 01" | Ejaan lain (verifikasi ke sekolah saat ada kesempatan) |
 
-Eksekusi mengikuti `docs/superpowers/plans/2026-11-14-perbaikan-konsistensi-uiux.md`.
+Eksekusi mengikuti panduan design system ini.
