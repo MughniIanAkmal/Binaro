@@ -1,0 +1,19 @@
+/*
+| Token warna Binaro — varian ringan tanpa Tailwind untuk halaman standalone
+| (login) yang tidak memuat app.css agar tetap bebas dari preflight Tailwind.
+| Sumber: laravel/docs/design-system.md §1.2. Jangan menulis hex di blade.
+*/
+:root {
+    --color-primary: #13527D;
+    --color-primary-hover: #0E3D5D;
+    --color-primary-soft: #1E5D88;
+    --color-accent: #F59E0B;
+    --color-accent-bright: #FBBF24;
+    --color-accent-deep: #D97706;
+    --color-navy-950: #0B2A44;
+    --color-canvas: #F8FAFC;
+    --color-line: #E2E8F0;
+    --color-ink: #1E293B;
+    --color-ink-soft: #64748B;
+    --color-ink-muted: #94A3B8;
+}
