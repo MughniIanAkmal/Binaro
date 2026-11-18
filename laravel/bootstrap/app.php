@@ -17,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => EnsureRole::class,
             'api.auth' => \App\Http\Middleware\ApiAuthMiddleware::class,
         ]);
+
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
