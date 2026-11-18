@@ -162,16 +162,9 @@
                 @endif
             </div>
 
-            <!-- Right Controls: Header Actions (Jika ada), Search, Semester Badge, Bell, User Avatar -->
+            <!-- Right Controls: Header Actions (Jika ada), Semester Badge, Bell -->
             <div class="flex items-center gap-3.5 ml-auto shrink-0 flex-nowrap">
                 @yield('header_actions')
-
-                <!-- Search Box -->
-                <div class="relative w-44 md:w-56 hidden sm:block">
-                    <i class="fas fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" placeholder="Cari guru, siswa, jadwal..."
-                           class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200/90 text-xs text-slate-700 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary transition">
-                </div>
 
                 <!-- Semester Badge -->
                 <div class="hidden lg:flex bg-amber-50 text-amber-900 border border-amber-200/90 px-3 py-1.5 rounded-xl text-xs font-bold items-center gap-1.5 shadow-xs whitespace-nowrap">
@@ -185,10 +178,6 @@
                     <span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
                 </div>
 
-                <!-- User Profile Circle -->
-                <div class="w-9 h-9 rounded-xl sidebar-brand-bg text-white flex items-center justify-center font-bold text-xs shadow-xs cursor-pointer shrink-0">
-                    <i class="fas fa-user-tie text-xs"></i>
-                </div>
             </div>
         </header>
 
