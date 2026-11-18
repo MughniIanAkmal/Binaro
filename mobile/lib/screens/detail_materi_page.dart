@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
@@ -10,6 +9,7 @@ import 'package:webview_flutter_platform_interface/webview_flutter_platform_inte
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'kuis_page.dart';
 import 'pdf_viewer_page.dart';
+import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import 'profile_page.dart';
@@ -43,8 +43,6 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
   bool _isFullScreen = false;
 
   bool get _canUseInAppPlayer => WebViewPlatform.instance != null && _ytController != null;
-
-  static const String _baseUrl = AppConstants.baseUrl;
 
   void _updateOrientation(bool isFullScreen) {
     if (_isFullScreen == isFullScreen) return;
@@ -215,12 +213,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
   Future<void> _fetchDetailMateri() async {
     final int materiId = widget.materi['id_materi'] ?? 20;
     try {
-      final response = await http
-          .get(
-            Uri.parse('$_baseUrl/siswa/materi/$materiId'),
-            headers: {'Accept': 'application/json'},
-          )
-          .timeout(AppConstants.timeoutDuration);
+      final response = await ApiClient.get('/siswa/materi/$materiId');
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
@@ -288,16 +281,18 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
 
   String _normalizeUrl(String rawUrl) {
     if (rawUrl.isEmpty) return rawUrl;
-    if (rawUrl.startsWith('http://localhost') || rawUrl.startsWith('http://127.0.0.1')) {
-      final baseUri = Uri.parse(_baseUrl);
+    // `origin` sudah benar untuk http lokal (host:port) maupun https ngrok
+    // (tanpa ":443"), sehingga URL media selalu menunjuk ke backend aktif.
+    final String origin = Uri.parse(AppConstants.baseUrl).origin;
+    if (rawUrl.startsWith('http://localhost') ||
+        rawUrl.startsWith('http://127.0.0.1')) {
       return rawUrl.replaceFirst(
         RegExp(r'http://(localhost|127\.0\.0\.1)(:\d+)?'),
-        '${baseUri.scheme}://${baseUri.host}:${baseUri.port}',
+        origin,
       );
     }
     if (rawUrl.startsWith('/')) {
-      final baseUri = Uri.parse(_baseUrl);
-      return '${baseUri.scheme}://${baseUri.host}:${baseUri.port}$rawUrl';
+      return '$origin$rawUrl';
     }
     return rawUrl;
   }

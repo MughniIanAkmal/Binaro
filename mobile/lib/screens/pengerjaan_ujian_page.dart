@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'hasil_ujian_page.dart';
+import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import 'profile_page.dart';
@@ -23,8 +23,6 @@ class PengerjaanUjianPage extends StatefulWidget {
 }
 
 class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
-  static const String _baseUrl = AppConstants.baseUrl;
-
   bool _isLoading = true;
   String _examTitle = 'Ujian Online';
   int _totalSoal = 0;
@@ -40,6 +38,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
   // Countdown timer (detik)
   Timer? _timer;
   int _remainingSeconds = 3600;
+  int _totalSeconds = 3600;
   bool _isSubmitting = false;
 
   @override
@@ -80,9 +79,8 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
     setState(() => _isLoading = true);
 
     try {
-      final response = await http
-          .get(Uri.parse('$_baseUrl/siswa/ujian/${widget.quizId}/play'))
-          .timeout(AppConstants.timeoutDuration);
+      final response =
+          await ApiClient.get('/siswa/ujian/${widget.quizId}/play');
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
@@ -95,6 +93,7 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
               _examTitle = data['judul_quiz'] ?? _examTitle;
               _totalSoal = data['total_soal'] ?? list.length;
               _remainingSeconds = data['sisa_detik'] ?? _remainingSeconds;
+              _totalSeconds = data['durasi_detik'] ?? _totalSeconds;
               _soalList = list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
               _currentIndex = 0;
               _isLoading = false;
@@ -127,15 +126,17 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
         }
       });
 
-      await http.post(
-        Uri.parse('$_baseUrl/siswa/ujian/${widget.quizId}/submit'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({
+      await ApiClient.post(
+        '/siswa/ujian/${widget.quizId}/submit',
+        body: {
           'id_siswa': widget.user?['id_siswa'] ?? 1,
           'jawaban': answersPayload,
-          'waktu_menit': 38,
-        }),
-      ).timeout(const Duration(seconds: 5));
+          // Durasi pengerjaan riil, bukan angka tetap.
+          'waktu_menit': ((_totalSeconds - _remainingSeconds) ~/ 60)
+              .clamp(0, _totalSeconds ~/ 60),
+        },
+        timeout: const Duration(seconds: 10),
+      );
     } catch (_) {}
 
     if (!mounted) return;

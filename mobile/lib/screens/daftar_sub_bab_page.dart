@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'daftar_materi_page.dart';
+import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import 'profile_page.dart';
@@ -28,8 +28,6 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
   Map<String, dynamic> _babHeader = {};
   List<dynamic> _subBabList = [];
 
-  static const String _baseUrl = AppConstants.baseUrl;
-
   @override
   void initState() {
     super.initState();
@@ -47,12 +45,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
   Future<void> _fetchSubBabData() async {
     final int babId = widget.bab['id_bab'] ?? 10;
     try {
-      final response = await http
-          .get(
-            Uri.parse('$_baseUrl/siswa/bab/$babId/sub-bab'),
-            headers: {'Accept': 'application/json'},
-          )
-          .timeout(AppConstants.timeoutDuration);
+      final response = await ApiClient.get('/siswa/bab/$babId/sub-bab');
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);

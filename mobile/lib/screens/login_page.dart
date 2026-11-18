@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:http/http.dart' as http;
 import 'dashboard_page.dart';
+import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import '../utils/session.dart';
@@ -21,9 +21,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
   bool _obscurePassword = true;
 
-  // Endpoint login terpusat dari AppConstants
-  static const String _apiUrl = '${AppConstants.baseUrl}/login';
-
   Future<void> _handleLogin() async {
     final nisn = _nisnController.text.trim();
     final password = _passwordController.text.trim();
@@ -36,17 +33,13 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      final response = await http.post(
-        Uri.parse(_apiUrl),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        body: jsonEncode({
+      final response = await ApiClient.post(
+        '/login',
+        body: {
           'nisn': nisn,
           'password': password,
-        }),
-      ).timeout(const Duration(seconds: 10));
+        },
+      );
 
       Map<String, dynamic> data = {};
       try {
@@ -55,7 +48,11 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response.statusCode == 200 && data['success'] == true) {
         final userData = data['data']?['user'] ?? {};
-        await AppSession.save(Map<String, dynamic>.from(userData));
+        final String? token = data['data']?['token'];
+        await AppSession.save(
+          Map<String, dynamic>.from(userData),
+          token: token,
+        );
         final namaSiswa = userData['nm_siswa'] ?? 'Siswa';
         _showSnackbar('Login Berhasil! Selamat datang, $namaSiswa');
 

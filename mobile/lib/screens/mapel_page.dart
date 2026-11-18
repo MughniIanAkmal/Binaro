@@ -1,7 +1,7 @@
 import 'dart:convert';
 import '../widgets/common.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import '../utils/api_client.dart';
 import '../widgets/dynamic_bottom_nav.dart';
 import 'daftar_bab_page.dart';
 import '../utils/constants.dart';
@@ -26,8 +26,6 @@ class _MapelPageState extends State<MapelPage> {
   int _totalMapel = 6;
   int _wajibCount = 4;
 
-  static const String _baseUrl = AppConstants.baseUrl;
-
   @override
   void initState() {
     super.initState();
@@ -36,12 +34,7 @@ class _MapelPageState extends State<MapelPage> {
 
   Future<void> _fetchMapelData() async {
     try {
-      final response = await http
-          .get(
-            Uri.parse('$_baseUrl/siswa/mapel'),
-            headers: {'Accept': 'application/json'},
-          )
-          .timeout(AppConstants.timeoutDuration);
+      final response = await ApiClient.get('/siswa/mapel');
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);

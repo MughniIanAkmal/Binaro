@@ -1,9 +1,9 @@
 import 'dart:convert';
 import '../widgets/common.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'daftar_bab_page.dart';
 import 'mapel_page.dart';
+import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import '../widgets/dynamic_bottom_nav.dart';
@@ -28,9 +28,6 @@ class _DashboardPageState extends State<DashboardPage> {
   Map<String, dynamic> _siswa = {};
   List<dynamic> _tugasList = [];
   List<dynamic> _mapelList = [];
-
-  // URL API Laravel dari AppConstants
-  static const String _baseUrl = AppConstants.baseUrl;
 
   @override
   void initState() {
@@ -66,12 +63,8 @@ class _DashboardPageState extends State<DashboardPage> {
     }
 
     try {
-      final response = await http
-          .get(
-            Uri.parse('$_baseUrl/siswa/dashboard?id_siswa=$siswaId'),
-            headers: {'Accept': 'application/json'},
-          )
-          .timeout(AppConstants.timeoutDuration);
+      final response =
+          await ApiClient.get('/siswa/dashboard?id_siswa=$siswaId');
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
