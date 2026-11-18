@@ -124,7 +124,7 @@ class AuthController extends Controller
                 'id_user' => $admin->id_admin,
             ]);
 
-            return redirect('/admin/dashboard')->with('success', 'Selamat datang, '.$admin->nama_admin);
+            return redirect('/admin/dashboard');
         }
 
         // 4. Guru Flexible Check (nip, username, email, nama_guru, or shortcut)

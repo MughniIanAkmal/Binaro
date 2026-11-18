@@ -15,7 +15,7 @@
                         <i class="fas fa-lock mr-1"></i> Panel Administrator &bull; {{ config('binaro.nama_sekolah') }}
                     </span>
                     <span class="text-xs text-sky-200">
-                        {{ now()->translatedFormat('l, d F Y') }}
+                        {{ now()->locale('id')->translatedFormat('l, d F Y') }}
                     </span>
                 </div>
                 <h1 class="text-2xl font-black tracking-tight">
@@ -161,7 +161,7 @@
                 </div>
                 <div>
                     <h3 class="text-sm font-bold text-slate-900">Rangkuman Absensi Hari Ini</h3>
-                    <p class="text-xs text-slate-500">Rekap kehadiran siswa pada {{ now()->translatedFormat('d F Y') }}.</p>
+                    <p class="text-xs text-slate-500">Rekap kehadiran siswa pada hari {{ now()->locale('id')->translatedFormat('l, d F Y') }}.</p>
                 </div>
             </div>
             <div class="flex items-center gap-2 shrink-0">
