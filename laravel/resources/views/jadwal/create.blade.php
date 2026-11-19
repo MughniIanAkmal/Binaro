@@ -4,13 +4,6 @@
 @section('page_subtitle', 'Lengkapi formulir di bawah untuk menambahkan jadwal mata pelajaran baru.')
 @section('hide_global_errors', '1')
 
-@section('header_actions')
-    <a href="{{ route('jadwal.index') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
-        <i class="fas fa-arrow-left text-slate-400"></i>
-        <span>Kembali ke Jadwal</span>
-    </a>
-@endsection
-
 @section('content')
 <div class="space-y-6">
 
