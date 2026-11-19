@@ -50,7 +50,12 @@ class Guru extends Authenticatable
     /** Mapel yang diizinkan admin untuk guru ini (pivot guru_mapel). */
     public function mapel()
     {
-        return $this->belongsToMany(MataPelajaran::class, 'guru_mapel', 'id_guru', 'id_mapel')->withTimestamps();
+        // Tanpa withTimestamps(): tidak ada kode yang membaca pivot
+        // created_at/updated_at, dan tabel guru_mapel di database lama
+        // bisa saja sudah ada tanpa kedua kolom itu (migrasi hanya
+        // membuat tabel kalau belum ada) — withTimestamps() bikin query
+        // ikut select kedua kolom itu dan halaman daftar guru jadi 500.
+        return $this->belongsToMany(MataPelajaran::class, 'guru_mapel', 'id_guru', 'id_mapel');
     }
 
     /** null = belum di-lock admin, semua alur lama tetap jalan. */
