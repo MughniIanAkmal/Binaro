@@ -174,7 +174,7 @@ class JadwalController extends Controller
         );
 
         if ($bentrok) {
-            return back()->withInput()->withErrors(['time_slot_id' => $bentrok])->with('error', $bentrok);
+            return back()->withInput()->withErrors(['time_slot_id' => $bentrok]);
         }
 
         Jadwal::create([
@@ -226,7 +226,7 @@ class JadwalController extends Controller
         );
 
         if ($bentrok) {
-            return back()->withInput()->withErrors(['time_slot_id' => $bentrok])->with('error', $bentrok);
+            return back()->withInput()->withErrors(['time_slot_id' => $bentrok]);
         }
 
         $jadwal->update([

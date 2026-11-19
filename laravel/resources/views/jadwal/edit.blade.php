@@ -2,6 +2,7 @@
 
 @section('page_title', 'Edit Jadwal Pelajaran')
 @section('page_subtitle', 'Ubah formulir di bawah untuk memperbarui jadwal mata pelajaran.')
+@section('hide_global_errors', '1')
 
 @section('header_actions')
     <a href="{{ route('jadwal.index') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
@@ -37,6 +38,9 @@
                         </option>
                     @endforeach
                 </select>
+                @error("hari")
+                    <p class="text-[11px] text-rose-600 font-semibold mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Pilih Slot Jam Pelajaran -->
@@ -90,6 +94,9 @@
                         </option>
                     @endforeach
                 </select>
+                @error("id_mapel")
+                    <p class="text-[11px] text-rose-600 font-semibold mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Select Guru -->
@@ -103,6 +110,9 @@
                         </option>
                     @endforeach
                 </select>
+                @error("id_guru")
+                    <p class="text-[11px] text-rose-600 font-semibold mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Select Kelas -->
@@ -116,6 +126,9 @@
                         </option>
                     @endforeach
                 </select>
+                @error("id_kelas")
+                    <p class="text-[11px] text-rose-600 font-semibold mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Tombol Aksi -->
