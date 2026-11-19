@@ -30,11 +30,11 @@
 @endsection
 
 @section('content')
-<div class="space-y-5">
+<div class="space-y-6">
 
     <!-- 4 KPI Cards -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div class="bg-white p-5 rounded-xl border border-slate-200 flex justify-between items-start shadow-sm">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 flex justify-between items-start shadow-sm">
             <div>
                 <div class="text-2xl font-black text-slate-900">{{ $kpi['persentase'] }}%</div>
                 <div class="text-xs text-slate-600 font-semibold mt-1">Tingkat Kehadiran Hari Ini</div>
@@ -42,7 +42,7 @@
             </div>
             <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-sm"><i class="fas fa-chart-line"></i></div>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-200 flex justify-between items-start shadow-sm">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 flex justify-between items-start shadow-sm">
             <div>
                 <div class="text-2xl font-black text-slate-900">{{ $kpi['hadir'] }} <span class="text-sm font-semibold text-slate-400">/ {{ $kpi['total'] }}</span></div>
                 <div class="text-xs text-slate-600 font-semibold mt-1">Total Siswa Hadir</div>
@@ -50,7 +50,7 @@
             </div>
             <div class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm"><i class="fas fa-user-check"></i></div>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-200 flex justify-between items-start shadow-sm">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 flex justify-between items-start shadow-sm">
             <div>
                 <div class="text-2xl font-black text-slate-900">{{ $kpi['izin_sakit'] }} <span class="text-sm font-semibold text-slate-400">Siswa</span></div>
                 <div class="text-xs text-slate-600 font-semibold mt-1">Izin & Sakit Hari Ini</div>
@@ -58,7 +58,7 @@
             </div>
             <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-sm"><i class="fas fa-file-medical"></i></div>
         </div>
-        <div class="bg-white p-5 rounded-xl border border-slate-200 flex justify-between items-start shadow-sm">
+        <div class="bg-white p-5 rounded-2xl border border-slate-200 flex justify-between items-start shadow-sm">
             <div>
                 <div class="text-2xl font-black text-rose-600">{{ $kpi['alpa'] }} <span class="text-sm font-semibold text-slate-400">Siswa</span></div>
                 <div class="text-xs text-slate-600 font-semibold mt-1">Tanpa Keterangan (Alpa)</div>
@@ -69,7 +69,7 @@
     </div>
 
     <!-- Filter & Table Presensi -->
-    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="p-4 border-b border-slate-200 flex justify-between items-center flex-wrap gap-4">
             <form action="{{ route('absensi.index') }}" method="GET" class="flex gap-3 items-center flex-wrap">
                 <div>
