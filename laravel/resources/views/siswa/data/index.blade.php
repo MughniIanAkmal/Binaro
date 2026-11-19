@@ -10,11 +10,11 @@
 @section('page_subtitle', 'Daftar akun siswa ' . config('binaro.nama_sekolah') . ' beserta kontak dan kelasnya.')
 
 @section('header_actions')
-    <a href="{{ route('siswa.data.create') }}"
+    <button type="button" id="btn-tambah-siswa"
        class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
        >
         <i class="fas fa-plus text-[11px]"></i> Tambah Siswa
-    </a>
+    </button>
 @endsection
 
 @section('content')
@@ -100,4 +100,77 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Tambah Siswa -->
+<div id="modal-tambah-siswa" class="fixed inset-0 hidden items-center justify-center bg-slate-900/50 z-50 p-4 md:p-6" aria-hidden="true">
+    <div class="w-[min(768px,94vw)] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200" role="dialog" aria-modal="true" aria-labelledby="modalTambahSiswaTitle">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-start justify-between gap-4 shrink-0">
+            <div>
+                <div id="modalTambahSiswaTitle" class="font-extrabold text-base text-slate-900">Tambah Data Siswa</div>
+                <p class="text-xs text-slate-500 mt-0.5">Lengkapi informasi berikut. Kode QR barcode akan dibuat secara otomatis.</p>
+            </div>
+            <button type="button" class="text-3xl leading-none text-slate-400 hover:text-slate-600 transition" aria-label="Tutup" data-close="modal-tambah-siswa">&times;</button>
+        </div>
+        <div class="overflow-y-auto px-6 py-5">
+            <form action="{{ route('siswa.data.store') }}" method="POST" class="space-y-6">
+                @csrf
+                {{-- siswa => null: di halaman daftar $siswa adalah paginator, bukan satu siswa. --}}
+                @include('siswa.data._form', ['siswa' => null])
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-line">
+                    <button type="button" data-close="modal-tambah-siswa"
+                        class="inline-flex items-center px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
+                        Batal
+                    </button>
+                    <button type="submit"
+                        class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary">
+                        <i class="fas fa-floppy-disk text-[11px]"></i> Simpan Data Siswa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modalTambahSiswa = document.getElementById('modal-tambah-siswa');
+
+    function openTambahSiswaModal() {
+        modalTambahSiswa.classList.remove('hidden');
+        modalTambahSiswa.classList.add('flex');
+        modalTambahSiswa.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeTambahSiswaModal() {
+        modalTambahSiswa.classList.add('hidden');
+        modalTambahSiswa.classList.remove('flex');
+        modalTambahSiswa.setAttribute('aria-hidden', 'true');
+    }
+
+    document.getElementById('btn-tambah-siswa').addEventListener('click', function () {
+        openTambahSiswaModal();
+    });
+
+    document.querySelectorAll('[data-close="modal-tambah-siswa"]').forEach(function (el) {
+        el.addEventListener('click', function () {
+            closeTambahSiswaModal();
+        });
+    });
+
+    modalTambahSiswa.addEventListener('click', function (event) {
+        if (event.target === modalTambahSiswa) {
+            closeTambahSiswaModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && !modalTambahSiswa.classList.contains('hidden')) {
+            closeTambahSiswaModal();
+        }
+    });
+
+    @if($errors->any())
+        openTambahSiswaModal();
+    @endif
+</script>
 @endsection

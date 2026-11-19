@@ -203,8 +203,10 @@ class SiswaController extends Controller
             ->withQueryString();
 
         $kelasList = Kelas::all();
+        $kelas = $kelasList;
+        $mapel = MataPelajaran::all();
 
-        return view('siswa.data.index', compact('siswa', 'search', 'kelasList', 'idRooms'));
+        return view('siswa.data.index', compact('siswa', 'search', 'kelasList', 'idRooms', 'kelas', 'mapel'));
     }
 
     public function create()

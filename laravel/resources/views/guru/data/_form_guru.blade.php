@@ -77,7 +77,7 @@
         <select name="id_rooms" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-primary bg-white">
             <option value="">-- Belum di-lock ke kelas mana pun --</option>
             @foreach(($kelasList ?? collect()) as $kelas)
-                <option value="{{ $kelas->id_rooms }}" {{ (string) old('id_rooms', data_get($g, 'id_rooms', '')) === (string) $kelas->id_rooms ? 'selected' : '' }}>Kelas {{ $kelas->nama_kelas }}</option>
+                <option value="{{ $kelas->id_rooms }}" {{ (string) old('id_rooms', data_get($g, 'id_rooms', '')) === (string) $kelas->id_rooms ? 'selected' : '' }}>{{ $kelas->nama_kelas }}</option>
             @endforeach
         </select>
         <p class="text-[10px] text-slate-400 mt-1">Guru yang sudah di-lock hanya bisa membuat RPP / ujian untuk kelas ini. Kosongkan kalau belum mau mengunci.</p>
