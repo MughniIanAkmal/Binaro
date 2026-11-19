@@ -18,16 +18,16 @@
 @endsection
 
 @section('content')
-<div class="space-y-5 max-w-6xl mx-auto">
-    <div class="card overflow-hidden">
-        <div class="p-4 border-b border-line flex justify-between items-center flex-wrap gap-3">
+<div class="space-y-6">
+    <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="p-4 border-b border-slate-200 flex justify-between items-center flex-wrap gap-3">
             <form action="{{ route('siswa.data.index') }}" method="GET" class="flex gap-2 items-center">
                 <div class="relative">
                     <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                     <input type="text" name="search" value="{{ request('search', request('q')) }}" placeholder="Cari nama, NIS, email..."
-                           class="pl-8 pr-3 py-2 bg-slate-50 border border-line rounded-xl text-xs font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                           class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:border-primary">
                 </div>
-                <button type="submit" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition">
+                <button type="submit" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">
                     Cari
                 </button>
                 @if(request('search') || request('q'))
@@ -42,16 +42,18 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-[#F8FAFD] text-[10px] font-extrabold tracking-[0.08em] text-slate-400 uppercase border-b border-line">
+                    <tr class="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase border-b border-slate-200">
                         <th class="p-3.5 pl-6">No</th>
                         <th class="p-3.5">Nama Siswa</th>
                         <th class="p-3.5">NISN</th>
+                        <th class="p-3.5">Kelas</th>
+                        <th class="p-3.5">Mapel</th>
                         <th class="p-3.5">Kontak (Email / HP)</th>
                         <th class="p-3.5">Username</th>
                         <th class="p-3.5 text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#EFF2F7] text-xs">
+                <tbody class="divide-y divide-slate-100 text-xs">
                     @forelse($siswa as $index => $item)
                     <tr class="hover:bg-slate-50/80 transition">
                         <td class="p-3.5 pl-6 text-slate-400 font-semibold">{{ $siswa->firstItem() + $index }}</td>
@@ -60,6 +62,8 @@
                             <div class="text-[11px] text-slate-400">{{ $item->alamat ? Str::limit($item->alamat, 30) : 'Alamat belum diatur' }}</div>
                         </td>
                         <td class="p-3.5 font-mono text-slate-700">{{ $item->nisn ?? '-' }}</td>
+                        <td class="p-3.5">{{ $item->nama_kelas }}</td>
+                        <td class="p-3.5">{{ $item->mataPelajaran?->nama_mapel ?? '-' }}</td>
                         <td class="p-3.5">
                             <div><i class="fas fa-envelope text-slate-400 mr-1 text-[10px]"></i>{{ $item->email ?? '-' }}</div>
                             <div class="text-[11px] text-slate-500"><i class="fas fa-phone text-slate-400 mr-1 text-[10px]"></i>{{ $item->no_hp ?? '-' }}</div>
@@ -84,14 +88,14 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="p-2"><x-empty-state icon="fa-inbox" title="Belum ada data siswa terdaftar." /></td>
+                        <td colspan="8" class="p-2"><x-empty-state icon="fa-inbox" title="Belum ada data siswa terdaftar." /></td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
-        <div class="p-4 border-t border-line">
+        <div class="p-4 border-t border-slate-200">
             {{ $siswa->links() }}
         </div>
     </div>

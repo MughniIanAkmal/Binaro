@@ -59,7 +59,7 @@
                             <div class="text-[11px] text-slate-400">{{ $item->alamat ? Str::limit($item->alamat, 30) : 'Alamat belum diatur' }}</div>
                         </td>
                         <td class="p-3.5 font-mono text-slate-700">{{ $item->nip ?? '-' }}</td>
-                        <td class="p-3.5">{{ $item->kelas ? 'Kelas '.$item->kelas->nama_kelas : '-' }}</td>
+                        <td class="p-3.5">{{ $item->kelas ? $item->kelas->nama_kelas : '-' }}</td>
                         <td class="p-3.5">{{ $item->mapel->isNotEmpty() ? $item->mapel->pluck('nama_mapel')->join(', ') : '-' }}</td>
                         <td class="p-3.5">
                             <div><i class="fas fa-envelope text-slate-400 mr-1 text-[10px]"></i>{{ $item->email ?? '-' }}</div>
