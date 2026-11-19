@@ -81,22 +81,12 @@
                 <span>Kelola RPP</span>
             </a>
 
-            <!-- 7. QR & Absensi (1 Item Utama dengan Flyout Popover ke Samping Kanan, seperti Mapel & Kustomisasi di portal guru) -->
-            @php
-                $isQrAbsensiActive = request()->routeIs('admin.qr_absensi.*') || request()->routeIs('absensi.*') || request()->routeIs('admin.absensi.rekap') || request()->routeIs('admin.qr.*');
-            @endphp
-            <div>
-                <button type="button"
-                        id="btn-qr-absensi"
-                        onclick="toggleQrAbsensiFlyout(this)"
-                        class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition {{ $isQrAbsensiActive ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold' }}">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-qrcode w-4 text-center {{ $isQrAbsensiActive ? 'text-white' : 'text-slate-400' }}"></i>
-                        <span>QR &amp; Absensi</span>
-                    </div>
-                    <i class="fas fa-chevron-right text-[10px] {{ $isQrAbsensiActive ? 'text-white/80' : 'text-slate-400' }}"></i>
-                </button>
-            </div>
+            <!-- 7. QR & Absensi (gabungan, Revisi 5) -->
+            <a href="{{ route('admin.qr_absensi.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('admin.qr_absensi.*') || request()->routeIs('absensi.*') || request()->routeIs('admin.absensi.rekap') || request()->routeIs('admin.qr.*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
+                <i class="fas fa-qrcode w-4 text-center {{ request()->routeIs('admin.qr_absensi.*') || request()->routeIs('absensi.*') || request()->routeIs('admin.absensi.rekap') || request()->routeIs('admin.qr.*') ? 'text-white' : 'text-slate-400' }}"></i>
+                <span>QR &amp; Absensi</span>
+            </a>
 
             <!-- 8. Pengaturan Jam Absen -->
             <a href="{{ route('admin.absensi.settings') }}"
@@ -213,106 +203,6 @@
             @yield('content')
         </div>
     </main>
-
-    <!-- Flyout Popover Menu ke Samping Kanan (Muncul saat tombol QR & Absensi diklik) -->
-    <div id="flyout-qr-absensi"
-         class="hidden fixed z-50 w-72 bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-2.5 transition-all duration-150 ease-out"
-         style="top: 0; left: 0;">
-
-        <!-- Header Popover -->
-        <div class="px-3 py-2 border-b border-slate-100 flex items-center justify-between">
-            <span class="text-[10px] font-bold text-slate-400 tracking-wider uppercase">PILIHAN AKSES</span>
-            <span class="text-[10px] bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-md">2 Opsi</span>
-        </div>
-
-        <div class="p-1 space-y-1.5 mt-1.5">
-            <!-- Opsi 1: QR Siswa -->
-            @php $isQrActive = request()->routeIs('admin.qr.*'); @endphp
-            <a href="{{ route('admin.qr.index') }}"
-               class="group flex items-start gap-3 p-2.5 rounded-xl transition {{ $isQrActive ? 'bg-primary text-white shadow-sm' : 'hover:bg-slate-50 text-slate-700' }}">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 {{ $isQrActive ? 'bg-white/20 text-white' : 'bg-teal-50 text-teal-600 group-hover:bg-primary group-hover:text-white transition' }}">
-                    <i class="fas fa-qrcode text-xs"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold leading-tight {{ $isQrActive ? 'text-white' : 'text-slate-800' }}">
-                        QR Siswa
-                    </div>
-                    <div class="text-[10.5px] mt-0.5 leading-tight {{ $isQrActive ? 'text-white/80' : 'text-slate-400' }}">
-                        Lihat &amp; cetak kode QR siswa
-                    </div>
-                </div>
-                <i class="fas fa-arrow-right text-[10px] self-center {{ $isQrActive ? 'text-white' : 'text-slate-300 group-hover:text-slate-600 transition' }}"></i>
-            </a>
-
-            <!-- Opsi 2: Kelola Absensi -->
-            @php $isAbsensiActive = request()->routeIs('absensi.index'); @endphp
-            <a href="{{ route('absensi.index') }}"
-               class="group flex items-start gap-3 p-2.5 rounded-xl transition {{ $isAbsensiActive ? 'bg-primary text-white shadow-sm' : 'hover:bg-slate-50 text-slate-700' }}">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 {{ $isAbsensiActive ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-600 group-hover:bg-primary group-hover:text-white transition' }}">
-                    <i class="fas fa-clipboard-check text-xs"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="text-xs font-bold leading-tight {{ $isAbsensiActive ? 'text-white' : 'text-slate-800' }}">
-                        Kelola Absensi
-                    </div>
-                    <div class="text-[10.5px] mt-0.5 leading-tight {{ $isAbsensiActive ? 'text-white/80' : 'text-slate-400' }}">
-                        Scan kehadiran &amp; kelola absensi
-                    </div>
-                </div>
-                <i class="fas fa-arrow-right text-[10px] self-center {{ $isAbsensiActive ? 'text-white' : 'text-slate-300 group-hover:text-slate-600 transition' }}"></i>
-            </a>
-        </div>
-
-        <!-- Footer Link: Rekap Absensi -->
-        <div class="pt-2 mt-1 border-t border-slate-100 px-1">
-            <a href="{{ route('absensi.rekap') }}"
-               class="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-primary hover:bg-slate-50 transition">
-                <span class="flex items-center gap-2">
-                    <i class="fas fa-table-list text-[10px] text-slate-400"></i>
-                    <span>Lihat Rekap Absensi</span>
-                </span>
-                <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
-            </a>
-        </div>
-    </div>
-
-    <script>
-        function toggleQrAbsensiFlyout(button) {
-            const popover = document.getElementById('flyout-qr-absensi');
-            if (!popover || !button) return;
-
-            const isHidden = popover.classList.contains('hidden');
-            if (isHidden) {
-                const rect = button.getBoundingClientRect();
-                popover.style.top = `${rect.top}px`;
-                popover.style.left = `${rect.right + 12}px`;
-                popover.classList.remove('hidden');
-            } else {
-                popover.classList.add('hidden');
-            }
-        }
-
-        // Tutup flyout saat mengklik di luar area flyout / tombol
-        document.addEventListener('click', function(e) {
-            const popover = document.getElementById('flyout-qr-absensi');
-            const trigger = document.getElementById('btn-qr-absensi');
-            if (!popover || !trigger) return;
-
-            if (!popover.classList.contains('hidden')) {
-                if (!popover.contains(e.target) && !trigger.contains(e.target)) {
-                    popover.classList.add('hidden');
-                }
-            }
-        });
-
-        // Tutup dengan tombol Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                const popover = document.getElementById('flyout-qr-absensi');
-                if (popover) popover.classList.add('hidden');
-            }
-        });
-    </script>
     <script>
         function togglePortalSidebar(force) {
             const sb = document.getElementById('portal-sidebar');
