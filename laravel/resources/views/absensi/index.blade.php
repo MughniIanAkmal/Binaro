@@ -4,7 +4,7 @@
 @section('page_subtitle', 'Monitoring dan rekapitulasi kehadiran harian seluruh rombel.')
 
 @section('header_actions')
-    @if (in_array(session('user_type'), ['guru', 'admin'], true))
+    @if (session('user_type') === 'guru')
         <form action="{{ route('absensi.scan-qr') }}" method="POST" class="flex gap-2">
             @csrf
             <input type="text" name="kode_barcode" placeholder="Scan Barcode / Input ID..." required
