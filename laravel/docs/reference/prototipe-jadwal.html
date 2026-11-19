@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototipe — Alur Pengaturan Jadwal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background:#F8FAFC; }
+  .slot-cell { min-height: 62px; transition: background .15s; }
+  .cell-filled { cursor: pointer; }
+  .cell-empty:hover { background:#F1F5F9; }
+  .flash { animation: flash .9s ease; }
+  @keyframes flash { 0%{background:#FEF3C7} 100%{background:transparent} }
+  .modal-open { display:flex !important; }
+</style>
+</head>
+<body class="text-slate-800">
+
+<div class="max-w-7xl mx-auto px-5 py-8 space-y-6">
+
+  <!-- ============ HEADER ============ -->
+  <div class="bg-[#13527D] rounded-2xl p-6 text-white shadow-sm relative overflow-hidden">
+    <div class="absolute top-0 right-0 opacity-10 -translate-y-1/4 translate-x-1/4">
+      <i class="fas fa-calendar-days text-[9rem]"></i>
+    </div>
+    <div class="relative z-10">
+      <span class="bg-amber-400 text-amber-900 font-bold text-[10px] px-2.5 py-0.5 rounded-full">
+        <i class="fas fa-flask mr-1"></i> PROTOTIPE — BUKAN DATA ASLI
+      </span>
+      <h1 class="text-2xl font-black tracking-tight mt-2">Alur Pengaturan Jadwal Pelajaran</h1>
+      <p class="text-xs text-sky-100 mt-1 max-w-2xl">
+        Demonstrasi alur: isi form &rarr; validasi bentrok (guru/kelas/ruang) &rarr; simpan &rarr; tampil di grid mingguan + tabel.
+        Semua data hanya di memori browser, tidak tersimpan permanen.
+      </p>
+    </div>
+  </div>
+
+  <!-- ============ STEP INDICATOR ============ -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+    <div class="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-[#13527D] text-white flex items-center justify-center text-xs font-black shrink-0">1</div>
+      <div>
+        <div class="text-xs font-bold text-slate-900">Input Jadwal</div>
+        <div class="text-[11px] text-slate-500">Hari, jam, kelas, guru, mapel</div>
+      </div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-[#13527D] text-white flex items-center justify-center text-xs font-black shrink-0">2</div>
+      <div>
+        <div class="text-xs font-bold text-slate-900">Validasi Otomatis</div>
+        <div class="text-[11px] text-slate-500">Cek bentrok guru, kelas, ruang</div>
+      </div>
+    </div>
+    <div class="bg-white rounded-xl border border-slate-200 p-4 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-[#13527D] text-white flex items-center justify-center text-xs font-black shrink-0">3</div>
+      <div>
+        <div class="text-xs font-bold text-slate-900">Tampil di Grid</div>
+        <div class="text-[11px] text-slate-500">Jadwal mingguan + daftar tabel</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FORM INPUT ============ -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between">
+      <div>
+        <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i class="fas fa-plus-circle text-[#13527D]"></i> Tambah Jadwal
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">Jam sekolah: 07:00 – 12:00 WIB &bull; Hari efektif: Senin–Sabtu</p>
+      </div>
+      <span class="text-[11px] font-bold text-slate-500 bg-slate-50 border border-slate-200 px-2.5 py-1 rounded-full">
+        <span id="countBadge">0</span> jadwal tersimpan
+      </span>
+    </div>
+
+    <form id="formJadwal" class="p-5 space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Hari <span class="text-rose-500">*</span></label>
+          <select id="inHari" required class="w-full px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#13527D]/20">
+            <option value="">-- Pilih --</option>
+            <option>Senin</option><option>Selasa</option><option>Rabu</option>
+            <option>Kamis</option><option>Jumat</option><option>Sabtu</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Jam Mulai <span class="text-rose-500">*</span></label>
+          <input type="time" id="inMulai" value="07:00" required class="w-full px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#13527D]/20">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Jam Selesai <span class="text-rose-500">*</span></label>
+          <input type="time" id="inSelesai" value="08:00" required class="w-full px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#13527D]/20">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Kelas <span class="text-rose-500">*</span></label>
+          <select id="inKelas" required class="w-full px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#13527D]/20">
+            <option value="">-- Pilih --</option>
+            <option>Kelas 4A</option><option>Kelas 4B</option><option>Kelas 5A</option><option>Kelas 6A</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Ruang</label>
+          <select id="inRuang" class="w-full px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#13527D]/20">
+            <option value="">(ikut kelas)</option>
+            <option>Lab IPA</option><option>Lab Komputer</option><option>Aula</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Mata Pelajaran <span class="text-rose-500">*</span></label>
+          <select id="inMapel" required class="w-full px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#13527D]/20">
+            <option value="">-- Pilih --</option>
+            <option>Matematika</option><option>Bahasa Indonesia</option>
+            <option>Ilmu Pengetahuan Alam (IPA)</option><option>Pendidikan Pancasila</option>
+            <option>PJOK</option><option>Seni Budaya</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-slate-700 mb-1">Guru Pengampu <span class="text-rose-500">*</span></label>
+          <select id="inGuru" required class="w-full px-3 py-2 text-xs font-semibold border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#13527D]/20">
+            <option value="">-- Pilih --</option>
+            <option>Budi Santoso, S.Pd.</option>
+            <option>Siti Aminah, S.Pd.</option>
+            <option>Ahmad Fauzi, M.Pd.</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- VALIDATION FEEDBACK AREA -->
+      <div id="feedback" class="hidden rounded-xl border p-3.5 text-xs"></div>
+
+      <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+        <button type="button" id="btnReset" class="px-4 h-9 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition">
+          Reset Form
+        </button>
+        <button type="submit" class="inline-flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-[#13527D]">
+          <i class="fas fa-floppy-disk text-[11px]"></i> Simpan Jadwal
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ============ GRID JADWAL ============ -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="px-5 py-3.5 border-b border-slate-200">
+      <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+        <i class="fas fa-table-cells-large text-[#13527D]"></i> Grid Jadwal Mingguan
+      </h2>
+      <p class="text-xs text-slate-500 mt-0.5">Klik salah satu sel berisi jadwal untuk menghapusnya.</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse text-xs" id="gridJadwal">
+        <thead>
+          <tr class="bg-slate-50 text-[10px] font-black text-slate-500 uppercase tracking-wider">
+            <th class="p-2.5 border-b border-r border-slate-200 w-24 text-center">Jam</th>
+            <th class="p-2.5 border-b border-r border-slate-200">Senin</th>
+            <th class="p-2.5 border-b border-r border-slate-200">Selasa</th>
+            <th class="p-2.5 border-b border-r border-slate-200">Rabu</th>
+            <th class="p-2.5 border-b border-r border-slate-200">Kamis</th>
+            <th class="p-2.5 border-b border-r border-slate-200">Jumat</th>
+            <th class="p-2.5 border-b border-slate-200">Sabtu</th>
+          </tr>
+        </thead>
+        <tbody id="gridBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ TABEL DAFTAR ============ -->
+  <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div class="px-5 py-3.5 border-b border-slate-200">
+      <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+        <i class="fas fa-list text-[#13527D]"></i> Daftar Jadwal Tersimpan
+      </h2>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="bg-slate-50 text-[10px] font-black text-slate-500 uppercase tracking-wider border-b border-slate-200">
+            <th class="p-3 pl-5">No</th>
+            <th class="p-3">Hari</th>
+            <th class="p-3">Jam</th>
+            <th class="p-3">Kelas</th>
+            <th class="p-3">Mapel</th>
+            <th class="p-3">Guru</th>
+            <th class="p-3">Ruang</th>
+            <th class="p-3 text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="listBody" class="divide-y divide-slate-100"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ CONTOH VALIDASI ============ -->
+  <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+    <h3 class="text-sm font-bold text-amber-900 flex items-center gap-2">
+      <i class="fas fa-triangle-exclamation"></i> Aturan Validasi yang Diuji
+    </h3>
+    <ul class="mt-2.5 space-y-1.5 text-xs text-amber-800 list-disc list-inside">
+      <li><strong>Bentrok guru</strong> — guru yang sama mengajar dua kelas di jam yang beririsan.</li>
+      <li><strong>Bentrok kelas</strong> — kelas yang sama punya dua mapel di jam yang beririsan.</li>
+      <li><strong>Bentrok ruang</strong> — ruang khusus (Lab/Aula) dipakai dua kelas bersamaan.</li>
+      <li><strong>Di luar jam sekolah</strong> — mulai sebelum 07:00 atau selesai setelah 12:00.</li>
+      <li><strong>Jam terbalik</strong> — jam selesai lebih awal dari jam mulai.</li>
+    </ul>
+  </div>
+
+</div>
+
+<script>
+// ============ STATE ============
+const JAM_SEKOLAH = { mulai: '07:00', selesai: '12:00' };
+const HARI = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+let jadwal = [];
+let nextId = 1;
+
+// Seed data contoh
+[
+  { hari:'Senin', mulai:'07:00', selesai:'08:00', kelas:'Kelas 4B', mapel:'Matematika', guru:'Budi Santoso, S.Pd.', ruang:'' },
+  { hari:'Senin', mulai:'08:00', selesai:'09:00', kelas:'Kelas 4B', mapel:'Bahasa Indonesia', guru:'Siti Aminah, S.Pd.', ruang:'' },
+  { hari:'Selasa', mulai:'07:00', selesai:'08:00', kelas:'Kelas 5A', mapel:'Ilmu Pengetahuan Alam (IPA)', guru:'Ahmad Fauzi, M.Pd.', ruang:'Lab IPA' },
+  { hari:'Rabu', mulai:'09:00', selesai:'10:00', kelas:'Kelas 6A', mapel:'PJOK', guru:'Budi Santoso, S.Pd.', ruang:'Aula' },
+].forEach(d => jadwal.push({ id: nextId++, ...d }));
+
+// ============ HELPERS ============
+const toMin = t => { const [h,m] = t.split(':').map(Number); return h*60+m; };
+const fmt = t => t.replace(':','.');
+const overlap = (a1,a2,b1,b2) => toMin(a1) < toMin(b2) && toMin(b1) < toMin(a2);
+
+function showFeedback(type, title, lines) {
+  const el = document.getElementById('feedback');
+  const styles = {
+    error:   'bg-rose-50 border-rose-200 text-rose-800',
+    success: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+    warn:    'bg-amber-50 border-amber-200 text-amber-800',
+  };
+  const icons = { error:'fa-circle-xmark', success:'fa-circle-check', warn:'fa-triangle-exclamation' };
+  el.className = 'rounded-xl border p-3.5 text-xs ' + styles[type];
+  el.innerHTML = `
+    <div class="font-bold flex items-center gap-2 mb-1">
+      <i class="fas ${icons[type]}"></i> ${title}
+    </div>
+    <ul class="list-disc list-inside space-y-0.5 ml-1">${lines.map(l => `<li>${l}</li>`).join('')}</ul>`;
+  el.classList.remove('hidden');
+  el.classList.remove('flash');
+  void el.offsetWidth;
+  el.classList.add('flash');
+}
+
+function hideFeedback() {
+  document.getElementById('feedback').classList.add('hidden');
+}
+
+// ============ VALIDASI ============
+function validate(candidate) {
+  const errors = [];
+  const { hari, mulai, selesai, kelas, guru, ruang } = candidate;
+
+  if (!hari || !kelas || !guru || !candidate.mapel) {
+    errors.push('Semua field bertanda <strong>*</strong> wajib diisi.');
+    return errors;
+  }
+  if (toMin(selesai) <= toMin(mulai)) {
+    errors.push('Jam selesai harus lebih besar dari jam mulai.');
+  }
+  if (toMin(mulai) < toMin(JAM_SEKOLAH.mulai)) {
+    errors.push(`Jam mulai tidak boleh sebelum ${JAM_SEKOLAH.mulai} WIB.`);
+  }
+  if (toMin(selesai) > toMin(JAM_SEKOLAH.selesai)) {
+    errors.push(`Jam selesai tidak boleh melewati ${JAM_SEKOLAH.selesai} WIB.`);
+  }
+  if (errors.length) return errors;
+
+  jadwal.filter(j => j.hari === hari).forEach(j => {
+    if (!overlap(mulai, selesai, j.mulai, j.selesai)) return;
+    if (j.guru === guru) {
+      errors.push(`<strong>Bentrok guru</strong> — ${guru} sudah mengajar <em>${j.mapel}</em> di ${j.kelas} pada ${fmt(j.mulai)}–${fmt(j.selesai)}.`);
+    }
+    if (j.kelas === kelas) {
+      errors.push(`<strong>Bentrok kelas</strong> — ${kelas} sudah punya <em>${j.mapel}</em> pada ${fmt(j.mulai)}–${fmt(j.selesai)}.`);
+    }
+    if (ruang && j.ruang === ruang) {
+      errors.push(`<strong>Bentrok ruang</strong> — ${ruang} sudah dipakai ${j.kelas} pada ${fmt(j.mulai)}–${fmt(j.selesai)}.`);
+    }
+  });
+
+  return errors;
+}
+
+// ============ RENDER ============
+function renderGrid() {
+  // Kumpulkan slot unik dari data + slot standar
+  const baseSlots = [
+    ['07:00','08:00'], ['08:00','09:00'], ['09:00','10:00'],
+    ['10:00','11:00'], ['11:00','12:00']
+  ];
+  const slotMap = new Map();
+  baseSlots.forEach(([a,b]) => slotMap.set(a+'-'+b, {mulai:a, selesai:b}));
+  jadwal.forEach(j => slotMap.set(j.mulai+'-'+j.selesai, {mulai:j.mulai, selesai:j.selesai}));
+  const slots = [...slotMap.values()].sort((x,y) => toMin(x.mulai) - toMin(y.mulai));
+
+  const body = document.getElementById('gridBody');
+  body.innerHTML = slots.map(s => {
+    const cells = HARI.map(h => {
+      const items = jadwal.filter(j => j.hari === h && j.mulai === s.mulai && j.selesai === s.selesai);
+      if (!items.length) {
+        return `<td class="slot-cell cell-empty border-b border-r border-slate-100 p-1.5"></td>`;
+      }
+      return `<td class="slot-cell cell-filled border-b border-r border-slate-100 p-1.5">
+        ${items.map(j => `
+          <div onclick="hapusJadwal(${j.id})" title="Klik untuk hapus"
+               class="bg-[#EFF6FF] border border-[#13527D]/20 rounded-lg p-2 hover:border-rose-300 hover:bg-rose-50 transition">
+            <div class="font-bold text-[11px] text-[#0B2A44] leading-tight">${j.mapel}</div>
+            <div class="text-[10px] text-slate-600 mt-0.5">${j.kelas}${j.ruang ? ' · '+j.ruang : ''}</div>
+            <div class="text-[10px] text-slate-500 truncate">${j.guru}</div>
+          </div>`).join('')}
+      </td>`;
+    }).join('');
+    return `<tr>
+      <td class="p-2 border-b border-r border-slate-200 bg-slate-50 text-center">
+        <div class="text-[10px] font-black text-slate-700">${fmt(s.mulai)}</div>
+        <div class="text-[9px] text-slate-400">${fmt(s.selesai)}</div>
+      </td>${cells}</tr>`;
+  }).join('');
+
+  document.getElementById('countBadge').textContent = jadwal.length;
+}
+
+function renderList() {
+  const body = document.getElementById('listBody');
+  if (!jadwal.length) {
+    body.innerHTML = `<tr><td colspan="8" class="p-8 text-center text-slate-400 italic">Belum ada jadwal.</td></tr>`;
+    return;
+  }
+  const sorted = [...jadwal].sort((a,b) =>
+    HARI.indexOf(a.hari) - HARI.indexOf(b.hari) || toMin(a.mulai) - toMin(b.mulai));
+  body.innerHTML = sorted.map((j,i) => `
+    <tr class="hover:bg-slate-50/70 transition">
+      <td class="p-3 pl-5 text-slate-400 font-semibold">${i+1}</td>
+      <td class="p-3 font-semibold text-slate-700">${j.hari}</td>
+      <td class="p-3 font-mono text-slate-700">${fmt(j.mulai)}–${fmt(j.selesai)}</td>
+      <td class="p-3">
+        <span class="px-2 py-0.5 rounded-full bg-sky-50 text-[#13527D] font-bold text-[10px]">${j.kelas}</span>
+      </td>
+      <td class="p-3 font-bold text-slate-900">${j.mapel}</td>
+      <td class="p-3 text-slate-600">${j.guru}</td>
+      <td class="p-3 text-slate-500">${j.ruang || '-'}</td>
+      <td class="p-3 text-center">
+        <button onclick="hapusJadwal(${j.id})"
+                class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 rounded-lg text-[10px] font-bold transition">
+          <i class="fas fa-trash text-[9px] mr-1"></i>Hapus
+        </button>
+      </td>
+    </tr>`).join('');
+}
+
+function renderAll() { renderGrid(); renderList(); }
+
+// ============ ACTIONS ============
+function hapusJadwal(id) {
+  jadwal = jadwal.filter(j => j.id !== id);
+  renderAll();
+  showFeedback('warn', 'Jadwal dihapus', ['Data dihapus dari prototipe (tidak permanen).']);
+}
+
+document.getElementById('formJadwal').addEventListener('submit', e => {
+  e.preventDefault();
+  const candidate = {
+    hari:    document.getElementById('inHari').value,
+    mulai:   document.getElementById('inMulai').value,
+    selesai: document.getElementById('inSelesai').value,
+    kelas:   document.getElementById('inKelas').value,
+    mapel:   document.getElementById('inMapel').value,
+    guru:    document.getElementById('inGuru').value,
+    ruang:   document.getElementById('inRuang').value,
+  };
+
+  const errors = validate(candidate);
+  if (errors.length) {
+    showFeedback('error', 'Jadwal tidak bisa disimpan — ' + errors.length + ' masalah ditemukan', errors);
+    return;
+  }
+
+  jadwal.push({ id: nextId++, ...candidate });
+  renderAll();
+  showFeedback('success', 'Jadwal berhasil disimpan', [
+    `${candidate.mapel} — ${candidate.kelas}, ${candidate.hari} ${fmt(candidate.mulai)}–${fmt(candidate.selesai)}`,
+    'Tidak ada bentrok guru, kelas, maupun ruang.'
+  ]);
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  document.getElementById('formJadwal').reset();
+  document.getElementById('inMulai').value = '07:00';
+  document.getElementById('inSelesai').value = '08:00';
+  hideFeedback();
+});
+
+renderAll();
+</script>
+</body>
+</html>

@@ -39,61 +39,44 @@
                 </select>
             </div>
 
-            <!-- Input Jam Pelajaran -->
+            <!-- Pilih Slot Jam Pelajaran -->
             <div class="space-y-2 p-4 bg-slate-50 border border-slate-200 rounded-2xl">
                 <div class="flex items-center justify-between">
-                    <label class="block text-xs font-bold text-slate-800">
-                        Jam Pelajaran (Waktu Mulai s/d Selesai) <span class="text-rose-500">*</span>
+                    <label for="time_slot_id" class="block text-xs font-bold text-slate-800">
+                        Slot Jam Pelajaran <span class="text-rose-500">*</span>
                     </label>
                     <span class="text-[11px] font-semibold text-slate-500 bg-white px-2.5 py-0.5 rounded-full border border-slate-200">
-                        <i class="fas fa-school mr-1 text-primary"></i> Tutup Sekolah: <strong class="text-slate-800" id="badge-jam-tutup">{{ $jamTutup ?? '12:00' }}</strong> WIB
+                        <i class="fas fa-school mr-1 text-primary"></i> Tutup Sekolah: <strong class="text-slate-800">{{ $jamTutup ?? "12:00" }}</strong> WIB
                     </span>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label for="picker_jam_mulai" class="block text-[11px] font-semibold text-slate-600 mb-1">Jam Mulai</label>
-                        <input
-                            type="time"
-                            id="picker_jam_mulai"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary text-xs font-bold text-slate-800"
-                            required
-                        >
-                    </div>
-                    <div>
-                        <label for="picker_jam_selesai" class="block text-[11px] font-semibold text-slate-600 mb-1">Jam Selesai</label>
-                        <input
-                            type="time"
-                            id="picker_jam_selesai"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-primary text-xs font-bold text-slate-800"
-                            required
-                        >
-                    </div>
-                </div>
-
-                <!-- Input Terformat untuk Controller -->
-                <div class="pt-1">
-                    <input
-                        type="text"
-                        name="jam"
-                        id="jam"
-                        value="{{ old('jam', $jadwal->jam) }}"
-                        placeholder="Contoh: 07.00-08.30"
-                        pattern="[0-9]{2}\.[0-9]{2}-[0-9]{2}\.[0-9]{2}"
-                        title="Format jam: HH.MM-HH.MM"
-                        class="w-full px-3.5 py-2 bg-white rounded-xl border border-slate-200 text-xs font-mono font-bold text-slate-700 focus:outline-none focus:border-primary"
-                        required
-                    >
-                    <p class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
-                        <span>*Otomatis tersinkron dengan pilihan Jam Mulai & Selesai di atas (format HH.MM-HH.MM).</span>
-                        <a href="{{ route('admin.absensi.settings') }}" class="text-primary hover:underline font-semibold">Ubah Jam Tutup Sekolah</a>
+                <select name="time_slot_id" id="time_slot_id" required
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-sm text-gray-700 bg-white">
+                    <option value="">-- Pilih Slot Jam --</option>
+                    @foreach ($slots as $slot)
+                        <option value="{{ $slot->id_slot }}"
+                                {{ old("time_slot_id", $jadwal->time_slot_id) == $slot->id_slot ? "selected" : "" }}
+                                {{ $slot->is_break ? "disabled" : "" }}>
+                            {{ $slot->nama }} ({{ $slot->jam_mulai }}-{{ $slot->jam_selesai }}){{ $slot->is_break ? " — istirahat" : "" }}
+                        </option>
+                    @endforeach
+                </select>
+                @error("time_slot_id")
+                    <p class="text-[11px] text-rose-600 font-semibold flex items-center gap-1.5">
+                        <i class="fas fa-circle-exclamation"></i> {{ $message }}
                     </p>
-                </div>
+                @enderror
+            </div>
 
-                <div id="jam-error-warning" class="hidden mt-2 p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-center gap-2">
-                    <i class="fas fa-triangle-exclamation text-rose-500 text-base shrink-0"></i>
-                    <span id="jam-error-text">Jam pelajaran tidak boleh terbalik atau mundur!</span>
-                </div>
+            <!-- Input Ruang (opsional) -->
+            <div>
+                <label for="ruang" class="block text-sm font-semibold text-gray-700 mb-1.5">Ruang <span class="text-slate-400 font-normal">(opsional)</span></label>
+                <input type="text" name="ruang" id="ruang" value="{{ old("ruang", $jadwal->ruang) }}" maxlength="50"
+                       placeholder="Contoh: Lab IPA, Aula (kosongkan jika ikut kelas)"
+                       class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-sm text-gray-700">
+                @error("ruang")
+                    <p class="text-[11px] text-rose-600 font-semibold mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Select Mata Pelajaran -->
@@ -148,109 +131,5 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const jamInput = document.getElementById('jam');
-    const pickerMulai = document.getElementById('picker_jam_mulai');
-    const pickerSelesai = document.getElementById('picker_jam_selesai');
-    const warningBox = document.getElementById('jam-error-warning');
-    const warningText = document.getElementById('jam-error-text');
-    const btnSubmit = document.getElementById('btn-submit-jadwal');
-    const form = document.querySelector('form');
 
-    const jamTutupStr = '{{ $jamTutup ?? "12:00" }}';
-    const [hTutupMax, mTutupMax] = jamTutupStr.split(':').map(n => parseInt(n, 10));
-    const totalTutupMax = (hTutupMax * 60) + (mTutupMax || 0);
-
-    function syncFromPickers() {
-        if (pickerMulai.value && pickerSelesai.value) {
-            const m = pickerMulai.value.replace(':', '.');
-            const s = pickerSelesai.value.replace(':', '.');
-            jamInput.value = `${m}-${s}`;
-        }
-        checkJamValidity();
-    }
-
-    function syncToPickers() {
-        const val = jamInput.value.trim().replace(/:/g, '.');
-        const match = val.match(/^(\d{2})\.(\d{2})-(\d{2})\.(\d{2})$/);
-        if (match) {
-            pickerMulai.value = `${match[1]}:${match[2]}`;
-            pickerSelesai.value = `${match[3]}:${match[4]}`;
-        }
-        checkJamValidity();
-    }
-
-    function checkJamValidity() {
-        const val = jamInput.value.trim().replace(/:/g, '.');
-        const pattern = /^(\d{2})\.(\d{2})-(\d{2})\.(\d{2})$/;
-        const match = val.match(pattern);
-
-        if (!match) {
-            if (val.length > 0) {
-                warningText.textContent = 'Format jam tidak sesuai! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).';
-                warningBox.classList.remove('hidden');
-                if (btnSubmit) btnSubmit.disabled = true;
-                return false;
-            }
-            warningBox.classList.add('hidden');
-            if (btnSubmit) btnSubmit.disabled = false;
-            return true;
-        }
-
-        const hMulai = parseInt(match[1], 10);
-        const mMulai = parseInt(match[2], 10);
-        const hSelesai = parseInt(match[3], 10);
-        const mSelesai = parseInt(match[4], 10);
-
-        if (hMulai > 23 || mMulai > 59 || hSelesai > 23 || mSelesai > 59) {
-            warningText.textContent = 'Nilai jam (00-23) atau menit (00-59) tidak valid.';
-            warningBox.classList.remove('hidden');
-            if (btnSubmit) btnSubmit.disabled = true;
-            return false;
-        }
-
-        const totalMulai = (hMulai * 60) + mMulai;
-        const totalSelesai = (hSelesai * 60) + mSelesai;
-        const strMulai = `${match[1]}.${match[2]}`;
-        const strSelesai = `${match[3]}.${match[4]}`;
-
-        // 1. Cek jam terbalik
-        if (totalSelesai <= totalMulai) {
-            warningText.textContent = `Jam pelajaran terbalik! Jam mulai (${strMulai}) tidak boleh lebih lambat atau sama dengan jam selesai (${strSelesai}).`;
-            warningBox.classList.remove('hidden');
-            if (btnSubmit) btnSubmit.disabled = true;
-            return false;
-        }
-
-        // 2. Cek jam tutup sekolah
-        if (totalSelesai > totalTutupMax) {
-            warningText.textContent = `Jam selesai (${strSelesai}) melebihi jam tutup sekolah (${jamTutupStr.replace(':', '.')})! Maksimal jadwal hingga jam tutup sekolah.`;
-            warningBox.classList.remove('hidden');
-            if (btnSubmit) btnSubmit.disabled = true;
-            return false;
-        }
-
-        warningBox.classList.add('hidden');
-        if (btnSubmit) btnSubmit.disabled = false;
-        return true;
-    }
-
-    pickerMulai.addEventListener('input', syncFromPickers);
-    pickerSelesai.addEventListener('input', syncFromPickers);
-    jamInput.addEventListener('input', syncToPickers);
-    jamInput.addEventListener('blur', checkJamValidity);
-
-    if (jamInput.value) {
-        syncToPickers();
-    }
-
-    form.addEventListener('submit', function (e) {
-        if (!checkJamValidity()) {
-            e.preventDefault();
-            jamInput.focus();
-        }
-    });
-});
-</script>
 @endsection

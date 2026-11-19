@@ -7,10 +7,20 @@ use App\Models\Guru;
 use App\Models\JadwalMataPelajaran as Jadwal;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
+use App\Models\TimeSlot;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class JadwalController extends Controller
 {
+    /**
+     * Urutan hari untuk pengurutan di PHP (tidak bergantung FIELD() MySQL).
+     */
+    private const URUTAN_HARI = [
+        'Senin' => 0, 'Selasa' => 1, 'Rabu' => 2, 'Kamis' => 3,
+        'Jumat' => 4, 'Sabtu' => 5, 'Minggu' => 6,
+    ];
+
     // Menampilkan semua jadwal
     public function index()
     {
@@ -19,10 +29,28 @@ class JadwalController extends Controller
         }
 
         $jadwals = Jadwal::query()
-            ->with(['mataPelajaran', 'guru', 'kelas'])
-            ->get();
+            ->with(['mataPelajaran', 'guru', 'kelas', 'timeSlot'])
+            ->get()
+            ->sortBy(fn ($j) => [
+                self::URUTAN_HARI[$j->hari] ?? 99,
+                $j->timeSlot?->urutan ?? 99,
+                $j->jam,
+            ])
+            ->values();
 
-        return view('jadwal.index', compact('jadwals'));
+        // Grid mingguan: baris = slot waktu, kolom = hari.
+        $slots = TimeSlot::orderBy('urutan')->get();
+        $daftarHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+        // Peta [hari][slot_id] => koleksi jadwal (bisa >1 bila beda kelas).
+        $grid = [];
+        foreach ($jadwals as $j) {
+            if ($j->time_slot_id) {
+                $grid[$j->hari][$j->time_slot_id][] = $j;
+            }
+        }
+
+        return view('jadwal.index', compact('jadwals', 'slots', 'daftarHari', 'grid'));
     }
 
     // Menampilkan form tambah jadwal
@@ -33,254 +61,127 @@ class JadwalController extends Controller
         $mapel = MataPelajaran::all();
         $jamTutup = AbsensiSetting::get('batas_tutup', '12:00');
         $jamAwal = AbsensiSetting::get('batas_awal', '07:00');
+        $slots = TimeSlot::orderBy('urutan')->get();
 
-        return view('jadwal.create', compact('kelas', 'guru', 'mapel', 'jamTutup', 'jamAwal'));
+        return view('jadwal.create', compact('kelas', 'guru', 'mapel', 'jamTutup', 'jamAwal', 'slots'));
     }
 
     // Menampilkan detail jadwal
     public function show($id)
     {
-        $jadwal = Jadwal::with(['mataPelajaran', 'guru', 'kelas'])->findOrFail($id);
+        $jadwal = Jadwal::with(['mataPelajaran', 'guru', 'kelas', 'timeSlot'])->findOrFail($id);
 
         return view('jadwal.show', compact('jadwal'));
     }
 
-    // Validasi format jam dan mencegah jam mundur / sama / melebihi jam tutup sekolah
-    private function validateJamPelajaran($jam)
+    /**
+     * Validasi bentrok berbasis slot waktu (lebih akurat daripada parsing teks).
+     *
+     * Aturan:
+     *  - guru sama tidak boleh di hari+slot yang sama
+     *  - kelas sama tidak boleh di hari+slot yang sama
+     *  - ruang sama tidak boleh di hari+slot yang sama
+     *  - slot istirahat tidak boleh dipakai mengajar
+     *
+     * @return string|null pesan error, atau null bila tidak ada bentrok
+     */
+    private function cekBentrokSlot(string $hari, TimeSlot $slot, int $idGuru, int $idKelas, ?string $ruang = null, ?int $excludeId = null): ?string
     {
-        $jamClean = preg_replace('/\s+/', '', str_replace(':', '.', (string) $jam));
-        $parts = explode('-', $jamClean);
-        if (count($parts) !== 2) {
-            return 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).';
+        if ($slot->is_break) {
+            return "Slot \"{$slot->nama}\" ({$slot->jam_mulai}-{$slot->jam_selesai}) adalah waktu istirahat dan tidak bisa dipakai untuk pelajaran.";
         }
 
-        $jamMulai = trim($parts[0]);
-        $jamSelesai = trim($parts[1]);
-
-        $mulaiParts = explode('.', $jamMulai);
-        $selesaiParts = explode('.', $jamSelesai);
-
-        if (count($mulaiParts) !== 2 || count($selesaiParts) !== 2) {
-            return 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).';
-        }
-
-        $hMulai = (int) $mulaiParts[0];
-        $mMulai = (int) $mulaiParts[1];
-        $hSelesai = (int) $selesaiParts[0];
-        $mSelesai = (int) $selesaiParts[1];
-
-        if ($hMulai < 0 || $hMulai > 23 || $mMulai < 0 || $mMulai > 59 || $hSelesai < 0 || $hSelesai > 23 || $mSelesai < 0 || $mSelesai > 59) {
-            return 'Nilai jam atau menit tidak valid! Jam harus rentang 00-23 dan menit rentang 00-59.';
-        }
-
-        $totalMulai = ($hMulai * 60) + $mMulai;
-        $totalSelesai = ($hSelesai * 60) + $mSelesai;
-
-        if ($totalSelesai <= $totalMulai) {
-            return "Jam pelajaran terbalik atau tidak valid! Jam selesai ({$jamSelesai}) tidak boleh lebih awal atau sama dengan jam mulai ({$jamMulai}).";
-        }
-
-        // Cek jam tutup sekolah
-        $batasTutup = AbsensiSetting::get('batas_tutup', '12:00');
-        $tutupClean = str_replace('.', ':', (string) $batasTutup);
-        $tutupParts = explode(':', $tutupClean);
-        $hTutup = (int) ($tutupParts[0] ?? 12);
-        $mTutup = (int) ($tutupParts[1] ?? 0);
-        $totalTutup = ($hTutup * 60) + $mTutup;
-
-        if ($totalSelesai > $totalTutup) {
-            $jamTutupDisplay = str_replace(':', '.', $batasTutup);
-
-            return "Jam selesai pelajaran ({$jamSelesai}) melebihi jam tutup sekolah ({$jamTutupDisplay})! Sesuaikan jadwal atau ubah jam tutup sekolah di menu Pengaturan Jam Absen.";
-        }
-
-        return null;
-    }
-
-    // Ubah "07.00-09.00" (atau "07:00-09:00") menjadi [menitMulai, menitSelesai].
-    // Mengembalikan null jika format tidak bisa diurai.
-    private function parseRentangJam($jam): ?array
-    {
-        $jamClean = preg_replace('/\s+/', '', str_replace(':', '.', (string) $jam));
-        $parts = explode('-', $jamClean);
-        if (count($parts) !== 2) {
-            return null;
-        }
-
-        $mulaiParts = explode('.', trim($parts[0]));
-        $selesaiParts = explode('.', trim($parts[1]));
-        if (count($mulaiParts) !== 2 || count($selesaiParts) !== 2) {
-            return null;
-        }
-
-        if (! ctype_digit($mulaiParts[0]) || ! ctype_digit($mulaiParts[1])
-            || ! ctype_digit($selesaiParts[0]) || ! ctype_digit($selesaiParts[1])) {
-            return null;
-        }
-
-        $mulai = ((int) $mulaiParts[0]) * 60 + (int) $mulaiParts[1];
-        $selesai = ((int) $selesaiParts[0]) * 60 + (int) $selesaiParts[1];
-
-        if ($selesai <= $mulai) {
-            return null;
-        }
-
-        return [$mulai, $selesai];
-    }
-
-    // Cari jadwal yang bentrok: guru yang sama, hari yang sama, dan rentang
-    // waktunya beririsan (bukan hanya sama persis). Batas yang bersentuhan
-    // (mis. 07.00-08.00 lalu 08.00-09.00) TIDAK dianggap bentrok.
-    // Mengembalikan model jadwal yang bentrok (dengan relasi guru & kelas)
-    // atau null jika tidak ada bentrok. $excludeId dipakai saat edit.
-    private function cekBentrokGuru($hari, $jam, $idGuru, $excludeId = null)
-    {
-        $rentangBaru = $this->parseRentangJam($jam);
-        if ($rentangBaru === null) {
-            return null;
-        }
-        [$mulaiBaru, $selesaiBaru] = $rentangBaru;
-
-        $query = Jadwal::with(['guru', 'kelas'])
+        $base = Jadwal::with(['guru', 'kelas', 'mapel'])
             ->where('hari', $hari)
-            ->where('id_guru', $idGuru);
+            ->where('time_slot_id', $slot->id_slot);
 
         if ($excludeId !== null) {
-            $query->where('id_jadwal', '!=', $excludeId);
+            $base->where('id_jadwal', '!=', $excludeId);
         }
 
-        foreach ($query->get() as $jadwal) {
-            $rentangLama = $this->parseRentangJam($jadwal->jam);
-            if ($rentangLama === null) {
-                continue;
+        $existing = $base->get();
+
+        foreach ($existing as $j) {
+            if ((int) $j->id_guru === $idGuru) {
+                $mapel = $j->mapel->nama_mapel ?? 'mata pelajaran';
+                $kelas = $j->kelas->pararel ?? '-';
+
+                return "Bentrok guru — {$j->guru->nama_guru} sudah mengajar {$mapel} di {$kelas} pada hari {$hari}, {$slot->nama} ({$slot->jam_mulai}-{$slot->jam_selesai}).";
             }
-            [$mulaiLama, $selesaiLama] = $rentangLama;
+        }
 
-            if ($mulaiBaru < $selesaiLama && $mulaiLama < $selesaiBaru) {
-                return $jadwal;
+        foreach ($existing as $j) {
+            if ((int) $j->id_rooms === $idKelas) {
+                $mapel = $j->mapel->nama_mapel ?? 'mata pelajaran';
+                $guru = $j->guru->nama_guru ?? 'guru lain';
+
+                return "Bentrok kelas — {$j->kelas->pararel} sudah punya {$mapel} ({$guru}) pada hari {$hari}, {$slot->nama} ({$slot->jam_mulai}-{$slot->jam_selesai}).";
             }
         }
 
-        return null;
-    }
-
-    // Cari jadwal yang bentrok: kelas yang sama, hari yang sama, dan rentang
-    // waktunya beririsan (bukan hanya sama persis). Walaupun gurunya berbeda!
-    private function cekBentrokKelas($hari, $jam, $idKelas, $excludeId = null)
-    {
-        $rentangBaru = $this->parseRentangJam($jam);
-        if ($rentangBaru === null) {
-            return null;
-        }
-        [$mulaiBaru, $selesaiBaru] = $rentangBaru;
-
-        $query = Jadwal::with(['guru', 'kelas', 'mapel'])
-            ->where('hari', $hari)
-            ->where('id_rooms', $idKelas);
-
-        if ($excludeId !== null) {
-            $query->where('id_jadwal', '!=', $excludeId);
-        }
-
-        foreach ($query->get() as $jadwal) {
-            $rentangLama = $this->parseRentangJam($jadwal->jam);
-            if ($rentangLama === null) {
-                continue;
-            }
-            [$mulaiLama, $selesaiLama] = $rentangLama;
-
-            if ($mulaiBaru < $selesaiLama && $mulaiLama < $selesaiBaru) {
-                return $jadwal;
+        if ($ruang) {
+            foreach ($existing as $j) {
+                if ($j->ruang && strcasecmp((string) $j->ruang, $ruang) === 0) {
+                    return "Bentrok ruang — {$ruang} sudah dipakai {$j->kelas->pararel} pada hari {$hari}, {$slot->nama} ({$slot->jam_mulai}-{$slot->jam_selesai}).";
+                }
             }
         }
 
         return null;
     }
 
-    // Susun pesan bentrok kelas yang informatif untuk ditampilkan ke pengguna.
-    private function pesanBentrokKelas($bentrok, $jamBaru): string
+    /**
+     * Aturan validasi bersama untuk store & update.
+     */
+    private function aturanValidasi(): array
     {
-        $namaGuru = $bentrok->guru->nama_guru ?? 'Guru lain';
-        $kelas = $bentrok->kelas->pararel ?? '-';
-        $mapel = $bentrok->mapel->nama_mapel ?? 'Mata pelajaran';
-        $jamBaruTampil = str_replace(':', '.', (string) $jamBaru);
-        $jamLamaTampil = str_replace(':', '.', (string) $bentrok->jam);
-
-        return "Ruang/Kelas {$kelas} sudah terisi pelajaran {$mapel} oleh {$namaGuru} pada hari {$bentrok->hari} jam {$jamLamaTampil}. "
-            ."Jadwal jam {$jamBaruTampil} bentrok karena kelas sedang digunakan.";
+        return [
+            'hari' => ['required', 'string', 'in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu'],
+            'time_slot_id' => ['required', 'exists:time_slots,id_slot'],
+            'id_mapel' => ['required', 'exists:mata_pelajaran,id_mapel'],
+            'id_guru' => ['required', 'exists:guru,id_guru'],
+            'id_kelas' => ['required', 'exists:kelas,id_rooms'],
+            'ruang' => ['nullable', 'string', 'max:50'],
+        ];
     }
 
-    // Susun pesan bentrok guru yang informatif untuk ditampilkan ke pengguna.
-    private function pesanBentrok($bentrok, $jamBaru): string
+    private function pesanValidasi(): array
     {
-        $namaGuru = $bentrok->guru->nama_guru ?? 'Guru tersebut';
-        $kelas = $bentrok->kelas->pararel ?? '-';
-        $jamBaruTampil = str_replace(':', '.', (string) $jamBaru);
-        $jamLamaTampil = str_replace(':', '.', (string) $bentrok->jam);
-
-        return "Guru {$namaGuru} sudah mengajar pada hari {$bentrok->hari} jam {$jamLamaTampil} (kelas {$kelas}). "
-            ."Jadwal jam {$jamBaruTampil} bentrok karena guru sedang mengajar di jam tersebut.";
+        return [
+            'hari.in' => 'Pilihan hari tidak valid!',
+            'time_slot_id.required' => 'Slot jam pelajaran wajib dipilih!',
+            'time_slot_id.exists' => 'Slot jam yang dipilih tidak valid!',
+            'id_mapel.exists' => 'Mata pelajaran yang dipilih tidak valid!',
+            'id_guru.exists' => 'Guru yang dipilih tidak valid!',
+            'id_kelas.required' => 'Kelas wajib dipilih!',
+            'id_kelas.exists' => 'Kelas yang dipilih tidak valid!',
+        ];
     }
 
     // Menyimpan jadwal baru
     public function store(Request $request)
     {
-        if ($request->has('jam')) {
-            $request->merge(['jam' => preg_replace('/\s+/', '', str_replace(':', '.', (string) $request->jam))]);
-        }
-        $request->validate([
-            'hari' => ['required', 'string', 'in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu'],
-            'jam' => ['required', 'regex:/^[0-9]{2}\.[0-9]{2}-[0-9]{2}\.[0-9]{2}$/'],
-            'id_mapel' => ['required', 'exists:mata_pelajaran,id_mapel'],
-            'id_guru' => ['required', 'exists:guru,id_guru'],
-            'id_kelas' => ['required', 'exists:kelas,id_rooms'],
-        ], [
-            'hari.in' => 'Pilihan hari tidak valid!',
-            'id_mapel.exists' => 'Mata pelajaran yang dipilih tidak valid!',
-            'id_guru.exists' => 'Guru yang dipilih tidak valid!',
-            'jam.regex' => 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).',
-            'id_kelas.required' => 'Kelas wajib dipilih!',
-            'id_kelas.exists' => 'Kelas yang dipilih tidak valid!',
-        ]);
+        $request->validate($this->aturanValidasi(), $this->pesanValidasi());
 
-        // Cek validasi jam mundur / human error
-        $jamError = $this->validateJamPelajaran($request->jam);
-        if ($jamError) {
-            return back()->withInput()->withErrors(['jam' => $jamError])->with('error', $jamError);
-        }
+        $slot = TimeSlot::findOrFail($request->time_slot_id);
 
-        // Cek duplikat: hari + jam + id_kelas + id_guru
-        $exists = Jadwal::where('hari', $request->hari)
-            ->where('jam', $request->jam)
-            ->where('id_rooms', $request->id_kelas)
-            ->where('id_guru', $request->id_guru)
-            ->exists();
+        $bentrok = $this->cekBentrokSlot(
+            $request->hari,
+            $slot,
+            (int) $request->id_guru,
+            (int) $request->id_kelas,
+            $request->ruang ?: null
+        );
 
-        if ($exists) {
-            return back()->withInput()->with('error', 'Jadwal sudah ada (duplikat hari, jam, guru, dan kelas).');
-        }
-
-        // Cek bentrok: guru yang sama tidak boleh mengajar di waktu yang
-        // beririsan pada hari yang sama, walau kelasnya berbeda.
-        $bentrokGuru = $this->cekBentrokGuru($request->hari, $request->jam, $request->id_guru);
-        if ($bentrokGuru) {
-            $pesan = $this->pesanBentrok($bentrokGuru, $request->jam);
-
-            return back()->withInput()->withErrors(['jam' => $pesan])->with('error', $pesan);
-        }
-
-        // Cek bentrok: kelas yang sama tidak boleh sedang digunakan oleh
-        // guru lain di waktu yang beririsan pada hari yang sama.
-        $bentrokKelas = $this->cekBentrokKelas($request->hari, $request->jam, $request->id_kelas);
-        if ($bentrokKelas) {
-            $pesan = $this->pesanBentrokKelas($bentrokKelas, $request->jam);
-
-            return back()->withInput()->withErrors(['jam' => $pesan])->with('error', $pesan);
+        if ($bentrok) {
+            return back()->withInput()->withErrors(['time_slot_id' => $bentrok])->with('error', $bentrok);
         }
 
         Jadwal::create([
             'hari' => $request->hari,
-            'jam' => $request->jam,
+            'jam' => $slot->jam_teks,       // tetap diisi untuk kompatibilitas view guru/siswa
+            'time_slot_id' => $slot->id_slot,
+            'ruang' => $request->ruang ?: null,
             'id_mapel' => $request->id_mapel,
             'id_guru' => $request->id_guru,
             'id_rooms' => $request->id_kelas,
@@ -301,72 +202,38 @@ class JadwalController extends Controller
         $mapel = MataPelajaran::all();
         $jamTutup = AbsensiSetting::get('batas_tutup', '12:00');
         $jamAwal = AbsensiSetting::get('batas_awal', '07:00');
+        $slots = TimeSlot::orderBy('urutan')->get();
 
-        return view('jadwal.edit', compact('jadwal', 'kelas', 'guru', 'mapel', 'jamTutup', 'jamAwal'));
+        return view('jadwal.edit', compact('jadwal', 'kelas', 'guru', 'mapel', 'jamTutup', 'jamAwal', 'slots'));
     }
 
     // Mengupdate jadwal
     public function update(Request $request, $id)
     {
-        if ($request->has('jam')) {
-            $request->merge(['jam' => preg_replace('/\s+/', '', str_replace(':', '.', (string) $request->jam))]);
-        }
-        $request->validate([
-            'hari' => ['required', 'string', 'in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu,Minggu'],
-            'jam' => ['required', 'regex:/^[0-9]{2}\.[0-9]{2}-[0-9]{2}\.[0-9]{2}$/'],
-            'id_mapel' => ['required', 'exists:mata_pelajaran,id_mapel'],
-            'id_guru' => ['required', 'exists:guru,id_guru'],
-            'id_kelas' => ['required', 'exists:kelas,id_rooms'],
-        ], [
-            'hari.in' => 'Pilihan hari tidak valid!',
-            'id_mapel.exists' => 'Mata pelajaran yang dipilih tidak valid!',
-            'id_guru.exists' => 'Guru yang dipilih tidak valid!',
-            'jam.regex' => 'Format jam tidak valid! Gunakan format HH.MM-HH.MM (contoh: 07.00-09.00).',
-            'id_kelas.required' => 'Kelas wajib dipilih!',
-            'id_kelas.exists' => 'Kelas yang dipilih tidak valid!',
-        ]);
-
-        // Cek validasi jam mundur / human error
-        $jamError = $this->validateJamPelajaran($request->jam);
-        if ($jamError) {
-            return back()->withInput()->withErrors(['jam' => $jamError])->with('error', $jamError);
-        }
-
         $jadwal = Jadwal::findOrFail($id);
 
-        // Cek duplikat tapi exclude record ini
-        $exists = Jadwal::where('hari', $request->hari)
-            ->where('jam', $request->jam)
-            ->where('id_rooms', $request->id_kelas)
-            ->where('id_guru', $request->id_guru)
-            ->where('id_jadwal', '!=', $id)
-            ->exists();
+        $request->validate($this->aturanValidasi(), $this->pesanValidasi());
 
-        if ($exists) {
-            return back()->withInput()->with('error', 'Jadwal sudah ada (duplikat hari, jam, guru, dan kelas).');
-        }
+        $slot = TimeSlot::findOrFail($request->time_slot_id);
 
-        // Cek bentrok (exclude record ini): guru yang sama tidak boleh
-        // mengajar di waktu yang beririsan pada hari yang sama.
-        $bentrokGuru = $this->cekBentrokGuru($request->hari, $request->jam, $request->id_guru, $id);
-        if ($bentrokGuru) {
-            $pesan = $this->pesanBentrok($bentrokGuru, $request->jam);
+        $bentrok = $this->cekBentrokSlot(
+            $request->hari,
+            $slot,
+            (int) $request->id_guru,
+            (int) $request->id_kelas,
+            $request->ruang ?: null,
+            (int) $jadwal->id_jadwal
+        );
 
-            return back()->withInput()->withErrors(['jam' => $pesan])->with('error', $pesan);
-        }
-
-        // Cek bentrok (exclude record ini): kelas yang sama tidak boleh
-        // sedang digunakan oleh guru lain di waktu yang beririsan pada hari yang sama.
-        $bentrokKelas = $this->cekBentrokKelas($request->hari, $request->jam, $request->id_kelas, $id);
-        if ($bentrokKelas) {
-            $pesan = $this->pesanBentrokKelas($bentrokKelas, $request->jam);
-
-            return back()->withInput()->withErrors(['jam' => $pesan])->with('error', $pesan);
+        if ($bentrok) {
+            return back()->withInput()->withErrors(['time_slot_id' => $bentrok])->with('error', $bentrok);
         }
 
         $jadwal->update([
             'hari' => $request->hari,
-            'jam' => $request->jam,
+            'jam' => $slot->jam_teks,
+            'time_slot_id' => $slot->id_slot,
+            'ruang' => $request->ruang ?: null,
             'id_mapel' => $request->id_mapel,
             'id_guru' => $request->id_guru,
             'id_rooms' => $request->id_kelas,
@@ -374,9 +241,10 @@ class JadwalController extends Controller
 
         return redirect()
             ->route('jadwal.index')
-            ->with('success', 'Jadwal berhasil diubah.');
+            ->with('success', 'Jadwal berhasil diperbarui.');
     }
 
+    // Mengupdate jadwal
     // Menghapus jadwal
     public function destroy($id)
     {
