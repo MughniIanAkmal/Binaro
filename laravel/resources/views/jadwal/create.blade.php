@@ -2,6 +2,7 @@
 
 @section('page_title', 'Tambah Jadwal Pelajaran')
 @section('page_subtitle', 'Lengkapi formulir di bawah untuk menambahkan jadwal mata pelajaran baru.')
+@section('hide_global_errors', '1')
 
 @section('header_actions')
     <a href="{{ route('jadwal.index') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
@@ -36,6 +37,9 @@
                         </option>
                     @endforeach
                 </select>
+                @error('hari')
+                    <p class="text-[11px] text-rose-600 font-semibold mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Pilih Slot Jam Pelajaran -->
@@ -50,7 +54,7 @@
                 </div>
 
                 <select name="time_slot_id" id="time_slot_id" required
-                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary text-sm text-gray-700 bg-white">
+                        class="w-full px-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-primary text-sm text-gray-700 bg-white {{ $errors->has('time_slot_id') ? 'border-rose-400 ring-2 ring-rose-100' : 'border-gray-200' }}">
                     <option value="">-- Pilih Slot Jam --</option>
                     @foreach ($slots as $slot)
                         <option value="{{ $slot->id_slot }}"
@@ -64,9 +68,10 @@
                     Slot istirahat tidak bisa dipakai. Ubah daftar slot lewat menu Pengaturan Jam Absen.
                 </p>
                 @error("time_slot_id")
-                    <p class="text-[11px] text-rose-600 font-semibold flex items-center gap-1.5">
-                        <i class="fas fa-circle-exclamation"></i> {{ $message }}
-                    </p>
+                    <div class="mt-1 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-[11px] font-semibold flex items-start gap-2">
+                        <i class="fas fa-triangle-exclamation text-rose-500 text-sm mt-0.5 shrink-0"></i>
+                        <span>{{ $message }}</span>
+                    </div>
                 @enderror
             </div>
 
@@ -92,6 +97,9 @@
                         </option>
                     @endforeach
                 </select>
+                @error("id_mapel")
+                    <p class="text-[11px] text-rose-600 font-semibold mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Select Guru -->
@@ -105,6 +113,9 @@
                         </option>
                     @endforeach
                 </select>
+                @error("id_guru")
+                    <p class="text-[11px] text-rose-600 font-semibold mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Select Kelas -->
@@ -118,6 +129,9 @@
                         </option>
                     @endforeach
                 </select>
+                @error("id_kelas")
+                    <p class="text-[11px] text-rose-600 font-semibold mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <!-- Tombol Aksi -->
