@@ -6,7 +6,7 @@
         $mapelName = $quiz->subBab->bab->mataPelajaran->nama_mapel ?? ($quiz->mataPelajaran->nama_mapel ?? 'Mata Pelajaran');
         $babName = $quiz->subBab->bab->nama_bab ?? null;
         $subBabName = $quiz->subBab->nama_sub_bab ?? null;
-        $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu');
+        $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->gurus->first()?->nama_guru ?? 'Guru Pengampu');
         $durasiMenit = $quiz->durasi_menit ?? 30;
 
         $backUrl = route('siswa.dashboard');

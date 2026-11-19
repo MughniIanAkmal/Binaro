@@ -4,7 +4,7 @@
 <div class="max-w-4xl mx-auto space-y-6 pb-16">
     @php
         $mapelName = $quiz->mataPelajaran->nama_mapel ?? ($quiz->subBab->bab->mataPelajaran->nama_mapel ?? 'Mata Pelajaran');
-        $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? ($quiz->subBab->bab->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu'));
+        $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->gurus->first()?->nama_guru ?? ($quiz->subBab->bab->mataPelajaran->gurus->first()?->nama_guru ?? 'Guru Pengampu'));
         $durasi = $quiz->durasi_menit ?? 60;
         $level = ucfirst($quiz->tingkat_level ?? 'Sedang');
     @endphp
