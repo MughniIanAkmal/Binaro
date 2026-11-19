@@ -46,7 +46,7 @@
             @foreach($ujianTersedia as $quiz)
             @php
                 $mapelName = $quiz->mataPelajaran->nama_mapel ?? ($quiz->subBab->bab->mataPelajaran->nama_mapel ?? 'Mata Pelajaran Umum');
-                $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? ($quiz->subBab->bab->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu'));
+                $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->gurus->first()?->nama_guru ?? ($quiz->subBab->bab->mataPelajaran->gurus->first()?->nama_guru ?? 'Guru Pengampu'));
                 $totalSoal = $quiz->soal->count();
                 $durasi = $quiz->durasi_menit ?? 60;
                 $level = strtolower($quiz->tingkat_level ?? 'sedang');
@@ -166,7 +166,7 @@
             @foreach($ujianSelesai as $quiz)
             @php
                 $mapelName = $quiz->mataPelajaran->nama_mapel ?? ($quiz->subBab->bab->mataPelajaran->nama_mapel ?? 'Mata Pelajaran');
-                $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->guru->nama_guru ?? 'Guru Pengampu');
+                $guruName = $quiz->guru->nama_guru ?? ($quiz->mataPelajaran->gurus->first()?->nama_guru ?? 'Guru Pengampu');
                 $hasil = $quiz->hasilSiswa->first();
                 $nilai = $hasil ? $hasil->nilai_akhir : 0;
                 $isLulus = $nilai >= config('binaro.kkm');
