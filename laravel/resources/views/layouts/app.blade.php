@@ -81,11 +81,11 @@
                 <span>Kelola RPP</span>
             </a>
 
-            <!-- 7. Kelola Absensi -->
-            <a href="{{ route('absensi.index') }}"
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('absensi.*') || request()->routeIs('admin.absensi.rekap') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
-                <i class="fas fa-clipboard-check w-4 text-center {{ request()->routeIs('absensi.*') || request()->routeIs('admin.absensi.rekap') ? 'text-white' : 'text-slate-400' }}"></i>
-                <span>Kelola Absensi</span>
+            <!-- 7. QR & Absensi (gabungan, Revisi 5) -->
+            <a href="{{ route('admin.qr_absensi.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('admin.qr_absensi.*') || request()->routeIs('absensi.*') || request()->routeIs('admin.absensi.rekap') || request()->routeIs('admin.qr.*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
+                <i class="fas fa-qrcode w-4 text-center {{ request()->routeIs('admin.qr_absensi.*') || request()->routeIs('absensi.*') || request()->routeIs('admin.absensi.rekap') || request()->routeIs('admin.qr.*') ? 'text-white' : 'text-slate-400' }}"></i>
+                <span>QR &amp; Absensi</span>
             </a>
 
             <!-- 8. Pengaturan Jam Absen -->
@@ -93,13 +93,6 @@
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('admin.absensi.settings*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
                 <i class="fas fa-clock w-4 text-center {{ request()->routeIs('admin.absensi.settings*') ? 'text-white' : 'text-slate-400' }}"></i>
                 <span>Pengaturan Jam Absen</span>
-            </a>
-
-            <!-- 9. QR Siswa -->
-            <a href="{{ route('admin.qr.index') }}"
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('admin.qr.*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
-                <i class="fas fa-id-card w-4 text-center {{ request()->routeIs('admin.qr.*') ? 'text-white' : 'text-slate-400' }}"></i>
-                <span>QR Siswa</span>
             </a>
         </nav>
 
