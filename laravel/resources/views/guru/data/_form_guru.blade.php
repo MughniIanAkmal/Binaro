@@ -71,6 +71,35 @@
         @error('alamat') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
     </div>
 
+    {{-- Revisi 2: lock guru ke 1 kelas (diatur admin, bisa diubah lagi di sini). --}}
+    <div class="pt-2 border-t border-slate-200">
+        <label class="block font-bold text-slate-700 mb-1">Kelas yang Diampu (Lock 1 Kelas)</label>
+        <select name="id_rooms" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-primary bg-white">
+            <option value="">-- Belum di-lock ke kelas mana pun --</option>
+            @foreach(($kelasList ?? collect()) as $kelas)
+                <option value="{{ $kelas->id_rooms }}" {{ (string) old('id_rooms', data_get($g, 'id_rooms', '')) === (string) $kelas->id_rooms ? 'selected' : '' }}>Kelas {{ $kelas->nama_kelas }}</option>
+            @endforeach
+        </select>
+        <p class="text-[10px] text-slate-400 mt-1">Guru yang sudah di-lock hanya bisa membuat RPP / ujian untuk kelas ini. Kosongkan kalau belum mau mengunci.</p>
+        @error('id_rooms') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
+    </div>
+
+    {{-- Revisi 3: mapel yang boleh diajar guru ini (diatur admin). --}}
+    @php $selectedMapel = old('mapel_ids', $g ? $g->mapel->pluck('id_mapel')->all() : []); @endphp
+    <div class="pt-2 border-t border-slate-200">
+        <label class="block font-bold text-slate-700 mb-1">Mata Pelajaran yang Diajar</label>
+        <p class="text-[10px] text-slate-400 mb-2">Centang mapel yang boleh diajar guru ini. Kalau tidak ada yang dicentang, guru mengikuti mapel dari jadwal mengajarnya (perilaku lama).</p>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            @foreach(($mapelList ?? collect()) as $mapel)
+                <label class="flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-lg hover:border-primary cursor-pointer bg-white">
+                    <input type="checkbox" name="mapel_ids[]" value="{{ $mapel->id_mapel }}" {{ in_array($mapel->id_mapel, (array) $selectedMapel) ? 'checked' : '' }} class="rounded text-primary focus:ring-0">
+                    <span class="font-medium text-slate-700">{{ $mapel->nama_mapel }}</span>
+                </label>
+            @endforeach
+        </div>
+        @error('mapel_ids') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
+    </div>
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-200">
         <div>
             <label class="block font-bold text-slate-700 mb-1">Password {{ $g ? '(Kosongkan jika tidak diubah)' : '*' }}</label>

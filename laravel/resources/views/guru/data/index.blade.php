@@ -43,6 +43,8 @@
                         <th class="p-3.5 pl-6">NO</th>
                         <th class="p-3.5">NAMA GURU</th>
                         <th class="p-3.5">NIP</th>
+                        <th class="p-3.5">KELAS (LOCK)</th>
+                        <th class="p-3.5">MAPEL DIAJAR</th>
                         <th class="p-3.5">KONTAK (EMAIL / HP)</th>
                         <th class="p-3.5">USERNAME</th>
                         <th class="p-3.5 text-center">AKSI</th>
@@ -57,6 +59,8 @@
                             <div class="text-[11px] text-slate-400">{{ $item->alamat ? Str::limit($item->alamat, 30) : 'Alamat belum diatur' }}</div>
                         </td>
                         <td class="p-3.5 font-mono text-slate-700">{{ $item->nip ?? '-' }}</td>
+                        <td class="p-3.5">{{ $item->kelas ? 'Kelas '.$item->kelas->nama_kelas : '-' }}</td>
+                        <td class="p-3.5">{{ $item->mapel->isNotEmpty() ? $item->mapel->pluck('nama_mapel')->join(', ') : '-' }}</td>
                         <td class="p-3.5">
                             <div><i class="fas fa-envelope text-slate-400 mr-1 text-[10px]"></i>{{ $item->email ?? '-' }}</div>
                             <div class="text-[11px] text-slate-500"><i class="fas fa-phone text-slate-400 mr-1 text-[10px]"></i>{{ $item->no_hp ?? '-' }}</div>
@@ -80,7 +84,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="p-2"><x-empty-state icon="fa-inbox" title="Belum ada data guru terdaftar." /></td>
+                        <td colspan="8" class="p-2"><x-empty-state icon="fa-inbox" title="Belum ada data guru terdaftar." /></td>
                     </tr>
                     @endforelse
                 </tbody>

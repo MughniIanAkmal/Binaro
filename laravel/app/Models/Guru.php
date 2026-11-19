@@ -25,6 +25,8 @@ class Guru extends Authenticatable
         'jenis_kelamin',
         'username',
         'password',
+        // Revisi: lock guru ke 1 kelas (diatur admin, nullable = belum di-lock).
+        'id_rooms',
     ];
 
     protected $appends = ['nama'];
@@ -37,6 +39,64 @@ class Guru extends Authenticatable
     public function setNamaAttribute($value)
     {
         $this->attributes['nama_guru'] = $value;
+    }
+
+    /** Kelas yang di-lock untuk guru ini (1 guru = 1 kelas, diatur admin). */
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'id_rooms', 'id_rooms');
+    }
+
+    /** Mapel yang diizinkan admin untuk guru ini (pivot guru_mapel). */
+    public function mapel()
+    {
+        return $this->belongsToMany(MataPelajaran::class, 'guru_mapel', 'id_guru', 'id_mapel')->withTimestamps();
+    }
+
+    /** null = belum di-lock admin, semua alur lama tetap jalan. */
+    public function lockedKelasId(): ?int
+    {
+        return $this->id_rooms ? (int) $this->id_rooms : null;
+    }
+
+    public function isLockedToKelas(?int $idRooms): bool
+    {
+        $locked = $this->lockedKelasId();
+
+        return $locked !== null && $idRooms !== null && $locked === $idRooms;
+    }
+
+    /**
+     * Mapel yang boleh diajar guru ini.
+     * Kalau admin sudah mengisi pivot guru_mapel, pivot itu yang berlaku.
+     * Kalau belum pernah diisi, fallback ke mapel dari jadwal mengajar
+     * (perilaku lama) supaya guru lama tidak tiba-tiba kehilangan akses.
+     */
+    public function taughtMapelIds(): \Illuminate\Support\Collection
+    {
+        $pivotIds = $this->mapel()->pluck('mata_pelajaran.id_mapel')->map(fn ($id) => (int) $id);
+
+        if ($pivotIds->isNotEmpty()) {
+            return $pivotIds->values();
+        }
+
+        return JadwalMataPelajaran::where('id_guru', $this->id_guru)
+            ->distinct()->pluck('id_mapel')->map(fn ($id) => (int) $id)->values();
+    }
+
+    public function canTeachMapel(?int $idMapel): bool
+    {
+        if ($idMapel === null) {
+            return false;
+        }
+
+        return $this->taughtMapelIds()->contains($idMapel);
+    }
+
+    /** true kalau admin sudah pernah mengisi pivot guru_mapel untuk guru ini. */
+    public function isMapelCustomized(): bool
+    {
+        return $this->mapel()->exists();
     }
 
     public function rpp()

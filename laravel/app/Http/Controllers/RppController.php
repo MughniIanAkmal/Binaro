@@ -138,8 +138,21 @@ class RppController extends Controller
         }
 
         $rppList = $query->latest('id_rpp')->paginate(12)->withQueryString();
+        // Revisi 2 & 3: di portal guru, dropdown modal RPP hanya menampilkan
+        // kelas yang di-lock dan mapel yang diizinkan admin untuk guru ini.
+        // Kalau guru belum punya mapel ampuan sama sekali, tampilkan semua
+        // mapel supaya RPP pertama tetap bisa dibuat.
         $mapelList = MataPelajaran::all();
         $kelasList = Kelas::all();
+        if ($guru) {
+            if ($guru->lockedKelasId() !== null) {
+                $kelasList = Kelas::where('id_rooms', $guru->lockedKelasId())->get();
+            }
+            $taughtIds = $guru->taughtMapelIds();
+            if ($taughtIds->isNotEmpty()) {
+                $mapelList = MataPelajaran::whereIn('id_mapel', $taughtIds)->get();
+            }
+        }
         $jadwalList = $guru ? JadwalMataPelajaran::with(['mataPelajaran', 'kelas'])->where('id_guru', $guru->id_guru)->get() : collect();
 
         return view('rpp_guru.index', compact(
@@ -238,6 +251,21 @@ class RppController extends Controller
             $idGuru = Guru::value('id_guru');
         }
         $request->merge(['id_guru' => $idGuru]);
+
+        // Revisi 2 & 3: guru yang sudah di-lock admin ke 1 kelas tidak bisa
+        // membuat RPP untuk kelas lain; kalau admin sudah mengatur mapelnya,
+        // RPP hanya boleh untuk mapel yang diizinkan itu.
+        $guruPembuat = $idGuru ? Guru::find($idGuru) : null;
+        if ($guruPembuat && $guruPembuat->lockedKelasId() !== null) {
+            $request->merge(['id_rooms' => $guruPembuat->lockedKelasId()]);
+        }
+        if ($guruPembuat && $guruPembuat->isMapelCustomized()
+            && $request->filled('id_mapel')
+            && ! $guruPembuat->canTeachMapel((int) $request->input('id_mapel'))) {
+            return back()->withInput()->withErrors([
+                'id_mapel' => 'Mata pelajaran ini bukan mata pelajaran yang diatur admin untuk Anda.',
+            ]);
+        }
 
         // Validasi Target Roster Jadwal & Hitung JP Otomatis (1 JP = 45 Menit)
         [$validJadwal, $errorJadwal, $autoJp] = $this->processJadwalAndJp($request->input('target_jadwal'));
@@ -367,6 +395,19 @@ class RppController extends Controller
         $rpp = Rpp::where('id_rpp', $id)->first();
         if (! $rpp) {
             abort(404, 'RPP tidak ditemukan.');
+        }
+
+        // Revisi 2 & 3: paksa kelas & mapel sesuai lock admin (lihat store()).
+        $guruPemilik = $rpp->id_guru ? Guru::find($rpp->id_guru) : null;
+        if ($guruPemilik && $guruPemilik->lockedKelasId() !== null) {
+            $request->merge(['id_rooms' => $guruPemilik->lockedKelasId()]);
+        }
+        if ($guruPemilik && $guruPemilik->isMapelCustomized()
+            && $request->filled('id_mapel')
+            && ! $guruPemilik->canTeachMapel((int) $request->input('id_mapel'))) {
+            return back()->withInput()->withErrors([
+                'id_mapel' => 'Mata pelajaran ini bukan mata pelajaran yang diatur admin untuk Anda.',
+            ]);
         }
 
         // Validasi Target Roster Jadwal & Hitung JP Otomatis (1 JP = 45 Menit)

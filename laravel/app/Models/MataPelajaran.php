@@ -28,4 +28,15 @@ class MataPelajaran extends Model
     {
         return $this->hasMany(Siswa::class, 'id_mapel', 'id_mapel');
     }
+
+    /**
+     * Guru yang diizinkan admin mengajar mapel ini (pivot guru_mapel).
+     * Namanya jamak (gurus) karena belongsToMany mengembalikan Collection —
+     * jangan dinamai guru(), karena view siswa memakai ->guru->nama_guru
+     * dengan asumsi relasi tunggal dan akan 500 kalau dapat Collection.
+     */
+    public function gurus()
+    {
+        return $this->belongsToMany(Guru::class, 'guru_mapel', 'id_mapel', 'id_guru')->withTimestamps();
+    }
 }
