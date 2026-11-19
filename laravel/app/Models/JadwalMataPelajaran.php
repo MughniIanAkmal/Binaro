@@ -14,6 +14,8 @@ class JadwalMataPelajaran extends Model
 
     protected $guarded = ['id_jadwal'];
 
+    protected $appends = ['jam_rentang'];
+
     public function mataPelajaran()
     {
         return $this->belongsTo(MataPelajaran::class, 'id_mapel', 'id_mapel');
@@ -32,5 +34,23 @@ class JadwalMataPelajaran extends Model
     public function kelas()
     {
         return $this->belongsTo(Kelas::class, 'id_rooms', 'id_rooms');
+    }
+
+    public function timeSlot()
+    {
+        return $this->belongsTo(TimeSlot::class, 'time_slot_id', 'id_slot');
+    }
+
+    /**
+     * Rentang jam siap tampil. Utamakan slot; fallback ke kolom `jam` lama
+     * agar data lama (yang belum punya time_slot_id) tetap tampil.
+     */
+    public function getJamRentangAttribute(): string
+    {
+        if ($this->timeSlot) {
+            return $this->timeSlot->jam_mulai.' - '.$this->timeSlot->jam_selesai;
+        }
+
+        return (string) ($this->attributes['jam'] ?? '-');
     }
 }

@@ -184,7 +184,7 @@
         <x-alert type="info" class="mx-8 mt-5">{{ session('info') }}</x-alert>
         @endif
 
-        @if(isset($errors) && $errors->any())
+        @if(isset($errors) && $errors->any() && ! session('error'))
         <div class="mx-8 mt-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs shadow-sm">
             <div class="font-bold mb-1.5 flex items-center gap-2"><i class="fas fa-triangle-exclamation"></i> Terjadi Kesalahan Input:</div>
             <ul class="list-disc list-inside space-y-0.5">
