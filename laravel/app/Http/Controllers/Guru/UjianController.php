@@ -7,7 +7,6 @@ use App\Http\Requests\Guru\SoalUjianRequest;
 use App\Http\Requests\Guru\StoreUjianRequest;
 use App\Http\Requests\Guru\UpdateUjianRequest;
 use App\Models\Guru;
-use App\Models\JadwalMataPelajaran;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Quiz;
@@ -80,13 +79,13 @@ class UjianController extends Controller
     public function create()
     {
         $mapels = $this->mapelAmpuan();
-        $kelasList = Kelas::with(['siswas' => function ($q) {
-            $q->orderBy('nm_siswa');
-        }])->orderBy('pararel')->get();
+        // Revisi 4: kalau guru sudah di-lock ke 1 kelas, daftar kelas & siswa
+        // di form ujian hanya kelas itu (bukan semua kelas di sekolah).
+        $lockedKelas = $this->lockedKelas();
+        $kelasList = $this->kelasListUntukUjian();
+        $allSiswas = $this->siswaUntukUjian();
 
-        $allSiswas = Siswa::with('kelas')->orderBy('nm_siswa')->get();
-
-        return view('guru.ujian.create', compact('mapels', 'kelasList', 'allSiswas'));
+        return view('guru.ujian.create', compact('mapels', 'kelasList', 'allSiswas', 'lockedKelas'));
     }
 
     /**
@@ -102,6 +101,13 @@ class UjianController extends Controller
             ]);
         }
 
+        // Revisi 4: target siswa wajib dari kelas yang di-lock (kalau ada).
+        $targetSiswa = $this->saringTargetSiswa($request->target_siswa ?? []);
+        if ($this->lockedKelas() && $request->target_tipe === 'pilihan' && empty($targetSiswa)) {
+            return back()->withInput()->withErrors([
+                'target_siswa' => 'Pilih minimal satu siswa dari kelas Anda ('.$this->lockedKelas()->nama_kelas.'). Siswa dari kelas lain tidak bisa dipilih.',
+            ]);
+        }
         if ($request->target_tipe === 'pilihan' && empty($request->target_siswa)) {
             return back()->withInput()->withErrors([
                 'target_siswa' => 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.',
@@ -131,6 +137,16 @@ class UjianController extends Controller
             }
         }
 
+        // Revisi 4: "Semua Siswa" untuk guru yang di-lock artinya semua siswa
+        // di kelasnya saja — disimpan sebagai target 'pilihan' berisi seluruh
+        // siswa kelas itu, supaya logika siswa (web & mobile) yang membaca
+        // target_tipe/targetSiswa ikut terkunci ke kelas tersebut.
+        $targetTipeSimpan = $request->target_tipe;
+        if ($this->lockedKelas() && $request->target_tipe === 'semua') {
+            $targetTipeSimpan = 'pilihan';
+            $targetSiswa = $this->siswaUntukUjian()->pluck('id_siswa')->map(fn ($id) => (int) $id)->all();
+        }
+
         DB::beginTransaction();
         try {
             $quiz = Quiz::create([
@@ -140,13 +156,13 @@ class UjianController extends Controller
                 'nama_quiz' => $judulQuiz,
                 'tingkat_level' => $request->tingkat_level,
                 'durasi_menit' => $request->durasi_menit,
-                'target_tipe' => $request->target_tipe,
+                'target_tipe' => $targetTipeSimpan,
                 'deskripsi' => $request->deskripsi,
             ]);
 
             // Sync target siswa jika tipe pilihan
-            if ($request->target_tipe === 'pilihan' && is_array($request->target_siswa)) {
-                $quiz->targetSiswa()->sync($request->target_siswa);
+            if ($targetTipeSimpan === 'pilihan' && is_array($targetSiswa)) {
+                $quiz->targetSiswa()->sync($targetSiswa);
             }
 
             // Simpan soal awal jika ada diinput langsung dari form create
@@ -202,9 +218,7 @@ class UjianController extends Controller
         ]);
 
         $totalBobot = $quiz->soal->sum('bobot_nilai');
-        $kelasList = Kelas::with(['siswas' => function ($q) {
-            $q->orderBy('nm_siswa');
-        }])->get();
+        $kelasList = $this->kelasListUntukUjian();
 
         return view('guru.ujian.show', compact('quiz', 'totalBobot', 'kelasList'));
     }
@@ -224,14 +238,13 @@ class UjianController extends Controller
                 $mapels->push($mapelSaatIni);
             }
         }
-        $kelasList = Kelas::with(['siswas' => function ($q) {
-            $q->orderBy('nm_siswa');
-        }])->orderBy('pararel')->get();
-        $allSiswas = Siswa::with('kelas')->orderBy('nm_siswa')->get();
+        $lockedKelas = $this->lockedKelas();
+        $kelasList = $this->kelasListUntukUjian();
+        $allSiswas = $this->siswaUntukUjian();
 
         $selectedSiswaIds = $quiz->targetSiswa->pluck('id_siswa')->toArray();
 
-        return view('guru.ujian.edit', compact('quiz', 'mapels', 'kelasList', 'allSiswas', 'selectedSiswaIds'));
+        return view('guru.ujian.edit', compact('quiz', 'mapels', 'kelasList', 'allSiswas', 'selectedSiswaIds', 'lockedKelas'));
     }
 
     /**
@@ -248,10 +261,24 @@ class UjianController extends Controller
             ]);
         }
 
+        // Revisi 4: target siswa wajib dari kelas yang di-lock (kalau ada).
+        $targetSiswa = $this->saringTargetSiswa($request->target_siswa ?? []);
+        if ($this->lockedKelas() && $request->target_tipe === 'pilihan' && empty($targetSiswa)) {
+            return back()->withInput()->withErrors([
+                'target_siswa' => 'Pilih minimal satu siswa dari kelas Anda ('.$this->lockedKelas()->nama_kelas.'). Siswa dari kelas lain tidak bisa dipilih.',
+            ]);
+        }
         if ($request->target_tipe === 'pilihan' && empty($request->target_siswa)) {
             return back()->withInput()->withErrors([
                 'target_siswa' => 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.',
             ]);
+        }
+
+        // Revisi 4: "semua" untuk guru yang di-lock = semua siswa kelasnya saja.
+        $targetTipeSimpan = $request->target_tipe;
+        if ($this->lockedKelas() && $request->target_tipe === 'semua') {
+            $targetTipeSimpan = 'pilihan';
+            $targetSiswa = $this->siswaUntukUjian()->pluck('id_siswa')->map(fn ($id) => (int) $id)->all();
         }
 
         $judulQuiz = trim($request->judul_quiz);
@@ -285,12 +312,12 @@ class UjianController extends Controller
                 'nama_quiz' => $judulQuiz,
                 'tingkat_level' => $request->tingkat_level,
                 'durasi_menit' => $request->durasi_menit,
-                'target_tipe' => $request->target_tipe,
+                'target_tipe' => $targetTipeSimpan,
                 'deskripsi' => $request->deskripsi,
             ]);
 
-            if ($request->target_tipe === 'pilihan') {
-                $quiz->targetSiswa()->sync($request->target_siswa ?? []);
+            if ($targetTipeSimpan === 'pilihan') {
+                $quiz->targetSiswa()->sync($targetSiswa ?? []);
             } else {
                 $quiz->targetSiswa()->detach();
             }
@@ -577,7 +604,9 @@ class UjianController extends Controller
     }
 
     /**
-     * Mata pelajaran yang diampu guru (berdasarkan jadwal mengajar).
+     * Mata pelajaran yang diampu guru.
+     * Revisi 3: kalau admin sudah mengatur pivot guru_mapel, pivot itu yang
+     * berlaku; kalau belum, fallback ke mapel dari jadwal mengajar.
      */
     private function mapelAmpuan(): Collection
     {
@@ -586,10 +615,62 @@ class UjianController extends Controller
 
     private function mapelAmpuanIds(): Collection
     {
-        return JadwalMataPelajaran::where('id_guru', $this->authenticatedGuru()->id_guru)
-            ->distinct()
-            ->pluck('id_mapel')
-            ->map(fn ($id) => (int) $id);
+        return $this->authenticatedGuru()->taughtMapelIds();
+    }
+
+    /** Revisi 2: kelas yang di-lock admin untuk guru yang login (null = belum di-lock). */
+    private function lockedKelas(): ?Kelas
+    {
+        $guru = $this->authenticatedGuru();
+        $lockedId = $guru->lockedKelasId();
+
+        return $lockedId ? Kelas::find($lockedId) : null;
+    }
+
+    /** Daftar kelas untuk form ujian: 1 kelas saja kalau guru sudah di-lock. */
+    private function kelasListUntukUjian(): Collection
+    {
+        $locked = $this->lockedKelas();
+        $query = Kelas::with(['siswas' => function ($q) {
+            $q->orderBy('nm_siswa');
+        }])->orderBy('pararel');
+
+        if ($locked) {
+            $query->where('id_rooms', $locked->id_rooms);
+        }
+
+        return $query->get();
+    }
+
+    /** Daftar siswa untuk form ujian: hanya siswa kelas yang di-lock. */
+    private function siswaUntukUjian(): Collection
+    {
+        $locked = $this->lockedKelas();
+        $query = Siswa::with('kelas')->orderBy('nm_siswa');
+
+        if ($locked) {
+            $query->where('id_rooms', $locked->id_rooms);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Revisi 4: saring target siswa ke kelas yang di-lock. Kalau guru belum
+     * di-lock, kembalikan apa adanya. ID dari kelas lain dibuang diam-diam
+     * di sini, dan store()/update() menolak kalau hasilnya kosong.
+     */
+    private function saringTargetSiswa(array $ids): array
+    {
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+        $locked = $this->lockedKelas();
+        if (! $locked || empty($ids)) {
+            return $ids;
+        }
+
+        return Siswa::whereIn('id_siswa', $ids)
+            ->where('id_rooms', $locked->id_rooms)
+            ->pluck('id_siswa')->map(fn ($id) => (int) $id)->all();
     }
 
     /**
