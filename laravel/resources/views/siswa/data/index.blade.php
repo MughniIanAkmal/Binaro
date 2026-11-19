@@ -8,10 +8,6 @@
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-center gap-3">
             <div class="flex flex-1 flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                <button type="button" id="btn-tambah-siswa"
-                   class="inline-flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary">
-                    <i class="fas fa-plus text-[11px]"></i> Tambah Siswa
-                </button>
                 <form action="{{ route('siswa.data.index') }}" method="GET" class="flex gap-2 items-center">
                     <div class="relative">
                         <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
@@ -29,6 +25,12 @@
                     <i class="fas fa-user-graduate text-[10px] text-slate-400"></i>
                     Total Siswa: <span class="font-bold text-slate-800">{{ $siswa->total() }}</span>
                 </span>
+            </div>
+            <div class="flex justify-center sm:justify-end shrink-0">
+                <button type="button" id="btn-tambah-siswa"
+                   class="inline-flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary">
+                    <i class="fas fa-plus text-[11px]"></i> Tambah Siswa
+                </button>
             </div>
         </div>
 
