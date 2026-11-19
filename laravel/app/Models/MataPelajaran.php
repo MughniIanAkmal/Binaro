@@ -37,6 +37,8 @@ class MataPelajaran extends Model
      */
     public function gurus()
     {
-        return $this->belongsToMany(Guru::class, 'guru_mapel', 'id_mapel', 'id_guru')->withTimestamps();
+        // Tanpa withTimestamps(): alasannya sama seperti di Guru::mapel() —
+        // tabel guru_mapel lama bisa tidak punya created_at/updated_at.
+        return $this->belongsToMany(Guru::class, 'guru_mapel', 'id_mapel', 'id_guru');
     }
 }
