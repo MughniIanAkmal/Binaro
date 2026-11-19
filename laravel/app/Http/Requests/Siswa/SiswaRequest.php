@@ -40,7 +40,6 @@ abstract class SiswaRequest extends FormRequest
             'jenis_kelamin' => 'nullable|in:L,P',
             'alamat' => 'nullable|string|max:500',
             'username' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9._]+$/', $uniqueUsername],
-            'id_mapel' => 'nullable|exists:mata_pelajaran,id_mapel',
             'id_rooms' => 'nullable|exists:kelas,id_rooms',
         ];
     }

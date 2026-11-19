@@ -40,7 +40,6 @@
                         <th class="p-3.5">Nama Siswa</th>
                         <th class="p-3.5">NISN</th>
                         <th class="p-3.5">Kelas</th>
-                        <th class="p-3.5">Mapel</th>
                         <th class="p-3.5">Kontak (Email / HP)</th>
                         <th class="p-3.5">Username</th>
                         <th class="p-3.5 text-center">Aksi</th>
@@ -56,7 +55,6 @@
                         </td>
                         <td class="p-3.5 font-mono text-slate-700">{{ $item->nisn ?? '-' }}</td>
                         <td class="p-3.5">{{ $item->nama_kelas }}</td>
-                        <td class="p-3.5">{{ $item->mataPelajaran?->nama_mapel ?? '-' }}</td>
                         <td class="p-3.5">
                             <div><i class="fas fa-envelope text-slate-400 mr-1 text-[10px]"></i>{{ $item->email ?? '-' }}</div>
                             <div class="text-[11px] text-slate-500"><i class="fas fa-phone text-slate-400 mr-1 text-[10px]"></i>{{ $item->no_hp ?? '-' }}</div>
@@ -81,7 +79,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="p-2"><x-empty-state icon="fa-inbox" title="Belum ada data siswa terdaftar." /></td>
+                        <td colspan="7" class="p-2"><x-empty-state icon="fa-inbox" title="Belum ada data siswa terdaftar." /></td>
                     </tr>
                     @endforelse
                 </tbody>

@@ -35,18 +35,6 @@
             </select>
             @error('id_rooms') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         </div>
-        <div>
-            <label class="block font-bold text-slate-700 mb-1">Mata Pelajaran Utama (Opsional)</label>
-            <select name="id_mapel" class="w-full px-3 py-2 border border-line rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 bg-white transition">
-                <option value="">-- Pilih Mata Pelajaran --</option>
-                @foreach($mapel as $m)
-                    <option value="{{ $m->id_mapel }}" {{ old('id_mapel', data_get($s, 'id_mapel')) == $m->id_mapel ? 'selected' : '' }}>
-                        {{ $m->nama_mapel }}
-                    </option>
-                @endforeach
-            </select>
-            @error('id_mapel') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
-        </div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
