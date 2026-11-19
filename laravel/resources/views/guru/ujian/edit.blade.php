@@ -191,7 +191,7 @@
                 <span class="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs"><i class="fas fa-users"></i></span>
                 <div>
                     <h2 class="text-sm font-bold text-slate-800">Target Peserta Ujian</h2>
-                    <p class="text-[11px] text-slate-400">Pilih apakah ujian ditujukan untuk seluruh siswa atau hanya siswa-siswa tertentu.</p>
+                    <p class="text-[11px] text-slate-400">@if(isset($lockedKelas) && $lockedKelas) Ujian ini hanya untuk Kelas {{ $lockedKelas->nama_kelas }} (kelas Anda yang di-lock admin). @else Pilih apakah ujian ditujukan untuk seluruh siswa atau hanya siswa-siswa tertentu. @endif</p>
                 </div>
             </div>
 
@@ -204,8 +204,8 @@
                 <label class="flex items-center p-3.5 rounded-xl border border-slate-200 bg-white hover:border-primary cursor-pointer transition">
                     <input type="radio" name="target_tipe" value="semua" class="w-4 h-4 text-primary focus:ring-0 mr-3 accent-primary target-radio" {{ $curTargetTipe === 'semua' ? 'checked' : '' }} onchange="toggleTargetSiswa(false)">
                     <div>
-                        <span class="block text-xs font-bold text-slate-800">Semua Siswa</span>
-                        <span class="block text-[10px] text-slate-500">Seluruh siswa aktif dapat mengerjakan ujian ini</span>
+                        <span class="block text-xs font-bold text-slate-800">Semua Siswa @if(isset($lockedKelas) && $lockedKelas) Kelas {{ $lockedKelas->nama_kelas }} @endif</span>
+                        <span class="block text-[10px] text-slate-500">@if(isset($lockedKelas) && $lockedKelas) Seluruh siswa di Kelas {{ $lockedKelas->nama_kelas }} dapat mengerjakan ujian ini @else Seluruh siswa aktif dapat mengerjakan ujian ini @endif</span>
                     </div>
                 </label>
 
