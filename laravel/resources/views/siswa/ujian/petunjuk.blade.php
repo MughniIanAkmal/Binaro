@@ -1,5 +1,7 @@
 @extends('layouts.siswa')
 
+@section('page_title', 'Petunjuk Ujian')
+
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6 pb-16">
     @php

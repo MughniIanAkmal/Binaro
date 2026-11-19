@@ -130,25 +130,11 @@
                 <button type="button" onclick="togglePortalSidebar()" aria-label="Buka menu navigasi" class="lg:hidden inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 shrink-0">
                     <i class="fas fa-bars"></i>
                 </button>
-            <!-- Left: Breadcrumb, Page Title & Subtitle -->
+            <!-- Left: Page Title & Subtitle -->
             <div class="flex flex-col justify-center gap-0.5 min-w-0 flex-1 truncate">
-                <nav class="flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 whitespace-nowrap overflow-hidden">
-                    @hasSection('breadcrumb_trail')
-                        @yield('breadcrumb_trail')
-                        @if(View::hasSection('page_title'))
-                        <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
-                        <span class="text-slate-600 truncate">@yield('page_title')</span>
-                        @endif
-                    @else
-                        <span class="shrink-0 hidden md:inline">{{ config('binaro.nama_sekolah') }}</span>
-                        <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0 hidden md:inline"></i>
-                        <a href="{{ route('guru.dashboard') }}" class="font-bold text-primary hover:underline shrink-0">Portal Ruang Guru</a>
-                        @if(View::hasSection('page_title'))
-                        <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
-                        <span class="text-slate-500 truncate">@yield('page_title')</span>
-                        @endif
-                    @endif
-                </nav>
+                <h1 class="text-[15px] leading-tight font-extrabold text-slate-900 tracking-tight truncate">
+                    @hasSection('page_title')@yield('page_title')@else Portal Guru @endif
+                </h1>
                 @hasSection('page_subtitle')
                 <p class="hidden md:block text-[10.5px] leading-[14px] text-slate-400 truncate">@yield('page_subtitle')</p>
                 @endif

@@ -1,5 +1,7 @@
 @extends('layouts.siswa')
 
+@section('page_title', 'Mata Pelajaran')
+
 @section('header_actions')
     <a href="{{ route('siswa.ujian.index') }}"
        class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"

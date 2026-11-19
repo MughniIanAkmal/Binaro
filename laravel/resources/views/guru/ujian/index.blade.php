@@ -1,5 +1,7 @@
 @extends('layouts.guru')
 
+@section('page_title', 'Ujian Online')
+
 @section('header_actions')
     <a href="{{ route('guru.ujian.create') }}"
        class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"

@@ -7,12 +7,6 @@
 
 @section('page_title', 'Rekap Nilai')
 
-@section('breadcrumb_trail')
-    <span>Penilaian Siswa</span>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <span class="text-slate-500">Rekap Nilai {{ $selectedQuiz ? ($isQuiz ? 'Kuis' : 'Ujian') : '' }}</span>
-@endsection
-
 @section('page_subtitle')
     @if($selectedQuiz)
         {{ $selectedQuiz->judul_quiz }} · {{ $selectedQuiz->mataPelajaran?->nama_mapel ?? ($selectedQuiz->subBab?->bab?->mataPelajaran?->nama_mapel ?? '-') }} · Durasi {{ $selectedQuiz->durasi_menit ?? ($selectedQuiz->durasi ?? '60') }} menit

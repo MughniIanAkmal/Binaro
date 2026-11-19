@@ -2,10 +2,6 @@
 
 @section('page_title', 'Manajemen Mata Pelajaran')
 
-@section('breadcrumb_trail')
-    <a href="{{ session('user_type') === 'guru' ? route('guru.dashboard') : route('admin.dashboard') }}" class="hover:text-slate-600 transition shrink-0">Dashboard</a>
-@endsection
-
 @section('header_actions')
     <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
         <i class="fas fa-download"></i> Export

@@ -3,14 +3,6 @@
 @section('page_title', $subBab->nama_sub_bab)
 @section('page_subtitle', $subBab->bab->mataPelajaran->nama_mapel.' · '.$subBab->bab->nama_bab)
 
-@section('breadcrumb_trail')
-    <a href="{{ route('guru.mapel.browse') }}" class="hover:text-slate-600 transition">Mata Pelajaran</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <a href="{{ route('guru.bab.index', $subBab->bab->mataPelajaran->id_mapel) }}" class="hover:text-slate-600 transition">{{ $subBab->bab->mataPelajaran->nama_mapel }}</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <a href="{{ route('guru.sub_bab.index', $subBab->bab->id_bab) }}" class="hover:text-slate-600 transition">{{ $subBab->bab->nama_bab }}</a>
-@endsection
-
 @section('header_actions')
     <a href="{{ route('guru.sub_bab.index', $subBab->bab->id_bab) }}"
        class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">

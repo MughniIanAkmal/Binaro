@@ -16,18 +16,16 @@
                     <div class="relative">
                         <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                         <input type="text" name="search" value="{{ request('search', request('q')) }}" placeholder="Cari nama, NIS, email..."
-                               class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:border-primary">
+                               class="pl-8 pr-3 py-2 bg-slate-50 border border-line rounded-xl text-xs font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
                     </div>
-                    <button type="submit" class="px-3 py-1.5 bg-primary hover:opacity-90 text-white text-xs font-bold rounded-lg transition">
+                    <button type="submit" class="px-3 py-2 bg-primary hover:opacity-90 text-white text-xs font-bold rounded-xl transition">
                         Cari
                     </button>
                     @if(request('search') || request('q'))
                         <a href="{{ route('siswa.data.index') }}" class="text-xs text-rose-600 hover:underline">Reset</a>
                     @endif
                 </form>
-            </div>
-            <div class="flex flex-1 justify-center sm:justify-end">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-500 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 border border-line text-xs text-slate-500 whitespace-nowrap">
                     <i class="fas fa-user-graduate text-[10px] text-slate-400"></i>
                     Total Siswa: <span class="font-bold text-slate-800">{{ $siswa->total() }}</span>
                 </span>

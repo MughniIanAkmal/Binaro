@@ -2,10 +2,6 @@
 
 @section('page_title', 'Buat Ujian Online Baru')
 
-@section('breadcrumb_trail')
-    <a href="{{ route('guru.ujian.index') }}" class="hover:text-slate-600 transition">Tugas & Ujian</a>
-@endsection
-
 @section('header_actions')
     <a href="{{ route('guru.ujian.index') }}"
        class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">

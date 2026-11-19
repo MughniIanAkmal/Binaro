@@ -40,7 +40,7 @@
             ->count();
     }
 
-    // [0] = label breadcrumb, [1] = judul halaman, [2] = subjudul
+    // [0] = label menu, [1] = judul halaman, [2] = subjudul
     $judulHalaman = match (true) {
         request()->routeIs('siswa.dashboard') => ['Beranda', 'Beranda Siswa', 'Ringkasan belajar, tugas, dan jadwalmu hari ini.'],
         request()->routeIs('siswa.mapel.*') => ['Pembelajaran', 'Mata Pelajaran', 'Pilih mata pelajaran untuk membuka Bab dan materi.'],
@@ -145,17 +145,7 @@
                 </button>
 
                 <div class="min-w-0 flex-1">
-                    <nav class="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-slate-400 whitespace-nowrap overflow-hidden">
-                        @hasSection('breadcrumb_trail')
-                            @yield('breadcrumb_trail')
-                        @else
-                            <span class="shrink-0">Halaman</span>
-                            <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
-                            <span class="text-slate-500 truncate">@yield('breadcrumb', $judulHalaman[0])</span>
-                        @endif
-                    </nav>
-
-                    <h1 class="text-[17px] sm:text-[19px] leading-[24px] sm:leading-[26px] font-extrabold text-slate-900 tracking-tight sm:mt-1 truncate">@yield('page_title', $judulHalaman[1])</h1>
+                    <h1 class="text-[17px] sm:text-[19px] leading-[24px] sm:leading-[26px] font-extrabold text-slate-900 tracking-tight truncate">@yield('page_title', $judulHalaman[1])</h1>
 
                     <p class="hidden sm:block text-[11.5px] leading-[16px] text-slate-400 mt-0.5 truncate">
                         @hasSection('page_subtitle')

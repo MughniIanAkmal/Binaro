@@ -1,11 +1,5 @@
 @extends(session('user_type') === 'siswa' ? 'layouts.siswa' : 'layouts.app')
 
-@section('breadcrumb_trail')
-    <a href="{{ route('siswa.data.index') }}" class="hover:text-slate-600 transition">Data Siswa</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <span class="text-slate-500 truncate">{{ $siswa->nm_siswa ?? 'Edit Siswa' }}</span>
-@endsection
-
 @section('page_title', 'Edit Data Siswa')
 @section('page_subtitle', 'Ubah informasi siswa ' . ($siswa->nm_siswa ?? '') . '.')
 

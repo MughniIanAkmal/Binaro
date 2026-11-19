@@ -3,14 +3,6 @@
 @section('page_title', $subBab->nama_sub_bab)
 @section('page_subtitle', $subBab->bab->mataPelajaran->nama_mapel.' · '.$subBab->bab->nama_bab.' · Pilih salah satu materi untuk mulai belajar.')
 
-@section('breadcrumb_trail')
-    <a href="{{ route('siswa.mapel.index') }}" class="hover:text-slate-600 transition">Pembelajaran</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <a href="{{ route('siswa.materi.index', $subBab->bab->mataPelajaran->id_mapel) }}" class="hover:text-slate-600 transition">{{ $subBab->bab->mataPelajaran->nama_mapel }}</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <span class="text-slate-500">{{ $subBab->bab->nama_bab }}</span>
-@endsection
-
 @section('header_actions')
     <a href="{{ route('siswa.materi.index', $subBab->bab->mataPelajaran->id_mapel) }}"
        class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
