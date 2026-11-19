@@ -1,41 +1,36 @@
 @extends(session('user_type') === 'siswa' ? 'layouts.siswa' : 'layouts.app')
 
-@section('breadcrumb_trail')
-    <span class="shrink-0">Halaman</span>
-    <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
-    <span class="text-slate-500">Data Siswa</span>
-@endsection
-
 @section('page_title', 'Kelola Data Siswa')
 @section('page_subtitle', 'Daftar akun siswa ' . config('binaro.nama_sekolah') . ' beserta kontak dan kelasnya.')
-
-@section('header_actions')
-    <button type="button" id="btn-tambah-siswa"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
-       >
-        <i class="fas fa-plus text-[11px]"></i> Tambah Siswa
-    </button>
-@endsection
 
 @section('content')
 <div class="space-y-6">
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="p-4 border-b border-slate-200 flex justify-between items-center flex-wrap gap-3">
-            <form action="{{ route('siswa.data.index') }}" method="GET" class="flex gap-2 items-center">
-                <div class="relative">
-                    <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                    <input type="text" name="search" value="{{ request('search', request('q')) }}" placeholder="Cari nama, NIS, email..."
-                           class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:border-primary">
-                </div>
-                <button type="submit" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">
-                    Cari
+        <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-center gap-3">
+            <div class="flex flex-1 flex-wrap items-center justify-center sm:justify-start gap-2.5">
+                <button type="button" id="btn-tambah-siswa"
+                   class="inline-flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary">
+                    <i class="fas fa-plus text-[11px]"></i> Tambah Siswa
                 </button>
-                @if(request('search') || request('q'))
-                    <a href="{{ route('siswa.data.index') }}" class="text-xs text-rose-600 hover:underline">Reset</a>
-                @endif
-            </form>
-            <div class="text-xs text-slate-500">
-                Total Siswa: <span class="font-bold text-slate-800">{{ $siswa->total() }}</span>
+                <form action="{{ route('siswa.data.index') }}" method="GET" class="flex gap-2 items-center">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" name="search" value="{{ request('search', request('q')) }}" placeholder="Cari nama, NIS, email..."
+                               class="pl-8 pr-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-slate-50 focus:outline-none focus:border-primary">
+                    </div>
+                    <button type="submit" class="px-3 py-1.5 bg-primary hover:opacity-90 text-white text-xs font-bold rounded-lg transition">
+                        Cari
+                    </button>
+                    @if(request('search') || request('q'))
+                        <a href="{{ route('siswa.data.index') }}" class="text-xs text-rose-600 hover:underline">Reset</a>
+                    @endif
+                </form>
+            </div>
+            <div class="flex flex-1 justify-center sm:justify-end">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-500 whitespace-nowrap">
+                    <i class="fas fa-user-graduate text-[10px] text-slate-400"></i>
+                    Total Siswa: <span class="font-bold text-slate-800">{{ $siswa->total() }}</span>
+                </span>
             </div>
         </div>
 
