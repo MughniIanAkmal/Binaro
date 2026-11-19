@@ -82,7 +82,6 @@
                         <th class="py-3.5 px-4">Nama Mata Pelajaran</th>
                         <th class="py-3.5 px-4">Deskripsi</th>
                         <th class="py-3.5 px-4 text-center">Total Bab</th>
-                        <th class="py-3.5 px-4 text-center">Siswa Mengambil</th>
                         <th class="py-3.5 px-4 text-center w-28">Aksi</th>
                     </tr>
                 </thead>
@@ -111,11 +110,6 @@
                         <td class="py-3.5 px-4 text-center">
                             <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px]">
                                 {{ $mapel->bab_count ?? $mapel->bab()->count() }} Bab
-                            </span>
-                        </td>
-                        <td class="py-3.5 px-4 text-center">
-                            <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-bold text-[10px]">
-                                {{ $mapel->siswas_count ?? $mapel->siswas()->count() }} Siswa
                             </span>
                         </td>
                         <td class="py-3.5 px-4 text-center">

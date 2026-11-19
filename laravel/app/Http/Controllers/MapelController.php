@@ -12,7 +12,7 @@ class MapelController extends Controller
         $search = $request->get('search');
         $userType = session('user_type');
 
-        $mapelList = MataPelajaran::withCount(['bab', 'siswas'])
+        $mapelList = MataPelajaran::withCount('bab')
             ->when($search, function ($q) use ($search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('nama_mapel', 'like', "%{$search}%")
