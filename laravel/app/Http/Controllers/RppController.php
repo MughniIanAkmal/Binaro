@@ -493,6 +493,7 @@ class RppController extends Controller
             abort(404, 'RPP tidak ditemukan.');
         }
 
+        $statusLama = $rpp->status;
         $catatan = $request->input('catatan_revisi') ?? $request->input('catatan');
 
         $rpp->update([
@@ -506,7 +507,138 @@ class RppController extends Controller
             default => 'Status RPP berhasil diperbarui.',
         };
 
+        // Revisi 1: saat RPP baru saja diverifikasi, otomatis implementasikan
+        // ke jadwal mengajar (buat jadwal baru atau hubungkan ke jadwal yang
+        // sudah ada di slot yang sama). Verifikasi tidak gagal kalau jadwal
+        // belum bisa dibuat — admin diberi peringatan, bukan error.
+        if ($request->status === 'terverifikasi' && $statusLama !== 'terverifikasi') {
+            $hasilJadwal = $this->autoImplementJadwal($rpp->fresh());
+            if ($hasilJadwal['pesan']) {
+                $pesanSukses .= ' '.$hasilJadwal['pesan'];
+            }
+        }
+
         return back()->with('success', $pesanSukses);
+    }
+
+    /**
+     * Revisi 1 — RPP auto-implement ke jadwal.
+     * Parse target_jadwal ("Senin, 08.00 - 09.30 WIB") jadi hari + jam
+     * "08.00-09.30", lalu cari/buat JadwalMataPelajaran untuk
+     * guru + mapel + kelas RPP tersebut.
+     *
+     * @return array{jadwal: ?JadwalMataPelajaran, pesan: ?string}
+     */
+    private function autoImplementJadwal(Rpp $rpp): array
+    {
+        if ($rpp->id_jadwal) {
+            return ['jadwal' => $rpp->jadwal, 'pesan' => 'RPP sudah terhubung ke jadwal yang ada.'];
+        }
+        if (! $rpp->id_guru || ! $rpp->id_mapel || ! $rpp->id_rooms) {
+            return ['jadwal' => null, 'pesan' => 'Jadwal belum dibuat otomatis: RPP ini belum punya guru, mapel, atau kelas yang lengkap.'];
+        }
+
+        $parsed = $this->parseTargetJadwal($rpp->target_jadwal);
+        if (! $parsed) {
+            return ['jadwal' => null, 'pesan' => 'Jadwal belum dibuat otomatis: target jadwal RPP belum berisi hari dan rentang jam yang bisa dibaca (contoh: Senin, 08.00 - 09.30).'];
+        }
+        [$hari, $jam] = $parsed;
+
+        // Sudah ada jadwal persis di slot itu? Hubungkan saja, jangan duplikasi.
+        $sudahAda = JadwalMataPelajaran::where('hari', $hari)
+            ->where('jam', $jam)
+            ->where('id_guru', $rpp->id_guru)
+            ->where('id_mapel', $rpp->id_mapel)
+            ->where('id_rooms', $rpp->id_rooms)
+            ->first();
+        if ($sudahAda) {
+            $rpp->update(['id_jadwal' => $sudahAda->id_jadwal]);
+
+            return ['jadwal' => $sudahAda, 'pesan' => "RPP terhubung ke jadwal {$hari} jam {$jam} yang sudah ada."];
+        }
+
+        // Cek bentrok (guru atau kelas sudah terisi di jam yang beririsan).
+        if ($this->jadwalBentrok($hari, $jam, $rpp->id_guru, $rpp->id_rooms)) {
+            return ['jadwal' => null, 'pesan' => "Jadwal belum dibuat otomatis: {$hari} jam {$jam} bentrok dengan jadwal guru/kelas lain. Buat jadwal manual dari menu Jadwal."];
+        }
+
+        $jadwal = JadwalMataPelajaran::create([
+            'hari' => $hari,
+            'jam' => $jam,
+            'id_mapel' => $rpp->id_mapel,
+            'id_guru' => $rpp->id_guru,
+            'id_rooms' => $rpp->id_rooms,
+        ]);
+        $rpp->update(['id_jadwal' => $jadwal->id_jadwal]);
+
+        return ['jadwal' => $jadwal, 'pesan' => "Jadwal otomatis dibuat: {$hari} jam {$jam}."];
+    }
+
+    /** "Senin, 08.00 - 09.30 WIB" -> ['Senin', '08.00-09.30'] atau null. */
+    private function parseTargetJadwal(?string $targetJadwal): ?array
+    {
+        if (! $targetJadwal) {
+            return null;
+        }
+        if (! preg_match('/(Senin|Selasa|Rabu|Kamis|Jumat|Sabtu|Minggu)/i', $targetJadwal, $hariMatch)) {
+            return null;
+        }
+        if (! preg_match('/(\d{1,2})[:.](\d{2})\s*[-–]\s*(\d{1,2})[:.](\d{2})/', $targetJadwal, $m)) {
+            return null;
+        }
+        $hari = ucfirst(strtolower($hariMatch[1]));
+        $mulai = sprintf('%02d.%02d', (int) $m[1], (int) $m[2]);
+        $selesai = sprintf('%02d.%02d', (int) $m[3], (int) $m[4]);
+        if (($m[3] * 60 + $m[4]) <= ($m[1] * 60 + $m[2])) {
+            return null;
+        }
+
+        return [$hari, "{$mulai}-{$selesai}"];
+    }
+
+    /** true kalau ada jadwal lain yang beririsan jamnya untuk guru/kelas ini. */
+    private function jadwalBentrok(string $hari, string $jam, int $idGuru, int $idRooms): bool
+    {
+        $rentangBaru = $this->parseRentangJam($jam);
+        if (! $rentangBaru) {
+            return false;
+        }
+        [$mulaiBaru, $selesaiBaru] = $rentangBaru;
+
+        $jadwalLain = JadwalMataPelajaran::where('hari', $hari)
+            ->where(function ($q) use ($idGuru, $idRooms) {
+                $q->where('id_guru', $idGuru)->orWhere('id_rooms', $idRooms);
+            })->get();
+
+        foreach ($jadwalLain as $j) {
+            $rentangLama = $this->parseRentangJam($j->jam);
+            if (! $rentangLama) {
+                continue;
+            }
+            [$mulaiLama, $selesaiLama] = $rentangLama;
+            if ($mulaiBaru < $selesaiLama && $mulaiLama < $selesaiBaru) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** "08.00-09.30" -> [480, 570] (menit) atau null. */
+    private function parseRentangJam(string $jam): ?array
+    {
+        $bersih = preg_replace('/\s+/', '', str_replace(':', '.', $jam));
+        $parts = explode('-', (string) $bersih);
+        if (count($parts) !== 2) {
+            return null;
+        }
+        $mulai = explode('.', $parts[0]);
+        $selesai = explode('.', $parts[1]);
+        if (count($mulai) !== 2 || count($selesai) !== 2) {
+            return null;
+        }
+
+        return [(int) $mulai[0] * 60 + (int) $mulai[1], (int) $selesai[0] * 60 + (int) $selesai[1]];
     }
 
     public function destroy($id)
