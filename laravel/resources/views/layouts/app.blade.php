@@ -15,6 +15,7 @@
         body { font-family: 'Plus Jakarta Sans', 'Instrument Sans', sans-serif; background-color: #F8FAFC; }
         .sidebar-brand-bg { background-color: var(--color-primary); }
         .active-menu-pill { background-color: var(--color-primary); color: #ffffff; }
+        .card { background: #fff; border: 1px solid var(--color-line); border-radius: 1rem; }
     </style>
 </head>
 <body class="text-slate-800 flex min-h-screen bg-canvas">
