@@ -1,5 +1,7 @@
 @extends('layouts.siswa')
 
+@section('page_title', 'Kuis')
+
 @section('content')
 <div class="max-w-7xl mx-auto space-y-6 pb-20">
     @php

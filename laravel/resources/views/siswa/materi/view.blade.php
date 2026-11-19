@@ -3,14 +3,6 @@
 @section('page_title', $materi->judul_materi)
 @section('page_subtitle', ($materi->subBab?->bab?->mataPelajaran?->nama_mapel ?? '-').' · '.($materi->subBab?->bab?->nama_bab ?? '-'))
 
-@section('breadcrumb_trail')
-    <a href="{{ route('siswa.mapel.index') }}" class="hover:text-slate-600 transition">Pembelajaran</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <a href="{{ route('siswa.materi.index', $materi->subBab?->bab?->mataPelajaran?->id_mapel) }}" class="hover:text-slate-600 transition">{{ $materi->subBab?->bab?->mataPelajaran?->nama_mapel ?? 'Mapel' }}</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <a href="{{ route('siswa.sub_bab.materi', $materi->id_sub_bab) }}" class="hover:text-slate-600 transition">{{ $materi->subBab?->nama_sub_bab ?? 'Sub-Bab' }}</a>
-@endsection
-
 @section('header_actions')
     <a href="{{ route('siswa.sub_bab.materi', $materi->id_sub_bab) }}"
        class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">

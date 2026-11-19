@@ -2,10 +2,6 @@
 
 @section('page_title', $quiz->judul_quiz)
 
-@section('breadcrumb_trail')
-    <a href="{{ route('guru.ujian.index') }}" class="hover:text-slate-600 transition">Tugas & Ujian</a>
-@endsection
-
 @section('page_subtitle')
     {{ $quiz->mataPelajaran->nama_mapel ?? 'Semua Mapel' }} · Durasi: {{ $quiz->durasi_menit ?? 60 }} Menit · Dibuat oleh: {{ $quiz->guru->nama_guru ?? 'Guru' }}
 @endsection

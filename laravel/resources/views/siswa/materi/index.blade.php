@@ -3,12 +3,6 @@
 @section('page_title', $mapel->nama_mapel)
 @section('page_subtitle', 'Pilih Bab dan Sub-Bab pembelajaran yang ingin dipelajari.')
 
-@section('breadcrumb_trail')
-    <a href="{{ route('siswa.mapel.index') }}" class="hover:text-slate-600 transition">Pembelajaran</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60"></i>
-    <span class="text-slate-500">{{ $mapel->nama_mapel }}</span>
-@endsection
-
 @section('header_actions')
     <a href="{{ route('siswa.mapel.index') }}"
        class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">

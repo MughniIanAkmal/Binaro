@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('page_title', 'Dashboard')
+
 @section('content')
 <div class="space-y-6">
     <!-- Header Welcome Banner -->

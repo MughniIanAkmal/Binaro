@@ -3,10 +3,6 @@
 @section('page_title', 'Bank Soal')
 @section('page_subtitle', $quiz->judul_quiz.' · '.($quiz->subBab?->bab?->mataPelajaran?->nama_mapel ?? 'Mata Pelajaran').' · '.($quiz->subBab?->nama_sub_bab ?? 'Kuis'))
 
-@section('breadcrumb_trail')
-    <a href="{{ route('guru.materi.index') }}" class="hover:text-slate-600 transition">Kelola Materi</a>
-@endsection
-
 @section('header_actions')
     <button onclick="openModal('modal-import-soal')"
             class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">

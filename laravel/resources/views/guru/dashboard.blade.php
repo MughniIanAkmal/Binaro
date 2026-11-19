@@ -1,5 +1,7 @@
 @extends('layouts.guru')
 
+@section('page_title', 'Beranda Guru')
+
 @section('content')
     <div class="p-8 space-y-6">
         <!-- Profile Banner -->

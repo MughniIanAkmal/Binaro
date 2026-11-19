@@ -1,5 +1,7 @@
 @extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
 
+@section('page_title', 'Scan Absensi')
+
 @section('content')
 <style>
     /* Styling Kamera & Scanner */

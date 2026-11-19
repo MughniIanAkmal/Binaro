@@ -3,12 +3,6 @@
 @section('page_title', 'Edit Data Guru')
 @section('page_subtitle', 'Perbarui informasi guru ' . ($guru->nama_guru ?? '-') . '.')
 
-@section('breadcrumb_trail')
-    <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-600 transition shrink-0">Dashboard</a>
-    <i class="fas fa-chevron-right text-[8px] opacity-60 shrink-0"></i>
-    <a href="{{ route('guru.data.index') }}" class="hover:text-slate-600 transition shrink-0">Data Guru</a>
-@endsection
-
 @section('header_actions')
     <a href="{{ route('guru.data.index') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
         <i class="fas fa-arrow-left text-slate-400"></i>

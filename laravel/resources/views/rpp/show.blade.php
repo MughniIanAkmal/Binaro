@@ -3,10 +3,6 @@
 @section('page_title', $rpp->judul_rpp ?? $rpp->judul)
 @section('page_subtitle', 'Informasi lengkap kelengkapan silabus dan dokumen modul ajar.')
 
-@section('breadcrumb_trail')
-    <a href="{{ session('user_type') === 'guru' ? route('guru.rpp.index') : route('rpp.index') }}" class="hover:text-slate-600 transition shrink-0">RPP & Modul Ajar</a>
-@endsection
-
 @section('header_actions')
     <a href="{{ session('user_type') === 'guru' ? route('guru.rpp.index') : route('rpp.index') }}"
        class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition">
