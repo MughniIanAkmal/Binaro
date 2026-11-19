@@ -85,7 +85,7 @@ class AuthController extends Controller
                     'id_user' => $siswa->id_siswa,
                 ]);
 
-                return redirect('/siswa/dashboard')->with('success', 'Selamat datang, '.$siswa->nm_siswa);
+                return redirect('/siswa/dashboard');
             }
         }
 
@@ -101,7 +101,7 @@ class AuthController extends Controller
                     'id_user' => $guru->id_guru,
                 ]);
 
-                return redirect('/guru/dashboard')->with('success', 'Selamat datang, '.$guru->nama_guru);
+                return redirect('/guru/dashboard');
             }
         }
 
@@ -156,7 +156,7 @@ class AuthController extends Controller
                 'nip' => $guru->nip,
             ]);
 
-            return redirect('/guru/dashboard')->with('success', 'Selamat datang, '.$guru->nama_guru);
+            return redirect('/guru/dashboard');
         }
 
         // 5. Siswa Flexible Check (nisn, username, email, nm_siswa, or shortcut)
@@ -189,7 +189,7 @@ class AuthController extends Controller
                 'id_rooms' => $siswa->id_rooms ?? null,
             ]);
 
-            return redirect('/siswa/dashboard')->with('success', 'Selamat datang, '.$siswa->nm_siswa);
+            return redirect('/siswa/dashboard');
         }
 
         RateLimiter::hit($throttleKey, 900);
