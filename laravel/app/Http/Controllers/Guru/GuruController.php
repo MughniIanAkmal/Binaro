@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Guru;
 use App\Http\Controllers\Controller;
 use App\Models\Guru;
 use App\Models\JadwalMataPelajaran;
+use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -29,7 +30,7 @@ class GuruController extends Controller
             return redirect()->route('guru.dashboard');
         }
         $search = $request->get('search') ?? $request->get('q');
-        $guru = Guru::when($search, function ($query, $search) {
+        $guru = Guru::with(['kelas', 'mapel'])->when($search, function ($query, $search) {
             $query->where('nama_guru', 'like', "%{$search}%")
                 ->orWhere('nip', 'like', "%{$search}%")
                 ->orWhere('email', 'like', "%{$search}%");
@@ -40,7 +41,10 @@ class GuruController extends Controller
 
     public function create()
     {
-        return view('guru.data.create');
+        $kelasList = Kelas::orderBy('pararel')->get();
+        $mapelList = MataPelajaran::orderBy('nama_mapel')->get();
+
+        return view('guru.data.create', compact('kelasList', 'mapelList'));
     }
 
     public function store(Request $request)
@@ -54,6 +58,10 @@ class GuruController extends Controller
             'alamat' => 'nullable|string|max:500',
             'username' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9._]+$/', 'unique:guru,username'],
             'password' => 'required|string|min:6|max:100|confirmed',
+            // Revisi 2: lock 1 kelas. Revisi 3: mapel yang boleh diajar.
+            'id_rooms' => 'nullable|exists:kelas,id_rooms',
+            'mapel_ids' => 'nullable|array',
+            'mapel_ids.*' => 'exists:mata_pelajaran,id_mapel',
         ], [
             'nama.required' => 'Nama guru wajib diisi.',
             'nama.max' => 'Nama guru maksimal 100 karakter.',
@@ -80,16 +88,22 @@ class GuruController extends Controller
             'alamat' => $validated['alamat'] ?? null,
             'username' => $validated['username'],
             'password' => Hash::make($validated['password']),
+            'id_rooms' => $validated['id_rooms'] ?? null,
         ];
 
-        Guru::create($data);
+        $guruBaru = Guru::create($data);
+        $guruBaru->mapel()->sync($validated['mapel_ids'] ?? []);
 
         return redirect()->route('guru.data.index')->with('success', 'Data guru berhasil ditambahkan.');
     }
 
     public function edit(Guru $guru)
     {
-        return view('guru.data.edit', compact('guru'));
+        $guru->load('mapel');
+        $kelasList = Kelas::orderBy('pararel')->get();
+        $mapelList = MataPelajaran::orderBy('nama_mapel')->get();
+
+        return view('guru.data.edit', compact('guru', 'kelasList', 'mapelList'));
     }
 
     public function update(Request $request, Guru $guru)
@@ -103,6 +117,9 @@ class GuruController extends Controller
             'alamat' => 'nullable|string|max:500',
             'username' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9._]+$/', Rule::unique('guru', 'username')->ignore($guru->id_guru, 'id_guru')],
             'password' => 'nullable|string|min:6|max:100|confirmed',
+            'id_rooms' => 'nullable|exists:kelas,id_rooms',
+            'mapel_ids' => 'nullable|array',
+            'mapel_ids.*' => 'exists:mata_pelajaran,id_mapel',
         ], [
             'nama.required' => 'Nama guru wajib diisi.',
             'nama.max' => 'Nama guru maksimal 100 karakter.',
@@ -128,6 +145,7 @@ class GuruController extends Controller
             'jenis_kelamin' => $validated['jenis_kelamin'] ?? null,
             'alamat' => $validated['alamat'] ?? null,
             'username' => $validated['username'],
+            'id_rooms' => $validated['id_rooms'] ?? null,
         ];
 
         if (! empty($validated['password'])) {
@@ -135,12 +153,15 @@ class GuruController extends Controller
         }
 
         $guru->update($data);
+        // Kosongkan checkbox = cabut semua mapel (sync([])), bukan "tidak diubah".
+        $guru->mapel()->sync($request->has('mapel_ids') ? ($validated['mapel_ids'] ?? []) : []);
 
         return redirect()->route('guru.data.index')->with('success', 'Data guru berhasil diperbarui.');
     }
 
     public function destroy(Guru $guru)
     {
+        $guru->mapel()->detach();
         $guru->delete();
 
         return redirect()->route('guru.data.index')->with('success', 'Data guru berhasil dihapus.');
