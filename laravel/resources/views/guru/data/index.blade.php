@@ -8,9 +8,9 @@
 @endsection
 
 @section('header_actions')
-    <a href="{{ route('guru.data.create') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary" >
+    <button type="button" id="btn-tambah-guru" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary" >
         <i class="fas fa-plus"></i> Tambah Guru
-    </a>
+    </button>
 @endsection
 
 @section('content')
@@ -96,4 +96,75 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Tambah Guru -->
+<div id="modal-tambah-guru" class="fixed inset-0 hidden items-center justify-center bg-slate-900/50 z-50 p-4 md:p-6" aria-hidden="true">
+    <div class="w-[min(768px,94vw)] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200" role="dialog" aria-modal="true" aria-labelledby="modalTambahGuruTitle">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-start justify-between gap-4 shrink-0">
+            <div>
+                <div id="modalTambahGuruTitle" class="font-extrabold text-base text-slate-900">Tambah Data Guru</div>
+                <p class="text-xs text-slate-500 mt-0.5">Lengkapi informasi di bawah untuk menambahkan guru baru.</p>
+            </div>
+            <button type="button" class="text-3xl leading-none text-slate-400 hover:text-slate-600 transition" aria-label="Tutup" data-close="modal-tambah-guru">&times;</button>
+        </div>
+        <div class="overflow-y-auto px-6 py-5">
+            <form action="{{ route('guru.data.store') }}" method="POST" class="space-y-6">
+                @csrf
+                {{-- guru => null: di halaman daftar $guru adalah paginator, bukan satu guru. --}}
+                @include('guru.data._form_guru', ['guru' => null])
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-200">
+                    <button type="button" data-close="modal-tambah-guru" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold transition shadow-sm">
+                        Simpan Data Guru
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modalTambahGuru = document.getElementById('modal-tambah-guru');
+
+    function openTambahGuruModal() {
+        modalTambahGuru.classList.remove('hidden');
+        modalTambahGuru.classList.add('flex');
+        modalTambahGuru.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeTambahGuruModal() {
+        modalTambahGuru.classList.add('hidden');
+        modalTambahGuru.classList.remove('flex');
+        modalTambahGuru.setAttribute('aria-hidden', 'true');
+    }
+
+    document.getElementById('btn-tambah-guru').addEventListener('click', function () {
+        openTambahGuruModal();
+    });
+
+    document.querySelectorAll('[data-close="modal-tambah-guru"]').forEach(function (el) {
+        el.addEventListener('click', function () {
+            closeTambahGuruModal();
+        });
+    });
+
+    modalTambahGuru.addEventListener('click', function (event) {
+        if (event.target === modalTambahGuru) {
+            closeTambahGuruModal();
+        }
+    });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && !modalTambahGuru.classList.contains('hidden')) {
+            closeTambahGuruModal();
+        }
+    });
+
+    @if($errors->any())
+        openTambahGuruModal();
+    @endif
+</script>
 @endsection

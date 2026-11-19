@@ -36,7 +36,10 @@ class GuruController extends Controller
                 ->orWhere('email', 'like', "%{$search}%");
         })->latest('id_guru')->paginate(10)->withQueryString();
 
-        return view('guru.data.index', compact('guru', 'search'));
+        $kelasList = Kelas::orderBy('pararel')->get();
+        $mapelList = MataPelajaran::orderBy('nama_mapel')->get();
+
+        return view('guru.data.index', compact('guru', 'search', 'kelasList', 'mapelList'));
     }
 
     public function create()
