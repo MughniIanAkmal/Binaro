@@ -3,6 +3,7 @@
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BarcodeController;
+use App\Http\Controllers\Admin\QrAbsensiController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Guru\AbsenScanController;
@@ -295,6 +296,8 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             return redirect()->route('admin.dashboard');
         });
         Route::get('/absensi/rekap', [AbsensiController::class, 'rekap'])->name('absensi.rekap');
+        // Revisi 5: QR & Absensi digabung — halaman utama admin untuk keduanya.
+        Route::get('/qr-absensi', [QrAbsensiController::class, 'index'])->name('qr_absensi.index');
         Route::get('/absensi/settings', [AbsensiController::class, 'settingsView'])->name('absensi.settings');
         Route::post('/absensi/settings', [AbsensiController::class, 'updateSettings'])->name('absensi.settings.update');
     });
