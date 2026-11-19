@@ -17,7 +17,6 @@ class Siswa extends Authenticatable
 
     protected $hidden = ['password'];
     protected $fillable = [
-        'id_mapel',
         'id_rooms',
         'nisn',
         'nm_siswa',

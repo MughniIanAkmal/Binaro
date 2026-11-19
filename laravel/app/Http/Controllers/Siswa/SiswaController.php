@@ -21,7 +21,7 @@ class SiswaController extends Controller
 {
     public function dashboard()
     {
-        $siswa = Siswa::with(['kelas', 'mataPelajaran'])->find(session('user_id'));
+        $siswa = Siswa::with(['kelas'])->find(session('user_id'));
         if (! $siswa) {
             session()->flush();
 
@@ -71,7 +71,7 @@ class SiswaController extends Controller
 
     public function profile()
     {
-        $siswa = Siswa::with(['kelas', 'mataPelajaran', 'barcode'])
+        $siswa = Siswa::with(['kelas', 'barcode'])
             ->find(session('user_id'));
 
         if (! $siswa) {
@@ -189,7 +189,7 @@ class SiswaController extends Controller
         $search = $request->get('search') ?? $request->get('q');
         $idRooms = $request->get('id_rooms');
 
-        $siswa = Siswa::with(['mataPelajaran', 'kelas', 'barcode'])
+        $siswa = Siswa::with(['kelas', 'barcode'])
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nm_siswa', 'like', "%{$search}%")
@@ -204,17 +204,15 @@ class SiswaController extends Controller
 
         $kelasList = Kelas::all();
         $kelas = $kelasList;
-        $mapel = MataPelajaran::all();
 
-        return view('siswa.data.index', compact('siswa', 'search', 'kelasList', 'idRooms', 'kelas', 'mapel'));
+        return view('siswa.data.index', compact('siswa', 'search', 'kelasList', 'idRooms', 'kelas'));
     }
 
     public function create()
     {
-        $mapel = MataPelajaran::all();
         $kelas = Kelas::all();
 
-        return view('siswa.data.create', compact('mapel', 'kelas'));
+        return view('siswa.data.create', compact('kelas'));
     }
 
     public function store(StoreSiswaRequest $request)
@@ -230,7 +228,6 @@ class SiswaController extends Controller
             'alamat' => $validated['alamat'] ?? null,
             'username' => $validated['username'],
             'password' => $validated['password'], // store plain-text password for backward compatibility
-            'id_mapel' => $validated['id_mapel'] ?? null,
             'id_rooms' => $validated['id_rooms'] ?? null,
         ];
 
@@ -247,10 +244,9 @@ class SiswaController extends Controller
 
     public function edit(Siswa $siswa)
     {
-        $mapel = MataPelajaran::all();
         $kelas = Kelas::all();
 
-        return view('siswa.data.edit', compact('siswa', 'mapel', 'kelas'));
+        return view('siswa.data.edit', compact('siswa', 'kelas'));
     }
 
     public function update(UpdateSiswaRequest $request, Siswa $siswa)
@@ -265,7 +261,6 @@ class SiswaController extends Controller
             'jenis_kelamin' => $validated['jenis_kelamin'] ?? null,
             'alamat' => $validated['alamat'] ?? null,
             'username' => $validated['username'],
-            'id_mapel' => $validated['id_mapel'] ?? null,
             'id_rooms' => $validated['id_rooms'] ?? null,
         ];
 
