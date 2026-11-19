@@ -1,21 +1,13 @@
 @extends('layouts.app')
 
 @section('page_title', 'QR & Absensi')
-@section('page_subtitle', 'Satu halaman untuk kartu QR siswa dan kehadiran hari ini — scan, buat QR, dan rekap tanpa pindah menu.')
+@section('page_subtitle', 'Satu halaman untuk kartu QR siswa dan kehadiran hari ini — buat QR dan rekap tanpa pindah menu.')
 
 @section('breadcrumb_trail')
     <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-600 transition shrink-0">Dashboard</a>
 @endsection
 
 @section('header_actions')
-    <form action="{{ route('absensi.scan-qr') }}" method="POST" class="flex gap-2">
-        @csrf
-        <input type="text" name="kode_barcode" placeholder="Scan Barcode / Input ID..." required
-               class="px-4 h-10 text-[12px] font-bold text-slate-700 border border-line rounded-xl bg-white focus:outline-none focus:border-primary">
-        <button type="submit" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">
-            <i class="fas fa-qrcode text-[11px]"></i> Scan QR
-        </button>
-    </form>
     <a href="{{ route('admin.absensi.settings') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary">
         <i class="fas fa-clock text-[11px]"></i> Pengaturan Jam Absen
     </a>
