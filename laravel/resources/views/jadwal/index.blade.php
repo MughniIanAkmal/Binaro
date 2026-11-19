@@ -3,17 +3,22 @@
 @section('page_title', 'Jadwal Mata Pelajaran')
 @section('page_subtitle', 'Kelola alokasi waktu dan jadwal pembelajaran rombel kelas ' . config('binaro.nama_sekolah') . '.')
 
-@section('header_actions')
-    <a href="{{ route('jadwal.create') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary" >
-        <i class="fas fa-plus"></i> Tambah Jadwal
-    </a>
-@endsection
-
 @section('content')
 <div class="space-y-6">
 
     <!-- Tabel Data Jadwal -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between gap-3">
+            <div>
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fas fa-calendar-days text-primary"></i> Daftar Jadwal Pelajaran
+                </h3>
+                <p class="text-xs text-slate-500 mt-0.5">Total {{ $jadwals->count() }} jadwal terdaftar.</p>
+            </div>
+            <a href="{{ route('jadwal.create') }}" class="inline-flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary shrink-0">
+                <i class="fas fa-plus"></i> Tambah Jadwal
+            </a>
+        </div>
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
