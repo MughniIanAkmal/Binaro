@@ -4,115 +4,87 @@
 @section('page_subtitle', 'Buat kartu QR code untuk absen. Guru memindai kartu ini saat mengabsen siswa.')
 
 @section('content')
-@include('qr_absen._styles')
-<style>
-    .wrap{max-width:none;margin:0;padding:0}
-    .crumb{font-size:11px;font-weight:600;color:#64748b;margin-bottom:4px}
-    .wrap h1{font-size:24px;line-height:1.25;letter-spacing:-.025em;color:#0f172a}
-    .lead{font-size:12px;margin:4px 0 24px;color:#64748b}
-    .panel{border-color:#e2e8f0;border-radius:12px;box-shadow:0 1px 2px rgba(15,23,42,.03)}
-    .progress{padding:20px;gap:16px;margin-bottom:16px}
-    .progress .txt{font-size:12px}
-    .sub{font-size:11px;color:#64748b}
-    .btn{border-color:#cbd5e1;border-radius:8px;padding:8px 12px;min-height:38px;font-size:12px;font-weight:700}
-    .btn.primary{background:#13527d;border-color:#13527d}
-    .btn.warn{background:#fef3c7;color:#92400e}
-    .btn.small{padding:6px 10px;min-height:32px;font-size:11px}
-    .tools{padding:12px 16px;gap:8px}
-    .tools input,.tools select{border-color:#cbd5e1;border-radius:8px;padding:8px 10px;min-height:38px;font-size:12px}
-    th{font-size:11px;padding:10px 16px;color:#64748b}
-    td{font-size:12px;padding:12px 16px}
-    .nm{font-size:12px;font-weight:700;color:#0f172a}
-    .pill{font-size:11px;padding:3px 8px}
-    .pagination li a,.pagination li span{font-size:11px;padding:6px 10px;border-radius:6px}
-    @media (max-width: 768px){.wrap{padding:20px 16px}.progress{align-items:stretch}}
-    .card-modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(23,31,44,0.42);z-index:50;padding:24px}
-    .card-modal.show{display:flex}
-    .card-box{width:min(560px,92vw);background:#f2f2f2;border-radius:18px;box-shadow:0 20px 50px rgba(15,23,42,.25);overflow:hidden;border:1px solid rgba(108,117,132,.2)}
-    .card-top{background:linear-gradient(180deg,#f5ba2d 0%,#ebaf1e 100%);padding:18px 22px 12px;color:#0f172a;font-weight:800;font-size:18px;display:flex;align-items:center;justify-content:space-between}
-    .card-top .close{font-size:30px;line-height:1;cursor:pointer;color:#0f172a;background:transparent;border:none;padding:0}
-    .card-body{padding:18px 24px 20px;background:#fff}
-    .card-school{font-size:16px;font-weight:800;color:#1b2439;letter-spacing:.02em}
-    .card-name{font-size:30px;font-weight:800;line-height:1.2;margin:16px 0 4px;color:#0f172a;text-align:center}
-    .card-meta{font-size:15px;color:#586582;text-align:center;margin-bottom:14px}
-    .card-qr-wrap{display:flex;justify-content:center;padding:18px 0 10px;border-top:2px dashed #d6dbe5;border-bottom:2px dashed #d6dbe5}
-    .card-qr{display:flex;align-items:center;justify-content:center;min-height:220px;background:#fff}
-    .card-qr img{width:208px;height:208px;display:block}
-    .card-note{font-size:12px;color:#555f6f;text-align:center;margin-top:12px;margin-bottom:8px}
-    .card-code{font-size:22px;font-weight:800;letter-spacing:.08em;text-align:center;color:#101827;margin-bottom:8px}
-    .card-sub{font-size:14px;color:#4f5d79;text-align:center;line-height:1.5;margin:12px 0 18px}
-    .card-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
-    .card-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;border-radius:10px;padding:0 18px;border:1px solid #d5d9e2;background:#fff;color:#1f2937;font-size:15px;font-weight:700;text-decoration:none;cursor:pointer}
-    .card-btn.primary{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}
-    .card-btn.secondary{background:#f1f1f1}
-    .sr-only{position:absolute;left:-9999px}
-    .tools input[type="search"],.tools button[type="submit"]{display:none}
-</style>
-<div class="wrap">
+<div class="space-y-6">
 
-    <section class="panel progress">
-        <div class="txt">
-            <strong>{{ $sudah }} dari {{ $total }} siswa sudah punya QR code</strong>
-            <div class="bar"><i style="width: {{ $total ? round($sudah / $total * 100) : 0 }}%"></i></div>
+    <!-- Progress QR -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex items-center gap-4 flex-wrap">
+        <div class="flex-1 min-w-[220px]">
+            <div class="text-xs font-bold text-slate-900">{{ $sudah }} dari {{ $total }} siswa sudah punya QR code</div>
+            <div class="h-2 bg-slate-100 rounded-full overflow-hidden mt-2.5">
+                <div class="h-full bg-primary rounded-full" style="width: {{ $total ? round($sudah / $total * 100) : 0 }}%"></div>
+            </div>
         </div>
-        <a class="btn" href="{{ route('admin.qr.cetakKelas', request()->only('kelas')) }}" target="_blank">
+        <a href="{{ route('admin.qr.cetakKelas', request()->only('kelas')) }}" target="_blank"
+           class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 transition">
             Cetak semua kartu{{ request('kelas') ? ' kelas '.request('kelas') : '' }}
         </a>
         @if ($sudah < $total)
             <form method="POST" action="{{ route('admin.qr.storeAll') }}">
                 @csrf
-                <button class="btn primary" type="submit">Buat semua yang belum punya</button>
+                <button type="submit"
+                        class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-primary hover:bg-primary-hover text-white transition">
+                    Buat semua yang belum punya
+                </button>
             </form>
         @endif
     </section>
 
-    <section class="panel">
-        <form class="tools" method="GET" action="{{ route('admin.qr.index') }}">
-            <input type="search" name="q" value="{{ request('q') }}" placeholder="Cari nama atau NISN" aria-label="Cari nama atau NISN">
-            <select name="kelas" aria-label="Filter kelas" onchange="this.form.submit()">
+    <!-- Filter & Tabel QR -->
+    <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <form class="p-4 border-b border-slate-200 flex gap-3 flex-wrap items-center" method="GET" action="{{ route('admin.qr.index') }}">
+            <input type="search" name="q" value="{{ request('q') }}" placeholder="Cari nama atau NISN" aria-label="Cari nama atau NISN"
+                   class="flex-1 min-w-[160px] px-3 py-2 text-xs border border-slate-300 rounded-lg bg-slate-50 font-semibold text-slate-700 focus:outline-none focus:border-primary">
+            <select name="kelas" aria-label="Filter kelas" onchange="this.form.submit()"
+                    class="px-3 py-2 text-xs border border-slate-300 rounded-lg bg-slate-50 font-semibold text-slate-700 focus:outline-none focus:border-primary">
                 <option value="">Semua kelas</option>
                 @foreach ($daftarKelas as $k)
                     <option value="{{ $k }}" @selected(request('kelas') === $k)>Kelas {{ $k }}</option>
                 @endforeach
             </select>
-            <button class="btn" type="submit">Cari</button>
+            <button type="submit"
+                    class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 transition">
+                Cari
+            </button>
         </form>
 
-        <div class="tablewrap">
-            <table>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr><th>Siswa</th><th>Kelas</th><th>QR code</th><th></th></tr>
+                    <tr class="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase border-b border-slate-200">
+                        <th class="p-3.5 pl-6">Siswa</th>
+                        <th class="p-3.5">Kelas</th>
+                        <th class="p-3.5">QR code</th>
+                        <th class="p-3.5 text-right pr-6">Aksi</th>
+                    </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-slate-100 text-xs">
                 @forelse ($siswas as $s)
-                    <tr>
-                        <td>
-                            <div class="nm">{{ $s->nama_siswa }}</div>
-                            <div class="sub">NISN : {{ $s->nisn }}</div>
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="p-3.5 pl-6">
+                            <div class="font-bold text-slate-900">{{ $s->nama_siswa }}</div>
+                            <div class="text-[11px] text-slate-400">NISN: {{ $s->nisn }}</div>
                         </td>
-                        <td>{{ $s->nama_kelas }}</td>
-                        <td>
+                        <td class="p-3.5 font-medium text-slate-700">{{ $s->nama_kelas }}</td>
+                        <td class="p-3.5">
                             @if ($s->barcode)
                                 @php
                                     $qr = new \chillerlan\QRCode\QRCode();
                                     $svg = $qr->render($s->barcode->kode);
                                 @endphp
-                                <div class="thumb">
-                                    <img src="{{ $svg }}" alt="QR {{ $s->nama_siswa }}">
+                                <div class="w-12 h-12 bg-white border border-slate-200 rounded-lg p-1 flex items-center justify-center overflow-hidden">
+                                    <img src="{{ $svg }}" alt="QR {{ $s->nama_siswa }}" class="w-full h-full">
                                 </div>
-                                <div class="qr-inline" style="display:none;">
+                                <div class="qr-inline hidden">
                                     <img src="{{ $svg }}" alt="QR {{ $s->nama_siswa }}">
                                 </div>
                             @else
-                                <span class="pill">Belum dibuat</span>
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">Belum dibuat</span>
                             @endif
                         </td>
-                        <td class="act">
+                        <td class="p-3.5 pr-6">
+                            <div class="flex items-center justify-end gap-2">
                             @if ($s->barcode)
-                                @php
-                                    $qrSvg = (new \chillerlan\QRCode\QRCode())->render($s->barcode->kode);
-                                @endphp
-                                <button class="btn small card-open"
+                                <button class="card-open inline-flex items-center justify-center px-3 py-1.5 text-[11px] font-bold rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 transition"
                                         type="button"
                                         data-nama="{{ $s->nama_siswa }}"
                                         data-kelas="{{ $s->nama_kelas }}"
@@ -121,55 +93,67 @@
                                         data-print="{{ route('admin.qr.cetak', $s) }}">
                                     Lihat kartu
                                 </button>
-                                <form method="POST" action="{{ route('admin.qr.regenerate', $s) }}"
+                                <form method="POST" action="{{ route('admin.qr.regenerate', $s) }}" class="inline-block"
                                       onsubmit="return confirm('Buat ulang kode? Kartu lama tidak akan bisa dipakai lagi.')">
                                     @csrf
-                                    <button class="btn small warn" type="submit">Buat ulang</button>
+                                    <button type="submit"
+                                            class="inline-flex items-center justify-center px-3 py-1.5 text-[11px] font-bold rounded-lg bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition">
+                                        Buat ulang
+                                    </button>
                                 </form>
                             @else
-                                <form method="POST" action="{{ route('admin.qr.store', $s) }}">
+                                <form method="POST" action="{{ route('admin.qr.store', $s) }}" class="inline-block">
                                     @csrf
-                                    <button class="btn small primary" type="submit">Buat QR code</button>
+                                    <button type="submit"
+                                            class="inline-flex items-center justify-center px-3 py-1.5 text-[11px] font-bold rounded-lg bg-primary hover:bg-primary-hover text-white transition">
+                                        Buat QR code
+                                    </button>
                                 </form>
                             @endif
+                            </div>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="4" class="empty">Tidak ada siswa yang cocok. Ubah kata kunci atau pilih kelas lain.</td></tr>
+                    <tr><td colspan="4" class="p-2"><x-empty-state icon="fa-qrcode" title="Tidak ada siswa yang cocok." message="Ubah kata kunci atau pilih kelas lain." /></td></tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
 
         @if ($siswas->hasPages())
-            {{ $siswas->links('pagination::default') }}
+            <div class="p-4 border-t border-slate-200">
+                {{ $siswas->links('pagination::default') }}
+            </div>
         @endif
     </section>
 </div>
 
-<div class="card-modal" id="cardModal" aria-hidden="true">
-    <div class="card-box" role="dialog" aria-modal="true" aria-labelledby="cardTitle">
-        <div class="card-top">
-            <div id="cardTitle">{{ config('app.name') }}</div>
-            <button type="button" class="close" aria-label="Tutup" data-close="cardModal">&times;</button>
+<!-- Modal Kartu QR -->
+<div id="cardModal" class="fixed inset-0 hidden items-center justify-center bg-slate-900/50 z-50 p-6" aria-hidden="true">
+    <div class="w-[min(560px,92vw)] bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200" role="dialog" aria-modal="true" aria-labelledby="cardTitle">
+        <div class="bg-amber-400 px-5 py-4 flex items-center justify-between">
+            <div id="cardTitle" class="font-extrabold text-lg text-slate-900">{{ config('app.name') }}</div>
+            <button type="button" class="text-3xl leading-none text-slate-900 hover:opacity-70 transition" aria-label="Tutup" data-close="cardModal">&times;</button>
         </div>
-        <div class="card-body">
-            <div class="card-school">{{ config('app.name') }}</div>
-            <div class="card-name" id="cardName">Nama Siswa</div>
-            <div class="card-meta" id="cardMeta">Kelas ... | NISN ...</div>
+        <div class="p-5 bg-white">
+            <div class="text-base font-extrabold text-slate-800">{{ config('app.name') }}</div>
+            <div class="text-3xl font-extrabold leading-tight mt-4 text-slate-900 text-center" id="cardName">Nama Siswa</div>
+            <div class="text-[15px] text-slate-500 text-center mt-1" id="cardMeta">Kelas ... | NISN ...</div>
 
-            <div class="card-qr-wrap">
-                <div class="card-qr" id="cardQr"></div>
+            <div class="flex justify-center py-4 my-3 border-y-2 border-dashed border-slate-200">
+                <div class="min-h-[220px] bg-white flex items-center justify-center" id="cardQr"></div>
             </div>
 
-            <div class="card-note">Kode unik (dipakai jika QR rusak)</div>
-            <div class="card-code" id="cardCode">SD-XXXXXXXXXX</div>
+            <div class="text-xs text-slate-500 text-center mt-3">Kode unik (dipakai jika QR rusak)</div>
+            <div class="text-[22px] font-extrabold tracking-wider text-center text-slate-900 mt-1" id="cardCode">SD-XXXXXXXXXX</div>
 
-            <div class="card-sub">Setiap siswa punya kode unik. Guru cukup scan QR. Kode di bawahnya hanya dipakai manual jika QR rusak.</div>
+            <p class="text-sm text-slate-500 text-center leading-relaxed my-3">Setiap siswa punya kode unik. Guru cukup scan QR. Kode di bawahnya hanya dipakai manual jika QR rusak.</p>
 
-            <div class="card-actions">
-                <a class="card-btn primary" id="cardPrintLink" href="#" target="_blank">Cetak kartu</a>
-                <button type="button" class="card-btn secondary" data-close="cardModal">Tutup</button>
+            <div class="flex items-center justify-center gap-3 flex-wrap">
+                <a id="cardPrintLink" href="#" target="_blank"
+                   class="inline-flex items-center justify-center min-h-[42px] rounded-xl px-5 bg-primary hover:bg-primary-hover text-white text-[15px] font-bold transition">Cetak kartu</a>
+                <button type="button" data-close="cardModal"
+                        class="inline-flex items-center justify-center min-h-[42px] rounded-xl px-5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-[15px] font-bold transition">Tutup</button>
             </div>
         </div>
     </div>
@@ -183,6 +167,18 @@
     const cardCode = document.getElementById('cardCode');
     const cardPrintLink = document.getElementById('cardPrintLink');
 
+    function openCardModal() {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeCardModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+
     document.querySelectorAll('.card-open').forEach(function (btn) {
         btn.addEventListener('click', function () {
             const nama = btn.dataset.nama;
@@ -194,32 +190,29 @@
             cardName.textContent = nama;
             cardMeta.textContent = 'Kelas ' + kelas + ' | NISN ' + nisn;
             cardQr.innerHTML = qrMarkup;
+            cardQr.querySelector('img')?.classList.add('w-52', 'h-52', 'block');
             cardCode.textContent = kode;
             cardPrintLink.href = btn.dataset.print || '#';
 
-            modal.classList.add('show');
-            modal.setAttribute('aria-hidden', 'false');
+            openCardModal();
         });
     });
 
     document.querySelectorAll('[data-close="cardModal"]').forEach(function (el) {
         el.addEventListener('click', function () {
-            modal.classList.remove('show');
-            modal.setAttribute('aria-hidden', 'true');
+            closeCardModal();
         });
     });
 
     modal.addEventListener('click', function (event) {
         if (event.target === modal) {
-            modal.classList.remove('show');
-            modal.setAttribute('aria-hidden', 'true');
+            closeCardModal();
         }
     });
 
     document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' && modal.classList.contains('show')) {
-            modal.classList.remove('show');
-            modal.setAttribute('aria-hidden', 'true');
+        if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+            closeCardModal();
         }
     });
 </script>
