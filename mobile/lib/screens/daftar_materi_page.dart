@@ -6,6 +6,7 @@ import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import '../widgets/common.dart';
+import '../widgets/konfirmasi_kuis_dialog.dart';
 import 'profile_page.dart';
 
 class DaftarMateriPage extends StatefulWidget {
@@ -278,10 +279,14 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
     final bool isOrange = isKuis;
     final Color badgeBgColor = isOrange ? AppColors.accent : AppColors.primary;
 
-    void navigateToDestination() {
+    void navigateToDestination() async {
       if (isKuis) {
-        Navigator.push(
-          context,
+        // Pop up konfirmasi dulu di halaman ini; pindah ke halaman kuis
+        // hanya bila siswa menekan "Ya, Mulai Kuis".
+        final NavigatorState navigator = Navigator.of(context);
+        final bool mulai = await KonfirmasiKuisDialog.tampilkan(context, quizId: quizId);
+        if (!mulai) return;
+        navigator.push(
           SmoothPageRoute(
             page: KuisPage(user: widget.user, quizId: quizId),
             type: TransitionType.sharedAxis,

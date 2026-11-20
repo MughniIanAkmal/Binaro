@@ -14,6 +14,7 @@ import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import '../widgets/common.dart';
+import '../widgets/konfirmasi_kuis_dialog.dart';
 import 'profile_page.dart';
 
 class DetailMateriPage extends StatefulWidget {
@@ -1438,9 +1439,13 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                 child: SizedBox(
                   height: 48,
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
+                    onPressed: () async {
+                      // Pop up konfirmasi dulu di halaman ini; pindah ke
+                      // halaman kuis hanya bila siswa menekan "Ya, Mulai Kuis".
+                      final NavigatorState navigator = Navigator.of(context);
+                      final bool mulai = await KonfirmasiKuisDialog.tampilkan(context, quizId: idQuiz);
+                      if (!mulai) return;
+                      navigator.push(
                         SmoothPageRoute(
                           page: KuisPage(
                             user: widget.user,

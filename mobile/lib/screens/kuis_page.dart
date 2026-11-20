@@ -38,18 +38,14 @@ class _KuisPageState extends State<KuisPage> {
   int _totalSeconds = 900;
   bool _isSubmitting = false;
 
-  // Gerbang konfirmasi mulai & kunci navigasi selama pengerjaan
-  bool _sudahMulai = false;
+  // Kunci navigasi selama pengerjaan; konfirmasi mulai ditampilkan
+  // sebagai pop up di halaman sebelumnya (KonfirmasiKuisDialog).
   bool _kuisSelesai = false;
 
   @override
   void initState() {
     super.initState();
     _fetchQuizData();
-  }
-
-  void _mulaiKuis() {
-    setState(() => _sudahMulai = true);
     _startTimer();
   }
 
@@ -108,6 +104,9 @@ class _KuisPageState extends State<KuisPage> {
               _currentIndex = 0;
               _remainingSeconds = data['durasi_detik'] ?? 900;
               _totalSeconds = data['durasi_detik'] ?? 900;
+              // Kuis kosong/belum tersedia bukan jebakan: kunci dibuka
+              // supaya siswa bisa kembali dari halaman kosong.
+              _kuisSelesai = _soalList.isEmpty;
               _isLoading = false;
             });
             return;
@@ -120,6 +119,7 @@ class _KuisPageState extends State<KuisPage> {
       setState(() {
         _soalList = [];
         _totalSoal = 0;
+        _kuisSelesai = true;
         _isLoading = false;
       });
     }
@@ -310,12 +310,12 @@ class _KuisPageState extends State<KuisPage> {
 
     return PopScope(
       // Selama kuis berjalan siswa tidak bisa keluar/back sama sekali
-      canPop: _kuisSelesai || !_sudahMulai,
+      canPop: _kuisSelesai,
       child: Scaffold(
       backgroundColor: AppColors.background,
       appBar: BinaroAppBar(
         title: 'Latihan Soal',
-        showBack: !_sudahMulai || _kuisSelesai,
+        showBack: false,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -401,9 +401,7 @@ class _KuisPageState extends State<KuisPage> {
                     ),
                   ),
                 )
-              : !_sudahMulai
-                  ? _buildKonfirmasiMulai()
-                  : SingleChildScrollView(
+              : SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -430,142 +428,6 @@ class _KuisPageState extends State<KuisPage> {
                     ],
                   ),
                 ),
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // GERBANG KONFIRMASI SEBELUM KUIS DIMULAI
-  // ---------------------------------------------------------------------------
-  Widget _buildKonfirmasiMulai() {
-    final int durasiMenit = (_totalSeconds / 60).ceil();
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 22),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.border),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 68,
-                height: 68,
-                decoration: const BoxDecoration(
-                  color: AppColors.warningLight,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.quiz_rounded, size: 34, color: AppColors.accent),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Siap Mengerjakan Kuis?',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                _quizTitle,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 14),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      '$_totalSoal Soal',
-                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.primary),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      '$durasiMenit Menit',
-                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.primary),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppColors.warningLight,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(Icons.warning_amber_rounded, size: 18, color: AppColors.accent),
-                    SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        'Setelah kuis dimulai, kamu tidak bisa kembali atau keluar sampai kuis selesai dikerjakan.',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary, height: 1.4),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 46,
-                      child: OutlinedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: AppColors.primary, width: 1.4),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: const Text(
-                          'Belum, Kembali',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: SizedBox(
-                      height: 46,
-                      child: ElevatedButton(
-                        onPressed: _mulaiKuis,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accent,
-                          foregroundColor: Colors.white,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        ),
-                        child: const Text(
-                          'Ya, Mulai Kuis',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
