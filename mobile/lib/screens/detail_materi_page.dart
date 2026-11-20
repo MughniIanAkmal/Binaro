@@ -13,6 +13,7 @@ import 'pdf_viewer_page.dart';
 import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
+import '../widgets/common.dart';
 import 'profile_page.dart';
 
 class DetailMateriPage extends StatefulWidget {
@@ -37,6 +38,7 @@ class DetailMateriPage extends StatefulWidget {
 
 class _DetailMateriPageState extends State<DetailMateriPage> {
   bool _isLoading = true;
+  bool _pdfGagalMuat = false;
   Map<String, dynamic> _detailMateri = {};
   YoutubePlayerController? _ytController;
   StreamSubscription<YoutubePlayerValue>? _ytSubscription;
@@ -389,21 +391,9 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
       },
       child: Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'Materi Pelajaran',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
+      appBar: BinaroAppBar(
+        title: 'Materi Pelajaran',
+        showBack: true,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16, left: 2),
@@ -1185,9 +1175,13 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                           ),
                         ),
                         const SizedBox(width: 6),
-                        const Text(
-                          'Terbuka di Aplikasi',
-                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.success),
+                        Text(
+                          _pdfGagalMuat ? 'Pratinjau Gagal Dimuat' : 'Terbuka di Aplikasi',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: _pdfGagalMuat ? AppColors.error : AppColors.success,
+                          ),
                         ),
                       ],
                     ),
@@ -1201,26 +1195,66 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
 
           // Tampilan File PDF yang Terbuka di Aplikasi (Interactive In-App Viewer)
           Container(
-            height: 380,
+            height: _pdfGagalMuat ? 200 : 380,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.border, width: 1.2),
               color: AppColors.background,
             ),
             clipBehavior: Clip.antiAlias,
-            child: pdfUrl.isNotEmpty
-                ? SfPdfViewer.network(
-                    pdfUrl,
-                    canShowScrollHead: true,
-                    canShowScrollStatus: true,
-                    enableDoubleTapZooming: true,
-                    onDocumentLoadFailed: (details) {
-                      debugPrint('PDF load failed: ${details.description}');
-                    },
-                  )
-                : const Center(
+            child: pdfUrl.isEmpty
+                ? const Center(
                     child: Text('Dokumen PDF tidak ditemukan.'),
-                  ),
+                  )
+                : _pdfGagalMuat
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 52,
+                                height: 52,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.errorLight,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.picture_as_pdf_rounded, color: AppColors.error, size: 26),
+                              ),
+                              const SizedBox(height: 12),
+                              const Text(
+                                'Pratinjau PDF tidak dapat dimuat',
+                                style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Gunakan tombol Buka Layar Penuh atau Unduh PDF di bawah untuk tetap membaca dokumennya.',
+                                style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary, height: 1.4),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                    : SfPdfViewer.network(
+                        pdfUrl,
+                        canShowScrollHead: true,
+                        canShowScrollStatus: true,
+                        enableDoubleTapZooming: true,
+                        onDocumentLoaded: (details) {
+                          if (_pdfGagalMuat && mounted) {
+                            setState(() => _pdfGagalMuat = false);
+                          }
+                        },
+                        onDocumentLoadFailed: (details) {
+                          debugPrint('PDF load failed: ${details.description}');
+                          if (mounted) {
+                            setState(() => _pdfGagalMuat = true);
+                          }
+                        },
+                      ),
           ),
 
           const SizedBox(height: 12),
