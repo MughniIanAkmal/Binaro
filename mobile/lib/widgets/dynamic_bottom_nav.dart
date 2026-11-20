@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../screens/dashboard_page.dart';
+import '../screens/jadwal_page.dart';
 import '../screens/mapel_page.dart';
 import '../screens/profile_page.dart';
 import '../screens/ujian_page.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
-import 'common.dart';
 
 /// Model representasi item navigasi
 class NavItem {
@@ -152,7 +152,13 @@ class _DynamicBottomNavState extends State<DynamicBottomNav>
         ),
       );
     } else if (targetIndex == 3) {
-      showAppSnackbar(context, 'Fitur Jadwal Pelajaran segera hadir!');
+      Navigator.pushReplacement(
+        context,
+        SmoothPageRoute(
+          page: JadwalPage(user: widget.user),
+          type: TransitionType.fadeThrough,
+        ),
+      );
     } else if (targetIndex == 4) {
       Navigator.pushReplacement(
         context,

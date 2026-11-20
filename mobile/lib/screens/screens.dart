@@ -1,6 +1,7 @@
 export 'login_page.dart';
 export 'dashboard_page.dart';
 export 'mapel_page.dart';
+export 'jadwal_page.dart';
 export 'daftar_bab_page.dart';
 export 'daftar_sub_bab_page.dart';
 export 'daftar_materi_page.dart';

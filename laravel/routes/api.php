@@ -23,6 +23,7 @@ Route::post('/siswa/update-password', [SiswaApiController::class, 'updatePasswor
 
 // Mobile Mapel & Materi Learning Routes (public, token optional)
 Route::get('/siswa/mapel', [SiswaApiController::class, 'mapelList']);
+Route::get('/siswa/jadwal', [SiswaApiController::class, 'jadwalList']);
 Route::get('/siswa/mapel/{id}/bab', [SiswaApiController::class, 'babList']);
 Route::get('/siswa/bab/{id}/sub-bab', [SiswaApiController::class, 'subBabList']);
 Route::get('/siswa/sub-bab/{id}/materi', [SiswaApiController::class, 'materiList']);

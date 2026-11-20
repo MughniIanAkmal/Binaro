@@ -2,6 +2,7 @@ import 'dart:convert';
 import '../widgets/common.dart';
 import 'package:flutter/material.dart';
 import 'daftar_bab_page.dart';
+import 'jadwal_page.dart';
 import 'mapel_page.dart';
 import '../utils/api_client.dart';
 import '../utils/constants.dart';
@@ -257,7 +258,15 @@ class _DashboardPageState extends State<DashboardPage> {
                 title: 'Jadwal',
                 icon: Icons.calendar_month_outlined,
                 color: AppColors.primary,
-                onTap: _showJadwalSegeraHadir,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    SmoothPageRoute(
+                      page: JadwalPage(user: widget.user ?? _siswa),
+                      type: TransitionType.sharedAxis,
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -349,31 +358,6 @@ class _DashboardPageState extends State<DashboardPage> {
           ..._tugasList.map((t) => _buildTugasCard(Map<String, dynamic>.from(t as Map))),
         ],
       ],
-    );
-  }
-
-  /// Menu Jadwal belum tersedia — beri tahu pengguna, jangan diam saja.
-  void _showJadwalSegeraHadir() {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Row(
-          children: [
-            Icon(Icons.calendar_month_rounded, color: Colors.white, size: 20),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Fitur Jadwal Pelajaran segera hadir!',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppColors.primary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 2),
-      ),
     );
   }
 

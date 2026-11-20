@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Absen;
 use App\Models\Bab;
+use App\Models\Guru;
 use App\Models\HasilKuisSiswa;
+use App\Models\Jadwal;
 use App\Models\MataPelajaran;
 use App\Models\Materi;
 use App\Models\Pr;
@@ -447,6 +449,67 @@ class SiswaApiController extends ApiController
             'wajib_count' => count(array_filter($result, fn($x) => $x['is_wajib'])),
             'mapel' => $result,
         ], 'Daftar mata pelajaran berhasil dimuat');
+    }
+
+    // GET /api/siswa/jadwal
+    public function jadwalList(Request $request)
+    {
+        $siswaId = $this->resolveSiswaId($request) ?? 1;
+        $siswa = Siswa::find($siswaId);
+
+        $rows = collect();
+        if ($siswa && $siswa->id_rooms) {
+            $rows = Jadwal::where('id_rooms', $siswa->id_rooms)->get();
+        }
+
+        $mapelNames = MataPelajaran::pluck('nama_mapel', 'id_mapel');
+        $guruNames = Guru::pluck('nama_guru', 'id_guru');
+        $urutanHari = [
+            'Senin' => 1, 'Selasa' => 2, 'Rabu' => 3, 'Kamis' => 4,
+            'Jumat' => 5, 'Sabtu' => 6, 'Minggu' => 7,
+        ];
+
+        $result = $rows->map(function ($j) use ($mapelNames, $guruNames) {
+            $name = $mapelNames[$j->id_mapel] ?? 'Mata Pelajaran';
+            $lower = strtolower($name);
+
+            $icon = 'book';
+            if (str_contains($lower, 'matematika')) {
+                $icon = 'math';
+            } elseif (str_contains($lower, 'ipa') || str_contains($lower, 'alam')) {
+                $icon = 'science';
+            } elseif (str_contains($lower, 'indonesia')) {
+                $icon = 'book';
+            } elseif (str_contains($lower, 'pancasila') || str_contains($lower, 'kewarganegaraan')) {
+                $icon = 'star';
+            } elseif (str_contains($lower, 'seni') || str_contains($lower, 'sbdp')) {
+                $icon = 'palette';
+            } elseif (str_contains($lower, 'inggris')) {
+                $icon = 'chat';
+            }
+
+            return [
+                'id_jadwal' => $j->id_jadwal,
+                'hari' => $j->hari,
+                'jam' => $j->jam,
+                'nama_mapel' => $name,
+                'tipe_icon' => $icon,
+                'guru' => $guruNames[$j->id_guru] ?? null,
+            ];
+        })->sortBy([
+            fn ($a, $b) => ($urutanHari[$a['hari']] ?? 9) <=> ($urutanHari[$b['hari']] ?? 9),
+            fn ($a, $b) => strcmp((string) $a['jam'], (string) $b['jam']),
+        ])->values();
+
+        $namaKelas = null;
+        if ($siswa && $siswa->id_rooms) {
+            $namaKelas = DB::table('kelas')->where('id_rooms', $siswa->id_rooms)->value('pararel');
+        }
+
+        return $this->success([
+            'kelas' => $namaKelas,
+            'jadwal' => $result,
+        ], 'Jadwal pelajaran berhasil dimuat');
     }
 
     // GET /api/siswa/mapel/{id}/bab
