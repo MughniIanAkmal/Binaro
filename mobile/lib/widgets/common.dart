@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import '../utils/constants.dart';
 
-/// App bar baku Binaro: logo kotak amber + kicker "SAHABAT BELAJAR" + judul.
+/// App bar baku Binaro: logo resmi Binaro + judul halaman.
 /// Satu-satunya app bar untuk halaman tab utama (Beranda, Ujian, Pembelajaran,
 /// Profil). Halaman sub dengan tombol kembali memakai pola AppBar sendiri
 /// hingga T10 lanjutan.
@@ -37,35 +36,19 @@ class BinaroAppBar extends StatelessWidget implements PreferredSizeWidget {
       titleSpacing: showBack ? 0 : 16,
       title: Row(
         children: [
-          SvgPicture.asset(
-            'assets/images/logo_binaro_dark.svg',
-            width: 40,
+          Image.asset(
+            'assets/images/logo_binaro_ikon.png',
             height: 40,
+            fit: BoxFit.contain,
           ),
           const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'SAHABAT BELAJAR',
-                style: TextStyle(
-                  fontSize: 10,
-                  letterSpacing: 0.8,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.accentBright,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-            ],
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
         ],
       ),
