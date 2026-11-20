@@ -4,6 +4,7 @@ import 'daftar_sub_bab_page.dart';
 import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
+import '../widgets/common.dart';
 import 'profile_page.dart';
 
 class DaftarBabPage extends StatefulWidget {
@@ -168,51 +169,9 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
   PreferredSizeWidget _buildAppBar() {
     final String namaMapel = _headerMapel['nama'] ?? 'Matematika';
 
-    return AppBar(
-      backgroundColor: AppColors.primary,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
-        onPressed: () => Navigator.pop(context),
-      ),
-      titleSpacing: 0,
-      title: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(7),
-            decoration: BoxDecoration(
-              color: AppColors.accent,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.calculate_rounded, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 10),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'SAHABAT BELAJAR',
-                style: TextStyle(
-                  fontSize: 9.5,
-                  letterSpacing: 0.8,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.accentBright,
-                ),
-              ),
-              const SizedBox(height: 1),
-              Text(
-                namaMapel,
-                style: const TextStyle(
-                  fontSize: 16.5,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return BinaroAppBar(
+      title: namaMapel,
+      showBack: true,
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 16, left: 2),
@@ -241,6 +200,25 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
     );
   }
 
+  IconData _getIcon(String type) {
+    switch (type) {
+      case 'math':
+        return Icons.calculate_rounded;
+      case 'science':
+        return Icons.biotech_rounded;
+      case 'book':
+        return Icons.menu_book_rounded;
+      case 'star':
+        return Icons.star_rounded;
+      case 'palette':
+        return Icons.palette_rounded;
+      case 'chat':
+        return Icons.chat_bubble_rounded;
+      default:
+        return Icons.menu_book_rounded;
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // 1. HEADER CARD (Petualangan Angka, 3/6 Bab)
   // ---------------------------------------------------------------------------
@@ -261,15 +239,19 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
       ),
       child: Row(
         children: [
-          // Icon Kalkulator Kotak Oranye
+          // Ikon Mapel (mengikuti tipe ikon dari API, sama seperti halaman Mapel)
           Container(
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.accent,
+              color: AppColors.primaryLight,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.calculate_rounded, color: Colors.white, size: 26),
+            child: Icon(
+              _getIcon(_headerMapel['tipe_icon'] ?? 'book'),
+              color: AppColors.primary,
+              size: 26,
+            ),
           ),
           const SizedBox(width: 14),
           // Judul Seru & Badge
@@ -376,29 +358,28 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
     final String namaBab = bab['nama_bab'] ?? 'Pecahan & Desimal';
     final bool isLocked = bab['is_locked'] == true;
 
-    // Warna border dan nomor
-    final Color borderColor = isLocked
-        ? (nomor % 2 == 1 ? AppColors.accentBright : AppColors.primaryLight)
-        : (nomor % 2 == 1 ? AppColors.accent : AppColors.primary);
+    void bukaBab() {
+      Navigator.push(
+        context,
+        SmoothPageRoute(
+          page: DaftarSubBabPage(
+            bab: bab,
+            mapel: widget.mapel,
+            user: widget.user,
+          ),
+          type: TransitionType.sharedAxis,
+        ),
+      );
+    }
 
-    final Color badgeBgColor = isLocked
-        ? (nomor % 2 == 1 ? AppColors.warningLight : AppColors.primaryLight)
-        : (nomor % 2 == 1 ? AppColors.accent : AppColors.primary);
-
-    final Color badgeTextColor = isLocked
-        ? (nomor % 2 == 1 ? AppColors.accentDeep : AppColors.primary)
-        : Colors.white;
-
-    // Warna tombol "Buka >"
-    final Color btnColor = (nomor % 2 == 1) ? AppColors.primary : AppColors.accent;
-
+    // Satu bahasa desain untuk semua kartu: border netral, warna hanya
+    // membedakan status — terbuka (navy/amber) vs terkunci (redup).
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor, width: 2),
+        border: Border.all(color: AppColors.border, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
@@ -407,102 +388,96 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          // Badge Nomor Bab
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: badgeBgColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Center(
-              child: Text(
-                '$nomor',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w800,
-                  color: badgeTextColor,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-
-          // Label "BAB X" & Nama Bab
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: isLocked ? null : bukaBab,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            child: Row(
               children: [
-                if (nomor > 1)
-                  Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.accentDeep,
-                      letterSpacing: 0.5,
+                // Badge Nomor Bab
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: isLocked ? AppColors.surfaceAlt : AppColors.primary,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '$nomor',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                        color: isLocked ? AppColors.textMuted : Colors.white,
+                      ),
                     ),
                   ),
-                Text(
-                  namaBab,
-                  style: TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w800,
-                    color: isLocked ? AppColors.textSecondary : AppColors.textPrimary,
+                ),
+                const SizedBox(width: 14),
+
+                // Label "BAB X" & Nama Bab
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.accentDeep,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 1),
+                      Text(
+                        namaBab,
+                        style: TextStyle(
+                          fontSize: 14.5,
+                          fontWeight: FontWeight.w800,
+                          color: isLocked ? AppColors.textSecondary : AppColors.textPrimary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+
+                // Tombol Buka ATAU Ikon Gembok (Lock)
+                if (isLocked)
+                  const Padding(
+                    padding: EdgeInsets.only(right: 8),
+                    child: Icon(Icons.lock_outline_rounded, color: AppColors.textMuted, size: 22),
+                  )
+                else
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Buka',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                        SizedBox(width: 2),
+                        Icon(Icons.chevron_right_rounded, color: Colors.white, size: 16),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),
-
-          // Tombol Buka ATAU Ikon Gembok (Lock)
-          if (isLocked)
-            const Padding(
-              padding: EdgeInsets.only(right: 8),
-              child: Icon(Icons.lock_outline_rounded, color: AppColors.textMuted, size: 22),
-            )
-          else
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  SmoothPageRoute(
-                    page: DaftarSubBabPage(
-                      bab: bab,
-                      mapel: widget.mapel,
-                      user: widget.user,
-                    ),
-                    type: TransitionType.sharedAxis,
-                  ),
-                );
-              },
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                decoration: BoxDecoration(
-                  color: btnColor,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Buka',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(width: 2),
-                    Icon(Icons.chevron_right_rounded, color: Colors.white, size: 16),
-                  ],
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }
