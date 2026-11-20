@@ -21,7 +21,7 @@ class _MapelPageState extends State<MapelPage> {
   String _searchQuery = '';
   int _selectedFilter = 0; // 0: Semua, 1: Wajib
 
-  String _kelasInfo = 'Mata Pelajaran Kelas 5 SD • Semester 2';
+  String _kelasInfo = 'Mata Pelajaran';
   List<dynamic> _mapelList = [];
   int _totalMapel = 6;
   int _wajibCount = 4;
