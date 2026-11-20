@@ -6,6 +6,7 @@ import 'profile_page.dart';
 import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
+import '../widgets/common.dart';
 
 class KuisPage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -37,10 +38,18 @@ class _KuisPageState extends State<KuisPage> {
   int _totalSeconds = 900;
   bool _isSubmitting = false;
 
+  // Gerbang konfirmasi mulai & kunci navigasi selama pengerjaan
+  bool _sudahMulai = false;
+  bool _kuisSelesai = false;
+
   @override
   void initState() {
     super.initState();
     _fetchQuizData();
+  }
+
+  void _mulaiKuis() {
+    setState(() => _sudahMulai = true);
     _startTimer();
   }
 
@@ -154,7 +163,10 @@ class _KuisPageState extends State<KuisPage> {
     } catch (_) {}
 
     if (!mounted) return;
-    setState(() => _isSubmitting = false);
+    setState(() {
+      _isSubmitting = false;
+      _kuisSelesai = true; // kunci navigasi dibuka lagi setelah kuis selesai
+    });
 
     _showResultDialog(score, benar, _soalList.length);
   }
@@ -294,26 +306,16 @@ class _KuisPageState extends State<KuisPage> {
             : null;
 
     final String currentTips = currentQuestion?['tips'] ??
-        'Hitung total semua potongan semangka sebagai penyebut (angka bawah) ya!';
+        'Pilih jawaban yang paling tepat sesuai materi yang telah kamu pelajari.';
 
-    return Scaffold(
+    return PopScope(
+      // Selama kuis berjalan siswa tidak bisa keluar/back sama sekali
+      canPop: _kuisSelesai || !_sudahMulai,
+      child: Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
-          onPressed: () => Navigator.pop(context),
-        ),
-        titleSpacing: 0,
-        title: const Text(
-          'Latihan Soal',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
+      appBar: BinaroAppBar(
+        title: 'Latihan Soal',
+        showBack: !_sudahMulai || _kuisSelesai,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16),
@@ -399,7 +401,9 @@ class _KuisPageState extends State<KuisPage> {
                     ),
                   ),
                 )
-              : SingleChildScrollView(
+              : !_sudahMulai
+                  ? _buildKonfirmasiMulai()
+                  : SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,6 +430,143 @@ class _KuisPageState extends State<KuisPage> {
                     ],
                   ),
                 ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // GERBANG KONFIRMASI SEBELUM KUIS DIMULAI
+  // ---------------------------------------------------------------------------
+  Widget _buildKonfirmasiMulai() {
+    final int durasiMenit = (_totalSeconds / 60).ceil();
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 22),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: AppColors.border),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 68,
+                height: 68,
+                decoration: const BoxDecoration(
+                  color: AppColors.warningLight,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.quiz_rounded, size: 34, color: AppColors.accent),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Siap Mengerjakan Kuis?',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 6),
+              Text(
+                _quizTitle,
+                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 14),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      '$_totalSoal Soal',
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.primary),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryLight,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      '$durasiMenit Menit',
+                      style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: AppColors.primary),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.warningLight,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.warning_amber_rounded, size: 18, color: AppColors.accent),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Setelah kuis dimulai, kamu tidak bisa kembali atau keluar sampai kuis selesai dikerjakan.',
+                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textPrimary, height: 1.4),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 46,
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppColors.primary, width: 1.4),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text(
+                          'Belum, Kembali',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: SizedBox(
+                      height: 46,
+                      child: ElevatedButton(
+                        onPressed: _mulaiKuis,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accent,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text(
+                          'Ya, Mulai Kuis',
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -609,7 +750,7 @@ class _KuisPageState extends State<KuisPage> {
           const SizedBox(height: 16),
 
           // Box Ilustrasi
-          if (ilustrasi != null || _currentIndex == 2)
+          if (ilustrasi != null)
             _buildIllustrationBox(ilustrasi),
         ],
       ),
@@ -620,7 +761,7 @@ class _KuisPageState extends State<KuisPage> {
   // ILUSTRASI SEMANGKA 4 BAGIAN DENGAN 1 BAGIAN DIAMBIL (CUSTOM CANVAS)
   // ---------------------------------------------------------------------------
   Widget _buildIllustrationBox(Map<String, dynamic>? ilustrasi) {
-    final String caption = ilustrasi?['caption'] ?? '1 dari 4 potongan semangka diambil oleh Budi';
+    final String caption = ilustrasi?['caption'] ?? '';
 
     return Container(
       width: double.infinity,
@@ -640,18 +781,20 @@ class _KuisPageState extends State<KuisPage> {
               painter: WatermelonPainter(),
             ),
           ),
-          const SizedBox(height: 14),
+          if (caption.isNotEmpty) ...[
+            const SizedBox(height: 14),
 
-          // Teks Caption Ilustrasi
-          Text(
-            caption,
-            style: const TextStyle(
-              fontSize: 11.5,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+            // Teks Caption Ilustrasi
+            Text(
+              caption,
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
+          ],
         ],
       ),
     );
