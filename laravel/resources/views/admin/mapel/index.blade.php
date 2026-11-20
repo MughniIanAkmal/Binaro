@@ -1,76 +1,43 @@
 @extends('layouts.app')
 
 @section('page_title', 'Kelola Mata Pelajaran')
-@section('page_subtitle', 'Kelola master data mata pelajaran ' . config('binaro.nama_sekolah') . '. Anda dapat menambahkan mata pelajaran baru, memonitor, dan menghapus mapel.')
-
-@section('header_actions')
-    <button type="button" onclick="openCreateModal()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary" >
-        <i class="fas fa-plus"></i> Tambah Mapel
-    </button>
-@endsection
+@section('page_subtitle', 'Kelola master data mata pelajaran ' . config('binaro.nama_sekolah'))
 
 @section('content')
 <div class="space-y-6">
-
-    <!-- Quick Stat Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Mapel</span>
-                <div class="text-3xl font-black text-slate-900 mt-1">{{ $total }}</div>
-                <span class="text-[11px] text-slate-500 font-medium">Terdaftar di sistem</span>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary flex items-center justify-center text-xl font-bold">
-                <i class="fas fa-book-bookmark"></i>
-            </div>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Kelola Kurikulum</span>
-                <div class="text-sm font-bold text-emerald-600 mt-2">Dikelola oleh Guru</div>
-                <span class="text-[11px] text-slate-400">Bab, Sub-bab, & Materi</span>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
-                <i class="fas fa-chalkboard-user"></i>
-            </div>
-        </div>
-
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Pusat Data</span>
-                <div class="text-sm font-bold text-slate-800 mt-2">{{ config('binaro.nama_sekolah') }}</div>
-                <span class="text-[11px] text-slate-400">Tahun Ajaran Aktif</span>
-            </div>
-            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
-                <i class="fas fa-school"></i>
-            </div>
-        </div>
-    </div>
 
     <!-- Data Table Card -->
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
         <!-- Search & Filter Bar -->
         <div class="p-4 border-b border-slate-200 flex justify-between items-center flex-wrap gap-3 bg-slate-50/50">
-            <form method="GET" action="{{ route('mapel.index') }}" class="flex gap-2 flex-1 max-w-md">
-                <div class="relative flex-1">
-                    <i class="fas fa-search absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama mata pelajaran atau deskripsi..."
-                           class="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-primary bg-white">
-                </div>
-                <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
-                    <i class="fas fa-magnifying-glass"></i> Cari
-                </button>
-                @if($search)
-                <a href="{{ route('mapel.index') }}" class="px-3 py-2 border border-slate-200 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition">
-                    Reset
-                </a>
-                @endif
-            </form>
+            <div class="flex flex-1 flex-wrap items-center gap-2.5 min-w-0">
+                <form method="GET" action="{{ route('mapel.index') }}" class="flex gap-2 flex-1 max-w-md">
+                    <div class="relative flex-1">
+                        <i class="fas fa-search absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                        <input type="text" name="search" value="{{ $search }}" placeholder="Cari nama mata pelajaran atau deskripsi..."
+                               class="w-full pl-9 {{ $search ? 'pr-9' : 'pr-3' }} py-2 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-primary bg-white">
+                        @if($search)
+                        {{-- Reset dibuat tipis, lalu menguat saat diarahkan agar tetap terlihat sebagai aksi sekunder. --}}
+                        <a href="{{ route('mapel.index') }}" title="Reset pencarian" aria-label="Reset pencarian"
+                           class="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full text-slate-400 opacity-45 hover:opacity-100 hover:bg-slate-100 hover:text-slate-600 transition">
+                            <i class="fas fa-xmark text-[11px]"></i>
+                        </a>
+                        @endif
+                    </div>
+                    <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                        <i class="fas fa-magnifying-glass"></i> Cari
+                    </button>
+                </form>
 
-            <span class="text-xs text-slate-500 font-medium">
-                Menampilkan {{ $mapelList->count() }} dari total {{ $total }} mapel
-            </span>
+                <span class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-500 whitespace-nowrap">
+                    <i class="fas fa-book-bookmark text-[10px] text-slate-400"></i>
+                    Total Mapel: <span class="font-bold text-slate-800">{{ $total }}</span>
+                </span>
+            </div>
+
+            <button type="button" onclick="openCreateModal()" class="inline-flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary shrink-0">
+                <i class="fas fa-plus text-[11px]"></i> Tambah Mapel
+            </button>
         </div>
 
         <!-- Table View -->
