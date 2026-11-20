@@ -9,6 +9,7 @@ use App\Models\HasilKuisSiswa;
 use App\Models\Jadwal;
 use App\Models\MataPelajaran;
 use App\Models\Materi;
+use App\Models\Pengaturan;
 use App\Models\Pr;
 use App\Models\Quiz;
 use App\Models\Siswa;
@@ -383,7 +384,8 @@ class SiswaApiController extends ApiController
         $siswaId = $this->resolveSiswaId($request) ?? 1;
         $siswa = Siswa::find($siswaId) ?? Siswa::first();
         $namaKelas = $siswa?->nama_kelas ?? '-';
-        $semesterAktif = (int) ($siswa?->kelas?->semester_aktif ?? 1);
+        // Semester aktif berlaku satu sekolah (pengaturan global admin).
+        $semesterAktif = (int) Pengaturan::ambil('semester_aktif', 1);
         $daftarMapel = MataPelajaran::withCount(['bab' => function ($q) use ($semesterAktif) {
             $q->where('semester', $semesterAktif);
         }])->orderBy('id_mapel')->get();
@@ -532,10 +534,8 @@ class SiswaApiController extends ApiController
             return $this->error('Mata pelajaran tidak ditemukan', 404);
         }
 
-        // Siswa hanya melihat bab pada semester aktif kelasnya (diatur admin).
-        $siswaId = $this->resolveSiswaId($request) ?? 1;
-        $siswa = Siswa::find($siswaId) ?? Siswa::first();
-        $semesterAktif = (int) ($siswa?->kelas?->semester_aktif ?? 1);
+        // Siswa hanya melihat bab pada semester aktif sekolah (diatur admin).
+        $semesterAktif = (int) Pengaturan::ambil('semester_aktif', 1);
 
         $babs = Bab::where('id_mapel', $mapel->id_mapel)
             ->where('semester', $semesterAktif)
