@@ -163,10 +163,20 @@
             <div class="flex items-center gap-3.5 ml-auto shrink-0 flex-nowrap">
                 @yield('header_actions')
 
-                <!-- Semester Badge -->
+                <!-- Semester Badge: mengikuti semester aktif global dari Pengaturan Semester -->
+                @php
+                    try {
+                        $semesterAktifGlobal = \App\Models\Pengaturan::ambil('semester_aktif');
+                        $semesterLabel = $semesterAktifGlobal !== null
+                            ? ((int) $semesterAktifGlobal === 2 ? 'Genap' : 'Ganjil')
+                            : config('binaro.semester');
+                    } catch (\Throwable $e) {
+                        $semesterLabel = config('binaro.semester');
+                    }
+                @endphp
                 <div class="hidden lg:flex bg-amber-50 text-amber-900 border border-amber-200/90 px-3 py-1.5 rounded-xl text-xs font-bold items-center gap-1.5 shadow-xs whitespace-nowrap">
                     <i class="far fa-calendar-days text-amber-600 text-xs"></i>
-                    <span>Semester {{ config('binaro.semester') }} {{ config('binaro.tahun_ajaran') }}</span>
+                    <span>Semester {{ $semesterLabel }} {{ config('binaro.tahun_ajaran') }}</span>
                 </div>
 
                 <!-- Notification Bell -->
