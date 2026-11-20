@@ -381,6 +381,8 @@ class SiswaApiController extends ApiController
     public function mapelList(Request $request)
     {
         $siswaId = $this->resolveSiswaId($request) ?? 1;
+        $siswa = Siswa::find($siswaId) ?? Siswa::first();
+        $namaKelas = $siswa?->nama_kelas ?? '-';
         $daftarMapel = MataPelajaran::withCount('bab')->orderBy('id_mapel')->get();
 
         $result = [];
@@ -444,7 +446,7 @@ class SiswaApiController extends ApiController
         }
 
         return $this->success([
-            'kelas' => 'Mata Pelajaran Kelas 5 SD • Semester 2',
+            'kelas' => 'Mata Pelajaran ' . $namaKelas,
             'total_mapel' => count($result),
             'wajib_count' => count(array_filter($result, fn($x) => $x['is_wajib'])),
             'mapel' => $result,
