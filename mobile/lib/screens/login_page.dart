@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'dashboard_page.dart';
 import '../utils/api_client.dart';
 import '../utils/constants.dart';
@@ -150,26 +149,13 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 32),
 
                   // Logo Binaro
-                  SvgPicture.asset(
-                    'assets/images/logo_binaro_dark.svg',
-                    width: 60,
-                    height: 60,
+                  Image.asset(
+                    'assets/images/logo_binaro_warna.png',
+                    height: 64,
+                    fit: BoxFit.contain,
                   ),
 
-                  const SizedBox(height: 14),
-
-                  // Judul "Binaro"
-                  const Text(
-                    'Binaro',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
 
                   // Teks Sambutan SDN Kalitapen 1
                   Padding(
