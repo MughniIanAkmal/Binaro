@@ -102,8 +102,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Scaffold(
       backgroundColor: AppColors.navy950,
       body: Stack(
@@ -113,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
             top: 0,
             left: 0,
             right: 0,
-            height: size.height * 0.58,
+            bottom: 0,
             child: Stack(
               fit: StackFit.expand,
               children: [
