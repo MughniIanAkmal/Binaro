@@ -383,7 +383,10 @@ class SiswaApiController extends ApiController
         $siswaId = $this->resolveSiswaId($request) ?? 1;
         $siswa = Siswa::find($siswaId) ?? Siswa::first();
         $namaKelas = $siswa?->nama_kelas ?? '-';
-        $daftarMapel = MataPelajaran::withCount('bab')->orderBy('id_mapel')->get();
+        $semesterAktif = (int) ($siswa?->kelas?->semester_aktif ?? 1);
+        $daftarMapel = MataPelajaran::withCount(['bab' => function ($q) use ($semesterAktif) {
+            $q->where('semester', $semesterAktif);
+        }])->orderBy('id_mapel')->get();
 
         $result = [];
         foreach ($daftarMapel as $m) {
@@ -447,6 +450,8 @@ class SiswaApiController extends ApiController
 
         return $this->success([
             'kelas' => 'Mata Pelajaran ' . $namaKelas,
+            'semester' => $semesterAktif === 2 ? 'Semester Genap' : 'Semester Ganjil',
+            'semester_aktif' => $semesterAktif,
             'total_mapel' => count($result),
             'wajib_count' => count(array_filter($result, fn($x) => $x['is_wajib'])),
             'mapel' => $result,
@@ -527,7 +532,14 @@ class SiswaApiController extends ApiController
             return $this->error('Mata pelajaran tidak ditemukan', 404);
         }
 
-        $babs = Bab::where('id_mapel', $mapel->id_mapel)->orderBy('id_bab')->get();
+        // Siswa hanya melihat bab pada semester aktif kelasnya (diatur admin).
+        $siswaId = $this->resolveSiswaId($request) ?? 1;
+        $siswa = Siswa::find($siswaId) ?? Siswa::first();
+        $semesterAktif = (int) ($siswa?->kelas?->semester_aktif ?? 1);
+
+        $babs = Bab::where('id_mapel', $mapel->id_mapel)
+            ->where('semester', $semesterAktif)
+            ->orderBy('id_bab')->get();
         $isMatematika = str_contains(strtolower($mapel->nama_mapel), 'matematika');
 
         $babList = [];
@@ -550,6 +562,7 @@ class SiswaApiController extends ApiController
                 'nomor' => $nomor,
                 'label' => "BAB {$nomor}",
                 'nama_bab' => $b->nama_bab,
+                'semester' => (int) ($b->semester ?? 1),
                 'is_locked' => $isLocked,
                 'warna' => $warna,
                 'sub_bab_count' => $b->subBab()->count(),
@@ -564,7 +577,10 @@ class SiswaApiController extends ApiController
                 'judul_seru' => $isMatematika ? 'Petualangan Angka' : 'Eksplorasi Pembelajaran',
                 'progress_bab' => "{$unlockedCount}/" . count($babList) . " Bab",
                 'tipe_icon' => $isMatematika ? 'math' : 'book',
+                'semester' => $semesterAktif === 2 ? 'Semester Genap' : 'Semester Ganjil',
             ],
+            'semester' => $semesterAktif === 2 ? 'Semester Genap' : 'Semester Ganjil',
+            'semester_aktif' => $semesterAktif,
             'total_bab' => count($babList),
             'babs' => $babList,
         ], 'Daftar bab berhasil dimuat');

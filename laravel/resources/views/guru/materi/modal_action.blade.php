@@ -91,6 +91,14 @@
                             <span id="counter-tambah-bab" class="font-bold text-slate-600">0/100</span>
                         </div>
                     </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Semester <span class="text-rose-500">*</span></label>
+                        <select name="semester" id="tambah-bab-semester" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
+                            <option value="1">Semester Ganjil</option>
+                            <option value="2">Semester Genap</option>
+                        </select>
+                        <p class="text-[10px] text-slate-500 mt-1">Bab hanya tampil di aplikasi siswa pada semester ini (diatur admin lewat Pengaturan Semester).</p>
+                    </div>
                     <div class="flex justify-end pt-2">
                         <button type="submit" class="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl shadow-sm transition">
                             Simpan Bab

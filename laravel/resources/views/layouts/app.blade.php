@@ -105,6 +105,13 @@
                 <i class="fas fa-clock w-4 text-center {{ request()->routeIs('admin.absensi.settings*') ? 'text-white' : 'text-slate-400' }}"></i>
                 <span>Pengaturan Jam Absen</span>
             </a>
+
+            <!-- 9. Pengaturan Semester -->
+            <a href="{{ route('admin.semester.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('admin.semester.*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
+                <i class="fas fa-calendar-days w-4 text-center {{ request()->routeIs('admin.semester.*') ? 'text-white' : 'text-slate-400' }}"></i>
+                <span>Pengaturan Semester</span>
+            </a>
         </nav>
 
         <!-- Bottom User Card & Keluar Portal -->
