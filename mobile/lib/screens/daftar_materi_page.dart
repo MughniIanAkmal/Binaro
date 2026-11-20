@@ -5,6 +5,7 @@ import 'kuis_page.dart';
 import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
+import '../widgets/common.dart';
 import 'profile_page.dart';
 
 class DaftarMateriPage extends StatefulWidget {
@@ -81,21 +82,11 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          _breadcrumb,
-          style: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
+      appBar: BinaroAppBar(
+        // Judul app bar cukup nama sub bab — breadcrumb lengkap tampil
+        // sebagai chip di badan halaman (tidak lagi kepotong di app bar).
+        title: widget.subBab['nama_sub_bab'] ?? 'Daftar Materi',
+        showBack: true,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16, left: 2),
@@ -137,6 +128,8 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    _buildBreadcrumbChips(),
+                    const SizedBox(height: 14),
                     const Text(
                       'Daftar Materi',
                       style: TextStyle(
@@ -215,6 +208,48 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
   }
 
   // ---------------------------------------------------------------------------
+  // BREADCRUMB CHIP (Mapel > Bab > Sub Bab) — sama seperti halaman detail
+  // ---------------------------------------------------------------------------
+  Widget _buildBreadcrumbChips() {
+    final List<String> segments = _breadcrumb
+        .split('>')
+        .map((s) => s.trim())
+        .where((s) => s.isNotEmpty)
+        .toList();
+    if (segments.isEmpty) return const SizedBox.shrink();
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (int i = 0; i < segments.length; i++) ...[
+            if (i > 0)
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 6),
+                child: Icon(Icons.chevron_right_rounded, size: 14, color: AppColors.textMuted),
+              ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: i == 0 ? AppColors.primaryLight : AppColors.surfaceAlt,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                segments[i],
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: i == 0 ? AppColors.primary : AppColors.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
   // KARTU MATERI (Sesuai Desain & Permintaan User: Kuis = Kerjakan Quiz)
   // ---------------------------------------------------------------------------
   Widget _buildMateriCard(Map<String, dynamic> materi) {
@@ -238,8 +273,9 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
       deskripsi = 'Silakan buka materi untuk mempelajari topik ini.';
     }
 
-    final bool isOrange = isKuis || (materi['warna'] == 'orange') || (nomor == 2);
-    final Color borderColor = isOrange ? AppColors.accent : AppColors.primary;
+    // Warna mengikuti TIPE materi, bukan nomor urut: materi belajar navy,
+    // kuis amber. Border kartu selalu netral seperti kartu lainnya.
+    final bool isOrange = isKuis;
     final Color badgeBgColor = isOrange ? AppColors.accent : AppColors.primary;
 
     void navigateToDestination() {
@@ -273,7 +309,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor, width: 2),
+        border: Border.all(color: AppColors.border, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.03),
@@ -401,35 +437,37 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                           borderRadius: BorderRadius.circular(12),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Image.network(
-                                  'https://img.youtube.com/vi/$ytId/hqdefault.jpg',
-                                  height: 130,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-                                ),
-                                Container(
-                                  width: 44,
-                                  height: 44,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [AppColors.accent, AppColors.accent],
-                                    ),
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: AppColors.accent.withValues(alpha: 0.55),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
+                            child: AspectRatio(
+                              aspectRatio: 16 / 9,
+                              child: Stack(
+                                alignment: Alignment.center,
+                                fit: StackFit.expand,
+                                children: [
+                                  Image.network(
+                                    'https://img.youtube.com/vi/$ytId/hqdefault.jpg',
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, __, ___) => Container(color: AppColors.primary),
                                   ),
-                                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 30),
+                                Center(
+                                  child: Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.accent,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: AppColors.accent.withValues(alpha: 0.55),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 30),
+                                  ),
                                 ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),

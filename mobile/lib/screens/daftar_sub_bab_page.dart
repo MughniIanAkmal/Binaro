@@ -4,6 +4,7 @@ import 'daftar_materi_page.dart';
 import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
+import '../widgets/common.dart';
 import 'profile_page.dart';
 
 class DaftarSubBabPage extends StatefulWidget {
@@ -75,21 +76,9 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 24),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          'Bab $nomorBab',
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
+      appBar: BinaroAppBar(
+        title: 'Bab $nomorBab',
+        showBack: true,
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16, left: 2),
@@ -314,18 +303,16 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
     final bool isActive = subBab['is_active'] == true;
     final String tipeIcon = subBab['tipe_icon'] ?? 'fraction';
 
-    // Warna Card & Tombol Buka
-    final Color borderColor = isActive ? AppColors.accent : AppColors.primary;
-    final Color btnColor = isActive
-        ? AppColors.accent
-        : (nomor % 2 == 1 ? AppColors.primary : AppColors.accent);
+    // Satu bahasa desain: border netral untuk semua kartu, tombol selalu
+    // amber; status aktif hanya ditandai chip ikon amber solid.
+    const Color btnColor = AppColors.accent;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: borderColor, width: isActive ? 2.5 : 1.8),
+        border: Border.all(color: AppColors.border, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.02),
