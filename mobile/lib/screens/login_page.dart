@@ -142,10 +142,16 @@ class _LoginPageState extends State<LoginPage> {
           ),
           // 2. KONTEN (HEADER DAN FORM CARD)
           SafeArea(
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              child: Column(
-                children: [
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: constraints.maxHeight),
+                    child: IntrinsicHeight(
+                      child: Column(
+                        children: [
                   const SizedBox(height: 32),
 
                   // Logo Binaro
@@ -175,7 +181,13 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 36),
+                  const SizedBox(height: 24),
+
+                  // Sisa ruang layar jadi jarak di sini: kartu form selalu
+                  // menempel di bawah pada layar tinggi, dan tetap bisa
+                  // di-scroll pada layar pendek.
+                  const Spacer(),
+
                   // 3. CARD SHEET PUTIH (FORM INPUT LOGIN)
                   Container(
                     width: double.infinity,
@@ -267,8 +279,12 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                   ),
-                ],
-              ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
