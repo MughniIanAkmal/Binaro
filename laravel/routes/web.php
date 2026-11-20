@@ -4,6 +4,7 @@ use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\BarcodeController;
 use App\Http\Controllers\Admin\QrAbsensiController;
+use App\Http\Controllers\Admin\SemesterController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Guru\AbsenScanController;
@@ -136,6 +137,7 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             Route::delete('/sub-bab/{id}', [MateriController::class, 'destroySubBab'])->name('destroy.sub-bab');
             // Toggle Lock Bab & Sub-Bab (Dukung POST dan PATCH)
             Route::match(['POST', 'PATCH'], '/bab/{id}/toggle-lock', [MateriController::class, 'toggleBabLock'])->name('toggle-lock.bab');
+            Route::patch('/bab/{id}/semester', [MateriController::class, 'updateBabSemester'])->name('bab.semester');
             Route::match(['POST', 'PATCH'], '/sub-bab/{id}/toggle-lock', [MateriController::class, 'toggleSubBabLock'])->name('toggle-lock.sub-bab');
         });
 
@@ -300,6 +302,8 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::get('/qr-absensi', [QrAbsensiController::class, 'index'])->name('qr_absensi.index');
         Route::get('/absensi/settings', [AbsensiController::class, 'settingsView'])->name('absensi.settings');
         Route::post('/absensi/settings', [AbsensiController::class, 'updateSettings'])->name('absensi.settings.update');
+        Route::get('/semester', [SemesterController::class, 'index'])->name('semester.index');
+        Route::post('/semester', [SemesterController::class, 'update'])->name('semester.update');
     });
 
     // 9. Jadwal (Role: Admin & Guru)

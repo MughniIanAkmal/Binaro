@@ -44,6 +44,14 @@
                     <h3 class="text-sm font-bold text-slate-800">{{ $bab->nama_bab }}</h3>
                 </div>
                 <div class="flex items-center gap-2">
+                    <form action="{{ route('guru.materi.bab.semester', $bab->id_bab) }}" method="POST" class="flex items-center">
+                        @csrf
+                        @method('PATCH')
+                        <select name="semester" onchange="this.form.submit()" title="Semester bab ini" class="px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-[11px] font-semibold text-slate-700 focus:outline-none focus:border-primary cursor-pointer">
+                            <option value="1" {{ (int) ($bab->semester ?? 1) === 1 ? 'selected' : '' }}>Semester Ganjil</option>
+                            <option value="2" {{ (int) ($bab->semester ?? 1) === 2 ? 'selected' : '' }}>Semester Genap</option>
+                        </select>
+                    </form>
                     <button onclick="openModalAddSubBab({{ $bab->id_bab }}, '{{ $bab->nama_bab }}')" class="px-2.5 py-1.5 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-medium rounded-lg transition flex items-center gap-1.5">
                         <i class="fas fa-plus text-[10px] text-primary"></i> Sub-Bab
                     </button>

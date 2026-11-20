@@ -99,6 +99,7 @@ class MateriController extends Controller
     {
         $request->validate([
             'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
+            'semester' => 'nullable|in:1,2',
             'nama_bab' => [
                 'required',
                 'string',
@@ -125,9 +126,22 @@ class MateriController extends Controller
         Bab::create([
             'id_mapel' => $request->id_mapel,
             'nama_bab' => trim($request->nama_bab),
+            'semester' => (int) ($request->semester ?? 1),
         ]);
 
         return back()->with('success', 'Bab berhasil ditambahkan.');
+    }
+
+    public function updateBabSemester(Request $request, $id)
+    {
+        $request->validate([
+            'semester' => 'required|in:1,2',
+        ]);
+
+        $bab = Bab::findOrFail($id);
+        $bab->update(['semester' => (int) $request->semester]);
+
+        return back()->with('success', 'Semester bab "' . $bab->nama_bab . '" berhasil diubah.');
     }
 
     public function storeSubBab(Request $request)

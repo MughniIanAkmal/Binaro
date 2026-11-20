@@ -14,6 +14,7 @@ class Kelas extends Model
 
     protected $fillable = [
         'pararel',
+        'semester_aktif',
     ];
 
     protected $appends = ['nama_kelas', 'id_kelas'];
