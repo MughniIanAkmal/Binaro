@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -42,7 +43,17 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
   String? _loadedVideoId;
   bool _isFullScreen = false;
 
-  bool get _canUseInAppPlayer => WebViewPlatform.instance != null && _ytController != null;
+  /// Pemutar video di dalam aplikasi hanya didukung Android & iOS —
+  /// webview resminya memang hanya ada di dua platform itu. Di desktop
+  /// (Windows/macOS/Linux) kartu video memakai mode thumbnail dan video
+  /// dibuka di YouTube, karena webview Android yang dipaksakan terdaftar
+  /// di desktop hanya menghasilkan kotak kosong dan merusak tampilan kartu.
+  bool get _platformDukungPlayer =>
+      !kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS);
+
+  bool get _canUseInAppPlayer => _platformDukungPlayer && _ytController != null;
 
   void _updateOrientation(bool isFullScreen) {
     if (_isFullScreen == isFullScreen) return;
@@ -106,8 +117,9 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
         } catch (_) {}
       }
 
-      // Jika platform webview tidak tersedia di runtime, jangan inisialisasi controller agar tidak melempar assertion error
-      if (WebViewPlatform.instance == null) {
+      // Jangan buat controller di platform tanpa webview resmi (desktop):
+      // kartu video otomatis memakai mode thumbnail + buka di YouTube.
+      if (!_platformDukungPlayer) {
         _ytController = null;
         return;
       }
@@ -659,6 +671,9 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
     final String? ytId = _extractYoutubeId(rawUrl);
     final bool isPlaying = _ytController?.value.playerState == PlayerState.playing;
     final bool hasError = _ytController?.value.error != null && _ytController!.value.error != YoutubeError.none;
+    // Mode eksternal: video dibuka di YouTube (platform tanpa pemutar
+    // dalam aplikasi seperti desktop, atau pemutaran sematan dibatasi).
+    final bool modeEksternal = !_canUseInAppPlayer || hasError;
 
     return Container(
       decoration: BoxDecoration(
@@ -993,13 +1008,13 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                   child: ElevatedButton.icon(
                     onPressed: () => _handleVideoAction(url, judul),
                     icon: Icon(
-                      hasError
+                      modeEksternal
                           ? Icons.open_in_new_rounded
                           : (isPlaying ? Icons.pause_circle_filled_rounded : Icons.play_circle_fill_rounded),
                       size: 20,
                     ),
                     label: Text(
-                      hasError ? 'Tonton di YouTube' : (isPlaying ? 'Jeda Video' : 'Putar di Aplikasi'),
+                      modeEksternal ? 'Tonton di YouTube' : (isPlaying ? 'Jeda Video' : 'Putar di Aplikasi'),
                       style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700),
                     ),
                     style: ElevatedButton.styleFrom(
