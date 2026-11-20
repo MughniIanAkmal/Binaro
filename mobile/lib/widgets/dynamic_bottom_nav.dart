@@ -3,7 +3,9 @@ import '../screens/dashboard_page.dart';
 import '../screens/mapel_page.dart';
 import '../screens/profile_page.dart';
 import '../screens/ujian_page.dart';
+import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
+import 'common.dart';
 
 /// Model representasi item navigasi
 class NavItem {
@@ -20,10 +22,13 @@ class NavItem {
   });
 }
 
-/// Bottom navigation baku Binaro: lima tombol dengan posisi tetap.
-/// Halaman aktif ditandai warna kuning (aksen) di tempatnya — tanpa
-/// perpindahan posisi (revisi UI: spotlight tengah dihapus).
-class DynamicBottomNav extends StatelessWidget {
+/// Bottom navigation baku Binaro: bar navy melayang dengan lima item tetap.
+///
+/// Bentuk mengikuti referensi desain — bar membulat yang tidak menempel tepi
+/// layar, dan item aktif naik menjadi gelembung bulat yang menonjol melewati
+/// tepi atas bar (tengah gelembung tepat di garis atas bar). Label tetap di
+/// bawah, jadi posisi kelima item tidak bergeser saat tab berganti.
+class DynamicBottomNav extends StatefulWidget {
   final int currentIndex;
   final Map<String, dynamic>? user;
   final ValueChanged<int>? onNavTap;
@@ -34,6 +39,25 @@ class DynamicBottomNav extends StatelessWidget {
     this.user,
     this.onNavTap,
   });
+
+  @override
+  State<DynamicBottomNav> createState() => _DynamicBottomNavState();
+}
+
+class _DynamicBottomNavState extends State<DynamicBottomNav>
+    with SingleTickerProviderStateMixin {
+  // --- Geometri (dp), diturunkan dari proporsi referensi -------------------
+  // Referensi 736x1374: bar 560x138, gelembung 92, label 12px.
+  static const double _barHeight = 66;
+  static const double _bubbleSize = 46;
+  static const double _bubbleRise = _bubbleSize / 2;
+  static const double _idleIconSize = 24;
+  static const double _labelFontSize = 10.5;
+  static const double _sideMargin = 12;
+  static const double _bottomMargin = 10;
+  // Jarak pusat ikon & label dari tepi atas bar (0,28 dan 0,57 tinggi bar).
+  static const double _idleIconCenter = 19;
+  static const double _labelCenter = 38;
 
   static const List<NavItem> _allNavItems = [
     NavItem(
@@ -68,19 +92,46 @@ class DynamicBottomNav extends StatelessWidget {
     ),
   ];
 
-  void _handleNavigation(BuildContext context, int targetIndex) {
-    if (onNavTap != null) {
-      onNavTap!(targetIndex);
+  late final AnimationController _popController;
+  int? _pressedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    // Halaman tab dibangun ulang lewat pushReplacement, jadi gelembung item
+    // aktif selalu "muncul" dari bar setiap kali tab ditekan.
+    _popController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 620),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _popController.dispose();
+    super.dispose();
+  }
+
+  void _handleNavigation(int targetIndex) {
+    if (widget.onNavTap != null) {
+      widget.onNavTap!(targetIndex);
+      if (targetIndex == widget.currentIndex) {
+        _popController.forward(from: 0);
+      }
       return;
     }
 
-    if (targetIndex == currentIndex) return;
+    // Menekan tab yang sedang aktif: putar ulang animasi tanpa pindah halaman.
+    if (targetIndex == widget.currentIndex) {
+      _popController.forward(from: 0);
+      return;
+    }
 
     if (targetIndex == 0) {
       Navigator.pushReplacement(
         context,
         SmoothPageRoute(
-          page: DashboardPage(user: user),
+          page: DashboardPage(user: widget.user),
           type: TransitionType.fadeThrough,
         ),
       );
@@ -88,7 +139,7 @@ class DynamicBottomNav extends StatelessWidget {
       Navigator.pushReplacement(
         context,
         SmoothPageRoute(
-          page: UjianPage(user: user),
+          page: UjianPage(user: widget.user),
           type: TransitionType.fadeThrough,
         ),
       );
@@ -96,37 +147,17 @@ class DynamicBottomNav extends StatelessWidget {
       Navigator.pushReplacement(
         context,
         SmoothPageRoute(
-          page: MapelPage(user: user),
+          page: MapelPage(user: widget.user),
           type: TransitionType.fadeThrough,
         ),
       );
     } else if (targetIndex == 3) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Row(
-            children: [
-              Icon(Icons.calendar_month_rounded, color: Colors.white, size: 20),
-              SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Fitur Jadwal Pelajaran segera hadir!',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: const Color(0xFF13527D),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      showAppSnackbar(context, 'Fitur Jadwal Pelajaran segera hadir!');
     } else if (targetIndex == 4) {
       Navigator.pushReplacement(
         context,
         SmoothPageRoute(
-          page: ProfilePage(user: user),
+          page: ProfilePage(user: widget.user),
           type: TransitionType.fadeThrough,
         ),
       );
@@ -135,104 +166,159 @@ class DynamicBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bottomPadding = MediaQuery.paddingOf(context).bottom;
+    final double bottomInset = MediaQuery.paddingOf(context).bottom;
+    final double barHeight = _barHeight + bottomInset;
 
-    return Container(
-      height: 68 + bottomPadding,
-      decoration: const BoxDecoration(
-        color: Color(0xFF13527D),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black26,
-            blurRadius: 16,
-            offset: Offset(0, -4),
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: _sideMargin,
+        right: _sideMargin,
+        bottom: _bottomMargin,
       ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children:
-              _allNavItems.map((item) => _buildNavItem(context, item)).toList(),
+      child: SizedBox(
+        height: _bubbleRise + barHeight,
+        child: Stack(
+          children: [
+            // Bar navy melayang: keempat sudut membulat, tidak menempel tepi.
+            Positioned(
+              top: _bubbleRise,
+              left: 0,
+              right: 0,
+              height: barHeight,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.navy950.withValues(alpha: 0.28),
+                      blurRadius: 18,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Positioned.fill(
+              child: Row(
+                children:
+                    _allNavItems.map((item) => _buildNavItem(item)).toList(),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildNavItem(BuildContext context, NavItem item) {
-    final bool isActive = item.index == currentIndex;
+  Widget _buildNavItem(NavItem item) {
+    final bool isActive = item.index == widget.currentIndex;
+    final bool isPressed = _pressedIndex == item.index;
 
-    // Label: kuning saat aktif, putih pudar saat tidak.
-    final Color labelColor =
-        isActive ? const Color(0xFFF59E0B) : Colors.white70;
+    // Ikon biasa duduk di dalam bar; gelembung aktif naik ke tepi atas bar.
+    final double iconTop = isActive
+        ? 0
+        : _bubbleRise + _idleIconCenter - (_idleIconSize / 2);
 
     return Expanded(
-      child: InkWell(
-        onTap: () => _handleNavigation(context, item.index),
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
+      child: Semantics(
+        button: true,
+        selected: isActive,
+        label: item.label,
+        // Label dibaca sekali saja dari node Semantics; teks di dalamnya
+        // tidak perlu menggandakan pengumuman pembaca layar.
+        excludeSemantics: true,
+        onTap: () => _handleNavigation(item.index),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: (_) => setState(() => _pressedIndex = item.index),
+          onTapCancel: () => setState(() => _pressedIndex = null),
+          onTapUp: (_) => setState(() => _pressedIndex = null),
+          onTap: () => _handleNavigation(item.index),
+          child: Stack(
+            alignment: Alignment.topCenter,
             children: [
-              // Slot ikon setinggi tetap agar item tidak bergeser saat
-              // berganti aktif/tidak (lingkaran 40dp vs ikon 24dp).
-              SizedBox(
-                height: 40,
-                width: 40,
-                child: Center(
-                  child: isActive
-                      ? Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFFFBBF24),
-                                Color(0xFFF59E0B),
-                                Color(0xFFD97706),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            border: Border.all(color: Colors.white, width: 3),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFFF59E0B)
-                                    .withValues(alpha: 0.45),
-                                blurRadius: 12,
-                                offset: const Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            item.activeIcon,
-                            color: Colors.white,
-                            size: 22,
-                          ),
-                        )
-                      : Icon(item.icon, color: Colors.white70, size: 24),
-                ),
+              Positioned(
+                top: iconTop,
+                child: isActive
+                    ? _buildActiveBubble(item)
+                    : _buildIdleIcon(item, isPressed),
               ),
-              const SizedBox(height: 2),
-              Text(
-                item.label,
-                style: TextStyle(
-                  color: labelColor,
-                  fontSize: 11,
-                  fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
-                  letterSpacing: 0.2,
+              Positioned(
+                top: _bubbleRise + _labelCenter - (_labelFontSize / 2),
+                child: AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  style: TextStyle(
+                    color: isActive ? AppColors.accentBright : Colors.white70,
+                    fontSize: _labelFontSize,
+                    fontWeight: isActive ? FontWeight.w800 : FontWeight.w500,
+                    letterSpacing: 0.2,
+                    height: 1,
+                  ),
+                  child: Text(
+                    item.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  /// Gelembung item aktif: memantul naik dari dalam bar ke posisi akhir
+  /// (tengah gelembung tepat di garis atas bar).
+  Widget _buildActiveBubble(NavItem item) {
+    return AnimatedBuilder(
+      animation: _popController,
+      builder: (context, child) {
+        final double progress = _popController.value;
+        final double scale =
+            0.66 + 0.34 * Curves.elasticOut.transform(progress);
+        final double lift = 16 * (1 - Curves.easeOutCubic.transform(progress));
+        return Transform.translate(
+          offset: Offset(0, lift),
+          child: Transform.scale(scale: scale, child: child),
+        );
+      },
+      child: Container(
+        width: _bubbleSize,
+        height: _bubbleSize,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: const LinearGradient(
+            colors: [
+              AppColors.accentBright,
+              AppColors.accent,
+              AppColors.accentDeep,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          border: Border.all(color: Colors.white, width: 3),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.accentDeep.withValues(alpha: 0.45),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Icon(item.activeIcon, color: Colors.white, size: 24),
+      ),
+    );
+  }
+
+  Widget _buildIdleIcon(NavItem item, bool isPressed) {
+    return AnimatedScale(
+      scale: isPressed ? 0.86 : 1,
+      duration: const Duration(milliseconds: 130),
+      curve: Curves.easeOut,
+      child: Icon(item.icon, color: Colors.white70, size: _idleIconSize),
     );
   }
 }
