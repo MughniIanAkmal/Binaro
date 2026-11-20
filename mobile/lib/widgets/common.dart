@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/constants.dart';
+import 'lonceng_notifikasi.dart';
 
 /// App bar baku Binaro: logo resmi Binaro + judul halaman.
 /// Satu-satunya app bar untuk halaman tab utama (Beranda, Ujian, Pembelajaran,
@@ -56,7 +57,7 @@ class BinaroAppBar extends StatelessWidget implements PreferredSizeWidget {
           ),
         ],
       ),
-      actions: actions,
+      actions: [...actions, const LoncengNotifikasi()],
     );
   }
 }
