@@ -22,6 +22,7 @@ class _MapelPageState extends State<MapelPage> {
   int _selectedFilter = 0; // 0: Semua, 1: Wajib
 
   String _kelasInfo = 'Mata Pelajaran';
+  String _semesterInfo = '';
   List<dynamic> _mapelList = [];
   int _totalMapel = 6;
   int _wajibCount = 4;
@@ -42,6 +43,7 @@ class _MapelPageState extends State<MapelPage> {
           final data = result['data'];
           setState(() {
             _kelasInfo = data['kelas'] ?? _kelasInfo;
+            _semesterInfo = data['semester'] ?? '';
             _totalMapel = data['total_mapel'] ?? 0;
             _wajibCount = data['wajib_count'] ?? 0;
             _mapelList = data['mapel'] ?? [];
@@ -182,6 +184,31 @@ class _MapelPageState extends State<MapelPage> {
                 color: AppColors.textSecondary,
               ),
             ),
+            if (_semesterInfo.isNotEmpty) ...[
+              const SizedBox(height: 5),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.calendar_month_rounded, size: 11, color: AppColors.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      _semesterInfo,
+                      style: const TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ],
