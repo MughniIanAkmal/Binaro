@@ -1,28 +1,46 @@
 @extends('layouts.app')
 
+@php
+    // Saat update gagal validasi, Laravel kembali ke halaman ini dengan old input.
+    // Hidden edit_id menandai baris mana yang harus dibuka kembali modal editnya.
+    $editGagalId = (string) old('edit_id', '');
+    $editGagalAda = $editGagalId !== '' && $guru->contains(fn ($item) => (string) $item->id_guru === $editGagalId);
+    $tambahGagal = $errors->any() && $editGagalId === '';
+@endphp
+
 @section('page_title', 'Kelola Data Guru')
 @section('page_subtitle', 'Daftar akun pendidik dan staf pengajar ' . config('binaro.nama_sekolah') . '.')
+
+{{-- Error validasi tampil di dalam modal; alert global hanya dipakai bila modalnya tidak bisa dibuka. --}}
+@if($editGagalId === '' || $editGagalAda)
+    @section('hide_global_errors', '1')
+@endif
 
 @section('content')
 <div class="space-y-6">
 
     <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-center gap-3">
+        <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row items-center gap-3 bg-slate-50/50">
             <div class="flex flex-1 flex-wrap items-center justify-center sm:justify-start gap-2.5">
-                <form action="{{ route('guru.data.index') }}" method="GET" class="flex gap-2 items-center">
-                    <div class="relative">
+                <form action="{{ route('guru.data.index') }}" method="GET" class="flex gap-2 items-center flex-1 max-w-md">
+                    @php $kataKunci = request('search', request('q')); @endphp
+                    <div class="relative flex-1">
                         <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                        <input type="text" name="search" value="{{ request('search', request('q')) }}" placeholder="Cari nama, NIP, email..."
-                               class="pl-8 pr-3 py-2 bg-slate-50 border border-line rounded-xl text-xs font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                        <input type="text" name="search" value="{{ $kataKunci }}" placeholder="Cari nama, NIP, email..."
+                               class="w-full {{ $kataKunci ? 'pr-8' : 'pr-3' }} pl-8 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                        @if($kataKunci)
+                        {{-- Reset dibuat tipis, lalu menguat saat diarahkan agar tetap terlihat sebagai aksi sekunder. --}}
+                        <a href="{{ route('guru.data.index') }}" title="Reset pencarian" aria-label="Reset pencarian"
+                           class="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full text-slate-400 opacity-45 hover:opacity-100 hover:bg-slate-100 hover:text-slate-600 transition">
+                            <i class="fas fa-xmark text-[11px]"></i>
+                        </a>
+                        @endif
                     </div>
-                    <button type="submit" class="px-3 py-2 bg-primary hover:opacity-90 text-white text-xs font-bold rounded-xl transition">
-                        Cari
+                    <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm">
+                        <i class="fas fa-magnifying-glass"></i> Cari
                     </button>
-                    @if(request('search') || request('q'))
-                        <a href="{{ route('guru.data.index') }}" class="text-xs text-rose-600 hover:underline">Reset</a>
-                    @endif
                 </form>
-                <span class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-50 border border-line text-xs text-slate-500 whitespace-nowrap">
+                <span class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs text-slate-500 whitespace-nowrap">
                     <i class="fas fa-user-tie text-[10px] text-slate-400"></i>
                     Total Guru: <span class="font-bold text-slate-800">{{ $guru->total() }}</span>
                 </span>
@@ -66,7 +84,7 @@
                         <td class="p-3.5 font-mono text-slate-600">{{ $item->username ?? '-' }}</td>
                         <td class="p-3.5 text-center">
                             <div class="inline-flex gap-1.5">
-                                <a href="{{ route('guru.data.edit', $item->id_guru) }}" class="px-2.5 py-1 bg-amber-500 hover:bg-accent-deep text-white rounded text-xs font-semibold transition">
+                                <a href="{{ route('guru.data.edit', $item->id_guru) }}" data-open-edit-guru="{{ $item->id_guru }}" class="px-2.5 py-1 bg-amber-500 hover:bg-accent-deep text-white rounded text-xs font-semibold transition">
                                     <i class="fas fa-edit mr-1"></i>Edit
                                 </a>
                                 <form action="{{ route('guru.data.destroy', $item->id_guru) }}" method="POST" class="inline"
@@ -109,7 +127,7 @@
             <form action="{{ route('guru.data.store') }}" method="POST" class="space-y-6">
                 @csrf
                 {{-- guru => null: di halaman daftar $guru adalah paginator, bukan satu guru. --}}
-                @include('guru.data._form_guru', ['guru' => null])
+                @include('guru.data._form_guru', ['guru' => null, 'pakaiOld' => $tambahGagal])
 
                 <div class="flex justify-end gap-2 pt-4 border-t border-slate-200">
                     <button type="button" data-close="modal-tambah-guru" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50">
@@ -124,44 +142,107 @@
     </div>
 </div>
 
+{{-- Modal Edit Guru: satu modal per baris agar data yang diubah sudah terisi. --}}
+@foreach($guru as $item)
+<div id="modal-edit-guru-{{ $item->id_guru }}" class="fixed inset-0 hidden items-center justify-center bg-slate-900/50 z-50 p-4 md:p-6" aria-hidden="true">
+    <div class="w-[min(768px,94vw)] max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200" role="dialog" aria-modal="true" aria-labelledby="modalEditGuruTitle-{{ $item->id_guru }}">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-start justify-between gap-4 shrink-0">
+            <div>
+                <div id="modalEditGuruTitle-{{ $item->id_guru }}" class="font-extrabold text-base text-slate-900">Edit Data Guru</div>
+                <p class="text-xs text-slate-500 mt-0.5">Perbarui informasi guru {{ $item->nama_guru }}.</p>
+            </div>
+            <button type="button" class="text-3xl leading-none text-slate-400 hover:text-slate-600 transition" aria-label="Tutup" data-close="modal-edit-guru-{{ $item->id_guru }}">&times;</button>
+        </div>
+        <div class="overflow-y-auto px-6 py-5">
+            <form action="{{ route('guru.data.update', $item->id_guru) }}" method="POST" class="space-y-6">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="edit_id" value="{{ $item->id_guru }}">
+                @include('guru.data._form_guru', [
+                    'guru' => $item,
+                    'pakaiOld' => (string) $editGagalId === (string) $item->id_guru,
+                ])
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-200">
+                    <button type="button" data-close="modal-edit-guru-{{ $item->id_guru }}" class="px-4 py-2 border border-slate-300 rounded-lg text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-bold transition shadow-sm">
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
+
 <script>
-    const modalTambahGuru = document.getElementById('modal-tambah-guru');
+    function bukaModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        modal.setAttribute('aria-hidden', 'false');
+    }
+
+    function tutupModal(id) {
+        const modal = document.getElementById(id);
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        modal.setAttribute('aria-hidden', 'true');
+    }
 
     function openTambahGuruModal() {
-        modalTambahGuru.classList.remove('hidden');
-        modalTambahGuru.classList.add('flex');
-        modalTambahGuru.setAttribute('aria-hidden', 'false');
+        bukaModal('modal-tambah-guru');
     }
 
     function closeTambahGuruModal() {
-        modalTambahGuru.classList.add('hidden');
-        modalTambahGuru.classList.remove('flex');
-        modalTambahGuru.setAttribute('aria-hidden', 'true');
+        tutupModal('modal-tambah-guru');
     }
 
     document.getElementById('btn-tambah-guru').addEventListener('click', function () {
         openTambahGuruModal();
     });
 
-    document.querySelectorAll('[data-close="modal-tambah-guru"]').forEach(function (el) {
-        el.addEventListener('click', function () {
-            closeTambahGuruModal();
+    document.querySelectorAll('[data-open-edit-guru]').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+            // href tetap ada sebagai fallback bila JavaScript tidak berjalan.
+            event.preventDefault();
+            bukaModal('modal-edit-guru-' + button.dataset.openEditGuru);
         });
     });
 
-    modalTambahGuru.addEventListener('click', function (event) {
-        if (event.target === modalTambahGuru) {
-            closeTambahGuruModal();
-        }
+    document.querySelectorAll('[data-close]').forEach(function (el) {
+        el.addEventListener('click', function () {
+            tutupModal(el.dataset.close);
+        });
+    });
+
+    document.querySelectorAll('[id^="modal-tambah-guru"], [id^="modal-edit-guru-"]').forEach(function (modal) {
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                tutupModal(modal.id);
+            }
+        });
     });
 
     document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' && !modalTambahGuru.classList.contains('hidden')) {
-            closeTambahGuruModal();
-        }
+        if (event.key !== 'Escape') return;
+
+        document.querySelectorAll('[id^="modal-tambah-guru"], [id^="modal-edit-guru-"]').forEach(function (modal) {
+            if (!modal.classList.contains('hidden')) {
+                tutupModal(modal.id);
+            }
+        });
     });
 
-    @if($errors->any())
+    @if($errors->any() && $editGagalAda)
+        // Update gagal: buka kembali modal edit milik data yang divalidasi.
+        bukaModal('modal-edit-guru-{{ $editGagalId }}');
+    @elseif($tambahGagal)
+        // Tambah guru gagal: buka kembali modal tambah.
         openTambahGuruModal();
     @endif
 </script>
