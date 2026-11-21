@@ -1,250 +1,233 @@
 @extends('layouts.guru')
 
-@section('page_title', 'Beranda Guru')
+@section('page_title', 'Dashboard Guru')
 
 @section('content')
-    <div class="p-8 space-y-6">
-        <!-- Profile Banner -->
-        <div
-            class="bg-gradient-to-r from-primary-hover to-primary rounded-xl p-6 text-white shadow-md flex justify-between items-center flex-wrap gap-4">
-            <div class="flex items-center gap-4">
-                <div
-                    class="w-14 h-14 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center font-black text-xl text-white">
-                    {{ strtoupper(substr($guru->nama_guru ?? session('user_name', 'Guru'), 0, 2)) }}
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h2 class="text-xl font-black">
-                            {{ $guru->nama_guru ?? session('user_name', 'Guru') }}</h2>
-                    </div>
-                    <p class="text-xs text-sky-100 mt-1">{{ config('binaro.nama_sekolah') }}@if($guru->nip ?? null) &bull; NIP. {{ $guru->nip }}@endif</p>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button type="button" onclick="openModalAction('tambah', 'materi')"
-                    class="bg-white/10 hover:bg-white/20 text-white border border-white/30 text-xs font-bold px-4 py-2 rounded-lg transition flex items-center gap-1.5">
-                    <i class="fas fa-plus text-xs"></i> Buat Materi
-                </button>
-                <a href="{{ route('guru.notifikasi_pr.create') }}"
-                    class="bg-accent hover:bg-accent-deep text-slate-900 font-bold text-xs px-4 py-2 rounded-lg transition flex items-center gap-1.5 shadow">
-                    <i class="fas fa-tasks text-xs"></i> Beri Tugas
-                </a>
-            </div>
+<div class="space-y-6">
+    <!-- Header Welcome Banner -->
+    <div class="bg-primary rounded-2xl shadow-sm p-8 text-white relative overflow-hidden">
+        <div class="absolute top-0 right-0 opacity-10 transform translate-x-1/4 -translate-y-1/4">
+            <i class="fas fa-chalkboard-user text-9xl"></i>
         </div>
 
-        <!-- 3 KPI Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <a href="{{ route('guru.mapel.browse') }}"
-                class="bg-white p-5 rounded-xl border border-line shadow-sm flex justify-between items-center hover:border-primary hover:shadow-md transition group">
-                <div>
-                    <div class="text-3xl font-black text-slate-900 group-hover:text-primary transition">
-                        {{ $totalMapel }}</div>
-                    <div class="text-xs font-bold text-slate-600 mt-1">Mata Pelajaran</div>
-                    <div class="text-[11px] text-slate-400">Semester {{ config('binaro.semester') }} &bull; {{ config('binaro.tahun_ajaran') }}</div>
+        <div class="relative z-10">
+            <div>
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="bg-emerald-400 text-emerald-900 font-bold text-[10px] px-2.5 py-0.5 rounded-full shadow-sm">
+                        <i class="fas fa-chalkboard mr-1"></i> Portal Guru &bull; {{ config('binaro.nama_sekolah') }}
+                    </span>
+                    <span class="text-xs text-sky-200">
+                        {{ now()->locale('id')->translatedFormat('l, d F Y') }}
+                    </span>
                 </div>
-                <div
-                    class="w-12 h-12 rounded-xl bg-sky-50 text-primary group-hover:bg-primary group-hover:text-white transition flex items-center justify-center text-xl font-bold">
-                    <i class="fas fa-book-open"></i>
-                </div>
-            </a>
-
-            <a href="{{ route('guru.mapel.browse') }}"
-                class="bg-white p-5 rounded-xl border border-line shadow-sm flex justify-between items-center hover:border-success hover:shadow-md transition">
-                <div>
-                    <div class="text-3xl font-black text-slate-900">{{ $totalMateri }}</div>
-                    <div class="text-xs font-bold text-slate-600 mt-1">Total Modul/Mata Pelajaran</div>
-                    <div class="text-[11px] text-emerald-600 font-semibold">{{ $totalMateri }} Materi Terunggah</div>
-                </div>
-                <div
-                    class="w-12 h-12 rounded-xl bg-emerald-50 text-success flex items-center justify-center text-xl font-bold">
-                    <i class="fas fa-layer-group"></i>
-                </div>
-            </a>
-
-            <a href="{{ route('guru.notifikasi_pr.index') }}"
-                class="bg-white p-5 rounded-xl border border-line shadow-sm flex justify-between items-center hover:border-accent hover:shadow-md transition">
-                <div>
-                    <div class="text-3xl font-black text-slate-900">{{ $totalPr }}</div>
-                    <div class="text-xs font-bold text-slate-600 mt-1">Pekerjaan Rumah (PR)</div>
-                    <div class="text-[11px] text-amber-600 font-semibold">{{ $prAktif }} Aktif Berjalan</div>
-                </div>
-                <div
-                    class="w-12 h-12 rounded-xl bg-amber-50 text-accent flex items-center justify-center text-xl font-bold">
-                    <i class="fas fa-pencil-alt"></i>
-                </div>
-            </a>
-        </div>
-
-        <!-- Content Split 65% : 35% -->
-        <div class="grid grid-cols-1 lg:grid-cols-10 gap-6">
-            <!-- Left Section (65%) -->
-            <div class="lg:col-span-6 bg-white rounded-xl border border-line p-6 shadow-sm space-y-4">
-                <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                    <div>
-                        <h3 class="font-extrabold text-base text-slate-900">Materi Pembelajaran</h3>
-                        <p class="text-xs text-slate-500">Daftar modul aktif semester ini</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <button type="button" onclick="openModalAction('tambah', 'bab')"
-                            class="text-xs font-bold text-primary hover:underline">+ Tambah Bab</button>
-                        <a href="{{ route('guru.mapel.browse') }}"
-                            class="text-xs font-bold text-slate-500 hover:text-primary hover:underline">Lihat Semua</a>
-                    </div>
-                </div>
-
-                <div class="space-y-3">
-                    @forelse($mapels ?? [] as $mapel)
-                        <div
-                            class="p-4 rounded-xl border border-slate-100 bg-slate-50 hover:bg-slate-100/80 transition flex justify-between items-center flex-wrap gap-3">
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="w-10 h-10 rounded-lg bg-sky-100 text-primary flex items-center justify-center text-base font-bold">
-                                    <i class="fas fa-book-bookmark"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-extrabold text-sm text-slate-900">{{ $mapel->nama_mapel }}</h4>
-                                    <div class="flex gap-2 items-center text-[11px] text-slate-500 mt-0.5">
-                                        <span
-                                            class="font-semibold text-slate-700">{{ $mapel->bab_count ?? $mapel->bab()->count() }}
-                                            Bab</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-1.5">
-                                <a href="{{ route('guru.bab.index', $mapel->id_mapel) }}"
-                                    class="bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-primary-hover transition">
-                                    Mulai Ajar
-                                </a>
-                                <a href="{{ route('guru.bab.index', $mapel->id_mapel) }}"
-                                    class="border border-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-white transition">
-                                    Lihat
-                                </a>
-                                <button type="button" onclick="openModalAction('edit')"
-                                    class="border border-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-white transition">
-                                    Edit
-                                </button>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="py-10 text-center">
-                            <div
-                                class="w-12 h-12 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto">
-                                <i class="fas fa-book-open"></i>
-                            </div>
-                            <p class="text-sm font-bold text-slate-700 mt-3">Belum ada mata pelajaran</p>
-                            <p class="text-xs text-slate-500 mt-1">Mulai dengan menambahkan mata pelajaran dan bab
-                                pembelajaran.</p>
-                            <button type="button" onclick="openModalAction('tambah', 'materi')"
-                                class="mt-4 text-xs font-bold bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover transition">
-                                <i class="fas fa-plus mr-1"></i> Buat Materi
-                            </button>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-
-            <!-- Right Section (35%) -->
-            <div class="lg:col-span-4 bg-white rounded-xl border border-line p-6 shadow-sm space-y-4">
-                <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                    <h3 class="font-extrabold text-base text-slate-900">Jadwal Hari Ini</h3>
-                    <a href="{{ route('guru.jadwal.index') }}"
-                        class="text-xs text-primary font-bold hover:underline">Lihat Semua</a>
-                </div>
-
-                <div
-                    class="space-y-4 relative before:absolute before:inset-0 before:left-3 before:w-0.5 before:bg-slate-200">
-                    @forelse($jadwalHariIni as $jadwal)
-                        <div class="relative pl-7 space-y-1">
-                            <div class="absolute left-1.5 top-1.5 w-3 h-3 rounded-full bg-primary ring-4 ring-sky-50">
-                            </div>
-                            <div class="flex justify-between items-start">
-                                <span class="text-xs font-bold text-slate-900">{{ $jadwal->jam }}</span>
-                                <span
-                                    class="bg-sky-100 text-primary text-[10px] font-extrabold px-2 py-0.5 rounded">Terjadwal</span>
-                            </div>
-                            <div class="font-bold text-xs text-slate-800">{{ $mapelById[$jadwal->id_mapel] ?? 'Mata Pelajaran' }}</div>
-                            <a href="{{ route('guru.absen.index') }}"
-                                class="block text-center w-full mt-2 bg-primary text-white text-xs font-bold py-1.5 rounded-lg hover:bg-primary-hover transition shadow-sm">
-                                <i class="fas fa-door-open mr-1"></i> Masuk Kelas / Scan Absen
-                            </a>
-                        </div>
-                    @empty
-                        <div class="py-6 text-center">
-                            <div
-                                class="w-10 h-10 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
-                                <i class="fas fa-calendar-day"></i>
-                            </div>
-                            <p class="text-xs font-bold text-slate-700 mt-2">Belum ada jadwal hari ini</p>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Jadwal mengajarmu akan tampil di sini sesuai
-                                hari berjalan.</p>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Section: PR Berjalan -->
-        <div class="bg-white rounded-xl border border-line p-6 shadow-sm space-y-4">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                <div>
-                    <h3 class="font-extrabold text-base text-slate-900">PR Berjalan</h3>
-                    <p class="text-xs text-slate-500">Status pengumpulan tugas siswa</p>
-                </div>
-                <a href="{{ route('guru.notifikasi_pr.index') }}"
-                    class="text-xs font-bold text-primary hover:underline">Kelola Semua PR</a>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                @forelse($prs ?? [] as $pr)
-                    <a href="{{ route('guru.notifikasi_pr.show', $pr->id_pr) }}"
-                        class="block p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-3 hover:border-primary hover:shadow-sm transition">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <span
-                                    class="text-[10px] font-bold uppercase text-sky-700 bg-sky-100 px-2 py-0.5 rounded">{{ $pr->mataPelajaran->nama_mapel ?? 'PR' }}</span>
-                                <h4 class="font-bold text-xs text-slate-900 mt-1">{{ $pr->nama_pr ?? $pr->judul ?? 'Tugas PR' }}
-                                </h4>
-                            </div>
-                            <span class="text-xs font-extrabold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Tenggat:
-                                {{ $pr->tgl_tenggat ? \Carbon\Carbon::parse($pr->tgl_tenggat)->format('d M') : '-' }}</span>
-                        </div>
-                        <div class="space-y-1">
-                            <div class="flex justify-between text-xs text-slate-600 font-semibold">
-                                <span>Pengumpulan</span>
-                                <span class="text-success font-bold">Lihat Detail &rarr;</span>
-                            </div>
-                            <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                                <div class="h-full bg-success rounded-full" style="width: 50%"></div>
-                            </div>
-                        </div>
-                    </a>
-                @empty
-                    <div class="md:col-span-2 py-8 text-center">
-                        <div
-                            class="w-12 h-12 rounded-xl bg-slate-100 text-slate-400 flex items-center justify-center text-xl mx-auto">
-                            <i class="fas fa-clipboard-list"></i>
-                        </div>
-                        <p class="text-sm font-bold text-slate-700 mt-3">Belum ada pekerjaan rumah</p>
-                        <p class="text-xs text-slate-500 mt-1">PR yang kamu berikan akan tampil di sini beserta status
-                            pengumpulannya.</p>
-                        <a href="{{ route('guru.notifikasi_pr.create') }}"
-                            class="mt-4 inline-block text-xs font-bold bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover transition">
-                            <i class="fas fa-plus mr-1"></i> Tambah PR Baru
-                        </a>
-                    </div>
-                @endforelse
-            </div>
-            <div class="flex flex-wrap gap-2 pt-1">
-                <a href="{{ route('guru.notifikasi_pr.create') }}"
-                    class="text-xs font-bold bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-hover transition"><i
-                        class="fas fa-plus mr-1"></i> Tambah PR Baru</a>
-                <a href="{{ route('guru.ujian.index') }}"
-                    class="text-xs font-bold border border-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-50 transition"><i
-                        class="fas fa-file-circle-question mr-1"></i> Kelola Ujian Online</a>
-                <a href="{{ route('rekap_nilai.index') }}"
-                    class="text-xs font-bold border border-slate-200 text-slate-700 px-4 py-2 rounded-lg hover:bg-slate-50 transition"><i
-                        class="fas fa-chart-bar mr-1"></i> Rekap Nilai</a>
+                <h1 class="text-2xl font-black tracking-tight">
+                    Selamat Datang, {{ $guru->nama_guru ?? session('user_name', 'Guru') }}!
+                </h1>
+                <p class="text-xs text-sky-100 max-w-xl mt-1">
+                    NIP: {{ $guru->nip ?? '-' }} — Kelola materi pembelajaran, PR, ujian, dan pantau kehadiran siswa dalam satu dasbor terpadu.
+                </p>
             </div>
         </div>
     </div>
+
+    <!-- 3 KPI Stat Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Mata Pelajaran -->
+        <a href="{{ route('guru.mapel.browse') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/60 hover:shadow-md transition group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Mata Pelajaran</span>
+                    <div class="text-3xl font-black text-slate-900 mt-1">{{ $totalMapel }}</div>
+                    <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
+                        Kelola Mapel <i class="fas fa-arrow-right text-[10px]"></i>
+                    </span>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary group-hover:bg-primary group-hover:text-white transition flex items-center justify-center text-xl font-bold">
+                    <i class="fas fa-book-open"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- Total Materi -->
+        <a href="{{ route('guru.mapel.browse') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/60 hover:shadow-md transition group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Materi</span>
+                    <div class="text-3xl font-black text-slate-900 mt-1">{{ $totalMateri }}</div>
+                    <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
+                        Lihat Materi <i class="fas fa-arrow-right text-[10px]"></i>
+                    </span>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
+                    <i class="fas fa-layer-group"></i>
+                </div>
+            </div>
+        </a>
+
+        <!-- Total PR -->
+        <a href="{{ route('guru.notifikasi_pr.index') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/60 hover:shadow-md transition group">
+            <div class="flex items-center justify-between">
+                <div>
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Pekerjaan Rumah</span>
+                    <div class="text-3xl font-black text-slate-900 mt-1">{{ $totalPr }}</div>
+                    <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
+                        Kelola PR <i class="fas fa-arrow-right text-[10px]"></i>
+                    </span>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
+                    <i class="fas fa-pencil-alt"></i>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- Quick Action Shortcut Hub -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
+        <div>
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <i class="fas fa-bolt text-amber-500"></i> Pintasan Akses Utama
+            </h3>
+            <p class="text-xs text-slate-500">Akses cepat ke modul pembelajaran dan administrasi kelas.</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+            <a href="{{ route('guru.absen.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Absensi Siswa</span>
+            </a>
+
+            <a href="{{ route('guru.mapel.browse') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary group-hover:scale-105 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-book-bookmark"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Mata Pelajaran</span>
+            </a>
+
+            <a href="{{ route('guru.jadwal.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-fuchsia-50 text-fuchsia-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-calendar-days"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Jadwal Mengajar</span>
+            </a>
+
+            <a href="{{ route('guru.notifikasi_pr.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 group-hover:scale-105 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Kelola PR</span>
+            </a>
+
+            <a href="{{ route('guru.ujian.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-file-circle-question"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Ujian Online</span>
+            </a>
+
+            <a href="{{ route('rekap_nilai.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Rekap Nilai</span>
+            </a>
+        </div>
+    </div>
+
+    @if(($prAktif ?? 0) > 0)
+    <!-- PR Aktif Banner -->
+    <a href="{{ route('guru.notifikasi_pr.index') }}"
+       class="flex items-center gap-3.5 bg-amber-50 border border-amber-200/90 rounded-2xl px-5 py-4 hover:bg-amber-100/80 transition group">
+        <div class="w-10 h-10 rounded-xl bg-amber-400 text-amber-900 flex items-center justify-center text-base font-bold shrink-0">
+            <i class="fas fa-tasks"></i>
+        </div>
+        <div class="min-w-0 flex-1">
+            <p class="text-xs font-bold text-amber-900">
+                {{ $prAktif }} PR masih berjalan
+            </p>
+            <p class="text-[11px] text-amber-700 mt-0.5">
+                Jangan lupa pantau pengumpulan tugas siswa sebelum tenggat waktu.
+            </p>
+        </div>
+        <span class="text-[11px] font-bold text-amber-900 inline-flex items-center gap-1 shrink-0 group-hover:translate-x-0.5 transition">
+            Lihat Detail <i class="fas fa-arrow-right text-[10px]"></i>
+        </span>
+    </a>
+    @endif
+
+    <!-- Dual Column Recent Overview: Jadwal & PR -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Jadwal Hari Ini -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-sky-50 text-primary flex items-center justify-center text-xs font-bold">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-900">Jadwal Mengajar Hari Ini</h4>
+                        <p class="text-[10px] text-slate-400">{{ now()->locale('id')->translatedFormat('l, d F Y') }}</p>
+                    </div>
+                </div>
+                <a href="{{ route('guru.jadwal.index') }}" class="text-[11px] font-bold text-primary hover:underline">
+                    Lihat Semua &rarr;
+                </a>
+            </div>
+
+            <div class="divide-y divide-slate-100 text-xs">
+                @forelse($jadwalHariIni as $jadwal)
+                <div class="py-2.5 flex items-center justify-between">
+                    <div>
+                        <p class="font-bold text-slate-800">{{ $mapelById[$jadwal->id_mapel] ?? 'Mata Pelajaran' }}</p>
+                        <p class="text-[10px] text-slate-400">{{ $jadwal->jam }} &bull; {{ $jadwal->hari }}</p>
+                    </div>
+                    <a href="{{ route('guru.absen.index') }}" class="px-2.5 py-1 text-[10px] font-bold bg-primary text-white rounded-lg hover:opacity-90 transition">
+                        Absen
+                    </a>
+                </div>
+                @empty
+                <x-empty-state icon="fa-calendar-day" title="Tidak ada jadwal hari ini." message="Silakan cek kembali jadwal mengajarmu." />
+                @endforelse
+            </div>
+        </div>
+
+        <!-- PR Terbaru -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-xs font-bold">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-900">PR Terbaru</h4>
+                        <p class="text-[10px] text-slate-400">Daftar pekerjaan rumah aktif</p>
+                    </div>
+                </div>
+                <a href="{{ route('guru.notifikasi_pr.index') }}" class="text-[11px] font-bold text-primary hover:underline">
+                    Lihat Semua &rarr;
+                </a>
+            </div>
+
+            <div class="divide-y divide-slate-100 text-xs">
+                @forelse($prs as $pr)
+                <div class="py-2.5 flex items-center justify-between">
+                    <div class="min-w-0 flex-1">
+                        <p class="font-bold text-slate-800 truncate">{{ $pr->nama_pr ?? $pr->judul ?? 'Tugas PR' }}</p>
+                        <p class="text-[10px] text-slate-400">
+                            {{ $pr->mataPelajaran?->nama_mapel ?? 'PR' }} &bull;
+                            {{ $pr->tgl_tenggat ? \Carbon\Carbon::parse($pr->tgl_tenggat)->format('d M Y') : '-' }}
+                        </p>
+                    </div>
+                    <span class="ml-2 px-2 py-0.5 text-[10px] font-bold bg-emerald-100 text-emerald-700 rounded-full">
+                        Aktif
+                    </span>
+                </div>
+                @empty
+                <x-empty-state icon="fa-tasks" title="Belum ada PR." message="Buat PR baru untuk siswamu." />
+                @endforelse
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
