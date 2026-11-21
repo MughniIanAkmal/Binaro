@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bab;
 use App\Models\Guru;
 use App\Models\JadwalMataPelajaran;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Rpp;
+use App\Models\RppCatatan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class RppController extends Controller
 {
@@ -24,7 +25,7 @@ class RppController extends Controller
             return $this->guruIndex($request);
         }
 
-        $query = Rpp::with(['guru', 'mataPelajaran', 'kelas', 'jadwal']);
+        $query = Rpp::with(['guru', 'mataPelajaran', 'kelas', 'jadwal', 'bab', 'catatan']);
 
         $kpi = [
             'total' => Rpp::count(),
@@ -41,6 +42,10 @@ class RppController extends Controller
         if ($request->filled('id_mapel')) {
             $query->where('id_mapel', $request->id_mapel);
         }
+        if ($request->filled('id_bab')) {
+            $query->where('id_bab', $request->id_bab);
+        }
+
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -54,8 +59,9 @@ class RppController extends Controller
         $mapelList = MataPelajaran::all();
         $kelasList = Kelas::all();
         $namaGuru = Guru::all();
+        $babList = Bab::orderBy('id_mapel')->orderBy('id_bab')->get();
 
-        return view('rpp.index', compact('rppList', 'kpi', 'mapelList', 'kelasList', 'namaGuru'));
+        return view('rpp.index', compact('rppList', 'kpi', 'mapelList', 'kelasList', 'namaGuru', 'babList'));
     }
 
     /**
@@ -71,7 +77,7 @@ class RppController extends Controller
             $guru = Guru::first();
         }
 
-        $baseQuery = Rpp::with(['guru', 'mataPelajaran', 'kelas', 'jadwal']);
+        $baseQuery = Rpp::with(['guru', 'mataPelajaran', 'kelas', 'jadwal', 'bab']);
         if ($guru) {
             $baseQuery->where('id_guru', $guru->id_guru);
         }
@@ -155,6 +161,16 @@ class RppController extends Controller
         }
         $jadwalList = $guru ? JadwalMataPelajaran::with(['mataPelajaran', 'kelas'])->where('id_guru', $guru->id_guru)->get() : collect();
 
+        // Peta cakupan bab: guru perlu tahu bab mana yang sudah punya RPP dan
+        // mana yang belum, supaya tidak membuat dokumen ganda untuk bab sama.
+        $mapelIds = $mapelList->pluck('id_mapel')->all();
+        $babList = Bab::whereIn('id_mapel', $mapelIds)->orderBy('id_mapel')->orderBy('id_bab')->get();
+        $rppPerBab = $guru
+            ? Rpp::where('id_guru', $guru->id_guru)->whereNotNull('id_bab')
+                ->get(['id_rpp', 'id_bab', 'status', 'judul_rpp'])
+                ->keyBy('id_bab')
+            : collect();
+
         return view('rpp_guru.index', compact(
             'rppList',
             'kpiGuru',
@@ -162,7 +178,9 @@ class RppController extends Controller
             'kelasList',
             'jadwalList',
             'guru',
-            'tab'
+            'tab',
+            'babList',
+            'rppPerBab'
         ));
     }
 
@@ -197,7 +215,7 @@ class RppController extends Controller
                 return [
                     false,
                     sprintf('Jam pelajaran terbalik! Jam mulai (%02d.%02d) tidak boleh lebih lambat atau sama dengan jam selesai (%02d.%02d).', $hMulai, $mMulai, $hSelesai, $mSelesai),
-                    null
+                    null,
                 ];
             }
 
@@ -206,7 +224,7 @@ class RppController extends Controller
                 return [
                     false,
                     sprintf('Durasi pembelajaran pada jadwal (%d menit) terlalu singkat! Minimal 1 JP (45 menit).', $durasi),
-                    null
+                    null,
                 ];
             }
 
@@ -215,7 +233,7 @@ class RppController extends Controller
                 return [
                     false,
                     sprintf('Durasi pembelajaran pada jadwal (%d menit) terlalu panjang untuk satu modul ajar (maksimal 5 JP / 225 menit).', $durasi),
-                    null
+                    null,
                 ];
             }
 
@@ -244,7 +262,9 @@ class RppController extends Controller
         }
 
         $idGuru = $request->input('id_guru');
-        if (! $idGuru && session('user_type') === 'guru') {
+        if (session('user_type') === 'guru') {
+            // Guru selalu membuat RPP atas namanya sendiri; id_guru dari form
+            // tidak boleh dipakai untuk mewakili guru lain.
             $idGuru = session('user_id');
         }
         if (! $idGuru) {
@@ -279,6 +299,7 @@ class RppController extends Controller
         $validated = $request->validate([
             'id_guru' => 'required|exists:guru,id_guru',
             'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
+            'id_bab' => 'nullable|exists:bab,id_bab',
             'id_rooms' => 'nullable|exists:kelas,id_rooms',
             'id_jadwal' => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
             'judul_rpp' => [
@@ -318,6 +339,8 @@ class RppController extends Controller
             ],
             'status' => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
             'file_rpp' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+            'asesmen_teknik' => 'nullable|array|max:6',
+            'asesmen_teknik.*' => 'string|max:50',
         ], [
             'judul_rpp.required' => 'Topik / Judul Modul Ajar wajib diisi.',
             'judul_rpp.min' => 'Topik / Judul Modul Ajar minimal 3 karakter.',
@@ -342,26 +365,18 @@ class RppController extends Controller
             $validated['file_rpp'] = $request->file('file_rpp')->store('rpp_files', 'public');
         }
 
-        $customTags = [];
-        if ($request->filled('custom_tags')) {
-            $customTags = is_array($request->custom_tags)
-                ? $request->custom_tags
-                : array_filter(array_map('trim', explode(',', $request->custom_tags)));
-        }
+        $validated['komponen_checklist'] = $this->susunChecklistKomponen($request);
 
-        $validated['komponen_checklist'] = [
-            'tujuan' => $request->boolean('tujuan'),
-            'video' => $request->boolean('video'),
-            'kktp' => $request->boolean('kktp'),
-            'lkpd' => $request->boolean('lkpd'),
-            'soal_proyektor' => $request->boolean('soal_proyektor'),
-            'audio' => $request->boolean('audio'),
-            'tags' => $customTags,
-        ];
+        // Fase tidak boleh diketik manual: selalu diturunkan dari kelas agar
+        // dokumen konsisten dengan jenjang (A: I-II, B: III-IV, C: V-VI).
+        $validated['fase'] = $this->faseUntukKelas($validated['id_rooms'] ?? null);
 
-        if (session('user_type') === 'guru' || empty($validated['status'])) {
-            $validated['status'] = $request->input('action') === 'draft' ? 'draft' : 'menunggu_review';
-        }
+        $validated['status'] = session('user_type') === 'guru' || empty($validated['status'])
+            ? ($request->input('action') === 'draft' ? 'draft' : 'menunggu_review')
+            : $validated['status'];
+
+        $this->pastikanBabSesuaiMapel($validated['id_bab'] ?? null, (int) $validated['id_mapel']);
+        $this->pastikanKomponenWajib($validated['komponen_checklist'], $validated['status'], $validated['id_bab'] ?? null);
 
         Rpp::create($validated);
 
@@ -373,6 +388,90 @@ class RppController extends Controller
         return redirect($redirectRoute)->with('success', 'Draf Modul Ajar RPP berhasil disimpan.');
     }
 
+    /**
+     * Susun komponen_checklist dari input form. Kunci lama (kktp,
+     * soal_proyektor, audio, tags) tetap disimpan agar dokumen lama tidak
+     * kehilangan data saat diedit.
+     */
+    private function susunChecklistKomponen(Request $request): array
+    {
+        $customTags = [];
+        if ($request->filled('custom_tags')) {
+            $customTags = is_array($request->custom_tags)
+                ? $request->custom_tags
+                : array_filter(array_map('trim', explode(',', $request->custom_tags)));
+        }
+
+        $komponen = [];
+        foreach (array_keys(Rpp::KOMPONEN_WAJIB + Rpp::KOMPONEN_DISARANKAN) as $kunci) {
+            $komponen[$kunci] = $request->boolean($kunci);
+        }
+
+        return $komponen + [
+            'kktp' => $request->boolean('kktp'),
+            'soal_proyektor' => $request->boolean('soal_proyektor'),
+            'audio' => $request->boolean('audio'),
+            'asesmen_teknik' => array_values(array_filter((array) $request->input('asesmen_teknik', []))),
+            'tags' => $customTags,
+        ];
+    }
+
+    /** Fase diturunkan dari tingkat kelas; null bila kelas tidak dipilih. */
+    private function faseUntukKelas(?int $idRooms): ?string
+    {
+        if (! $idRooms) {
+            return null;
+        }
+
+        return Kelas::find($idRooms)?->fase();
+    }
+
+    /** Bab yang dipilih harus milik mata pelajaran yang sama. */
+    private function pastikanBabSesuaiMapel(?int $idBab, int $idMapel): void
+    {
+        if (! $idBab) {
+            return;
+        }
+
+        $bab = Bab::find($idBab);
+        if (! $bab || (int) $bab->id_mapel !== $idMapel) {
+            abort(422, 'Bab yang dipilih bukan bagian dari mata pelajaran tersebut.');
+        }
+    }
+
+    /**
+     * Saat diajukan (bukan draf), dokumen harus punya bab, tiga komponen wajib,
+     * dan minimal dua teknik asesmen berbeda — turunan Permendikdasmen 1/2026
+     * Pasal 5, 8, dan 10. Draf tetap boleh disimpan belum lengkap.
+     */
+    private function pastikanKomponenWajib(array $komponen, string $status, ?int $idBab): void
+    {
+        if ($status !== 'menunggu_review') {
+            return;
+        }
+
+        $kurang = collect(Rpp::KOMPONEN_WAJIB)
+            ->reject(fn ($label, $kunci) => (bool) ($komponen[$kunci] ?? false))
+            ->values();
+
+        $errors = [];
+        if (! $idBab) {
+            $errors['id_bab'] = 'Pilih bab yang diajarkan sebelum mengajukan RPP.';
+        }
+        if ($kurang->isNotEmpty()) {
+            $errors['komponen'] = 'Komponen wajib belum lengkap: '.$kurang->implode(', ').'.';
+        }
+
+        $teknik = array_filter((array) ($komponen['asesmen_teknik'] ?? []));
+        if (count($teknik) < 2) {
+            $errors['asesmen_teknik'] = 'Pilih minimal dua teknik asesmen yang berbeda.';
+        }
+
+        if ($errors !== []) {
+            throw ValidationException::withMessages($errors);
+        }
+    }
+
     public function show(Request $request, $id)
     {
         $rpp = Rpp::with(['guru', 'mataPelajaran', 'kelas', 'jadwal'])->where('id_rpp', $id)->first();
@@ -382,6 +481,8 @@ class RppController extends Controller
             }
             abort(404, 'RPP tidak ditemukan.');
         }
+
+        $this->pastikanBolehMelihat($rpp);
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json($rpp);
@@ -396,6 +497,8 @@ class RppController extends Controller
         if (! $rpp) {
             abort(404, 'RPP tidak ditemukan.');
         }
+
+        $this->pastikanBolehMengubah($rpp);
 
         // Revisi 2 & 3: paksa kelas & mapel sesuai lock admin (lihat store()).
         $guruPemilik = $rpp->id_guru ? Guru::find($rpp->id_guru) : null;
@@ -421,6 +524,7 @@ class RppController extends Controller
 
         $validated = $request->validate([
             'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
+            'id_bab' => 'nullable|exists:bab,id_bab',
             'id_rooms' => 'nullable|exists:kelas,id_rooms',
             'id_jadwal' => 'nullable|exists:jadwal_mata_pelajaran,id_jadwal',
             'judul_rpp' => [
@@ -460,6 +564,8 @@ class RppController extends Controller
             ],
             'status' => 'nullable|in:draft,menunggu_review,terverifikasi,perlu_revisi',
             'file_rpp' => 'nullable|file|mimes:pdf,docx,doc|max:10240',
+            'asesmen_teknik' => 'nullable|array|max:6',
+            'asesmen_teknik.*' => 'string|max:50',
         ], [
             'judul_rpp.required' => 'Topik / Judul Modul Ajar wajib diisi.',
             'judul_rpp.min' => 'Topik / Judul Modul Ajar minimal 3 karakter.',
@@ -487,22 +593,23 @@ class RppController extends Controller
             $validated['file_rpp'] = $request->file('file_rpp')->store('rpp_files', 'public');
         }
 
-        $customTags = $rpp->komponen_checklist['tags'] ?? [];
+        $checklistLama = (array) ($rpp->komponen_checklist ?? []);
+
+        $customTags = $checklistLama['tags'] ?? [];
         if ($request->has('custom_tags')) {
             $customTags = is_array($request->custom_tags)
                 ? $request->custom_tags
                 : array_filter(array_map('trim', explode(',', $request->custom_tags)));
         }
 
-        $validated['komponen_checklist'] = [
-            'tujuan' => $request->boolean('tujuan', $rpp->komponen_checklist['tujuan'] ?? false),
-            'video' => $request->boolean('video', $rpp->komponen_checklist['video'] ?? false),
-            'kktp' => $request->boolean('kktp', $rpp->komponen_checklist['kktp'] ?? false),
-            'lkpd' => $request->boolean('lkpd', $rpp->komponen_checklist['lkpd'] ?? false),
-            'soal_proyektor' => $request->boolean('soal_proyektor', $rpp->komponen_checklist['soal_proyektor'] ?? false),
-            'audio' => $request->boolean('audio', $rpp->komponen_checklist['audio'] ?? false),
-            'tags' => $customTags,
-        ];
+        // Checkbox yang tidak dicentang tidak ikut terkirim, jadi nilai lama
+        // dipertahankan untuk kunci yang memang tidak ada di request.
+        $validated['komponen_checklist'] = $this->susunChecklistKomponen($request)
+            + array_intersect_key($checklistLama, Rpp::KOMPONEN_WAJIB + Rpp::KOMPONEN_DISARANKAN);
+        $validated['komponen_checklist']['tags'] = $customTags;
+
+        // Fase selalu diturunkan dari kelas, bukan dari input bebas.
+        $validated['fase'] = $this->faseUntukKelas($validated['id_rooms'] ?? null);
 
         if (session('user_type') === 'guru') {
             // Jika guru menyimpan sebagai draf, status draf. Jika diajukan, status menunggu_review agar admin menerima/menolak
@@ -510,6 +617,13 @@ class RppController extends Controller
         } elseif ($request->filled('status')) {
             $validated['status'] = $request->status;
         }
+
+        $this->pastikanBabSesuaiMapel($validated['id_bab'] ?? null, (int) $validated['id_mapel']);
+        $this->pastikanKomponenWajib(
+            $validated['komponen_checklist'],
+            $validated['status'] ?? $rpp->status,
+            $validated['id_bab'] ?? $rpp->id_bab
+        );
 
         $rpp->update($validated);
 
@@ -523,6 +637,12 @@ class RppController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
+        // Route sudah dibatasi admin; penjagaan ini menjaga bila pemanggilan
+        // terjadi dari jalur lain di masa depan.
+        if (session('user_type') !== 'admin') {
+            abort(403, 'Hanya administrator yang dapat mengubah status supervisi RPP.');
+        }
+
         $request->validate([
             'status' => 'required|in:draft,menunggu_review,terverifikasi,perlu_revisi',
             'catatan' => 'nullable|string|max:1000',
@@ -542,6 +662,18 @@ class RppController extends Controller
             'catatan_revisi' => $catatan,
         ]);
 
+        // Simpan catatan sebagai riwayat, bukan menimpa catatan sebelumnya.
+        if (trim((string) $catatan) !== '') {
+            RppCatatan::create([
+                'id_rpp' => $rpp->id_rpp,
+                'penulis_role' => 'admin',
+                'penulis_id' => session('user_id'),
+                'penulis_nama' => session('user_name') ?? 'Administrator',
+                'status_saat_itu' => $request->status,
+                'isi' => trim((string) $catatan),
+            ]);
+        }
+
         $pesanSukses = match ($request->status) {
             'terverifikasi' => "Permintaan RPP '{$rpp->judul_rpp}' berhasil diterima dan disetujui.",
             'perlu_revisi' => "Permintaan RPP '{$rpp->judul_rpp}' dikembalikan ke guru untuk revisi.",
@@ -560,6 +692,21 @@ class RppController extends Controller
         }
 
         return back()->with('success', $pesanSukses);
+    }
+
+    /**
+     * Guru hanya boleh mengubah/menghapus RPP miliknya sendiri.
+     * Admin (supervisor) boleh menindak semua RPP.
+     */
+    private function pastikanBolehMengubah(Rpp $rpp): void
+    {
+        if (session('user_type') !== 'guru') {
+            return;
+        }
+
+        if ((int) $rpp->id_guru !== (int) session('user_id')) {
+            abort(403, 'Anda hanya dapat mengubah RPP milik Anda sendiri.');
+        }
     }
 
     /**
@@ -688,6 +835,9 @@ class RppController extends Controller
         if (! $rpp) {
             abort(404, 'RPP tidak ditemukan.');
         }
+
+        $this->pastikanBolehMengubah($rpp);
+
         if ($rpp->file_rpp) {
             Storage::disk('public')->delete($rpp->file_rpp);
         }
@@ -703,11 +853,28 @@ class RppController extends Controller
             abort(404, 'Berkas RPP tidak ditemukan.');
         }
 
+        $this->pastikanBolehMelihat($rpp);
+
         if ($rpp->file_rpp && Storage::disk('public')->exists($rpp->file_rpp)) {
             return response()->download(storage_path('app/public/'.$rpp->file_rpp), basename($rpp->file_rpp));
         }
 
         // Jika belum ada berkas upload fisik, buka dokumen resmi Modul Ajar siap cetak & simpan PDF
         return view('rpp_guru.cetak', compact('rpp'));
+    }
+
+    /**
+     * Guru hanya boleh membaca/mengunduh RPP miliknya; admin (supervisor)
+     * boleh membaca semua dokumen untuk keperluan verifikasi.
+     */
+    private function pastikanBolehMelihat(Rpp $rpp): void
+    {
+        if (session('user_type') !== 'guru') {
+            return;
+        }
+
+        if ((int) $rpp->id_guru !== (int) session('user_id')) {
+            abort(403, 'Anda hanya dapat mengakses RPP milik Anda sendiri.');
+        }
     }
 }

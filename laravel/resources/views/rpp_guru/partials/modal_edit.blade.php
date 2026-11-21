@@ -38,10 +38,27 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1">Kelas & Rombel</label>
                     <select name="id_rooms" id="edit-id-rooms" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                         @foreach($kelasList as $kelas)
-                            <option value="{{ $kelas->id_rooms }}">{{ $kelas->pararel ?? 'Kelas ' . $kelas->id_rooms }}</option>
+                            <option value="{{ $kelas->id_rooms }}" data-fase="{{ $kelas->fase }}">{{ $kelas->pararel ?? 'Kelas ' . $kelas->id_rooms }}</option>
                         @endforeach
                     </select>
                 </div>
+            </div>
+
+            <!-- Bab yang diajarkan -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Bab yang Diajarkan <span class="text-rose-500">*</span></span>
+                    <span class="text-[10px] font-normal text-slate-400">RPP disusun per bab</span>
+                </label>
+                <select name="id_bab" id="edit-id-bab" required
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
+                    <option value="">-- Pilih Bab --</option>
+                    @foreach($babList as $bab)
+                        <option value="{{ $bab->id_bab }}" data-mapel="{{ $bab->id_mapel }}">
+                            {{ $bab->mataPelajaran->nama_mapel ?? '' }} — {{ $bab->nama_bab }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             <!-- Judul RPP -->
@@ -57,14 +74,17 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
-                <!-- Fase -->
+                <!-- Fase: otomatis dari kelas -->
                 <div>
                     <label class="text-xs font-bold text-slate-700 mb-1.5 h-5 flex items-center justify-between">
                         <span>Fase Pembelajaran</span>
                     </label>
-                    <input type="text" name="fase" id="edit-fase" placeholder="Fase B" maxlength="20"
-                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
-                    <p class="text-[10px] text-slate-400 mt-1">Standar kelas 4: Fase B.</p>
+                    <input type="hidden" name="fase" id="edit-fase" value="">
+                    <div id="edit-fase-badge"
+                         class="w-full px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800">
+                        Otomatis dari kelas
+                    </div>
+                    <p class="text-[10px] text-emerald-700 mt-1">A: kelas I–II · B: III–IV · C: V–VI</p>
                 </div>
 
                 <!-- Modul Ke -->
@@ -210,25 +230,74 @@
                 <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 500 karakter. Hanya huruf, angka, dan tanda baca kalimat (.,-;:()"/!?).</p>
             </div>
 
-            <!-- Komponen Checklist Interaktif -->
+            <!-- Komponen Wajib (hard-block saat diajukan) -->
+            <div class="bg-rose-50/60 p-4 rounded-xl border border-rose-200 space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
+                    <label class="block text-xs font-bold text-slate-800">Komponen Wajib</label>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 border border-rose-300">WAJIB DIAJUKAN</span>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <label class="flex items-start gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-rose-200 hover:border-primary">
+                        <input type="checkbox" name="tujuan" id="edit-check-tujuan" value="1" class="rounded text-primary mt-0.5">
+                        <span><b class="block">Tujuan pembelajaran</b><span class="text-[10px] text-slate-400">Kompetensi + konten</span></span>
+                    </label>
+                    <label class="flex items-start gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-rose-200 hover:border-primary">
+                        <input type="checkbox" name="langkah" id="edit-check-langkah" value="1" class="rounded text-primary mt-0.5">
+                        <span><b class="block">Langkah pembelajaran</b><span class="text-[10px] text-slate-400">Memahami–mengaplikasi–merefleksi</span></span>
+                    </label>
+                    <label class="flex items-start gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-rose-200 hover:border-primary">
+                        <input type="checkbox" name="asesmen" id="edit-check-asesmen" value="1" class="rounded text-primary mt-0.5">
+                        <span><b class="block">Asesmen</b><span class="text-[10px] text-slate-400">Minimal dua teknik</span></span>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Teknik Asesmen yang Digunakan</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px]">
+                        @foreach(['Observasi', 'Tes tulis', 'Unjuk kerja', 'Produk', 'Proyek', 'Portofolio', 'Penilaian diri', 'Penilaian sejawat'] as $teknik)
+                            <label class="flex items-center gap-1.5 px-2 py-1.5 bg-white rounded-md border border-slate-200 hover:border-primary cursor-pointer">
+                                <input type="checkbox" name="asesmen_teknik[]" value="{{ $teknik }}" data-edit-teknik="{{ $teknik }}" class="rounded text-primary">
+                                <span class="truncate">{{ $teknik }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            <!-- Komponen Disarankan (soft-warning) -->
             <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
-                <label class="block text-xs font-bold text-slate-800">Komponen Modul Ajar:</label>
+                <div class="flex items-center justify-between gap-2">
+                    <label class="block text-xs font-bold text-slate-800">Komponen Pendukung</label>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white text-slate-500 border border-slate-300">DISARANKAN</span>
+                </div>
                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                     <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="tujuan" id="edit-check-tujuan" value="1" class="rounded text-primary">
-                        <span>Tujuan Belajar</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="video" id="edit-check-video" value="1" class="rounded text-primary">
-                        <span>Video Animasi</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="soal_proyektor" id="edit-check-soal" value="1" class="rounded text-primary">
-                        <span>Soal Proyektor</span>
+                        <input type="checkbox" name="media" id="edit-check-media" value="1" class="rounded text-primary">
+                        <span>Media</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
                         <input type="checkbox" name="lkpd" id="edit-check-lkpd" value="1" class="rounded text-primary">
-                        <span>LKPD Siap Cetak</span>
+                        <span>LKPD</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="refleksi" id="edit-check-refleksi" value="1" class="rounded text-primary">
+                        <span>Refleksi</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="pengayaan" id="edit-check-pengayaan" value="1" class="rounded text-primary">
+                        <span>Pengayaan</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="remedial" id="edit-check-remedial" value="1" class="rounded text-primary">
+                        <span>Remedial</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="glosarium" id="edit-check-glosarium" value="1" class="rounded text-primary">
+                        <span>Glosarium</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="video" id="edit-check-video" value="1" class="rounded text-primary">
+                        <span>Video</span>
                     </label>
                 </div>
             </div>

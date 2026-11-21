@@ -39,10 +39,28 @@
                     <label class="block text-xs font-bold text-slate-700 mb-1">Kelas</label>
                     <select name="id_rooms" id="tambah-id-rooms" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                         @foreach($kelasList as $kelas)
-                            <option value="{{ $kelas->id_rooms }}">{{ $kelas->pararel ?? 'Kelas ' . $kelas->id_rooms }}</option>
+                            <option value="{{ $kelas->id_rooms }}" data-fase="{{ $kelas->fase }}">{{ $kelas->pararel ?? 'Kelas ' . $kelas->id_rooms }}</option>
                         @endforeach
                     </select>
                 </div>
+            </div>
+
+            <!-- Bab yang diajarkan -->
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                    <span>Bab yang Diajarkan <span class="text-rose-500">*</span></span>
+                    <span class="text-[10px] font-normal text-slate-400">RPP disusun per bab</span>
+                </label>
+                <select name="id_bab" id="tambah-id-bab" required
+                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
+                    <option value="">-- Pilih Bab --</option>
+                    @foreach($babList as $bab)
+                        <option value="{{ $bab->id_bab }}" data-mapel="{{ $bab->id_mapel }}" {{ $rppPerBab->has($bab->id_bab) ? 'disabled' : '' }}>
+                            {{ $bab->mataPelajaran->nama_mapel ?? '' }} — {{ $bab->nama_bab }}{{ $rppPerBab->has($bab->id_bab) ? ' (sudah ada RPP)' : '' }}
+                        </option>
+                    @endforeach
+                </select>
+                <p class="text-[10px] text-slate-400 mt-1">Daftar bab mengikuti mata pelajaran yang dipilih. Bab yang sudah punya RPP ditandai dan tidak bisa dipilih ulang.</p>
             </div>
 
             <!-- Judul RPP -->
@@ -58,14 +76,17 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
-                <!-- Fase -->
+                <!-- Fase: otomatis dari kelas, tidak bisa diubah manual -->
                 <div>
                     <label class="text-xs font-bold text-slate-700 mb-1.5 h-5 flex items-center justify-between">
                         <span>Fase Pembelajaran</span>
                     </label>
-                    <input type="text" name="fase" id="tambah-fase" value="Fase B" placeholder="Fase B" maxlength="20"
-                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
-                    <p class="text-[10px] text-slate-400 mt-1">Standar kelas 4: Fase B.</p>
+                    <input type="hidden" name="fase" id="tambah-fase" value="">
+                    <div id="tambah-fase-badge"
+                         class="w-full px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800">
+                        Otomatis dari kelas
+                    </div>
+                    <p class="text-[10px] text-emerald-700 mt-1">A: kelas I–II · B: III–IV · C: V–VI</p>
                 </div>
 
                 <!-- Modul Ke -->
@@ -203,27 +224,103 @@
                 <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 500 karakter. Hanya huruf, angka, dan tanda baca kalimat (.,-;:()"/!?).</p>
             </div>
 
-            <!-- Komponen Checklist Interaktif -->
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
-                <label class="block text-xs font-bold text-slate-800">Komponen & Fasilitas Modul Ajar:</label>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="tujuan" value="1" checked class="rounded text-primary">
-                        <span>Tujuan Belajar</span>
+            <!-- Komponen Wajib (hard-block saat diajukan) -->
+            <div class="bg-rose-50/60 p-4 rounded-xl border border-rose-200 space-y-2.5">
+                <div class="flex items-center justify-between gap-2">
+                    <label class="block text-xs font-bold text-slate-800">Komponen Wajib</label>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 border border-rose-300">WAJIB DIAJUKAN</span>
+                </div>
+                <p class="text-[10px] text-slate-500 leading-relaxed">Tiga komponen ini harus lengkap sebelum RPP bisa diajukan ke admin. Draf tetap bisa disimpan walau belum lengkap.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <label class="flex items-start gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-rose-200 hover:border-primary">
+                        <input type="checkbox" name="tujuan" value="1" class="rounded text-primary mt-0.5">
+                        <span><b class="block">Tujuan pembelajaran</b><span class="text-[10px] text-slate-400">Kompetensi + konten</span></span>
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="video" value="1" checked class="rounded text-primary">
-                        <span>Video Animasi</span>
+                    <label class="flex items-start gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-rose-200 hover:border-primary">
+                        <input type="checkbox" name="langkah" value="1" class="rounded text-primary mt-0.5">
+                        <span><b class="block">Langkah pembelajaran</b><span class="text-[10px] text-slate-400">Memahami–mengaplikasi–merefleksi</span></span>
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="soal_proyektor" value="1" checked class="rounded text-primary">
-                        <span>Soal Proyektor</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="lkpd" value="1" checked class="rounded text-primary">
-                        <span>LKPD Siap Cetak</span>
+                    <label class="flex items-start gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-rose-200 hover:border-primary">
+                        <input type="checkbox" name="asesmen" value="1" class="rounded text-primary mt-0.5">
+                        <span><b class="block">Asesmen</b><span class="text-[10px] text-slate-400">Minimal dua teknik</span></span>
                     </label>
                 </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Teknik Asesmen yang Digunakan</label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px]">
+                        @foreach(['Observasi', 'Tes tulis', 'Unjuk kerja', 'Produk', 'Proyek', 'Portofolio', 'Penilaian diri', 'Penilaian sejawat'] as $teknik)
+                            <label class="flex items-center gap-1.5 px-2 py-1.5 bg-white rounded-md border border-slate-200 hover:border-primary cursor-pointer">
+                                <input type="checkbox" name="asesmen_teknik[]" value="{{ $teknik }}" class="rounded text-primary">
+                                <span class="truncate">{{ $teknik }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">Pilih minimal dua teknik berbeda agar asesmen tidak hanya tes tulis.</p>
+                </div>
+            </div>
+
+            <!-- Komponen Disarankan (soft-warning) -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                    <label class="block text-xs font-bold text-slate-800">Komponen Pendukung</label>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white text-slate-500 border border-slate-300">DISARANKAN</span>
+                </div>
+                <p class="text-[10px] text-slate-500">Tidak memblokir pengajuan, tetapi menambah skor kelengkapan modul.</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="media" value="1" class="rounded text-primary">
+                        <span>Media</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="lkpd" value="1" class="rounded text-primary">
+                        <span>LKPD</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="refleksi" value="1" class="rounded text-primary">
+                        <span>Refleksi</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="pengayaan" value="1" class="rounded text-primary">
+                        <span>Pengayaan</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="remedial" value="1" class="rounded text-primary">
+                        <span>Remedial</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="glosarium" value="1" class="rounded text-primary">
+                        <span>Glosarium</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
+                        <input type="checkbox" name="video" value="1" class="rounded text-primary">
+                        <span>Video</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Ringkasan Kelengkapan (live) -->
+            <div class="rounded-xl border border-slate-200 bg-white p-4 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-800">Ringkasan Kelengkapan</span>
+                    <span id="tambah-skor-kelengkapan" class="text-sm font-black text-slate-900">0<span class="text-[10px] text-slate-400 font-bold">/100</span></span>
+                </div>
+                <div class="h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div id="tambah-skor-bar" class="h-full bg-gradient-to-r from-primary to-emerald-500 transition-all" style="width: 0%"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-[11px]">
+                    <div class="flex items-center justify-between rounded-lg bg-slate-50 border border-slate-200 px-2.5 py-1.5">
+                        <span class="font-semibold text-slate-600">Wajib</span>
+                        <span id="tambah-count-wajib" class="font-black text-slate-800">0/3</span>
+                    </div>
+                    <div class="flex items-center justify-between rounded-lg bg-slate-50 border border-slate-200 px-2.5 py-1.5">
+                        <span class="font-semibold text-slate-600">Disarankan</span>
+                        <span id="tambah-count-disarankan" class="font-black text-slate-800">0/7</span>
+                    </div>
+                </div>
+                <p id="tambah-skor-hint" class="text-[10px] text-slate-400 leading-relaxed">
+                    Wajib 70% &bull; disarankan 30%. Draf boleh disimpan belum lengkap, pengajuan tidak.
+                </p>
             </div>
 
             <!-- Tags Kustom -->

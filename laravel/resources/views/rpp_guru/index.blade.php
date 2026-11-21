@@ -111,10 +111,36 @@
         <div class="shrink-0">
             <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200/80 shadow-xs">
                 <i class="fas fa-shield-halved text-emerald-500 text-sm"></i>
-                <span>Kurikulum Merdeka 2024/2025 &bull; Fase B</span>
+                <span>Kurikulum Merdeka &bull; RPP disusun per bab</span>
             </span>
         </div>
     </div>
+
+    {{-- Cakupan bab: mana yang sudah punya RPP dan mana yang belum. --}}
+    @if(isset($babList) && $babList->isNotEmpty())
+    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-list-check text-primary text-xs"></i>
+                <span class="text-xs font-bold text-slate-800">Cakupan Bab</span>
+            </div>
+            <span class="text-[10px] text-slate-400">
+                {{ $rppPerBab->count() }} dari {{ $babList->count() }} bab sudah punya RPP
+            </span>
+        </div>
+        <div class="flex flex-wrap gap-1.5">
+            @foreach($babList as $bab)
+                @php $sudah = $rppPerBab->get($bab->id_bab); @endphp
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold border
+                    {{ $sudah ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200' }}"
+                    title="{{ $sudah ? 'RPP: '.$sudah->judul_rpp.' ('.$sudah->status.')' : 'Belum ada RPP untuk bab ini' }}">
+                    <i class="fas {{ $sudah ? 'fa-circle-check' : 'fa-circle-dashed' }} text-[9px]"></i>
+                    <span class="truncate max-w-[220px]">{{ $bab->nama_bab }}</span>
+                </span>
+            @endforeach
+        </div>
+    </div>
+    @endif
 
     <!-- Filter Bar -->
     <form action="{{ route('guru.rpp.index') }}" method="GET" class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs">
@@ -206,9 +232,6 @@
                 $isBindo = str_contains(strtolower($rpp->mataPelajaran->nama_mapel ?? ''), 'indonesia');
                 $isPancasila = str_contains(strtolower($rpp->mataPelajaran->nama_mapel ?? ''), 'pancasila');
 
-                $checklist = $rpp->komponen_checklist ?? [];
-                $tags = $checklist['tags'] ?? [];
-
                 // 1 Ikon Tetap & Konsisten Berdasarkan Mata Pelajaran (Identitas Visual Dashboard):
                 if ($isMatematika) {
                     $topikIcon = 'fas fa-calculator'; // Matematika: Kalkulator
@@ -261,10 +284,11 @@
                         </span>
                     </div>
 
-                    <!-- Sub-header: Fase & Modul / Target Date + 3-dots Menu -->
-                    <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
-                        <span class="font-medium">
-                            {{ $rpp->fase ?? 'Fase B' }} &bull; {{ $rpp->modul_ke ?? 'Modul #' . $rpp->id_rpp }}
+                    <!-- Sub-header: Bab & Fase + 3-dots Menu -->
+                    <div class="flex items-center justify-between text-xs text-slate-500 pt-1 gap-2">
+                        <span class="font-medium truncate flex items-center gap-1.5 min-w-0">
+                            <span class="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold shrink-0">{{ $rpp->fase ?? 'Fase -' }}</span>
+                            <span class="truncate">{{ $rpp->bab->nama_bab ?? 'Bab belum dipilih' }}</span>
                         </span>
 
                         <!-- Action Dropdown Trigger -->
@@ -352,40 +376,29 @@
                     </p>
                 </div>
 
-                <!-- 5. Checklist Components & Tags -->
-                <div class="flex items-center gap-1.5 flex-wrap">
-                    @if(!empty($tags) && count($tags) > 0)
-                        @foreach($tags as $tag)
-                            @php
-                                $isMissing = str_contains(strtolower($tag), 'belum') || str_contains(strtolower($tag), 'soal latihan proyektor');
-                                $isProcess = str_contains(strtolower($tag), 'proses');
-                            @endphp
-                            <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1
-                                {{ $isMissing ? 'bg-rose-50 text-rose-600 border border-rose-200' : ($isProcess ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200/70') }}">
-                                @if($isMissing)
-                                    <i class="fas fa-times text-[10px]"></i>
-                                @elseif($isProcess)
-                                    <i class="fas fa-clock text-[10px]"></i>
-                                @else
-                                    <i class="fas fa-check text-[10px]"></i>
-                                @endif
-                                <span>{{ $tag }}</span>
-                            </span>
-                        @endforeach
-                    @else
-                        <!-- Default Badges from Boolean Checklist -->
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 {{ ($checklist['tujuan'] ?? true) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70' : 'bg-slate-100 text-slate-400' }}">
-                            <i class="fas fa-check text-[10px]"></i> Tujuan Pembelajaran
+                <!-- 5. Kelengkapan: komponen wajib vs disarankan (desain ringkasan) -->
+                @php
+                    $wajibKurang = $rpp->komponenWajibKurang();
+                    $wajibTerisi = count(\App\Models\Rpp::KOMPONEN_WAJIB) - $wajibKurang->count();
+                    $disarankanTerisi = $rpp->jumlahDisarankanTerisi();
+                    $totalDisarankan = count(\App\Models\Rpp::KOMPONEN_DISARANKAN);
+                @endphp
+                <div class="rounded-xl border {{ $wajibKurang->isEmpty() ? 'border-emerald-200/70 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/40' }} p-3.5">
+                    <div class="flex items-center justify-between text-[10px] font-bold mb-1.5">
+                        <span class="{{ $wajibKurang->isEmpty() ? 'text-emerald-700' : 'text-rose-700' }} flex items-center gap-1">
+                            <i class="fas {{ $wajibKurang->isEmpty() ? 'fa-circle-check' : 'fa-triangle-exclamation' }} text-[10px]"></i>
+                            {{ $wajibTerisi }}/{{ count(\App\Models\Rpp::KOMPONEN_WAJIB) }} wajib
                         </span>
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 {{ ($checklist['video'] ?? false) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70' : 'bg-slate-100 text-slate-400' }}">
-                            <i class="fas fa-play text-[10px]"></i> Video Interaktif
-                        </span>
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 {{ ($checklist['kktp'] ?? true) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70' : 'bg-slate-100 text-slate-400' }}">
-                            <i class="fas fa-chart-simple text-[10px]"></i> Kriteria KKTP
-                        </span>
-                        <span class="px-2.5 py-1 rounded-full text-[10px] font-semibold flex items-center gap-1 {{ ($checklist['lkpd'] ?? true) ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/70' : 'bg-rose-50 text-rose-600 border border-rose-200' }}">
-                            <i class="fas fa-file-pen text-[10px]"></i> {{ ($checklist['lkpd'] ?? true) ? 'LKPD Siap Cetak' : 'LKPD Belum Diunggah' }}
-                        </span>
+                        <span class="text-slate-500">{{ $disarankanTerisi }}/{{ $totalDisarankan }} disarankan</span>
+                    </div>
+                    <div class="h-1.5 rounded-full bg-white/80 overflow-hidden">
+                        <div class="h-full {{ $wajibKurang->isEmpty() ? 'bg-emerald-500' : 'bg-rose-500' }}"
+                             style="width: {{ $rpp->skorKelengkapan() }}%"></div>
+                    </div>
+                    @if($wajibKurang->isNotEmpty())
+                        <p class="text-[10px] font-semibold text-rose-700 mt-1.5">
+                            {{ collect($wajibKurang)->map(fn ($k) => \App\Models\Rpp::KOMPONEN_WAJIB[$k])->first() }} belum lengkap
+                        </p>
                     @endif
                 </div>
 

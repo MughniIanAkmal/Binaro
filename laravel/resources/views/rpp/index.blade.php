@@ -3,12 +3,6 @@
 @section('page_title', 'Persetujuan & Kelola RPP Guru')
 @section('page_subtitle', 'Khusus meninjau & menyetujui pengajuan modul ajar dari guru.')
 
-@section('header_actions')
-    <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs">
-        <i class="fas fa-download"></i> Cetak / Export
-    </button>
-@endsection
-
 @section('content')
 <!-- Content Body -->
         <div class="space-y-6">
@@ -44,18 +38,24 @@
             <!-- Table Card -->
             <div class="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
                 <!-- Table Header Filter -->
-                <div class="p-4 border-b border-slate-200 flex gap-3 items-center flex-wrap">
-                    <a href="{{ route('rpp.index') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ !request('status') ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Semua</a>
-                    <a href="{{ route('rpp.index', ['status' => 'menunggu_review']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 {{ request('status') == 'menunggu_review' ? 'bg-primary text-white' : 'bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100' }}">
-                        <i class="fas fa-inbox text-[11px] text-amber-500"></i>
-                        <span>Permintaan Guru (Menunggu Review)</span>
-                        @if(($kpi['perlu_review'] ?? 0) > 0)
-                            <span class="bg-amber-400 text-slate-900 text-[10px] font-black px-1.5 py-0.2 rounded-full">{{ $kpi['perlu_review'] }}</span>
-                        @endif
-                    </a>
-                    <a href="{{ route('rpp.index', ['status' => 'terverifikasi']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'terverifikasi' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Terverifikasi (Disetujui)</a>
-                    <a href="{{ route('rpp.index', ['status' => 'perlu_revisi']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'perlu_revisi' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Perlu Revisi</a>
-                    <a href="{{ route('rpp.index', ['status' => 'draft']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'draft' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Draf Guru</a>
+                <div class="p-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <a href="{{ route('rpp.index') }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ !request('status') ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Semua</a>
+                        <a href="{{ route('rpp.index', ['status' => 'menunggu_review']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 {{ request('status') == 'menunggu_review' ? 'bg-primary text-white' : 'bg-amber-50 text-amber-900 border border-amber-200 hover:bg-amber-100' }}">
+                            <i class="fas fa-inbox text-[11px] text-amber-500"></i>
+                            <span>Permintaan Guru (Menunggu Review)</span>
+                            @if(($kpi['perlu_review'] ?? 0) > 0)
+                                <span class="bg-amber-400 text-slate-900 text-[10px] font-black px-1.5 py-0.2 rounded-full">{{ $kpi['perlu_review'] }}</span>
+                            @endif
+                        </a>
+                        <a href="{{ route('rpp.index', ['status' => 'terverifikasi']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'terverifikasi' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Terverifikasi (Disetujui)</a>
+                        <a href="{{ route('rpp.index', ['status' => 'perlu_revisi']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'perlu_revisi' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Perlu Revisi</a>
+                        <a href="{{ route('rpp.index', ['status' => 'draft']) }}" class="px-3 py-1.5 rounded-lg text-xs font-semibold {{ request('status') == 'draft' ? 'bg-primary text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">Draf Guru</a>
+                    </div>
+
+                    <button onclick="window.print()" class="inline-flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition shadow-xs shrink-0 ml-auto">
+                        <i class="fas fa-download text-[11px]"></i> Cetak / Export
+                    </button>
                 </div>
 
                 <!-- Table Content -->
@@ -64,10 +64,10 @@
                         <thead>
                             <tr class="bg-slate-50 text-[11px] font-bold text-slate-500 uppercase border-b border-slate-200">
                                 <th class="p-3.5 pl-6">NO</th>
-                                <th class="p-3.5">MATA PELAJARAN & TOPIK</th>
-                                <th class="p-3.5">KELAS & FASE</th>
+                                <th class="p-3.5">MATA PELAJARAN &amp; BAB</th>
+                                <th class="p-3.5">KELAS &amp; FASE</th>
                                 <th class="p-3.5">GURU PENGAJAR</th>
-                                <th class="p-3.5">KELENGKAPAN MODUL</th>
+                                <th class="p-3.5 min-w-[170px]">KELENGKAPAN</th>
                                 <th class="p-3.5">STATUS SUPERVISI</th>
                                 <th class="p-3.5 text-center">AKSI SUPERVISI</th>
                             </tr>
@@ -78,20 +78,42 @@
                                 <td class="p-3.5 pl-6 text-slate-400 font-semibold">{{ $rppList->firstItem() + $i }}</td>
                                 <td class="p-3.5">
                                     <div class="font-bold text-slate-900">{{ $rpp->mataPelajaran->nama_mapel ?? '-' }}</div>
-                                    <div class="text-[11px] text-slate-500">Topik: {{ $rpp->judul_rpp }}</div>
+                                    <div class="text-[11px] text-slate-500">{{ $rpp->bab->nama_bab ?? 'Bab belum dipilih' }}</div>
+                                    <div class="text-[10px] text-slate-400">Topik: {{ $rpp->judul_rpp }}</div>
                                 </td>
-                                <td class="p-3.5 font-medium text-slate-700">{{ $rpp->kelas->pararel ?? '-' }}</td>
+                                <td class="p-3.5 font-medium text-slate-700">
+                                    {{ $rpp->kelas->pararel ?? '-' }}
+                                    @if($rpp->fase)
+                                        <span class="block text-[10px] text-slate-400">{{ $rpp->fase }}</span>
+                                    @endif
+                                </td>
                                 <td class="p-3.5">
                                     <div class="font-bold text-slate-900">{{ $rpp->guru->nama_guru ?? '-' }}</div>
                                     <div class="text-[10px] text-slate-400">NIP. {{ $rpp->guru->nip ?? '-' }}</div>
                                 </td>
                                 <td class="p-3.5">
-                                    <div class="flex gap-1 flex-wrap">
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ ($rpp->komponen_checklist['tujuan'] ?? false) ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400' }}">Tujuan</span>
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ ($rpp->komponen_checklist['video'] ?? false) ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400' }}">Video SD</span>
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ ($rpp->komponen_checklist['kktp'] ?? false) ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-400' }}">KKTP</span>
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ ($rpp->komponen_checklist['lkpd'] ?? false) ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-600' }}">LKPD</span>
+                                    @php
+                                        $wajibKurang = $rpp->komponenWajibKurang();
+                                        $disarankanTerisi = $rpp->jumlahDisarankanTerisi();
+                                        $totalDisarankan = count(\App\Models\Rpp::KOMPONEN_DISARANKAN);
+                                    @endphp
+                                    <div class="flex items-center justify-between text-[10px] font-bold mb-1">
+                                        @if($wajibKurang->isEmpty())
+                                            <span class="text-emerald-700"><i class="fas fa-circle-check mr-1"></i>3/3 wajib</span>
+                                        @else
+                                            <span class="text-rose-600"><i class="fas fa-triangle-exclamation mr-1"></i>{{ 3 - $wajibKurang->count() }}/3 wajib</span>
+                                        @endif
+                                        <span class="text-slate-400">{{ $disarankanTerisi }}/{{ $totalDisarankan }} disarankan</span>
                                     </div>
+                                    <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                                        <div class="h-full {{ $wajibKurang->isEmpty() ? 'bg-emerald-500' : 'bg-rose-500' }}"
+                                             style="width: {{ $rpp->skorKelengkapan() }}%"></div>
+                                    </div>
+                                    @if($wajibKurang->isNotEmpty())
+                                        <p class="text-[10px] text-rose-600 mt-1 font-semibold">
+                                            {{ collect($wajibKurang)->map(fn ($k) => \App\Models\Rpp::KOMPONEN_WAJIB[$k])->first() }} belum lengkap
+                                        </p>
+                                    @endif
                                 </td>
                                 <td class="p-3.5">
                                     @if($rpp->status == 'terverifikasi')
@@ -123,7 +145,7 @@
                                         @endif
 
                                         {{-- 2. Tombol Minta Revisi / Ubah Catatan Supervisi --}}
-                                        <button onclick="openStatusModal({{ $rpp->id_rpp }}, 'perlu_revisi', '{{ addslashes($rpp->judul_rpp) }}')" title="Minta Revisi ke Guru" class="px-2 py-1.5 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-50 font-bold text-xs inline-flex items-center gap-1 transition">
+                                        <button onclick='openStatusModal({{ $rpp->id_rpp }}, "perlu_revisi", @json($rpp->judul_rpp), @json($rpp->catatan->map(fn ($c) => ["isi" => $c->isi, "penulis_nama" => $c->penulis_nama, "created_at" => $c->created_at?->toIso8601String()])->values()))' title="Minta Revisi ke Guru" class="px-2 py-1.5 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-50 font-bold text-xs inline-flex items-center gap-1 transition">
                                             <i class="fas fa-undo text-[10px]"></i> Revisi
                                         </button>
 
@@ -190,6 +212,13 @@
                         <label class="block font-bold text-slate-700 mb-1">Catatan Evaluasi / Revisi</label>
                         <textarea name="catatan" id="catatanRevisi" rows="3" placeholder="Tuliskan catatan perbaikan atau feedback untuk guru..."
                                   class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"></textarea>
+                        <p class="text-[10px] text-slate-400 mt-1">Catatan disimpan sebagai riwayat dan tetap terlihat oleh guru, tidak menimpa catatan sebelumnya.</p>
+                    </div>
+
+                    {{-- Riwayat catatan supervisi sebelumnya (thread per versi). --}}
+                    <div id="riwayatCatatanWrap" class="hidden">
+                        <div class="font-bold text-slate-700 mb-1.5">Riwayat Catatan</div>
+                        <div id="riwayatCatatan" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
                     </div>
                     <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
                         <button type="button" onclick="closeStatusModal()" class="px-4 py-2 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
@@ -243,10 +272,33 @@
         </div>
 
     <script>
-        function openStatusModal(id, status, judul) {
+        function openStatusModal(id, status, judul, catatan) {
             document.getElementById('formStatus').action = `/rpp/${id}/status`;
             document.getElementById('statusJudulRpp').innerText = judul;
             document.getElementById('selectStatus').value = status;
+            document.getElementById('catatanRevisi').value = '';
+
+            // Tampilkan riwayat catatan supervisi sebelumnya untuk dokumen ini.
+            const wrap = document.getElementById('riwayatCatatanWrap');
+            const list = document.getElementById('riwayatCatatan');
+            const riwayat = Array.isArray(catatan) ? catatan : [];
+            list.innerHTML = '';
+            if (riwayat.length > 0) {
+                riwayat.forEach((c) => {
+                    const item = document.createElement('div');
+                    item.className = 'rounded-lg bg-slate-50 border border-slate-200 p-2';
+                    const nama = c.penulis_nama || 'Administrator';
+                    const tanggal = c.created_at ? new Date(c.created_at).toLocaleDateString('id-ID') : '';
+                    item.innerHTML = `<div class="text-[10px] font-bold text-slate-600">${nama} &middot; ${tanggal}</div>
+                                      <div class="text-[11px] text-slate-700 mt-0.5"></div>`;
+                    item.querySelector('div:last-child').textContent = c.isi;
+                    list.appendChild(item);
+                });
+                wrap.classList.remove('hidden');
+            } else {
+                wrap.classList.add('hidden');
+            }
+
             const m = document.getElementById('statusModal');
             m.classList.remove('hidden');
             m.classList.add('flex');
