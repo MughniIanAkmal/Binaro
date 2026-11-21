@@ -2,14 +2,6 @@
 
 @section('page_title', 'Notifikasi PR')
 
-@section('header_actions')
-    <a href="{{ route('guru.notifikasi_pr.create') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
-       >
-        <i class="fas fa-plus text-[11px]"></i> Tambah PR Baru
-    </a>
-@endsection
-
 @section('content')
 <div class="space-y-5">
 
@@ -67,17 +59,23 @@
     <!-- Navigation Tabs & Search Toolbar -->
     <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-slate-100 pb-3">
-            <!-- Tabs -->
-            <div class="flex items-center gap-2">
-                <a href="{{ route('guru.notifikasi_pr.index', array_merge(request()->query(), ['tab' => 'pr'])) }}"
-                   class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $activeTab === 'pr' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
-                    <i class="fas fa-list-check"></i>
-                    <span>Daftar Tugas PR ({{ $prs->total() }})</span>
-                </a>
-                <a href="{{ route('guru.notifikasi_pr.index', array_merge(request()->query(), ['tab' => 'notifikasi'])) }}"
-                   class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $activeTab === 'notifikasi' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
-                    <i class="fas fa-bell"></i>
-                    <span>Riwayat Notifikasi Terkirim ({{ $notifikasis->total() }})</span>
+            <!-- Tabs & Add Button -->
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('guru.notifikasi_pr.index', array_merge(request()->query(), ['tab' => 'pr'])) }}"
+                       class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $activeTab === 'pr' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
+                        <i class="fas fa-list-check"></i>
+                        <span>Daftar Tugas PR ({{ $prs->total() }})</span>
+                    </a>
+                    <a href="{{ route('guru.notifikasi_pr.index', array_merge(request()->query(), ['tab' => 'notifikasi'])) }}"
+                       class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $activeTab === 'notifikasi' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
+                        <i class="fas fa-bell"></i>
+                        <span>Riwayat Notifikasi Terkirim ({{ $notifikasis->total() }})</span>
+                    </a>
+                </div>
+                <a href="{{ route('guru.notifikasi_pr.create') }}"
+                   class="inline-flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary shrink-0">
+                    <i class="fas fa-plus text-[11px]"></i> Tambah PR
                 </a>
             </div>
 
