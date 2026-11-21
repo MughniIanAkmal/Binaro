@@ -170,15 +170,27 @@ class _DynamicBottomNavState extends State<DynamicBottomNav>
     }
   }
 
+  // Lebar maksimal bar di layar besar: bar tidak melebar tanpa batas
+  // mengikuti layar tablet/desktop, melainkan berhenti di 560 dan
+  // berkumpul di tengah. Di HP (lebar < 584) tampilannya tidak berubah.
+  static const double _lebarMaksBar = 560;
+
   @override
   Widget build(BuildContext context) {
     final double bottomInset = MediaQuery.paddingOf(context).bottom;
     final double barHeight = _barHeight + bottomInset;
 
+    // Di layar lebar, margin samping membesar agar lebar bar berhenti
+    // di _lebarMaksBar dan bar berkumpul di tengah layar.
+    final double lebarLayar = MediaQuery.sizeOf(context).width;
+    final double marginSamping = lebarLayar > _lebarMaksBar + (_sideMargin * 2)
+        ? (lebarLayar - _lebarMaksBar) / 2
+        : _sideMargin;
+
     return Padding(
-      padding: const EdgeInsets.only(
-        left: _sideMargin,
-        right: _sideMargin,
+      padding: EdgeInsets.only(
+        left: marginSamping,
+        right: marginSamping,
         bottom: _bottomMargin,
       ),
       child: SizedBox(
@@ -211,9 +223,9 @@ class _DynamicBottomNavState extends State<DynamicBottomNav>
                     _allNavItems.map((item) => _buildNavItem(item)).toList(),
               ),
             ),
-          ],
+            ],
+          ),
         ),
-      ),
     );
   }
 
