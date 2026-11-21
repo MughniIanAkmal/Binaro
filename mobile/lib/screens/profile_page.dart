@@ -3,9 +3,12 @@ import '../widgets/common.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import '../utils/api_client.dart';
 import '../widgets/dynamic_bottom_nav.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'foto_profil_page.dart';
 import 'login_page.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
@@ -25,6 +28,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isLoading = true;
   bool _hasError = false;
   String _pesanError = '';
+
+  bool _mengunggahFoto = false;
 
   // Data Profil dari API
   Map<String, dynamic> _siswa = {};
@@ -684,22 +689,106 @@ class _ProfilePageState extends State<ProfilePage> {
   // ---------------------------------------------------------------------------
   // 1. HEADER PROFIL
   // ---------------------------------------------------------------------------
+  /// URL foto profil siap tampil (dari API), null bila belum ada foto.
+  String? get _fotoUrl {
+    final url = _siswa['foto_url']?.toString();
+    if (url != null && url.isNotEmpty) return url;
+    final mentah = _siswa['foto_profil']?.toString();
+    if (mentah != null && mentah.startsWith('http')) return mentah;
+    return null;
+  }
+
+  /// Inisial nama untuk avatar bila belum ada foto (maks. 2 huruf).
+  String get _inisialNama {
+    final nama = (_siswa['nama'] ?? '').toString().trim();
+    if (nama.isEmpty) return '?';
+    final kata = nama.split(RegExp(r'\s+')).where((k) => k.isNotEmpty).toList();
+    if (kata.length == 1) return kata.first[0].toUpperCase();
+    return (kata[0][0] + kata[1][0]).toUpperCase();
+  }
+
   Widget _buildProfileHeader() {
     return Column(
       children: [
-        // Lingkaran Profil Siswa Abu-abu dengan Border Putih (Sesuai Permintaan)
-        Container(
-          width: 90,
-          height: 90,
-          decoration: BoxDecoration(
-            color: AppColors.border,
-            shape: BoxShape.circle,
-            border: Border.all(color: Colors.white, width: 3.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.12),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+        // Avatar foto profil: ketuk untuk lihat / ganti foto.
+        GestureDetector(
+          onTap: _mengunggahFoto ? null : _tampilkanOpsiFoto,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 3.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.12),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: ClipOval(
+                  child: _mengunggahFoto
+                      ? const Center(
+                          child: SizedBox(
+                            width: 26,
+                            height: 26,
+                            child: CircularProgressIndicator(strokeWidth: 2.6),
+                          ),
+                        )
+                      : _fotoUrl != null
+                          ? Image.network(
+                              _fotoUrl!,
+                              width: 90,
+                              height: 90,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Center(
+                                  child: Text(
+                                    _inisialNama,
+                                    style: const TextStyle(
+                                      fontSize: 30,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                );
+                              },
+                            )
+                          : Center(
+                              child: Text(
+                                _inisialNama,
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                ),
+              ),
+              // Lencana kamera di pojok avatar
+              Positioned(
+                right: -1,
+                bottom: -1,
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 2),
+                  ),
+                  child: const Icon(
+                    Icons.photo_camera_rounded,
+                    size: 14.5,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ],
           ),
@@ -761,6 +850,230 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ],
     );
+  }
+
+  // ---------------------------------------------------------------------------
+  // FOTO PROFIL: LIHAT, GANTI (KAMERA / GALERI), HAPUS
+  // ---------------------------------------------------------------------------
+  void _tampilkanOpsiFoto() {
+    final adaFoto = _fotoUrl != null;
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              Container(
+                width: 42,
+                height: 4.5,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.fromLTRB(20, 14, 20, 6),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Foto Profil',
+                    style: TextStyle(
+                      fontSize: 15.5,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+              ),
+              if (adaFoto)
+                ListTile(
+                  leading: const Icon(Icons.visibility_rounded,
+                      color: AppColors.primary),
+                  title: const Text('Lihat Foto'),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _lihatFoto();
+                  },
+                ),
+              ListTile(
+                leading: const Icon(Icons.photo_camera_rounded,
+                    color: AppColors.primary),
+                title: const Text('Ambil dari Kamera'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pilihDanUnggahFoto(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library_rounded,
+                    color: AppColors.primary),
+                title: const Text('Pilih dari Galeri'),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _pilihDanUnggahFoto(ImageSource.gallery);
+                },
+              ),
+              if (adaFoto)
+                ListTile(
+                  leading: const Icon(Icons.delete_outline_rounded,
+                      color: AppColors.error),
+                  title: const Text(
+                    'Hapus Foto',
+                    style: TextStyle(color: AppColors.error),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _konfirmasiHapusFoto();
+                  },
+                ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _lihatFoto() {
+    final url = _fotoUrl;
+    if (url == null) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => FotoProfilPage(
+          url: url,
+          nama: (_siswa['nama'] ?? 'Foto Profil').toString(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pilihDanUnggahFoto(ImageSource sumber) async {
+    final picker = ImagePicker();
+    final XFile? berkas = await picker.pickImage(
+      source: sumber,
+      imageQuality: 85,
+      maxWidth: 1024,
+    );
+    if (berkas == null || !mounted) return;
+
+    setState(() => _mengunggahFoto = true);
+    try {
+      final bytes = await berkas.readAsBytes();
+      final request =
+          http.MultipartRequest('POST', ApiClient.uri('/siswa/foto-profil'));
+      request.headers.addAll(ApiClient.headers);
+      request.fields['id_siswa'] =
+          (_siswa['id_siswa'] ?? AppConstants.defaultSiswaId).toString();
+      request.files.add(http.MultipartFile.fromBytes(
+        'foto',
+        bytes,
+        filename: berkas.name,
+      ));
+
+      final streamed = await request.send();
+      final response = await http.Response.fromStream(streamed);
+      final result = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && result['success'] == true) {
+        final data = result['data'] as Map<String, dynamic>;
+        if (!mounted) return;
+        setState(() {
+          _siswa['foto_profil'] = data['foto_profil'];
+          _siswa['foto_url'] = data['foto_url'];
+        });
+        await _sinkronSesiFoto();
+        if (mounted) _showToast('Foto profil berhasil diperbarui');
+      } else {
+        if (mounted) {
+          _showToast(
+              result['message']?.toString() ?? 'Gagal mengunggah foto profil');
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        _showToast('Tidak dapat terhubung ke server. Coba lagi ya.');
+      }
+    } finally {
+      if (mounted) setState(() => _mengunggahFoto = false);
+    }
+  }
+
+  void _konfirmasiHapusFoto() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Hapus Foto Profil?'),
+          content: const Text(
+            'Foto profilmu akan dihapus dan diganti inisial nama. Lanjutkan?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Batal'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                _hapusFoto();
+              },
+              child: const Text(
+                'Hapus',
+                style: TextStyle(color: AppColors.error),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _hapusFoto() async {
+    setState(() => _mengunggahFoto = true);
+    try {
+      final response = await ApiClient.post(
+        '/siswa/foto-profil/hapus',
+        body: {
+          'id_siswa': _siswa['id_siswa'] ?? AppConstants.defaultSiswaId,
+        },
+      );
+      final result = jsonDecode(response.body);
+      if (response.statusCode == 200 && result['success'] == true) {
+        if (!mounted) return;
+        setState(() {
+          _siswa['foto_profil'] = null;
+          _siswa['foto_url'] = null;
+        });
+        await _sinkronSesiFoto();
+        if (mounted) _showToast('Foto profil berhasil dihapus');
+      } else {
+        if (mounted) {
+          _showToast(result['message']?.toString() ?? 'Gagal menghapus foto');
+        }
+      }
+    } catch (_) {
+      if (mounted) {
+        _showToast('Tidak dapat terhubung ke server. Coba lagi ya.');
+      }
+    } finally {
+      if (mounted) setState(() => _mengunggahFoto = false);
+    }
+  }
+
+  /// Samakan foto di sesi tersimpan agar halaman lain ikut berubah.
+  Future<void> _sinkronSesiFoto() async {
+    final user = await AppSession.load();
+    if (user == null) return;
+    user['foto_profil'] = _siswa['foto_profil'];
+    user['foto_url'] = _siswa['foto_url'];
+    await AppSession.save(user, token: AppSession.token);
   }
 
   // ---------------------------------------------------------------------------
