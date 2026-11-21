@@ -395,6 +395,89 @@
     /* ========================================================
        MODAL OPEN / CLOSE HANDLERS
        ======================================================== */
+
+    /**
+     * Tampilkan hanya opsi bab milik mapel yang dipilih. Opsi bab yang sudah
+     * punya RPP tetap disabled (atribut dari server), jadi tidak bisa dipilih.
+     */
+    function filterBabByMapel(mapelSelectId, babSelectId) {
+        const mapelSelect = document.getElementById(mapelSelectId);
+        const babSelect = document.getElementById(babSelectId);
+        if (!mapelSelect || !babSelect) return;
+
+        const idMapel = String(mapelSelect.value || '');
+        Array.from(babSelect.options).forEach((opt) => {
+            if (!opt.value) return;
+            const cocok = !idMapel || opt.dataset.mapel === idMapel;
+            opt.hidden = !cocok;
+        });
+
+        // Jika pilihan saat ini tidak relevan dengan mapel, kosongkan.
+        const terpilih = babSelect.options[babSelect.selectedIndex];
+        if (terpilih && terpilih.value && idMapel && terpilih.dataset.mapel !== idMapel) {
+            babSelect.value = '';
+        }
+    }
+
+    /** Fase read-only: diambil dari atribut data-fase kelas yang dipilih. */
+    function syncFaseBadge(kelasSelectId, faseInputId, faseBadgeId) {
+        const kelasSelect = document.getElementById(kelasSelectId);
+        const faseInput = document.getElementById(faseInputId);
+        const faseBadge = document.getElementById(faseBadgeId);
+        if (!kelasSelect || !faseInput || !faseBadge) return;
+
+        const opt = kelasSelect.options[kelasSelect.selectedIndex];
+        const fase = (opt && opt.dataset.fase) ? opt.dataset.fase : '';
+        faseInput.value = fase;
+        faseBadge.textContent = fase !== '' ? fase : 'Kelas belum punya tingkat';
+        faseBadge.classList.toggle('bg-rose-50', fase === '');
+        faseBadge.classList.toggle('border-rose-200', fase === '');
+        faseBadge.classList.toggle('text-rose-700', fase === '');
+        faseBadge.classList.toggle('bg-emerald-50', fase !== '');
+        faseBadge.classList.toggle('border-emerald-200', fase !== '');
+        faseBadge.classList.toggle('text-emerald-800', fase !== '');
+    }
+
+    /**
+     * Ringkasan kelengkapan live di form tambah: wajib 70% + disarankan 30%,
+     * mengikuti perhitungan Rpp::skorKelengkapan() di server.
+     */
+    function updateSkorKelengkapan() {
+        const form = document.getElementById('form-tambah-rpp');
+        if (!form) return;
+
+        const wajibKeys = ['tujuan', 'langkah', 'asesmen'];
+        const disarankanKeys = ['media', 'lkpd', 'refleksi', 'pengayaan', 'remedial', 'glosarium', 'video'];
+
+        const terisi = (keys) => keys.filter((k) => {
+            const el = form.querySelector(`input[name="${k}"]`);
+            return el && el.checked;
+        }).length;
+
+        const wajib = terisi(wajibKeys);
+        const disarankan = terisi(disarankanKeys);
+        const skor = Math.round((wajib / wajibKeys.length) * 70 + (disarankan / disarankanKeys.length) * 30);
+
+        const bar = document.getElementById('tambah-skor-bar');
+        const skorEl = document.getElementById('tambah-skor-kelengkapan');
+        const wajibEl = document.getElementById('tambah-count-wajib');
+        const disarankanEl = document.getElementById('tambah-count-disarankan');
+        const hint = document.getElementById('tambah-skor-hint');
+
+        if (bar) bar.style.width = skor + '%';
+        if (skorEl) skorEl.innerHTML = `${skor}<span class="text-[10px] text-slate-400 font-bold">/100</span>`;
+        if (wajibEl) wajibEl.textContent = `${wajib}/${wajibKeys.length}`;
+        if (disarankanEl) disarankanEl.textContent = `${disarankan}/${disarankanKeys.length}`;
+        if (hint) {
+            hint.textContent = wajib === wajibKeys.length
+                ? 'Komponen wajib lengkap. Modul siap diajukan ke admin.'
+                : 'Lengkapi komponen wajib agar bisa diajukan. Draf tetap bisa disimpan.';
+            hint.className = wajib === wajibKeys.length
+                ? 'text-[10px] text-emerald-700 font-semibold leading-relaxed'
+                : 'text-[10px] text-slate-400 leading-relaxed';
+        }
+    }
+
     function openModalTambahRpp() {
         document.getElementById('modal-tambah-rpp').classList.remove('hidden');
         sanitizeAlphanumericOnly(document.getElementById('tambah-judul-rpp'), 'counter-tambah-judul', 100);
@@ -402,6 +485,10 @@
         updateLengthCounter(document.getElementById('tambah-target-jadwal'), 'counter-tambah-jadwal', 50);
         updateLengthCounter(document.getElementById('tambah-ruang'), 'counter-tambah-ruang', 50);
         updateLengthCounter(document.getElementById('tambah-deskripsi'), 'counter-tambah-deskripsi', 500);
+
+        filterBabByMapel('tambah-id-mapel', 'tambah-id-bab');
+        syncFaseBadge('tambah-id-rooms', 'tambah-fase', 'tambah-fase-badge');
+        updateSkorKelengkapan();
 
         // Jika picker belum diisi, coba inisialisasi dari teks default jika ada
         const targetJadwalVal = document.getElementById('tambah-target-jadwal').value;
@@ -458,9 +545,27 @@
 
         const check = rpp.komponen_checklist || {};
         document.getElementById('edit-check-tujuan').checked = !!check.tujuan;
+        document.getElementById('edit-check-langkah').checked = !!check.langkah;
+        document.getElementById('edit-check-asesmen').checked = !!check.asesmen;
+        document.getElementById('edit-check-media').checked = !!check.media;
         document.getElementById('edit-check-video').checked = !!check.video;
-        document.getElementById('edit-check-soal').checked = !!check.soal_proyektor;
         document.getElementById('edit-check-lkpd').checked = !!check.lkpd;
+        document.getElementById('edit-check-refleksi').checked = !!check.refleksi;
+        document.getElementById('edit-check-pengayaan').checked = !!check.pengayaan;
+        document.getElementById('edit-check-remedial').checked = !!check.remedial;
+        document.getElementById('edit-check-glosarium').checked = !!check.glosarium;
+
+        // Prefill teknik asesmen yang sudah tersimpan.
+        const teknikTersimpan = Array.isArray(check.asesmen_teknik) ? check.asesmen_teknik : [];
+        document.querySelectorAll('[data-edit-teknik]').forEach((el) => {
+            el.checked = teknikTersimpan.includes(el.value);
+        });
+
+        // Bab: filter sesuai mapel lalu pilih bab milik RPP ini.
+        document.getElementById('edit-id-bab').value = rpp.id_bab || '';
+        filterBabByMapel('edit-id-mapel', 'edit-id-bab');
+        document.getElementById('edit-id-bab').value = rpp.id_bab || '';
+        syncFaseBadge('edit-id-rooms', 'edit-fase', 'edit-fase-badge');
 
         const tags = (check && check.tags) ? check.tags : [];
         document.getElementById('edit-custom-tags').value = Array.isArray(tags) ? tags.join(', ') : (tags || '');
@@ -561,6 +666,34 @@
 
         bindValidasiJadwal('form-tambah-rpp', 'tambah', syncTambahJadwalFromPickers);
         bindValidasiJadwal('form-edit-rpp', 'edit', syncEditJadwalFromPickers);
+
+        // Bab mengikuti mapel, fase mengikuti kelas.
+        const tambahMapel = document.getElementById('tambah-id-mapel');
+        if (tambahMapel) {
+            tambahMapel.addEventListener('change', () => filterBabByMapel('tambah-id-mapel', 'tambah-id-bab'));
+        }
+        const tambahKelas = document.getElementById('tambah-id-rooms');
+        if (tambahKelas) {
+            tambahKelas.addEventListener('change', () => syncFaseBadge('tambah-id-rooms', 'tambah-fase', 'tambah-fase-badge'));
+        }
+        const editMapel = document.getElementById('edit-id-mapel');
+        if (editMapel) {
+            editMapel.addEventListener('change', () => filterBabByMapel('edit-id-mapel', 'edit-id-bab'));
+        }
+        const editKelas = document.getElementById('edit-id-rooms');
+        if (editKelas) {
+            editKelas.addEventListener('change', () => syncFaseBadge('edit-id-rooms', 'edit-fase', 'edit-fase-badge'));
+        }
+
+        // Hitung ulang ringkasan kelengkapan setiap checkbox di form tambah berubah.
+        const formTambah = document.getElementById('form-tambah-rpp');
+        if (formTambah) {
+            formTambah.addEventListener('change', (e) => {
+                if (e.target.matches('input[type="checkbox"]')) {
+                    updateSkorKelengkapan();
+                }
+            });
+        }
     });
 
     // Close modals on clicking backdrop

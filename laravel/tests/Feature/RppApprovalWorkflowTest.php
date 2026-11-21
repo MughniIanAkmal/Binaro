@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Admin;
+use App\Models\Bab;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
@@ -52,8 +53,11 @@ class RppApprovalWorkflowTest extends TestCase
     {
         $guruSession = ['user_id' => $this->guru->id_guru, 'user_type' => 'guru', 'user_name' => $this->guru->nama_guru];
 
+        $bab = Bab::create(['id_mapel' => $this->mapel->id_mapel, 'nama_bab' => 'Bab 3: Surat Resmi']);
+
         $payload = [
             'id_mapel' => $this->mapel->id_mapel,
+            'id_bab' => $bab->id_bab,
             'id_rooms' => $this->kelas->id_rooms,
             'judul_rpp' => 'Menulis Surat Resmi dan Surel',
             'fase' => 'Fase B',
@@ -61,6 +65,11 @@ class RppApprovalWorkflowTest extends TestCase
             'alokasi_waktu' => '2 JP',
             'deskripsi' => 'Peserta didik memahami struktur penulisan surat.',
             'action' => 'publish',
+            // Komponen wajib untuk pengajuan (Permendikdasmen 1/2026 Pasal 5 & 8).
+            'tujuan' => '1',
+            'langkah' => '1',
+            'asesmen' => '1',
+            'asesmen_teknik' => ['Observasi', 'Tes tulis'],
             // Attempt to bypass by injecting status
             'status' => 'terverifikasi',
         ];
@@ -75,6 +84,9 @@ class RppApprovalWorkflowTest extends TestCase
         $this->assertNotNull($rpp);
         // It must NOT be immediately approved/terverifikasi!
         $this->assertEquals('menunggu_review', $rpp->status);
+        // Fase diturunkan dari tingkat kelas (kelas 4 -> Fase B), bukan dari input.
+        $this->assertEquals('Fase B', $rpp->fase);
+        $this->assertEquals($bab->id_bab, $rpp->id_bab);
     }
 
     public function test_guru_stores_rpp_as_draft()
@@ -102,9 +114,12 @@ class RppApprovalWorkflowTest extends TestCase
     {
         $guruSession = ['user_id' => $this->guru->id_guru, 'user_type' => 'guru', 'user_name' => $this->guru->nama_guru];
 
+        $bab = Bab::create(['id_mapel' => $this->mapel->id_mapel, 'nama_bab' => 'Bab 4: Membaca Nyaring']);
+
         $rpp = Rpp::create([
             'id_guru' => $this->guru->id_guru,
             'id_mapel' => $this->mapel->id_mapel,
+            'id_bab' => $bab->id_bab,
             'id_rooms' => $this->kelas->id_rooms,
             'judul_rpp' => 'Membaca Nyaring',
             'status' => 'draft',
@@ -112,9 +127,14 @@ class RppApprovalWorkflowTest extends TestCase
 
         $updatePayload = [
             'id_mapel' => $this->mapel->id_mapel,
+            'id_bab' => $bab->id_bab,
             'id_rooms' => $this->kelas->id_rooms,
             'judul_rpp' => 'Membaca Nyaring Revisi 1',
             'action' => 'publish',
+            'tujuan' => '1',
+            'langkah' => '1',
+            'asesmen' => '1',
+            'asesmen_teknik' => ['Observasi', 'Unjuk kerja'],
         ];
 
         $response = $this->withSession($guruSession)

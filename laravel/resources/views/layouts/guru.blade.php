@@ -183,6 +183,18 @@
         <x-alert type="info" class="mx-8 mt-5">{{ session('info') }}</x-alert>
         @endif
 
+        {{-- Error validasi (mis. pengajuan RPP belum lengkap) harus terlihat guru. --}}
+        @if(isset($errors) && $errors->any() && ! session('error') && ! View::hasSection('hide_global_errors'))
+        <div class="mx-8 mt-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs shadow-sm">
+            <div class="font-bold mb-1.5 flex items-center gap-2"><i class="fas fa-triangle-exclamation"></i> Terjadi Kesalahan Input:</div>
+            <ul class="list-disc list-inside space-y-0.5">
+                @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+        @endif
+
         <!-- Page Content -->
         <div class="p-8 space-y-6 flex-1">
             @yield('content')

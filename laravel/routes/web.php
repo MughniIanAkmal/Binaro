@@ -81,7 +81,10 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::post('/', [RppController::class, 'store'])->name('store');
         Route::get('/{id}', [RppController::class, 'show'])->name('show');
         Route::put('/{id}', [RppController::class, 'update'])->name('update');
-        Route::patch('/{id}/status', [RppController::class, 'updateStatus'])->name('updateStatus');
+        // Hanya admin/supervisor yang berwenang memutuskan status supervisi.
+        Route::patch('/{id}/status', [RppController::class, 'updateStatus'])
+            ->middleware(EnsureRole::class.':admin')
+            ->name('updateStatus');
         Route::delete('/{id}', [RppController::class, 'destroy'])->name('destroy');
         Route::get('/{id}/download', [RppController::class, 'download'])->name('download');
     });
