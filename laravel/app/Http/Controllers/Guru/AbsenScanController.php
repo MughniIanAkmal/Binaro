@@ -10,6 +10,7 @@ use App\Models\Siswa;
 use App\Services\AbsensiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class AbsenScanController extends Controller
@@ -18,7 +19,8 @@ class AbsenScanController extends Controller
 
     public function index(Request $request)
     {
-        $today = today()->toDateString();
+        $selectedDate = $request->input('tanggal', today()->toDateString());
+        $today = $selectedDate;
         $guru = Guru::find(session('user_id')) ?? Guru::first();
 
         // Cari Kelas 4B atau kelas pertama
@@ -109,10 +111,26 @@ class AbsenScanController extends Controller
             'kelas' => $s->nama_kelas,
         ])->values();
 
+        // Filter to only students with attendance records on selectedDate (for rekap view)
+        $recordedIds = $hariIni->pluck('id_siswa')->toArray();
+        $filteredKehadiran = $daftarKehadiran->filter(fn ($item) => in_array($item['id_siswa'], $recordedIds));
+
+        // Wrap in LengthAwarePaginator so tests expecting 'siswaList' work correctly
+        $totalFiltered = $filteredKehadiran->count();
+        $perPage = max(1, $totalFiltered);
+        $siswaList = new LengthAwarePaginator(
+            $filteredKehadiran->forPage(1, $perPage),
+            $totalFiltered,
+            $perPage,
+            1,
+            ['path' => request()->url(), 'query' => request()->query()]
+        );
+
         return view('guru.absen.scan', compact(
             'guru',
             'kelas',
             'daftarKehadiran',
+            'siswaList',
             'totalSiswa',
             'hadirCount',
             'izinCount',
@@ -129,7 +147,8 @@ class AbsenScanController extends Controller
             'hariIni',
             'daftarNama',
             'tanggalAbsen',
-            'isLocked'
+            'isLocked',
+            'selectedDate',
         ));
     }
 

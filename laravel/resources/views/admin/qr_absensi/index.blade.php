@@ -7,11 +7,6 @@
     <a href="{{ route('admin.dashboard') }}" class="hover:text-slate-600 transition shrink-0">Dashboard</a>
 @endsection
 
-@section('header_actions')
-    <a href="{{ route('admin.absensi.settings') }}" class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary">
-        <i class="fas fa-clock text-[11px]"></i> Pengaturan Jam Absen
-    </a>
-@endsection
 
 @section('content')
 <div class="space-y-5">
@@ -73,8 +68,12 @@
                 <button type="submit" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">Cari</button>
             </form>
             <div class="flex gap-2">
+                <button type="button" onclick="openSettingsModal()"
+                        class="px-3 py-1.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg inline-flex items-center gap-1.5">
+                    <i class="fas fa-clock text-[11px]"></i> Pengaturan Jam Absen
+                </button>
                 <a href="{{ route('admin.qr.cetakKelas') }}" target="_blank" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">Cetak Semua Kartu</a>
-                <a href="{{ route('admin.absensi.rekap') }}" class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90">Rekap Absensi</a>
+                <a href="{{ route('absensi.rekap') }}" class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90">Rekap Absensi</a>
             </div>
         </div>
 
@@ -150,4 +149,7 @@
         </div>
     </div>
 </div>
+
+{{-- Modal pengaturan jam absen (sama dengan halaman Presensi Siswa). --}}
+@include('absensi._settings_modal')
 @endsection

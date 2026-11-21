@@ -4,15 +4,16 @@
 @section('page_subtitle', 'Laporan presensi harian siswa terintegrasi QR Code & form manual guru.')
 
 @section('header_actions')
-    <button onclick="window.print()"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">
+    <a href="{{ route('absensi.rekap.export.excel', ['tanggal' => $selectedDate, 'id_rooms' => $selectedKelas, 'status' => $selectedStatus]) }}"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 transition">
         <i class="fas fa-file-excel text-[11px]"></i> Export Excel
-    </button>
-    <button onclick="window.print()"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
-            >
+    </a>
+    <a href="{{ route('absensi.rekap.export.pdf', ['tanggal' => $selectedDate, 'id_rooms' => $selectedKelas, 'status' => $selectedStatus]) }}"
+       target="_blank"
+       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
+       >
         <i class="fas fa-file-pdf text-[11px]"></i> Export PDF
-    </button>
+    </a>
 @endsection
 
 @section('content')

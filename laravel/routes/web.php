@@ -93,6 +93,8 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::middleware([EnsureRole::class.':admin,guru'])->prefix('absensi')->name('absensi.')->group(function () {
         Route::get('/', [AbsensiController::class, 'index'])->name('index');
         Route::get('/rekap', [AbsensiController::class, 'rekap'])->name('rekap');
+        Route::get('/rekap/export/excel', [AbsensiController::class, 'exportExcel'])->name('rekap.export.excel');
+        Route::get('/rekap/export/pdf', [AbsensiController::class, 'exportPdf'])->name('rekap.export.pdf');
         Route::post('/scan-qr', [AbsensiController::class, 'scanQr'])
             ->middleware(EnsureGuruOrAdmin::class)
             ->name('scan-qr');
@@ -300,7 +302,6 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::get('/', function () {
             return redirect()->route('admin.dashboard');
         });
-        Route::get('/absensi/rekap', [AbsensiController::class, 'rekap'])->name('absensi.rekap');
         // Revisi 5: QR & Absensi digabung — halaman utama admin untuk keduanya.
         Route::get('/qr-absensi', [QrAbsensiController::class, 'index'])->name('qr_absensi.index');
         Route::get('/absensi/settings', [AbsensiController::class, 'settingsView'])->name('absensi.settings');
