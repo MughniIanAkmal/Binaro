@@ -22,6 +22,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 
 class SiswaApiController extends ApiController
 {
@@ -169,6 +170,7 @@ class SiswaApiController extends ApiController
                 'nm_siswa' => $nama,
                 'kelas' => $kelas . ' • ' . $sekolah,
                 'foto_profil' => $siswa?->foto_profil,
+                'foto_url' => $this->fotoProfilUrl($siswa?->foto_profil),
             ],
             'menu' => [
                 ['title' => 'Mapel', 'icon' => 'menu_book', 'color' => 'blue'],
@@ -224,6 +226,7 @@ class SiswaApiController extends ApiController
                 'email' => $siswa->email,
                 'no_hp' => $siswa->no_hp,
                 'foto_profil' => $siswa->foto_profil,
+                'foto_url' => $this->fotoProfilUrl($siswa->foto_profil),
                 'barcode' => $barcodeCode,
             ],
             'rekap_absensi' => [
@@ -1326,5 +1329,87 @@ class SiswaApiController extends ApiController
         }
 
         return $this->success(['belum_dibaca' => 0], 'Semua notifikasi ditandai sudah dibaca');
+    }
+
+    /**
+     * URL publik foto profil siswa dari nilai kolom foto_profil.
+     * Nilai bisa berupa URL penuh (dipakai apa adanya) atau path
+     * relatif di disk public (mis. "foto-profil/xxx.jpg").
+     */
+    private function fotoProfilUrl(?string $fotoProfil): ?string
+    {
+        if (empty($fotoProfil)) {
+            return null;
+        }
+
+        if (str_starts_with($fotoProfil, 'http://') || str_starts_with($fotoProfil, 'https://')) {
+            return $fotoProfil;
+        }
+
+        return url('storage/' . ltrim($fotoProfil, '/'));
+    }
+
+    /**
+     * Unggah foto profil siswa (multipart, field "foto").
+     * Foto lama yang tersimpan di disk public ikut dihapus.
+     */
+    public function uploadFotoProfil(Request $request)
+    {
+        $siswaId = $this->resolveSiswaId($request) ?? 1;
+        $siswa = Siswa::find($siswaId) ?? Siswa::first();
+
+        if (! $siswa) {
+            return $this->error('Siswa tidak ditemukan', 404);
+        }
+
+        $request->validate([
+            'foto' => 'required|image|mimes:jpeg,jpg,png|max:2048',
+        ], [
+            'foto.required' => 'File foto wajib dipilih.',
+            'foto.image' => 'File harus berupa gambar.',
+            'foto.mimes' => 'Format foto harus JPG atau PNG.',
+            'foto.max' => 'Ukuran foto maksimal 2 MB.',
+        ]);
+
+        $pathBaru = $request->file('foto')->store('foto-profil', 'public');
+
+        $fotoLama = $siswa->foto_profil;
+        if ($fotoLama && ! str_starts_with($fotoLama, 'http') && Storage::disk('public')->exists($fotoLama)) {
+            Storage::disk('public')->delete($fotoLama);
+        }
+
+        $siswa->update(['foto_profil' => $pathBaru]);
+
+        return $this->success([
+            'id_siswa' => $siswa->id_siswa,
+            'foto_profil' => $siswa->foto_profil,
+            'foto_url' => $this->fotoProfilUrl($siswa->foto_profil),
+        ], 'Foto profil berhasil diperbarui');
+    }
+
+    /**
+     * Hapus foto profil siswa (file di disk + kolom dikosongkan).
+     */
+    public function hapusFotoProfil(Request $request)
+    {
+        $siswaId = $this->resolveSiswaId($request) ?? 1;
+        $siswa = Siswa::find($siswaId) ?? Siswa::first();
+
+        if (! $siswa) {
+            return $this->error('Siswa tidak ditemukan', 404);
+        }
+
+        $fotoLama = $siswa->foto_profil;
+        if ($fotoLama && ! str_starts_with($fotoLama, 'http') && Storage::disk('public')->exists($fotoLama)) {
+            Storage::disk('public')->delete($fotoLama);
+        }
+
+        $siswa->update(['foto_profil' => null]);
+
+        return $this->success([
+            'id_siswa' => $siswa->id_siswa,
+            'foto_profil' => null,
+            'foto_url' => null,
+        ], 'Foto profil berhasil dihapus');
     }
 }
