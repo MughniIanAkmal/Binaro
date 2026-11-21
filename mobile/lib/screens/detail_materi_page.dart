@@ -12,6 +12,7 @@ import 'kuis_page.dart';
 import 'pdf_viewer_page.dart';
 import '../utils/api_client.dart';
 import '../utils/constants.dart';
+import '../utils/responsive.dart';
 import '../utils/page_transitions.dart';
 import '../widgets/common.dart';
 import '../widgets/konfirmasi_kuis_dialog.dart';
@@ -504,7 +505,9 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
                             parent: BouncingScrollPhysics(),
                           ),
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                          child: Column(
+                          child: KontenResponsif(
+                            modeBaca: true,
+                            child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // 1. Breadcrumb Chip Dinamis dari Database
@@ -555,6 +558,7 @@ class _DetailMateriPageState extends State<DetailMateriPage> {
 
                             const SizedBox(height: 16),
                           ],
+                            ),
                         ),
                       ),
                     ),

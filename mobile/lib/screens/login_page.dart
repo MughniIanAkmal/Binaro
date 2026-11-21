@@ -142,7 +142,13 @@ class _LoginPageState extends State<LoginPage> {
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                return SingleChildScrollView(
+                // Di layar lebar (tablet/desktop) kolom login dibatasi
+                // 520 dan berkumpul di tengah; di HP lebarnya penuh
+                // seperti biasa.
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: SingleChildScrollView(
                   physics: const ClampingScrollPhysics(),
                   child: ConstrainedBox(
                     constraints:
@@ -279,6 +285,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                         ],
                       ),
+                    ),
+                  ),
                     ),
                   ),
                 );

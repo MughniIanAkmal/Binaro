@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'daftar_sub_bab_page.dart';
 import '../utils/api_client.dart';
+import '../utils/responsive.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import '../widgets/common.dart';
@@ -83,7 +84,8 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
                   parent: BouncingScrollPhysics(),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Column(
+                child: KontenResponsif(
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 1. Header Card (Petualangan Angka, 3/6 Bab)
@@ -157,6 +159,7 @@ class _DaftarBabPageState extends State<DaftarBabPage> {
 
                     const SizedBox(height: 24),
                   ],
+                  ),
                 ),
               ),
             ),

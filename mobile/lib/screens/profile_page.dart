@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import '../utils/api_client.dart';
+import '../utils/responsive.dart';
 import '../widgets/dynamic_bottom_nav.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'foto_profil_page.dart';
@@ -634,7 +635,8 @@ class _ProfilePageState extends State<ProfilePage> {
                   parent: BouncingScrollPhysics(),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                child: Column(
+                child: KontenResponsif(
+                  child: Column(
                   children: [
                     // 1. Header Profil Siswa (Avatar, Nama, NISN)
                     _buildProfileHeader(),
@@ -671,6 +673,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     const SizedBox(height: 24),
                   ],
+                  ),
                 ),
               ),
             ),

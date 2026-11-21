@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'detail_materi_page.dart';
 import 'kuis_page.dart';
 import '../utils/api_client.dart';
+import '../utils/responsive.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import '../widgets/common.dart';
@@ -126,7 +127,8 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
                   parent: BouncingScrollPhysics(),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-                child: Column(
+                child: KontenResponsif(
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildBreadcrumbChips(),
@@ -202,6 +204,7 @@ class _DaftarMateriPageState extends State<DaftarMateriPage> {
 
                     const SizedBox(height: 24),
                   ],
+                  ),
                 ),
               ),
             ),
