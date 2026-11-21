@@ -145,7 +145,7 @@
                 <span class="text-xs font-bold text-slate-700 leading-tight">Kelola Absensi</span>
             </a>
 
-            <a href="{{ route('admin.absensi.settings') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+            <a href="{{ route('admin.qr_absensi.index', ['open_settings' => 1]) }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
                 <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 group-hover:scale-105 transition flex items-center justify-center text-lg">
                     <i class="fas fa-clock"></i>
                 </div>

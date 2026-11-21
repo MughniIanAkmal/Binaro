@@ -11,6 +11,9 @@ use App\Services\AbsensiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Carbon\Carbon;
 
 class AbsensiController extends Controller
 {
@@ -211,6 +214,12 @@ class AbsensiController extends Controller
     public function destroy($id)
     {
         $absen = Absen::findOrFail($id);
+
+        // Cek otorisasi via policy: hanya admin yang bisa menghapus.
+        if (! Gate::denies('delete', $absen)) {
+            abort(403, 'Anda tidak memiliki izin untuk menghapus record absensi ini.');
+        }
+
         if ($absen->berkas_surat) {
             Storage::disk('public')->delete($absen->berkas_surat);
         }
@@ -219,13 +228,144 @@ class AbsensiController extends Controller
         return back()->with('success', 'Data absensi berhasil dihapus.');
     }
 
+    /**
+     * Ekspor rekap absensi ke format CSV (bisa dibuka di Excel).
+     */
+    public function exportExcel(Request $request)
+    {
+        $guru = Guru::find(session('user_id'));
+        $selectedDate = $request->input('tanggal', now()->toDateString());
+        $selectedKelas = $request->input('id_rooms');
+        $selectedStatus = $request->input('status');
+
+        $this->absensiService->ensureAlphaOtomatis($selectedDate);
+
+        $query = Siswa::with('kelas')
+            ->join('absen', function ($join) use ($selectedDate) {
+                $join->on('siswa.id_siswa', '=', 'absen.id_siswa')->whereDate('absen.tanggal', $selectedDate);
+            })
+            ->leftJoin('guru as pencatat', 'absen.id_guru', '=', 'pencatat.id_guru')
+            ->leftJoin('kelas', 'siswa.id_rooms', '=', 'kelas.id_rooms')
+            ->select([
+                'siswa.id_siswa', 'siswa.nm_siswa', 'siswa.nisn', 'siswa.id_rooms',
+                'kelas.pararel as nama_kelas', 'absen.metode',
+                'absen.status', 'absen.keterangan', 'absen.waktu_absen',
+                'pencatat.nama_guru as nama_guru_pencatat',
+            ]);
+
+        if ($selectedKelas) {
+            $query->where('siswa.id_rooms', $selectedKelas);
+        }
+        if ($selectedStatus) {
+            $query->where('absen.status', $selectedStatus);
+        }
+
+        $rows = $query->orderBy('siswa.nm_siswa')->get();
+
+        $namaKelas = Kelas::find($selectedKelas)?->pararel ?? 'Semua Kelas';
+        $filename = "Rekap_Absensi_{$namaKelas}_" . str_replace('-', '', $selectedDate) . ".csv";
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        return new StreamedResponse(function () use ($rows, $selectedDate) {
+            $output = fopen('php://output', 'w');
+            fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            fputcsv($output, ['REKAPITULASI ABSENSI SISWA']);
+            fputcsv($output, ['Tanggal', Carbon::parse($selectedDate)->translatedFormat('l, d F Y')]);
+            fputcsv($output, []);
+
+            fputcsv($output, [
+                'No', 'NISN', 'Nama Siswa', 'Kelas', 'Status',
+                'Jam Masuk', 'Guru Pencatat', 'Metode', 'Keterangan',
+            ]);
+
+            $no = 1;
+            foreach ($rows as $row) {
+                fputcsv($output, [
+                    $no++,
+                    "'" . $row->nisn,
+                    $row->nm_siswa,
+                    $row->nama_kelas ?? '-',
+                    $row->status,
+                    $row->waktu_absen ? Carbon::parse($row->waktu_absen)->format('H:i:s') : '-',
+                    $row->nama_guru_pencatat ?? '-',
+                    $row->metode === 'scan_qr' ? 'Scan QR' : 'Manual',
+                    $row->keterangan ?? '-',
+                ]);
+            }
+
+            fclose($output);
+        }, 200, $headers);
+    }
+
+    /**
+     * Cetak rekap absensi ke halaman HTML yang siap dicetak sebagai PDF.
+     * Menggunakan view dedicated untuk print dengan styling minimal.
+     */
+    public function exportPdf(Request $request)
+    {
+        $guru = Guru::find(session('user_id'));
+        $selectedDate = $request->input('tanggal', now()->toDateString());
+        $selectedKelas = $request->input('id_rooms');
+        $selectedStatus = $request->input('status');
+
+        $this->absensiService->ensureAlphaOtomatis($selectedDate);
+
+        $totalSiswa = Siswa::when($selectedKelas, fn ($q) => $q->where('id_rooms', $selectedKelas))->count();
+        $absensToday = Absen::whereDate('tanggal', $selectedDate)
+            ->when($selectedKelas, fn ($q) => $q->whereHas('siswa', fn ($s) => $s->where('id_rooms', $selectedKelas)))
+            ->get();
+
+        $hadir = $absensToday->where('status', 'Hadir')->count();
+        $izin = $absensToday->where('status', 'Izin')->count();
+        $sakit = $absensToday->where('status', 'Sakit')->count();
+        $alpa = $absensToday->where('status', 'Alpa')->count();
+
+        $query = Siswa::with('kelas')
+            ->join('absen', function ($join) use ($selectedDate) {
+                $join->on('siswa.id_siswa', '=', 'absen.id_siswa')->whereDate('absen.tanggal', $selectedDate);
+            })
+            ->leftJoin('guru as pencatat', 'absen.id_guru', '=', 'pencatat.id_guru')
+            ->leftJoin('kelas', 'siswa.id_rooms', '=', 'kelas.id_rooms')
+            ->select([
+                'siswa.id_siswa', 'siswa.nm_siswa', 'siswa.nisn', 'siswa.id_rooms',
+                'kelas.pararel as nama_kelas', 'absen.metode',
+                'absen.status', 'absen.keterangan', 'absen.waktu_absen',
+                'pencatat.nama_guru as nama_guru_pencatat',
+            ]);
+
+        if ($selectedKelas) {
+            $query->where('siswa.id_rooms', $selectedKelas);
+        }
+        if ($selectedStatus) {
+            $query->where('absen.status', $selectedStatus);
+        }
+
+        $rows = $query->orderBy('siswa.nm_siswa')->get();
+
+        return view('admin.absensi.rekap_pdf', compact(
+            'rows', 'selectedDate', 'selectedKelas', 'selectedStatus',
+            'totalSiswa', 'hadir', 'izin', 'sakit', 'alpa', 'guru'
+        ));
+    }
+
+    /**
+     * Halaman pengaturan jam absen lama. Sekarang pengaturan berupa pop-up di
+     * halaman Presensi Siswa / QR & Absensi, jadi URL lama dialihkan ke sana
+     * dengan penanda agar modalnya langsung terbuka.
+     */
     public function settingsView()
     {
-        $batasAwal = AbsensiSetting::get('batas_awal', '07:00');
-        $batasTepat = AbsensiSetting::get('batas_tepat', '08:00');
-        $batasTutup = AbsensiSetting::get('batas_tutup', '12:00');
-
-        return view('admin.absensi.settings', compact('batasAwal', 'batasTepat', 'batasTutup'));
+        return redirect()
+            ->route('admin.qr_absensi.index', ['open_settings' => 1])
+            ->with('info', 'Pengaturan jam absen sekarang tersedia sebagai pop-up di halaman QR & Absensi.');
     }
 
     public function updateSettings(Request $request)
@@ -256,6 +396,7 @@ class AbsensiController extends Controller
         AbsensiSetting::set('batas_tepat', $request->batas_tepat);
         AbsensiSetting::set('batas_tutup', $request->batas_tutup);
 
-        return redirect()->route('admin.absensi.settings')->with('success', 'Pengaturan jam absensi & jam operasional sekolah berhasil disimpan.');
+        // Kembali ke halaman tempat modal dibuka agar admin tetap di konteks tabel.
+        return back()->with('success', 'Pengaturan jam absensi & jam operasional sekolah berhasil disimpan.');
     }
 }

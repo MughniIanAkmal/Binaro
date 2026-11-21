@@ -14,19 +14,6 @@
             </button>
         </form>
     @endif
-    @if(session('user_type') === 'guru')
-        <button onclick="openSettingsModal()"
-                class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
-                >
-            <i class="fas fa-clock text-[11px]"></i> Pengaturan Waktu
-        </button>
-    @else
-        <a href="{{ route('admin.absensi.settings') }}"
-           class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
-           >
-            <i class="fas fa-clock text-[11px]"></i> Pengaturan Jam Absen
-        </a>
-    @endif
 @endsection
 
 @section('content')
@@ -70,15 +57,15 @@
 
     <!-- Filter & Table Presensi -->
     <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-        <div class="p-4 border-b border-slate-200 flex justify-between items-center flex-wrap gap-4">
-            <form action="{{ route('absensi.index') }}" method="GET" class="flex gap-3 items-center flex-wrap">
+        <div class="p-4 border-b border-slate-200 flex justify-between items-center flex-wrap gap-3 bg-slate-50/50">
+            <form action="{{ route('absensi.index') }}" method="GET" class="flex gap-2 items-center flex-wrap">
                 <div>
                     <input type="date" name="tanggal" value="{{ $selectedDate }}" onchange="this.form.submit()"
-                           class="px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-slate-50 font-semibold text-slate-700 focus:outline-none">
+                           class="px-3 py-1.5 text-xs border border-slate-200 rounded-lg bg-white font-semibold text-slate-700 focus:outline-none focus:border-primary">
                 </div>
                 <div>
                     <select name="id_rooms" onchange="this.form.submit()"
-                            class="px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-slate-50 font-semibold text-slate-700 focus:outline-none">
+                            class="px-3 py-1.5 text-xs border border-slate-200 rounded-lg bg-white font-semibold text-slate-700 focus:outline-none focus:border-primary">
                         <option value="">Semua Kelas</option>
                         @foreach($kelasList as $k)
                             <option value="{{ $k->id_rooms }}" {{ $selectedKelas == $k->id_rooms ? 'selected' : '' }}>{{ $k->pararel }}</option>
@@ -87,7 +74,7 @@
                 </div>
                 <div>
                     <select name="status" onchange="this.form.submit()"
-                            class="px-3 py-1.5 text-xs border border-slate-300 rounded-lg bg-slate-50 font-semibold text-slate-700 focus:outline-none">
+                            class="px-3 py-1.5 text-xs border border-slate-200 rounded-lg bg-white font-semibold text-slate-700 focus:outline-none focus:border-primary">
                         <option value="">Semua Status</option>
                         <option value="Hadir" {{ request('status') == 'Hadir' ? 'selected' : '' }}>Hadir</option>
                         <option value="izin_sakit" {{ request('status') == 'izin_sakit' ? 'selected' : '' }}>Izin / Sakit</option>
@@ -95,6 +82,13 @@
                     </select>
                 </div>
             </form>
+
+            @if(session('user_type') !== 'guru')
+            <button type="button" onclick="openSettingsModal()"
+                    class="inline-flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary shrink-0 ml-auto">
+                <i class="fas fa-clock text-[11px]"></i> Pengaturan Jam Absen
+            </button>
+            @endif
         </div>
 
         <div class="overflow-x-auto">
@@ -187,31 +181,10 @@
 
 @include('absensi.modal_edit')
 
-<!-- Modal Settings -->
-<div id="settingsModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-200">
-        <h3 class="font-bold text-sm mb-4">Pengaturan Waktu Absen</h3>
-        <form action="{{ route('admin.absensi.settings.update') }}" method="POST" class="space-y-4">
-            @csrf
-            <div>
-                <label class="text-xs font-bold">Jam Mulai Awal (Datang Lebih Awal)</label>
-                <input type="time" name="batas_awal" value="{{ \App\Models\AbsensiSetting::get('batas_awal', '07:00') }}" class="w-full px-3 py-2 border rounded-lg text-xs">
-            </div>
-            <div>
-                <label class="text-xs font-bold">Jam Tepat (Batas Hadir Tepat Waktu)</label>
-                <input type="time" name="batas_tepat" value="{{ \App\Models\AbsensiSetting::get('batas_tepat', '08:00') }}" class="w-full px-3 py-2 border rounded-lg text-xs">
-            </div>
-            <div>
-                <label class="text-xs font-bold">Jam Tutup (Sekolah Tutup / Batas Terlambat)</label>
-                <input type="time" name="batas_tutup" value="{{ \App\Models\AbsensiSetting::get('batas_tutup', '12:00') }}" class="w-full px-3 py-2 border rounded-lg text-xs">
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button type="button" onclick="closeSettingsModal()" class="px-4 py-2 border rounded-lg text-xs font-semibold text-slate-600">Batal</button>
-                <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold">Simpan</button>
-            </div>
-        </form>
-    </div>
-</div>
+{{-- Modal pengaturan jam absen (dipakai bersama dengan halaman QR & Absensi). --}}
+@if(session('user_type') !== 'guru')
+    @include('absensi._settings_modal')
+@endif
 
 <script>
 function openEditModal(idSiswa, nama, status, keterangan) {
@@ -226,18 +199,6 @@ function openEditModal(idSiswa, nama, status, keterangan) {
 
 function closeEditModal() {
     const modal = document.getElementById('editModal');
-    modal.classList.add('hidden');
-    modal.classList.remove('flex');
-}
-
-function openSettingsModal() {
-    const modal = document.getElementById('settingsModal');
-    modal.classList.remove('hidden');
-    modal.classList.add('flex');
-}
-
-function closeSettingsModal() {
-    const modal = document.getElementById('settingsModal');
     modal.classList.add('hidden');
     modal.classList.remove('flex');
 }

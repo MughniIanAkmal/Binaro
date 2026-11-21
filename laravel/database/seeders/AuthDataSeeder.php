@@ -22,7 +22,6 @@ class AuthDataSeeder extends Seeder
             'id_guru' => 1,
             'nip' => '0002000',
             'nama_guru' => 'Guru Utama',
-            'nuptk' => '1234567890',
             'password' => Hash::make('guru123'),
         ]);
     }

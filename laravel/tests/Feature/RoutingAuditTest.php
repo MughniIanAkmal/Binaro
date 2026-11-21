@@ -64,7 +64,7 @@ class RoutingAuditTest extends TestCase
         $response = $this->get('/siswa/dashboard');
         $response->assertRedirect('/login');
 
-        $response = $this->get('/admin/absensi/rekap');
+        $response = $this->get('/admin/dashboard');
         $response->assertRedirect('/login');
     }
 
@@ -158,7 +158,7 @@ class RoutingAuditTest extends TestCase
         $response->assertRedirect('/siswa/dashboard');
 
         // Unauthorized access to Admin routes -> redirected to siswa dashboard
-        $response = $this->withSession($session)->get('/admin/absensi/rekap');
+        $response = $this->withSession($session)->get('/admin/dashboard');
         $response->assertRedirect('/siswa/dashboard');
 
         // Unauthorized access to Guru RPP -> redirected to siswa dashboard
@@ -237,7 +237,7 @@ class RoutingAuditTest extends TestCase
         $response->assertRedirect('/admin/dashboard');
 
         // Access Admin Rekap
-        $response = $this->withSession($session)->get('/admin/absensi/rekap');
+        $response = $this->withSession($session)->get('/absensi/rekap');
         $response->assertStatus(200);
 
         // Access Admin QR Siswa
