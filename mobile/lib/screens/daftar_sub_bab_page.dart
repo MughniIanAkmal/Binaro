@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'daftar_materi_page.dart';
 import '../utils/api_client.dart';
+import '../utils/responsive.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import '../widgets/common.dart';
@@ -117,7 +118,8 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
                   parent: BouncingScrollPhysics(),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Column(
+                child: KontenResponsif(
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // 1. Banner Kartu Bab (Biru Tua)
@@ -198,6 +200,7 @@ class _DaftarSubBabPageState extends State<DaftarSubBabPage> {
 
                     const SizedBox(height: 24),
                   ],
+                  ),
                 ),
               ),
             ),

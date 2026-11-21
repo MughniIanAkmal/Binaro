@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'profile_page.dart';
 import '../utils/api_client.dart';
+import '../utils/responsive.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import '../widgets/common.dart';
@@ -403,7 +404,9 @@ class _KuisPageState extends State<KuisPage> {
                 )
               : SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  child: Column(
+                  child: KontenResponsif(
+                    modeBaca: true,
+                    child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // 1. Header Kuis & Progress Bar
@@ -426,6 +429,7 @@ class _KuisPageState extends State<KuisPage> {
                       _buildBottomActions(),
                       const SizedBox(height: 20),
                     ],
+                    ),
                   ),
                 ),
       ),

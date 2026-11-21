@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../utils/api_client.dart';
 import '../utils/constants.dart';
+import '../utils/responsive.dart';
 import '../widgets/common.dart';
 import '../widgets/dynamic_bottom_nav.dart';
 import '../widgets/state_views.dart';
@@ -160,7 +161,7 @@ class _JadwalPageState extends State<JadwalPage> {
               : RefreshIndicator(
                   color: AppColors.primary,
                   onRefresh: _fetchJadwal,
-                  child: _buildKonten(),
+                  child: KontenResponsif(child: _buildKonten()),
                 ),
       bottomNavigationBar: DynamicBottomNav(currentIndex: 3, user: widget.user),
     );

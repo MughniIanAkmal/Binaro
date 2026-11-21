@@ -2,6 +2,7 @@ import 'dart:convert';
 import '../widgets/common.dart';
 import 'package:flutter/material.dart';
 import '../utils/api_client.dart';
+import '../utils/responsive.dart';
 import '../widgets/dynamic_bottom_nav.dart';
 import 'daftar_bab_page.dart';
 import '../utils/constants.dart';
@@ -87,8 +88,12 @@ class _MapelPageState extends State<MapelPage> {
                 physics: const AlwaysScrollableScrollPhysics(
                   parent: BouncingScrollPhysics(),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Column(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Responsive.of(context).paddingHalaman,
+                  vertical: 16,
+                ),
+                child: KontenResponsif(
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Header Daftar Mapel
@@ -132,7 +137,7 @@ class _MapelPageState extends State<MapelPage> {
                         ),
                       )
                     else
-                      ..._filteredMapelList.map((mapel) => _buildMapelCard(mapel)),
+                      _buildDaftarMapel(),
 
                     const SizedBox(height: 16),
 
@@ -141,6 +146,7 @@ class _MapelPageState extends State<MapelPage> {
 
                     const SizedBox(height: 24),
                   ],
+                  ),
                 ),
               ),
             ),
@@ -148,6 +154,36 @@ class _MapelPageState extends State<MapelPage> {
         currentIndex: 2,
         user: widget.user,
       ),
+    );
+  }
+
+  /// Daftar kartu mapel yang cair mengikuti lebar yang tersedia:
+  /// di layar ringkas (< 600) satu kolom seperti biasa; di layar
+  /// yang lebih besar menjadi kisi yang jumlah kolomnya bertambah
+  /// otomatis mengikuti lebar (maks. ±400 per kartu).
+  Widget _buildDaftarMapel() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 600) {
+          return Column(
+            children:
+                _filteredMapelList.map((m) => _buildMapelCard(m)).toList(),
+          );
+        }
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 400,
+            mainAxisExtent: 184,
+            crossAxisSpacing: 16,
+            mainAxisSpacing: 4,
+          ),
+          itemCount: _filteredMapelList.length,
+          itemBuilder: (context, index) =>
+              _buildMapelCard(_filteredMapelList[index]),
+        );
+      },
     );
   }
 

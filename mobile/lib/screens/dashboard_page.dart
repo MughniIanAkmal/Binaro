@@ -5,6 +5,7 @@ import 'daftar_bab_page.dart';
 import 'jadwal_page.dart';
 import 'mapel_page.dart';
 import '../utils/api_client.dart';
+import '../utils/responsive.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
 import '../widgets/dynamic_bottom_nav.dart';
@@ -125,7 +126,8 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                     padding:
                         const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                    child: Column(
+                    child: KontenResponsif(
+                      child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Greeting & Logo Box
@@ -148,6 +150,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
                         const SizedBox(height: 24),
                       ],
+                      ),
                     ),
                   ),
                 ),
