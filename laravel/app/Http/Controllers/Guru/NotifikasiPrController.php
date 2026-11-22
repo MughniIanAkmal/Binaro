@@ -28,11 +28,16 @@ class NotifikasiPrController extends Controller
 
         $search = $request->query('search');
         $mapelFilter = $request->query('mapel_id');
-        $activeTab = $request->query('tab', 'pr');
+        $dashboardFilter = $request->query('filter');
+        $activeTab = $request->query('tab', $dashboardFilter === 'notifications' || $dashboardFilter === 'students' ? 'notifikasi' : 'pr');
 
         // 1. Query PR
         $prQuery = Pr::with(['mataPelajaran', 'guru'])
             ->withCount('notifikasi');
+
+        if ($dashboardFilter === 'active') {
+            $prQuery->where('tgl_tenggat', '>=', Carbon::now());
+        }
 
         if ($search) {
             $prQuery->where(function ($q) use ($search) {

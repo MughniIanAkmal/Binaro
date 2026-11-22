@@ -87,11 +87,11 @@
                 <span>Ujian</span>
             </a>
 
-            <!-- 6. Rencana Pelaksanaan Pembelajaran (RPP) -->
+            <!-- 6. RPP -->
             <a href="{{ route('guru.rpp.index') }}"
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.rpp.*') || request()->is('rpp-guru*') || (request()->routeIs('rpp.*') && session('user_type') === 'guru') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
-                <i class="fas fa-file-lines w-4 text-center {{ request()->routeIs('guru.rpp.*') || request()->is('rpp-guru*') ? 'text-white' : 'text-slate-400' }}"></i> 
-                <span class="truncate">Rencana Pelaksanaan Pembelajaran (RPP)</span>
+                <i class="fas fa-file-lines w-4 text-center {{ request()->routeIs('guru.rpp.*') || request()->is('rpp-guru*') ? 'text-white' : 'text-slate-400' }}"></i>
+                <span>RPP</span>
             </a>
         </nav>
 

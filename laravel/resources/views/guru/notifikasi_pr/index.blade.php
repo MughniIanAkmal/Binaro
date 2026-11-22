@@ -16,79 +16,83 @@
     <!-- 4 KPI Summary Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- KPI 1: Total PR -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <a href="{{ route('guru.notifikasi_pr.index', ['filter' => 'all']) }}"
+           class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between hover:border-primary/60 hover:shadow-md transition group block">
             <div>
                 <div class="text-2xl font-black text-slate-900">{{ $totalPr }}</div>
                 <div class="text-xs font-bold text-slate-600 mt-0.5">Total Tugas PR</div>
                 <div class="text-[11px] text-slate-400">Semua mata pelajaran</div>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary flex items-center justify-center text-xl font-bold">
+            <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary group-hover:bg-primary group-hover:text-white transition flex items-center justify-center text-xl font-bold">
                 <i class="fas fa-book-reader"></i>
             </div>
-        </div>
+        </a>
 
         <!-- KPI 2: PR Aktif -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <a href="{{ route('guru.notifikasi_pr.index', ['filter' => 'active']) }}"
+           class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between hover:border-emerald-600/60 hover:shadow-md transition group block">
             <div>
                 <div class="text-2xl font-black text-emerald-600">{{ $prAktif }}</div>
                 <div class="text-xs font-bold text-slate-600 mt-0.5">PR Aktif Berjalan</div>
                 <div class="text-[11px] text-emerald-600 font-medium">Belum lewat tenggat</div>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
                 <i class="fas fa-clock"></i>
             </div>
-        </div>
+        </a>
 
         <!-- KPI 3: Notifikasi Terkirim -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <a href="{{ route('guru.notifikasi_pr.index', ['filter' => 'notifications']) }}"
+           class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between hover:border-amber-600/60 hover:shadow-md transition group block">
             <div>
                 <div class="text-2xl font-black text-amber-500">{{ $totalNotifikasi }}</div>
                 <div class="text-xs font-bold text-slate-600 mt-0.5">Notifikasi Terkirim</div>
                 <div class="text-[11px] text-slate-400">Total pesan ke siswa</div>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl font-bold">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
                 <i class="fas fa-paper-plane"></i>
             </div>
-        </div>
+        </a>
 
         <!-- KPI 4: Siswa Terjangkau -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <a href="{{ route('guru.notifikasi_pr.index', ['filter' => 'students']) }}"
+           class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between hover:border-indigo-600/60 hover:shadow-md transition group block">
             <div>
                 <div class="text-2xl font-black text-indigo-600">{{ $siswaTerjangkau }} / {{ $totalSiswa }}</div>
                 <div class="text-xs font-bold text-slate-600 mt-0.5">Siswa Terjangkau</div>
                 <div class="text-[11px] text-indigo-500 font-semibold">{{ $readRate }}% Keterbacaan</div>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold">
+            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
                 <i class="fas fa-user-graduate"></i>
             </div>
-        </div>
+        </a>
     </div>
 
     <!-- Navigation Tabs & Search Toolbar -->
-    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-4">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-slate-100 pb-3">
-            <!-- Tabs -->
-            <div class="flex items-center gap-2">
-                <a href="{{ route('guru.notifikasi_pr.index', array_merge(request()->query(), ['tab' => 'pr'])) }}"
-                   class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $activeTab === 'pr' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
-                    <i class="fas fa-list-check"></i>
-                    <span>Daftar Tugas PR ({{ $prs->total() }})</span>
-                </a>
-                <a href="{{ route('guru.notifikasi_pr.index', array_merge(request()->query(), ['tab' => 'notifikasi'])) }}"
-                   class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $activeTab === 'notifikasi' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
-                    <i class="fas fa-bell"></i>
-                    <span>Riwayat Notifikasi Terkirim ({{ $notifikasis->total() }})</span>
-                </a>
-            </div>
-
-            <!-- Search & Filter Form -->
-            <form method="GET" action="{{ route('guru.notifikasi_pr.index') }}" class="flex flex-wrap items-center gap-2">
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <!-- Toolbar Header - Single Row Layout -->
+        <div class="p-4 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+            <!-- Search, Filter & Add Button -->
+            <form method="GET" action="{{ route('guru.notifikasi_pr.index') }}" class="flex items-center gap-2 flex-wrap">
                 <input type="hidden" name="tab" value="{{ $activeTab }}">
+                @if(request('filter'))
+                    <input type="hidden" name="filter" value="{{ request('filter') }}">
+                @endif
                 <div class="relative">
-                    <i class="fas fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari PR, mapel, atau pesan..."
-                           class="pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:border-primary w-48 sm:w-60">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Cari..."
+                           class="pl-8 pr-8 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:border-primary w-40">
+                    @if($search)
+                        <a href="{{ route('guru.notifikasi_pr.index', ['tab' => $activeTab]) }}"
+                           title="Reset pencarian" aria-label="Reset pencarian"
+                           class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition">
+                            <i class="fas fa-xmark text-[11px]"></i>
+                        </a>
+                    @endif
                 </div>
+                <button type="submit" class="inline-flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary shrink-0">
+                    <i class="fas fa-search text-[11px]"></i> Cari
+                </button>
                 <select name="mapel_id" onchange="this.form.submit()" class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:border-primary">
                     <option value="">Semua Mapel</option>
                     @foreach($mapels as $m)
@@ -103,6 +107,12 @@
                     </a>
                 @endif
             </form>
+
+            <!-- Tambah PR Button -->
+            <a href="{{ route('guru.notifikasi_pr.create') }}"
+               class="inline-flex items-center gap-2 px-4 h-9 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary shrink-0">
+                <i class="fas fa-plus text-[11px]"></i> Tambah PR
+            </a>
         </div>
 
         <!-- Tab 1: TABEL TUGAS PR -->
