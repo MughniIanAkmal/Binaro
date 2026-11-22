@@ -1,13 +1,8 @@
 @extends('layouts.guru')
 
-@section('page_title', 'Notifikasi PR')
+@section('page_title', 'Pekerjaan Rumah (PR)')
 
 @section('header_actions')
-    <a href="{{ route('guru.notifikasi_pr.create') }}"
-       class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
-       >
-        <i class="fas fa-plus text-[11px]"></i> Tambah PR Baru
-    </a>
 @endsection
 
 @section('content')
