@@ -138,7 +138,13 @@ class NotifikasiPrController extends Controller
         $mapels = MataPelajaran::orderBy('nama_mapel')->get();
         $kelas = Kelas::withCount('siswas')->get();
         $siswas = Siswa::with('kelas')->orderBy('nm_siswa')->get();
-        $allPrs = Pr::with('mataPelajaran')->latest('id_pr')->get();
+
+        // Hitung default tanggal tenggat (besok atau hari sekolah terdekat, lewati Minggu)
+        $defaultDate = Carbon::now()->addDay();
+        while ($defaultDate->isSunday() || ($defaultDate->isToday() && Carbon::now()->hour >= 14)) {
+            $defaultDate->addDay();
+        }
+        $defaultTanggal = $defaultDate->format('Y-m-d');
 
         return view('guru.notifikasi_pr.index', compact(
             'guru',
@@ -153,11 +159,11 @@ class NotifikasiPrController extends Controller
             'mapels',
             'kelas',
             'siswas',
-            'allPrs',
             'search',
             'mapelFilter',
             'activeTab',
-            'grupNotifikasi'
+            'grupNotifikasi',
+            'defaultTanggal'
         ));
     }
 
