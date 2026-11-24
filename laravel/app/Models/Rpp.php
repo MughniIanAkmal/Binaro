@@ -31,10 +31,17 @@ class Rpp extends Model
         'status',
         'catatan_revisi',
         'file_rpp',
+        'alokasi_waktu_menit',
+        'total_pertemuan',
+        'semester',
+        'tahun_ajaran',
+        'nomor_rpp',
     ];
 
     protected $casts = [
         'komponen_checklist' => 'array',
+        'alokasi_waktu_menit' => 'integer',
+        'total_pertemuan' => 'integer',
     ];
 
     /**
@@ -89,6 +96,16 @@ class Rpp extends Model
     public function catatan()
     {
         return $this->hasMany(RppCatatan::class, 'id_rpp', 'id_rpp')->latest('id_catatan');
+    }
+
+    public function sessions()
+    {
+        return $this->hasMany(RppSession::class, 'id_rpp', 'id_rpp')->orderBy('nomor_pertemuan');
+    }
+
+    public function versions()
+    {
+        return $this->hasMany(RppVersionHistory::class, 'id_rpp', 'id_rpp')->orderByDesc('versi');
     }
 
     /** @return Collection<int, string> daftar kunci komponen wajib yang belum terpenuhi */

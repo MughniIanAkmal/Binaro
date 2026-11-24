@@ -230,43 +230,37 @@
 
         <!-- Modal View RPP Detail -->
         <div id="viewModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
-            <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-sm text-slate-900">Detail Modul Ajar (RPP)</h3>
-                    <button type="button" onclick="closeViewModal()" class="text-slate-400 hover:text-slate-600"><i class="fas fa-times"></i></button>
+            <div class="bg-white rounded-2xl w-full max-w-3xl max-h-[90vh] my-8 overflow-hidden shadow-xl border border-slate-200 flex flex-col">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 shrink-0">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-900">Detail Modul Ajar (RPP)</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">{{ config('binaro.nama_sekolah') }}</p>
+                    </div>
+                    <button type="button" onclick="closeViewModal()" class="w-8 h-8 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 flex items-center justify-center transition">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <div class="space-y-3 text-xs">
-                    <div>
-                        <span class="text-slate-500 font-semibold block">Topik Pembelajaran</span>
-                        <span id="viewJudul" class="text-sm font-bold text-slate-900"></span>
+                <div class="overflow-y-auto flex-1 p-6 space-y-4 text-xs">
+                    <div class="grid grid-cols-2 gap-4 pb-3 border-b border-slate-100">
+                        <div><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Topik / Judul</span><span id="viewJudul" class="text-sm font-bold text-slate-900"></span></div>
+                        <div><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Mata Pelajaran & Fase</span><span id="viewMapelFase" class="font-bold text-slate-800"></span></div>
+                        <div><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Guru Pengampu</span><span id="viewGuru" class="font-bold text-slate-800"></span></div>
+                        <div><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Target Jadwal</span><span id="viewJadwal" class="font-semibold text-slate-700"></span></div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <span class="text-slate-500 font-semibold block">Mata Pelajaran</span>
-                            <span id="viewMapel" class="font-bold text-slate-800"></span>
+                    <div id="viewSessionDetail" class="hidden space-y-4"></div>
+                    <div id="viewStatusRow" class="hidden p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Status Supervisi</span>
+                        <div id="viewStatusBadge" class="mb-1"></div>
+                        <div id="viewCatatanRevisi" class="hidden text-[11px] text-rose-800 bg-rose-50 border border-rose-200 rounded-lg p-3"></div>
+                        <div id="viewFileWrap" class="hidden">
+                            <a id="viewFileLink" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold hover:bg-emerald-100 transition">
+                                <i class="fas fa-file-pdf"></i> <span id="viewFileText">Unduh Berkas RPP</span>
+                            </a>
                         </div>
-                        <div>
-                            <span class="text-slate-500 font-semibold block">Guru Pengajar</span>
-                            <span id="viewGuru" class="font-bold text-slate-800"></span>
-                        </div>
                     </div>
-                    <div>
-                        <span class="text-slate-500 font-semibold block">Deskripsi</span>
-                        <p id="viewDeskripsi" class="text-slate-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100"></p>
-                    </div>
-                    <div id="viewFileWrap" class="hidden">
-                        <span class="text-slate-500 font-semibold block mb-1">Berkas RPP</span>
-                        <a id="viewFileLink" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold hover:bg-emerald-100 transition">
-                            <i class="fas fa-file-pdf"></i> <span id="viewFileText">Unduh Berkas RPP</span>
-                        </a>
-                    </div>
-                    <div>
-                        <span class="text-slate-500 font-semibold block mb-1">Status Supervisi</span>
-                        <div id="viewStatusBadge"></div>
-                    </div>
-                    <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-                        <button type="button" onclick="closeViewModal()" class="px-4 py-2 border border-slate-200 rounded-lg font-semibold text-slate-600 hover:bg-slate-100">Tutup</button>
-                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-2 px-6 py-4 border-t border-slate-200 bg-slate-50 shrink-0">
+                    <button type="button" onclick="closeViewModal()" class="px-4 py-2 border border-slate-200 rounded-xl font-semibold text-slate-600 hover:bg-slate-100 transition">Tutup</button>
                 </div>
             </div>
         </div>
@@ -310,31 +304,75 @@
         }
 
 function openViewModal(rpp) {
-            document.getElementById('viewJudul').innerText = rpp.judul_rpp;
-            document.getElementById('viewMapel').innerText = rpp.mata_pelajaran ? rpp.mata_pelajaran.nama_mapel : '-';
-            document.getElementById('viewGuru').innerText = rpp.guru ? rpp.guru.nama_guru : '-';
-            document.getElementById('viewDeskripsi').innerText = rpp.deskripsi || 'Tidak ada deskripsi.';
+            // Title
+            document.getElementById('viewJudul').textContent = rpp.judul_rpp || '-';
+            document.getElementById('viewMapelFase').textContent =
+                `${rpp.mata_pelajaran?.nama_mapel || '-'} • ${rpp.fase || 'Fase B'} / ${rpp.kelas?.pararel || '-'}`;
+            document.getElementById('viewGuru').textContent = rpp.guru?.nama_guru || '-';
+            document.getElementById('viewJadwal').textContent = rpp.target_jadwal || '-';
 
+            // Sessions detail
+            const sessionDetail = document.getElementById('viewSessionDetail');
+            if (rpp.sessions && rpp.sessions.length > 0) {
+                sessionDetail.classList.remove('hidden');
+                sessionDetail.innerHTML = '';
+                rpp.sessions.forEach((session, index) => {
+                    const konten = session.konten || {};
+                    const card = document.createElement('div');
+                    card.className = 'rounded-xl border border-slate-200 p-4 space-y-3';
+                    card.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold text-primary uppercase tracking-wider">Pertemuan ${session.nomor_pertemuan}</span>
+                            <span class="text-[10px] text-slate-400">${Object.keys(konten).length > 0 ? 'Terisi' : 'Belum diisi'}</span>
+                        </div>
+                        ${konten.cp_text ? `<div class="p-3 rounded-lg bg-primary-tint border border-primary/10 text-xs leading-relaxed"><strong class="block text-[10px] font-bold text-primary mb-1">Capaian Pembelajaran</strong>${konten.cp_text}</div>` : ''}
+                        ${konten.tp_list && konten.tp_list.length > 0 ? `
+                            <div>
+                                <strong class="block text-[10px] font-bold text-primary mb-1.5">Tujuan Pembelajaran (${konten.tp_list.length})</strong>
+                                <ol class="list-decimal list-inside space-y-1 text-slate-700">
+                                    ${konten.tp_list.map(tp => `<li>${tp.teks || '-'}${tp.dimensi?.length ? ` <span class="text-[10px] text-ink-soft">(${tp.dimensi.join(', ')})</span>` : ''}</li>`).join('')}
+                                </ol>
+                            </div>
+                        ` : ''}
+                        ${konten.langkah_pendahuluan || konten.langkah_penutup ? `
+                            <div class="space-y-2">
+                                ${konten.langkah_pendahuluan ? `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[10px] font-bold text-primary mb-1">Pendahuluan</strong><p class="text-slate-700">${konten.langkah_pendahuluan}</p></div>` : ''}
+                                ${konten.langkah_inti && konten.langkah_inti.length > 0 ? `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[10px] font-bold text-primary mb-1">Kegiatan Inti</strong><ul class="list-disc list-inside text-slate-700 space-y-1 mt-1">${konten.langkah_inti.map(s => `<li>${s.uraian || s.nama || s}</li>`).join('')}</ul></div>` : ''}
+                                ${konten.langkah_penutup ? `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[10px] font-bold text-primary mb-1">Penutup</strong><p class="text-slate-700">${konten.langkah_penutup}</p></div>` : ''}
+                            </div>
+                        ` : ''}
+                    `;
+                    sessionDetail.appendChild(card);
+                });
+            }
+
+            // Status
+            const statusRow = document.getElementById('viewStatusRow');
+            statusRow.classList.remove('hidden');
+            const badge = document.getElementById('viewStatusBadge');
+            if (rpp.status === 'terverifikasi') {
+                badge.innerHTML = '<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1.5"><i class="fas fa-check-circle text-[10px]"></i> Terverifikasi</span>';
+            } else if (rpp.status === 'menunggu_review') {
+                badge.innerHTML = '<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200 inline-flex items-center gap-1.5"><i class="fas fa-clock text-[10px]"></i> Menunggu Review</span>';
+            } else if (rpp.status === 'perlu_revisi') {
+                badge.innerHTML = '<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200 inline-flex items-center gap-1.5"><i class="fas fa-exclamation-triangle text-[10px]"></i> Perlu Revisi</span>';
+                const catatanRevisi = document.getElementById('viewCatatanRevisi');
+                catatanRevisi.classList.remove('hidden');
+                catatanRevisi.textContent = rpp.catatan_revisi || '-';
+            } else {
+                badge.innerHTML = '<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 inline-flex items-center gap-1.5"><i class="fas fa-file-lines text-[10px]"></i> Draf</span>';
+            }
+
+            // File download
             const fileWrap = document.getElementById('viewFileWrap');
             const fileLink = document.getElementById('viewFileLink');
             const fileText = document.getElementById('viewFileText');
             if (rpp.file_rpp) {
                 fileWrap.classList.remove('hidden');
-                fileLink.href = '/rpp/' + rpp.id_rpp + '/download';
-                fileText.innerText = rpp.file_rpp.split('/').pop();
+                fileLink.href = `/guru/rpp/${rpp.id_rpp}/download`;
+                fileText.textContent = rpp.file_rpp.split('/').pop();
             } else {
                 fileWrap.classList.add('hidden');
-            }
-
-            const badge = document.getElementById('viewStatusBadge');
-            if (rpp.status === 'terverifikasi') {
-                badge.innerHTML = '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">Terverifikasi</span>';
-            } else if (rpp.status === 'menunggu_review') {
-                badge.innerHTML = '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800">Menunggu Review</span>';
-            } else if (rpp.status === 'perlu_revisi') {
-                badge.innerHTML = '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">Perlu Revisi</span>';
-            } else {
-                badge.innerHTML = '<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800">Draf Belum Lengkap</span>';
             }
 
             const m = document.getElementById('viewModal');

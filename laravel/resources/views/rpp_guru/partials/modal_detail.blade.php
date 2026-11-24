@@ -1,6 +1,6 @@
 <!-- ================= MODAL DETAIL RPP ================= -->
 <div id="modal-detail-rpp" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl my-8 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
         <!-- Header -->
         <div class="bg-primary text-white p-5 flex items-center justify-between shrink-0">
             <div>
@@ -37,12 +37,66 @@
                 </div>
             </div>
 
-            <!-- Capaian Pembelajaran -->
-            <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-1.5">
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">CAPAIAN PEMBELAJARAN (TP)</span>
-                <p class="text-slate-800 text-xs leading-relaxed" id="detail-tp">
+            <!-- CP Section -->
+            <div id="detail-cp-section" class="hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Capaian Pembelajaran</span>
+                    <span class="text-[10px] text-ink-soft" id="detail-cp-elemen"></span>
+                </div>
+                <div class="p-4 rounded-xl bg-primary-tint border border-primary/10 text-sm text-ink leading-relaxed" id="detail-cp-text">
                     -
-                </p>
+                </div>
+            </div>
+
+            <!-- TP Section -->
+            <div id="detail-tp-section" class="hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tujuan Pembelajaran</span>
+                    <span class="text-[10px] text-ink-soft" id="detail-tp-count"></span>
+                </div>
+                <ol class="space-y-2 list-decimal list-inside" id="detail-tp-list">
+                    <!-- Dynamic content -->
+                </ol>
+            </div>
+
+            <!-- Pertanyaan Pemantik -->
+            <div id="detail-pemantik-section" class="hidden">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pertanyaan Pemantik</span>
+                <ul class="mt-2 space-y-1.5 list-disc list-inside text-slate-700" id="detail-pemantik-list">
+                    <!-- Dynamic content -->
+                </ul>
+            </div>
+
+            <!-- Langkah Pembelajaran -->
+            <div id="detail-langkah-section" class="hidden">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Langkah Pembelajaran</span>
+                <div class="mt-2 space-y-3" id="detail-langkah-content">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+
+            <!-- Media Section -->
+            <div id="detail-media-section" class="hidden">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Media & Sumber Belajar</span>
+                <div class="mt-2 grid grid-cols-2 gap-3" id="detail-media-content">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+
+            <!-- Asesmen Section -->
+            <div id="detail-asesmen-section" class="hidden">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Rencana Asesmen</span>
+                <div class="mt-2 space-y-3" id="detail-asesmen-content">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+
+            <!-- Diferensiasi Section -->
+            <div id="detail-diferensiasi-section" class="hidden">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Diferensiasi</span>
+                <div class="mt-2 space-y-2" id="detail-diferensiasi-content">
+                    <!-- Dynamic content -->
+                </div>
             </div>
 
             <!-- Status Supervisi -->
@@ -64,11 +118,19 @@
             </div>
         </div>
 
-        <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
-            <button type="button" onclick="closeModalDetailRpp()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition">
-                Tutup
-            </button>
+        <div class="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+            <div class="flex items-center gap-2 text-xs text-slate-600">
+                <span>Progres isi:</span>
+                <span class="font-bold text-primary" id="detail-progress">-</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <a id="detail-edit-btn" href="#" target="_blank" class="px-3 py-2 rounded-xl border border-line bg-white text-xs font-bold hover:bg-surface-alt hidden">
+                    <i class="fas fa-pen mr-1"></i>Edit Wizard
+                </a>
+                <a id="detail-print-btn" href="#" target="_blank" class="px-3 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover">
+                    <i class="fas fa-print mr-1"></i>Cetak PDF
+                </a>
+            </div>
         </div>
     </div>
 </div>
-

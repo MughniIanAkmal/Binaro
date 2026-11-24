@@ -79,6 +79,9 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
     Route::middleware([EnsureRole::class.':admin,guru'])->prefix('rpp')->name('rpp.')->group(function () {
         Route::get('/', [RppController::class, 'index'])->name('index');
         Route::post('/', [RppController::class, 'store'])->name('store');
+        Route::get('/master-cp', [RppController::class, 'adminCpIndex'])->middleware(EnsureRole::class.':admin')->name('cp.index');
+        Route::post('/master-cp', [RppController::class, 'adminCpStore'])->middleware(EnsureRole::class.':admin')->name('cp.store');
+        Route::put('/master-cp/{cp}', [RppController::class, 'adminCpUpdate'])->middleware(EnsureRole::class.':admin')->name('cp.update');
         Route::get('/{id}', [RppController::class, 'show'])->name('show');
         Route::put('/{id}', [RppController::class, 'update'])->name('update');
         // Hanya admin/supervisor yang berwenang memutuskan status supervisi.
@@ -87,6 +90,9 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
             ->name('updateStatus');
         Route::delete('/{id}', [RppController::class, 'destroy'])->name('destroy');
         Route::get('/{id}/download', [RppController::class, 'download'])->name('download');
+        Route::get('/master-cp', [RppController::class, 'adminCpIndex'])->middleware(EnsureRole::class.':admin')->name('cp.index');
+        Route::post('/master-cp', [RppController::class, 'adminCpStore'])->middleware(EnsureRole::class.':admin')->name('cp.store');
+        Route::put('/master-cp/{cp}', [RppController::class, 'adminCpUpdate'])->middleware(EnsureRole::class.':admin')->name('cp.update');
     });
 
     // 2. Absensi Harian - Admin & Guru
@@ -203,6 +209,13 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         // RPP & Modul Ajar (Portal Guru)
         Route::prefix('rpp')->name('rpp.')->group(function () {
             Route::get('/', [RppController::class, 'guruIndex'])->name('index');
+            Route::get('/wizard/create', [RppController::class, 'wizardCreate'])->name('wizard.create');
+            Route::post('/wizard', [RppController::class, 'wizardStore'])->name('wizard.store');
+            Route::get('/{id}/wizard', [RppController::class, 'wizardEdit'])->name('wizard.edit');
+            Route::post('/{id}/wizard/autosave', [RppController::class, 'wizardAutosave'])->name('wizard.autosave');
+            Route::post('/{id}/wizard/header', [RppController::class, 'wizardUpdateHeader'])->name('wizard.header');
+            Route::post('/{id}/wizard/media', [RppController::class, 'wizardUploadMedia'])->name('wizard.media');
+            Route::post('/{id}/wizard/submit', [RppController::class, 'wizardSubmit'])->name('wizard.submit');
             Route::post('/', [RppController::class, 'store'])->name('store');
             Route::get('/{id}', [RppController::class, 'show'])->name('show');
             Route::put('/{id}', [RppController::class, 'update'])->name('update');

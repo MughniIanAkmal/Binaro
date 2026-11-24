@@ -636,6 +636,172 @@
         });
     }
 
+    async function openModalDetailRpp(idRpp) {
+        try {
+            const res = await fetch(`/guru/rpp/${idRpp}`, {headers: {Accept: 'application/json'}});
+            const data = await res.json();
+            if (!data) return;
+
+            // Title & subtitle
+            document.getElementById('detail-title').innerHTML = `<i class="fas fa-file-lines text-amber-300"></i> ${data.judul_rpp}`;
+            document.getElementById('detail-subtitle').innerText = `${data.guru ? data.guru.nama_guru : 'Guru Binaro'} • NIP. ${data.guru ? (data.guru.nip || '-') : '-'}`;
+
+            // Basic info
+            document.getElementById('detail-mapel').innerText = `${data.mata_pelajaran ? data.mata_pelajaran.nama_mapel : '-'} (${data.kelas ? data.kelas.pararel : '-'})`;
+            document.getElementById('detail-fase-modul').innerText = `${data.fase || 'Fase B'} • ${data.modul_ke || ('Modul #' + data.id_rpp)}`;
+
+            // Alokasi
+            const alokasi = data.alokasi_waktu || '2 JP';
+            document.getElementById('detail-alokasi').innerHTML = `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">${alokasi}</span> <span class="text-slate-400 font-normal">(1 JP = 35 Menit)</span>`;
+            document.getElementById('detail-jadwal').innerText = `${data.target_jadwal || '-'} (${data.ruang || 'Ruang Kelas'})`;
+
+            // Edit & Print buttons
+            const editBtn = document.getElementById('detail-edit-btn');
+            const printBtn = document.getElementById('detail-print-btn');
+            if (['draft', 'perlu_revisi'].includes(data.status)) {
+                editBtn.href = `/guru/rpp/${idRpp}/wizard`;
+                editBtn.classList.remove('hidden');
+            } else {
+                editBtn.classList.add('hidden');
+            }
+            printBtn.href = `/guru/rpp/${idRpp}/download`;
+
+            // Status badge
+            const statusBadge = document.getElementById('detail-status-badge');
+            const statusNote = document.getElementById('detail-status-note');
+            if (data.status === 'terverifikasi') {
+                statusBadge.innerHTML = `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1.5"><i class="fas fa-circle-check text-emerald-600"></i> Disetujui & Siap Ajar</span>`;
+                statusNote.innerHTML = `<p class="text-[11px] text-emerald-700 bg-emerald-50/80 p-2.5 rounded-lg border border-emerald-100 mt-2"><i class="fas fa-info-circle mr-1"></i> Modul ajar telah disetujui (di-accept) oleh Admin dan siap diaplikasikan untuk kegiatan belajar mengajar.</p>`;
+            } else if (data.status === 'menunggu_review') {
+                statusBadge.innerHTML = `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200 inline-flex items-center gap-1.5"><i class="fas fa-clock text-amber-600 animate-pulse"></i> Menunggu Persetujuan Admin</span>`;
+                statusNote.innerHTML = `<p class="text-[11px] text-amber-800 bg-amber-50 p-2.5 rounded-lg border border-amber-200 mt-2"><i class="fas fa-hourglass-half mr-1"></i> Modul ini telah terkirim, namun belum bisa langsung di-apply karena masih menunggu proses review & persetujuan dari Administrator sekolah.</p>`;
+            } else if (data.status === 'perlu_revisi') {
+                statusBadge.innerHTML = `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200 inline-flex items-center gap-1.5"><i class="fas fa-circle-exclamation text-rose-600"></i> Perlu Revisi</span>`;
+                let revHtml = `<div class="text-[11px] text-rose-900 bg-rose-50 p-2.5 rounded-lg border border-rose-200 mt-2 space-y-1">
+                    <p class="font-bold"><i class="fas fa-circle-exclamation mr-1"></i> Catatan Revisi dari Admin:</p>
+                    <p class="italic text-rose-800 font-normal">${data.catatan_revisi || 'Silakan tinjau kembali berkas dan kelengkapan modul ajar sesuai petunjuk supervisi.'}</p>
+                </div>`;
+                statusNote.innerHTML = revHtml;
+            } else {
+                statusBadge.innerHTML = `<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-200 text-slate-700 border border-slate-300 inline-flex items-center gap-1.5"><i class="fas fa-file-dashed-line text-slate-500"></i> Draf (Belum Diajukan)</span>`;
+                statusNote.innerHTML = `<p class="text-[11px] text-slate-600 bg-slate-100 p-2.5 rounded-lg border border-slate-200 mt-2"><i class="fas fa-pencil mr-1"></i> Modul ajar masih berstatus draf pribadi dan belum dikirimkan ke Admin.</p>`;
+            }
+
+            // Session-based details
+            if (data.sessions && data.sessions.length > 0) {
+                const session = data.sessions[0];
+                const konten = session.konten || {};
+
+                // CP
+                if (konten.cp_text) {
+                    document.getElementById('detail-cp-section').classList.remove('hidden');
+                    document.getElementById('detail-cp-text').textContent = konten.cp_text;
+                    if (konten.cp_elemen) document.getElementById('detail-cp-elemen').textContent = `Elemen: ${konten.cp_elemen}`;
+                } else if (data.deskripsi) {
+                    document.getElementById('detail-cp-section').classList.remove('hidden');
+                    document.getElementById('detail-cp-text').textContent = data.deskripsi;
+                    document.getElementById('detail-cp-elemen').textContent = '';
+                }
+
+                // TP
+                if (konten.tp_list && konten.tp_list.length > 0) {
+                    const tpList = document.getElementById('detail-tp-list');
+                    tpList.innerHTML = '';
+                    konten.tp_list.forEach((tp, i) => {
+                        const li = document.createElement('li');
+                        li.className = 'flex flex-col gap-1';
+                        li.innerHTML = `<span class="font-semibold">${tp.teks || '-'}</span><span class="text-[10px] text-ink-soft">${(tp.dimensi || []).join(', ')}</span>`;
+                        tpList.appendChild(li);
+                    });
+                    document.getElementById('detail-tp-count').textContent = `${konten.tp_list.length} tujuan`;
+                    document.getElementById('detail-tp-section').classList.remove('hidden');
+                }
+
+                // Pertanyaan pemantik
+                if (konten.pertanyaan_pemantik && konten.pertanyaan_pemantik.length > 0) {
+                    const ul = document.getElementById('detail-pemantik-list');
+                    ul.innerHTML = '';
+                    konten.pertanyaan_pemantik.forEach((q, i) => {
+                        const li = document.createElement('li');
+                        li.textContent = q || '-';
+                        ul.appendChild(li);
+                    });
+                    document.getElementById('detail-pemantik-section').classList.remove('hidden');
+                }
+
+                // Langkah pembelajaran
+                if (konten.langkah_pendahuluan || konten.langkah_penutup || konten.model_pembelajaran) {
+                    const div = document.getElementById('detail-langkah-content');
+                    div.innerHTML = '';
+                    if (konten.model_pembelajaran) {
+                        div.innerHTML += `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[11px] text-primary mb-1">Model</strong>${konten.model_pembelajaran}</div>`;
+                    }
+                    if (konten.langkah_pendahuluan) {
+                        div.innerHTML += `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[11px] text-primary mb-1">Pendahuluan (${konten.durasi?.pendahuluan || 10} menit)</strong><p class="text-slate-700 whitespace-pre-wrap">${konten.langkah_pendahuluan}</p></div>`;
+                    }
+                    if (konten.langkah_inti && konten.langkah_inti.length > 0) {
+                        div.innerHTML += `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[11px] text-primary mb-1">Kegiatan Inti (${konten.durasi?.inti || 50} menit)</strong><ul class="mt-1 space-y-1 list-disc list-inside text-slate-700">${konten.langkah_inti.map(s => `<li>${s.uraian || s}</li>`).join('')}</ul></div>`;
+                    }
+                    if (konten.langkah_penutup) {
+                        div.innerHTML += `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[11px] text-primary mb-1">Penutup (${konten.durasi?.penutup || 10} menit)</strong><p class="text-slate-700 whitespace-pre-wrap">${konten.langkah_penutup}</p></div>`;
+                    }
+                    document.getElementById('detail-langkah-section').classList.remove('hidden');
+                }
+
+                // Media
+                if (konten.media_fisik || konten.media_digital || (konten.file_uploads && konten.file_uploads.length > 0)) {
+                    const div = document.getElementById('detail-media-content');
+                    div.innerHTML = '';
+                    if (konten.media_fisik) {
+                        div.innerHTML += `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[11px] text-primary mb-1">Media Fisik</strong><ul class="list-disc list-inside text-slate-700">${konten.media_fisik.map(m => `<li>${m}</li>`).join('')}</ul></div>`;
+                    }
+                    if (konten.media_digital) {
+                        div.innerHTML += `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[11px] text-primary mb-1">Media Digital</strong><ul class="list-disc list-inside text-slate-700">${konten.media_digital.map(m => `<li>${m}</li>`).join('')}</ul></div>`;
+                    }
+                    if (konten.file_uploads) {
+                        div.innerHTML += `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[11px] text-primary mb-1">Berkas Unggah</strong><ul class="list-disc list-inside text-slate-700">${konten.file_uploads.map(f => `<li>${f.name || f.path}</li>`).join('')}</ul></div>`;
+                    }
+                    document.getElementById('detail-media-section').classList.remove('hidden');
+                }
+
+                // Asesmen
+                ['diagnostik', 'formatif', 'sumatif'].forEach(key => {
+                    if (konten[`asesmen_${key}`]) {
+                        const a = konten[`asesmen_${key}`];
+                        if (a.metode || a.instrumen) {
+                            const div = document.getElementById('detail-asesmen-content');
+                            div.innerHTML += `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[11px] text-primary mb-1">${key.charAt(0).toUpperCase() + key.slice(1)}</strong>${a.metode ? `<p class="text-slate-700">${a.metode}</p>` : ''}${a.instrumen ? `<p class="text-slate-700 mt-1 whitespace-pre-wrap">${a.instrumen}</p>` : ''}</div>`;
+                            document.getElementById('detail-asesmen-section').classList.remove('hidden');
+                        }
+                    }
+                });
+
+                // Diferensiasi
+                if (konten.diferensiasi_jenis && konten.diferensiasi_jenis.length > 0) {
+                    const div = document.getElementById('detail-diferensiasi-content');
+                    konten.diferensiasi_jenis.forEach(jenis => {
+                        const label = jenis === 'konten' ? 'Konten' : jenis === 'proses' ? 'Proses' : 'Produk';
+                        const txt = konten[`diferensiasi_${jenis}`];
+                        div.innerHTML += `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[11px] text-primary mb-1">${label}</strong>${txt ? `<p class="text-slate-700">${txt}</p>` : '<p class="text-slate-400 italic">Belum diisi</p>'}</div>`;
+                    });
+                    document.getElementById('detail-diferensiasi-section').classList.remove('hidden');
+                }
+
+                // Progress indicator
+                const totalSessions = data.total_pertemuan || 1;
+                const filledSessions = data.sessions.filter(s => s.konten && Object.keys(s.konten).some(k => s.konten[k])).length;
+                document.getElementById('detail-progress').textContent = `${filledSessions}/${totalSessions} pertemuan terisi`;
+            } else {
+                document.getElementById('detail-progress').textContent = 'Belum ada sesi pertemuan';
+            }
+
+            document.getElementById('modal-detail-rpp').classList.remove('hidden');
+        } catch (err) {
+            console.error('Error fetching RPP detail:', err);
+            alert('Gagal memuat rincian RPP.');
+        }
+    }
+
     function closeModalDetailRpp() {
         document.getElementById('modal-detail-rpp').classList.add('hidden');
     }

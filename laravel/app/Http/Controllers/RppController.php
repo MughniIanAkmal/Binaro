@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Bab;
+use App\Models\CapaianPembelajaran;
 use App\Models\Guru;
 use App\Models\JadwalMataPelajaran;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Rpp;
 use App\Models\RppCatatan;
+use App\Models\RppSession;
+use App\Models\Admin;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -182,6 +186,344 @@ class RppController extends Controller
             'babList',
             'rppPerBab'
         ));
+    }
+
+    public function wizardCreate(Request $request)
+    {
+        $guru = Guru::findOrFail(session('user_id'));
+        $mapelList = MataPelajaran::all();
+        $kelasList = Kelas::all();
+        if ($guru->lockedKelasId() !== null) {
+            $kelasList = Kelas::where('id_rooms', $guru->lockedKelasId())->get();
+        }
+        $taughtIds = $guru->taughtMapelIds();
+        if ($taughtIds->isNotEmpty()) {
+            $mapelList = MataPelajaran::whereIn('id_mapel', $taughtIds)->get();
+        }
+        $babList = Bab::whereIn('id_mapel', $mapelList->pluck('id_mapel'))->with('mataPelajaran')->orderBy('id_mapel')->orderBy('id_bab')->get();
+
+        return view('rpp_guru.wizard', [
+            'rpp' => new Rpp(['total_pertemuan' => 1]),
+            'guru' => $guru,
+            'mapelList' => $mapelList,
+            'kelasList' => $kelasList,
+            'cpList' => collect(),
+            'step' => 1,
+            'nomorPertemuan' => 1,
+            'rppSession' => new RppSession(['konten' => []]),
+            'isNew' => true,
+        ]);
+    }
+
+    public function wizardStore(Request $request)
+    {
+        abort_unless(session('user_type') === 'guru', 403);
+        $guru = Guru::findOrFail(session('user_id'));
+        $validated = $request->validate([
+            'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
+            'id_rooms' => 'required|exists:kelas,id_rooms',
+            'id_bab' => 'nullable|exists:bab,id_bab',
+            'judul_rpp' => 'required|string|min:3|max:150',
+            'semester' => 'required|in:ganjil,genap',
+            'tahun_ajaran' => 'required|string|max:20|regex:/^\\d{4}\\/\\d{4}$/',
+            'alokasi_jp' => 'required|integer|min:1|max:20',
+            'total_pertemuan' => 'required|integer|min:1|max:20',
+            'target_jadwal' => 'nullable|string|max:50',
+            'ruang' => 'nullable|string|max:50',
+            'target_tanggal' => 'nullable|string|max:50',
+        ]);
+
+        if ($guru->lockedKelasId() !== null && (int) $validated['id_rooms'] !== (int) $guru->lockedKelasId()) {
+            throw ValidationException::withMessages(['id_rooms' => 'Kelas ini bukan kelas yang diatur untuk Anda.']);
+        }
+        if ($guru->isMapelCustomized() && ! $guru->canTeachMapel((int) $validated['id_mapel'])) {
+            throw ValidationException::withMessages(['id_mapel' => 'Mata pelajaran ini bukan mata pelajaran yang diatur admin untuk Anda.']);
+        }
+        $this->pastikanBabSesuaiMapel($validated['id_bab'] ?? null, (int) $validated['id_mapel']);
+
+        $fase = $this->faseRppUntukKelas(Kelas::findOrFail($validated['id_rooms']));
+        if (! $fase) {
+            throw ValidationException::withMessages(['id_rooms' => 'Tingkat kelas belum tersedia untuk menentukan fase pembelajaran.']);
+        }
+
+        $rpp = DB::transaction(function () use ($validated, $guru, $fase) {
+            $tahun = substr($validated['tahun_ajaran'], 0, 4);
+            $nomor = sprintf('RPP-%s-%04d', $tahun, (Rpp::where('tahun_ajaran', $validated['tahun_ajaran'])->count() + 1));
+            $rpp = Rpp::create([
+                'id_guru' => $guru->id_guru,
+                'id_mapel' => $validated['id_mapel'],
+                'id_rooms' => $validated['id_rooms'],
+                'id_bab' => $validated['id_bab'] ?? null,
+                'judul_rpp' => $validated['judul_rpp'],
+                'semester' => $validated['semester'],
+                'tahun_ajaran' => $validated['tahun_ajaran'],
+                'fase' => $fase,
+                'alokasi_waktu_menit' => $validated['alokasi_jp'] * 35,
+                'alokasi_waktu' => $validated['alokasi_jp'].' JP',
+                'total_pertemuan' => $validated['total_pertemuan'],
+                'target_jadwal' => $validated['target_jadwal'] ?? null,
+                'ruang' => $validated['ruang'] ?? null,
+                'target_tanggal' => $validated['target_tanggal'] ?? null,
+                'nomor_rpp' => $nomor,
+                'status' => 'draft',
+                'komponen_checklist' => [],
+            ]);
+            for ($i = 1; $i <= $validated['total_pertemuan']; $i++) {
+                RppSession::create(['id_rpp' => $rpp->id_rpp, 'nomor_pertemuan' => $i, 'konten' => []]);
+            }
+
+            return $rpp;
+        });
+
+        $redirect = route('guru.rpp.wizard.edit', ['id' => $rpp->id_rpp, 'step' => 1, 'pertemuan' => 1]);
+        if ($request->expectsJson()) {
+            return response()->json(['redirect' => $redirect, 'id_rpp' => $rpp->id_rpp]);
+        }
+
+        return redirect($redirect)->with('success', 'Draf Modul Ajar dibuat. Isi langkah-langkahnya; perubahan tersimpan otomatis.');
+    }
+
+    public function wizardEdit(Request $request, $id)
+    {
+        $rpp = Rpp::with(['sessions', 'mataPelajaran', 'kelas', 'guru'])->findOrFail($id);
+        $this->pastikanBolehMengubah($rpp);
+        abort_if(in_array($rpp->status, ['menunggu_review', 'terverifikasi'], true), 403, 'Modul yang sedang ditinjau atau disetujui tidak dapat diedit.');
+        $step = max(1, min(8, (int) $request->query('step', 1)));
+        $nomorPertemuan = max(1, min((int) $rpp->total_pertemuan, (int) $request->query('pertemuan', 1)));
+        $guru = $rpp->guru;
+        $mapelList = MataPelajaran::all();
+        $kelasList = Kelas::all();
+        $cpList = CapaianPembelajaran::where('id_mapel', $rpp->id_mapel)->where('fase', $this->faseCode($rpp->fase))->where('is_active', true)->orderBy('urutan')->get();
+        $babList = Bab::whereIn('id_mapel', $mapelList->pluck('id_mapel'))->with('mataPelajaran')->orderBy('id_mapel')->orderBy('id_bab')->get();
+
+        // Draf lama (sebelum wizard) belum memiliki baris pertemuan. Buat baris
+        // kosong agar record lama tetap bisa dibuka dan dilengkapi tanpa migrasi
+        // konten yang berisiko.
+        for ($i = 1; $i <= max(1, (int) $rpp->total_pertemuan); $i++) {
+            RppSession::firstOrCreate(
+                ['id_rpp' => $rpp->id_rpp, 'nomor_pertemuan' => $i],
+                ['konten' => []]
+            );
+        }
+        $rppSession = RppSession::where('id_rpp', $rpp->id_rpp)->where('nomor_pertemuan', $nomorPertemuan)->firstOrFail();
+
+        return view('rpp_guru.wizard', compact('rpp', 'guru', 'mapelList', 'kelasList', 'cpList', 'babList', 'step', 'nomorPertemuan') + ['rppSession' => $rppSession, 'isNew' => false]);
+    }
+
+    public function wizardUpdateHeader(Request $request, $id)
+    {
+        $rpp = Rpp::findOrFail($id);
+        $this->pastikanBolehMengubah($rpp);
+        abort_if(! in_array($rpp->status, ['draft', 'perlu_revisi'], true), 409, 'Modul ini tidak lagi dapat diubah.');
+        $validated = $request->validate([
+            'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
+            'id_rooms' => 'required|exists:kelas,id_rooms',
+            'id_bab' => 'nullable|exists:bab,id_bab',
+            'judul_rpp' => 'required|string|min:3|max:150',
+            'semester' => 'required|in:ganjil,genap',
+            'tahun_ajaran' => 'required|string|max:20|regex:/^\\d{4}\\/\\d{4}$/',
+            'alokasi_jp' => 'required|integer|min:1|max:20',
+            'total_pertemuan' => 'required|integer|min:1|max:20',
+            'target_jadwal' => 'nullable|string|max:50',
+            'ruang' => 'nullable|string|max:50',
+            'target_tanggal' => 'nullable|string|max:50',
+        ]);
+
+        $this->pastikanBabSesuaiMapel($validated['id_bab'] ?? null, (int) $validated['id_mapel']);
+        $fase = $this->faseRppUntukKelas(Kelas::findOrFail($validated['id_rooms']));
+        if (! $fase) {
+            throw ValidationException::withMessages(['id_rooms' => 'Tingkat kelas belum tersedia untuk menentukan fase pembelajaran.']);
+        }
+
+        // Jumlah pertemuan tidak boleh diturunkan setelah draf dimulai agar
+        // konten yang sudah ditulis tidak hilang diam-diam.
+        $total = max((int) $rpp->total_pertemuan, (int) $validated['total_pertemuan']);
+        $rpp->update([
+            'id_mapel' => $validated['id_mapel'],
+            'id_rooms' => $validated['id_rooms'],
+            'id_bab' => $validated['id_bab'] ?? null,
+            'judul_rpp' => $validated['judul_rpp'],
+            'semester' => $validated['semester'],
+            'tahun_ajaran' => $validated['tahun_ajaran'],
+            'fase' => $fase,
+            'alokasi_waktu_menit' => $validated['alokasi_jp'] * 35,
+            'alokasi_waktu' => $validated['alokasi_jp'].' JP',
+            'total_pertemuan' => $total,
+            'target_jadwal' => $validated['target_jadwal'] ?? null,
+            'ruang' => $validated['ruang'] ?? null,
+            'target_tanggal' => $validated['target_tanggal'] ?? null,
+        ]);
+        for ($i = 1; $i <= $total; $i++) {
+            RppSession::firstOrCreate(['id_rpp' => $rpp->id_rpp, 'nomor_pertemuan' => $i], ['konten' => []]);
+        }
+
+        return response()->json(['saved' => true, 'saved_at' => now()->format('H:i'), 'fase' => $fase]);
+    }
+
+    public function wizardAutosave(Request $request, $id)
+    {
+        $rpp = Rpp::with('sessions')->findOrFail($id);
+        $this->pastikanBolehMengubah($rpp);
+        abort_if(! in_array($rpp->status, ['draft', 'perlu_revisi'], true), 409, 'Modul ini tidak lagi dapat diubah.');
+        $validated = $request->validate([
+            'pertemuan' => 'required|integer|min:1|max:'.$rpp->total_pertemuan,
+            'konten' => 'required|array',
+        ]);
+        $session = RppSession::where('id_rpp', $rpp->id_rpp)->where('nomor_pertemuan', $validated['pertemuan'])->firstOrFail();
+        $konten = $validated['konten'];
+        if (! empty($konten['cp_id'])) {
+            $cp = CapaianPembelajaran::where('id_cp', $konten['cp_id'])
+                ->where('id_mapel', $rpp->id_mapel)
+                ->where('fase', $this->faseCode($rpp->fase))
+                ->where('is_active', true)
+                ->first();
+            if (! $cp) {
+                throw ValidationException::withMessages(['konten.cp_id' => 'CP tidak cocok dengan mata pelajaran dan fase RPP ini.']);
+            }
+            $konten['cp_text'] = $cp->cp_text;
+            $konten['cp_elemen'] = $cp->elemen;
+        }
+        $session->update(['konten' => $konten]);
+
+        return response()->json(['saved' => true, 'saved_at' => now()->format('H:i'), 'status' => $rpp->status]);
+    }
+
+    public function wizardUploadMedia(Request $request, $id)
+    {
+        $rpp = Rpp::with('sessions')->findOrFail($id);
+        $this->pastikanBolehMengubah($rpp);
+        abort_if(! in_array($rpp->status, ['draft', 'perlu_revisi'], true), 409, 'Modul ini tidak lagi dapat diubah.');
+        $validated = $request->validate([
+            'pertemuan' => 'required|integer|min:1|max:'.$rpp->total_pertemuan,
+            'media_files' => 'required|array|max:10',
+            'media_files.*' => 'file|mimes:jpg,jpeg,png,pdf|max:5120',
+        ]);
+        $session = RppSession::where('id_rpp', $rpp->id_rpp)->where('nomor_pertemuan', $validated['pertemuan'])->firstOrFail();
+        $content = (array) $session->konten;
+        $files = $content['file_uploads'] ?? [];
+        foreach ($request->file('media_files', []) as $file) {
+            $path = $file->store('rpp_media/'.$rpp->id_rpp, 'public');
+            $files[] = ['name' => $file->getClientOriginalName(), 'path' => $path, 'mime' => $file->getMimeType(), 'size' => $file->getSize()];
+        }
+        $content['file_uploads'] = $files;
+        $session->update(['konten' => $content]);
+
+        return response()->json(['uploaded' => count($files), 'files' => $files]);
+    }
+
+    public function wizardSubmit(Request $request, $id)
+    {
+        $rpp = Rpp::with('sessions')->findOrFail($id);
+        $this->pastikanBolehMengubah($rpp);
+        abort_if(! in_array($rpp->status, ['draft', 'perlu_revisi'], true), 409, 'Modul ini tidak dapat diajukan dalam status saat ini.');
+
+        $errors = [];
+        foreach ($rpp->sessions as $session) {
+            $content = (array) $session->konten;
+            $tujuan = collect($content['tp_list'] ?? [])->filter(fn ($tp) => trim((string) ($tp['teks'] ?? '')) !== '');
+            if ($tujuan->count() < 3) {
+                $errors["pertemuan_{$session->nomor_pertemuan}_tp"] = "Pertemuan {$session->nomor_pertemuan}: isi minimal 3 tujuan pembelajaran.";
+            }
+            foreach ($tujuan as $index => $tp) {
+                if (empty($tp['dimensi'])) {
+                    $errors["pertemuan_{$session->nomor_pertemuan}_dimensi"] = "Pertemuan {$session->nomor_pertemuan}: setiap TP harus memiliki dimensi Profil Pelajar Pancasila.";
+                    break;
+                }
+            }
+            if (empty(array_filter($content['pertanyaan_pemantik'] ?? []))) {
+                $errors["pertemuan_{$session->nomor_pertemuan}_pemantik"] = "Pertemuan {$session->nomor_pertemuan}: isi minimal satu pertanyaan pemantik.";
+            }
+            if (empty($content['cp_id'])) {
+                $errors["pertemuan_{$session->nomor_pertemuan}_cp"] = "Pertemuan {$session->nomor_pertemuan}: pilih Capaian Pembelajaran dari master CP.";
+            }
+            if (empty(trim((string) ($content['langkah_pendahuluan'] ?? ''))) || empty(trim((string) ($content['langkah_penutup'] ?? '')))) {
+                $errors["pertemuan_{$session->nomor_pertemuan}_langkah"] = "Pertemuan {$session->nomor_pertemuan}: lengkapi uraian pendahuluan dan penutup.";
+            }
+            if (empty($content['asesmen_formatif']['instrumen'] ?? '') && empty($content['asesmen_sumatif']['instrumen'] ?? '')) {
+                $errors["pertemuan_{$session->nomor_pertemuan}_asesmen"] = "Pertemuan {$session->nomor_pertemuan}: lengkapi instrumen asesmen formatif atau sumatif.";
+            }
+        }
+        if ($errors !== []) {
+            throw ValidationException::withMessages($errors);
+        }
+
+        $rpp->update(['status' => 'menunggu_review']);
+        RppCatatan::create([
+            'id_rpp' => $rpp->id_rpp,
+            'penulis_role' => 'guru',
+            'penulis_id' => session('user_id'),
+            'penulis_nama' => session('user_name') ?? 'Guru',
+            'status_saat_itu' => 'menunggu_review',
+            'isi' => 'Modul Ajar diajukan untuk ditinjau Admin.',
+        ]);
+        $this->simpanVersiRpp($rpp->fresh('sessions'), 'Diajukan untuk review');
+
+        return redirect()->route('guru.rpp.index')->with('success', 'Modul Ajar berhasil diajukan dan menunggu tinjauan Admin.');
+    }
+
+    public function adminCpIndex()
+    {
+        $cpList = CapaianPembelajaran::with('mataPelajaran')->orderBy('id_mapel')->orderBy('fase')->orderBy('urutan')->paginate(20);
+        $mapelList = MataPelajaran::orderBy('nama_mapel')->get();
+
+        return view('rpp.cp_index', compact('cpList', 'mapelList'));
+    }
+
+    public function adminCpStore(Request $request)
+    {
+        $data = $request->validate([
+            'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
+            'fase' => 'required|in:A,B',
+            'elemen' => 'nullable|string|max:150',
+            'cp_text' => 'required|string|max:10000',
+            'urutan' => 'nullable|integer|min:0',
+        ]);
+        CapaianPembelajaran::create($data + ['is_active' => true]);
+
+        return back()->with('success', 'Capaian Pembelajaran berhasil ditambahkan.');
+    }
+
+    public function adminCpUpdate(Request $request, $id)
+    {
+        $cp = CapaianPembelajaran::findOrFail($id);
+        $data = $request->validate([
+            'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
+            'fase' => 'required|in:A,B',
+            'elemen' => 'nullable|string|max:150',
+            'cp_text' => 'required|string|max:10000',
+            'urutan' => 'nullable|integer|min:0',
+            'is_active' => 'required|boolean',
+        ]);
+        $cp->update($data);
+
+        return back()->with('success', 'Capaian Pembelajaran berhasil diperbarui.');
+    }
+
+    private function faseRppUntukKelas(Kelas $kelas): ?string
+    {
+        $tingkat = (int) ($kelas->tingkat ?: (preg_match('/\\d+/', (string) $kelas->pararel, $m) ? ($m[0] ?? 0) : 0));
+
+        return match (true) {
+            $tingkat >= 1 && $tingkat <= 3 => 'Fase A',
+            $tingkat >= 4 && $tingkat <= 6 => 'Fase B',
+            default => null,
+        };
+    }
+
+    private function faseCode(?string $fase): ?string
+    {
+        return preg_match('/\\b([AB])\\b/i', (string) $fase, $matches) ? strtoupper($matches[1]) : null;
+    }
+
+    private function simpanVersiRpp(Rpp $rpp, string $perubahan): void
+    {
+        $versi = ((int) $rpp->versions()->max('versi')) + 1;
+        $rpp->versions()->create([
+            'versi' => $versi,
+            'snapshot' => $rpp->toArray(),
+            'perubahan_apa' => $perubahan,
+            'dibuat_oleh' => session('user_id'),
+        ]);
     }
 
     /**
@@ -848,7 +1190,7 @@ class RppController extends Controller
 
     public function download($id)
     {
-        $rpp = Rpp::with(['guru', 'mataPelajaran', 'kelas'])->where('id_rpp', $id)->first();
+        $rpp = Rpp::with(['guru', 'mataPelajaran', 'kelas', 'sessions'])->where('id_rpp', $id)->first();
         if (! $rpp) {
             abort(404, 'Berkas RPP tidak ditemukan.');
         }

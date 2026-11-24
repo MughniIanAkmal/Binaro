@@ -3,11 +3,11 @@
 @section('page_title', 'RPP & Modul Ajar')
 
 @section('header_actions')
-    <button type="button" onclick="openModalTambahRpp()"
+    <a href="{{ route('guru.rpp.wizard.create') }}"
             class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
             >
         <i class="fas fa-plus text-[11px]"></i> Buat Modul Ajar
-    </button>
+    </a>
     <button type="button" onclick="window.print()"
             class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition print:hidden">
         <i class="fas fa-print text-[11px]"></i> Cetak Rekap
@@ -300,9 +300,15 @@
                                 <button type="button" onclick="openModalDetailRpp({{ $rpp->id_rpp }})" class="w-full text-left px-3.5 py-1.5 hover:bg-slate-50 flex items-center gap-2">
                                     <i class="fas fa-eye text-slate-400"></i> Lihat Detail
                                 </button>
-                                <button type="button" onclick="openModalEditRpp({{ json_encode($rpp) }})" class="w-full text-left px-3.5 py-1.5 hover:bg-slate-50 flex items-center gap-2">
-                                    <i class="fas fa-pen text-slate-400"></i> Edit Modul
-                                </button>
+                                @if(in_array($rpp->status, ['draft', 'perlu_revisi'], true))
+                                <a href="{{ url('/guru/rpp/'.$rpp->id_rpp.'/wizard') }}" class="w-full text-left px-3.5 py-1.5 hover:bg-slate-50 flex items-center gap-2">
+                                    <i class="fas fa-pen text-slate-400"></i> Edit Modul Ajar (Wizard)
+                                </a>
+                                @else
+                                <span class="w-full text-left px-3.5 py-1.5 text-slate-400 cursor-not-allowed flex items-center gap-2 select-none">
+                                    <i class="fas fa-pen text-slate-300"></i> Edit (sudah ditinjau)
+                                </span>
+                                @endif
                                 <a href="{{ route('guru.rpp.download', $rpp->id_rpp) }}" class="w-full text-left px-3.5 py-1.5 hover:bg-slate-50 flex items-center gap-2">
                                     <i class="fas fa-download text-slate-400"></i> Unduh / Cetak
                                 </a>
