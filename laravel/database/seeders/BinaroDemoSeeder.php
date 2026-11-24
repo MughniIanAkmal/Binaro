@@ -9,7 +9,7 @@ use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Materi;
 use App\Models\Quiz;
-use App\Models\Siswa;
+use App\Features\Models\Siswa;
 use App\Models\SoalQuiz;
 use App\Models\SubBab;
 use Illuminate\Database\Seeder;

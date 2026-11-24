@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-use App\Models\Absen;
+use App\Features\Models\Absen;
 use Illuminate\Support\Facades\Session;
 
 /**

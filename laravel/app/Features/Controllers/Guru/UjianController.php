@@ -1,0 +1,743 @@
+<?php
+
+namespace App\Features\Controllers\Guru;
+
+use App\Features\Controllers\Controller;
+use App\Features\Requests\Guru\SoalUjianRequest;
+use App\Features\Requests\Guru\StoreUjianRequest;
+use App\Features\Requests\Guru\UpdateUjianRequest;
+use App\Features\Models\Guru;
+use App\Features\Models\Kelas;
+use App\Features\Models\MataPelajaran;
+use App\Features\Models\Quiz;
+use App\Features\Models\Siswa;
+use App\Features\Models\SoalQuiz;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+
+class UjianController extends Controller
+{
+    /**
+     * Menampilkan daftar semua ujian online
+     */
+    public function index(Request $request)
+    {
+        $guru = $this->authenticatedGuru();
+        $search = $request->get('search');
+        if ($search) {
+            $search = preg_replace('/[^a-zA-Z0-9\s]/u', '', (string) $search);
+        }
+        $level = $request->get('level');
+        $mapelId = $request->get('mapel_id');
+
+        $query = Quiz::whereNull('id_sub_bab')
+            ->where('id_guru', $guru->id_guru)
+            ->with(['mataPelajaran', 'guru', 'soal', 'targetSiswa.kelas', 'hasilSiswa'])
+            ->withCount(['soal', 'hasilSiswa']);
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('judul_quiz', 'like', "%{$search}%")
+                    ->orWhere('nama_quiz', 'like', "%{$search}%")
+                    ->orWhere('deskripsi', 'like', "%{$search}%");
+            });
+        }
+
+        if ($level && in_array($level, ['mudah', 'sedang', 'susah'])) {
+            $query->where('tingkat_level', $level);
+        }
+
+        if ($mapelId) {
+            $query->where('id_mapel', $mapelId);
+        }
+
+        $ujians = $query->latest('id_quiz')->paginate(10)->withQueryString();
+        $mapels = $this->mapelAmpuan();
+
+        // Statistik singkat (khusus ujian online resmi)
+        $totalUjian = Quiz::whereNull('id_sub_bab')
+            ->where('id_guru', $guru->id_guru)
+            ->count();
+        $totalSoal = SoalQuiz::whereHas('quiz', function ($q) use ($guru) {
+            $q->whereNull('id_sub_bab')
+                ->where('id_guru', $guru->id_guru);
+        })->count();
+        $totalHasil = DB::table('hasil_kuis_siswa')
+            ->join('quiz', 'hasil_kuis_siswa.id_quiz', '=', 'quiz.id_quiz')
+            ->whereNull('quiz.id_sub_bab')
+            ->where('quiz.id_guru', $guru->id_guru)
+            ->count();
+
+        return view('guru.ujian.index', compact('ujians', 'mapels', 'search', 'level', 'mapelId', 'totalUjian', 'totalSoal', 'totalHasil'));
+    }
+
+    /**
+     * Menampilkan form pembuatan ujian baru
+     */
+    public function create()
+    {
+        $mapels = $this->mapelAmpuan();
+        // Revisi 4: kalau guru sudah di-lock ke 1 kelas, daftar kelas & siswa
+        // di form ujian hanya kelas itu (bukan semua kelas di sekolah).
+        $lockedKelas = $this->lockedKelas();
+        $kelasList = $this->kelasListUntukUjian();
+        $allSiswas = $this->siswaUntukUjian();
+
+        return view('guru.ujian.create', compact('mapels', 'kelasList', 'allSiswas', 'lockedKelas'));
+    }
+
+    /**
+     * Menyimpan ujian online baru
+     */
+    public function store(StoreUjianRequest $request)
+    {
+        $guru = $this->authenticatedGuru();
+
+        if (! $this->mapelAmpuanIds()->contains((int) $request->id_mapel)) {
+            return back()->withInput()->withErrors([
+                'id_mapel' => 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.',
+            ]);
+        }
+
+        // Revisi 4: target siswa wajib dari kelas yang di-lock (kalau ada).
+        $targetSiswa = $this->saringTargetSiswa($request->target_siswa ?? []);
+        if ($this->lockedKelas() && $request->target_tipe === 'pilihan' && empty($targetSiswa)) {
+            return back()->withInput()->withErrors([
+                'target_siswa' => 'Pilih minimal satu siswa dari kelas Anda ('.$this->lockedKelas()->nama_kelas.'). Siswa dari kelas lain tidak bisa dipilih.',
+            ]);
+        }
+        if ($request->target_tipe === 'pilihan' && empty($request->target_siswa)) {
+            return back()->withInput()->withErrors([
+                'target_siswa' => 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.',
+            ]);
+        }
+
+        $judulQuiz = trim($request->judul_quiz);
+        $deskripsi = trim((string) $request->deskripsi);
+
+        $pesanDuplikat = $this->pesanDuplikasiQuiz($judulQuiz, $deskripsi);
+        if ($pesanDuplikat !== null) {
+            return back()->withInput()->withErrors(['judul_quiz' => $pesanDuplikat]);
+        }
+
+        // Validasi total bobot soal maximal 100 poin
+        if ($request->has('soal') && is_array($request->soal)) {
+            $totalBobot = 0;
+            foreach ($request->soal as $item) {
+                if (!empty($item['pertanyaan'])) {
+                    $totalBobot += isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int) $item['bobot_nilai'] : 10;
+                }
+            }
+            if ($totalBobot > 100) {
+                return back()->withInput()->withErrors([
+                    'total_bobot' => "Total bobot soal ({$totalBobot} poin) melebihi batas maksimal 100 poin.",
+                ])->with('error', "Total bobot soal ({$totalBobot} poin) melebihi batas maksimal 100 poin. Silakan sesuaikan bobot soal.");
+            }
+        }
+
+        // Revisi 4: "Semua Siswa" untuk guru yang di-lock artinya semua siswa
+        // di kelasnya saja — disimpan sebagai target 'pilihan' berisi seluruh
+        // siswa kelas itu, supaya logika siswa (web & mobile) yang membaca
+        // target_tipe/targetSiswa ikut terkunci ke kelas tersebut.
+        $targetTipeSimpan = $request->target_tipe;
+        if ($this->lockedKelas() && $request->target_tipe === 'semua') {
+            $targetTipeSimpan = 'pilihan';
+            $targetSiswa = $this->siswaUntukUjian()->pluck('id_siswa')->map(fn ($id) => (int) $id)->all();
+        }
+
+        DB::beginTransaction();
+        try {
+            $quiz = Quiz::create([
+                'id_guru' => $guru->id_guru,
+                'id_mapel' => $request->id_mapel,
+                'judul_quiz' => $judulQuiz,
+                'nama_quiz' => $judulQuiz,
+                'tingkat_level' => $request->tingkat_level,
+                'durasi_menit' => $request->durasi_menit,
+                'target_tipe' => $targetTipeSimpan,
+                'deskripsi' => $request->deskripsi,
+            ]);
+
+            // Sync target siswa jika tipe pilihan
+            if ($targetTipeSimpan === 'pilihan' && is_array($targetSiswa)) {
+                $quiz->targetSiswa()->sync($targetSiswa);
+            }
+
+            // Simpan soal awal jika ada diinput langsung dari form create
+            if ($request->has('soal') && is_array($request->soal)) {
+                foreach ($request->soal as $index => $item) {
+                    if (empty($item['pertanyaan']) || empty($item['opsi_a']) || empty($item['opsi_b']) || empty($item['opsi_c']) || empty($item['opsi_d'])) {
+                        continue;
+                    }
+
+                    $gambarPath = null;
+                    if ($request->hasFile("soal.{$index}.gambar")) {
+                        $gambarFile = $request->file("soal.{$index}.gambar");
+                        $gambarPath = $gambarFile->store('soal_ujian', 'public');
+                    }
+
+                    SoalQuiz::create([
+                        'id_quiz' => $quiz->id_quiz,
+                        'pertanyaan' => trim($item['pertanyaan']),
+                        'gambar' => $gambarPath,
+                        'opsi_a' => trim($item['opsi_a']),
+                        'opsi_b' => trim($item['opsi_b']),
+                        'opsi_c' => trim($item['opsi_c']),
+                        'opsi_d' => trim($item['opsi_d']),
+                        'kunci_jawaban' => strtoupper($item['kunci_jawaban'] ?? 'A'),
+                        'bobot_nilai' => isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int) $item['bobot_nilai'] : 10,
+                        'tingkat_kesulitan' => $this->normalisasiKesulitan($item['tingkat_kesulitan'] ?? null, $request->tingkat_level ?? 'sedang'),
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('guru.ujian.index')
+                ->with('success', 'Berhasil menambah ujian online.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan ujian: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Menampilkan detail ujian online beserta daftar soal dan peserta
+     */
+    public function show($id)
+    {
+        $quiz = $this->ownedQuiz($id, [
+            'mataPelajaran',
+            'guru',
+            'soal',
+            'targetSiswa.kelas',
+            'hasilSiswa.siswa.kelas',
+        ]);
+
+        $totalBobot = $quiz->soal->sum('bobot_nilai');
+        $kelasList = $this->kelasListUntukUjian();
+
+        return view('guru.ujian.show', compact('quiz', 'totalBobot', 'kelasList'));
+    }
+
+    /**
+     * Form edit ujian online
+     */
+    public function edit($id)
+    {
+        $quiz = $this->ownedQuiz($id, ['targetSiswa', 'soal']);
+        $mapels = $this->mapelAmpuan();
+        // Pertahankan mapel ujian saat ini agar tetap bisa diedit
+        // walau sudah tidak lagi termasuk ampuan guru.
+        if ($quiz->id_mapel && ! $mapels->contains('id_mapel', $quiz->id_mapel)) {
+            $mapelSaatIni = MataPelajaran::find($quiz->id_mapel);
+            if ($mapelSaatIni) {
+                $mapels->push($mapelSaatIni);
+            }
+        }
+        $lockedKelas = $this->lockedKelas();
+        $kelasList = $this->kelasListUntukUjian();
+        $allSiswas = $this->siswaUntukUjian();
+
+        $selectedSiswaIds = $quiz->targetSiswa->pluck('id_siswa')->toArray();
+
+        return view('guru.ujian.edit', compact('quiz', 'mapels', 'kelasList', 'allSiswas', 'selectedSiswaIds', 'lockedKelas'));
+    }
+
+    /**
+     * Update ujian online
+     */
+    public function update(UpdateUjianRequest $request, $id)
+    {
+        $quiz = $this->ownedQuiz($id);
+
+        $mapelDiizinkan = $this->mapelAmpuanIds()->push((int) $quiz->id_mapel);
+        if (! $mapelDiizinkan->contains((int) $request->id_mapel)) {
+            return back()->withInput()->withErrors([
+                'id_mapel' => 'Mata pelajaran yang dipilih bukan mata pelajaran yang Anda ampu.',
+            ]);
+        }
+
+        // Revisi 4: target siswa wajib dari kelas yang di-lock (kalau ada).
+        $targetSiswa = $this->saringTargetSiswa($request->target_siswa ?? []);
+        if ($this->lockedKelas() && $request->target_tipe === 'pilihan' && empty($targetSiswa)) {
+            return back()->withInput()->withErrors([
+                'target_siswa' => 'Pilih minimal satu siswa dari kelas Anda ('.$this->lockedKelas()->nama_kelas.'). Siswa dari kelas lain tidak bisa dipilih.',
+            ]);
+        }
+        if ($request->target_tipe === 'pilihan' && empty($request->target_siswa)) {
+            return back()->withInput()->withErrors([
+                'target_siswa' => 'Harap pilih minimal satu siswa jika memilih target siswa tertentu.',
+            ]);
+        }
+
+        // Revisi 4: "semua" untuk guru yang di-lock = semua siswa kelasnya saja.
+        $targetTipeSimpan = $request->target_tipe;
+        if ($this->lockedKelas() && $request->target_tipe === 'semua') {
+            $targetTipeSimpan = 'pilihan';
+            $targetSiswa = $this->siswaUntukUjian()->pluck('id_siswa')->map(fn ($id) => (int) $id)->all();
+        }
+
+        $judulQuiz = trim($request->judul_quiz);
+        $deskripsi = trim((string) $request->deskripsi);
+
+        $pesanDuplikat = $this->pesanDuplikasiQuiz($judulQuiz, $deskripsi, $quiz->id_quiz);
+        if ($pesanDuplikat !== null) {
+            return back()->withInput()->withErrors(['judul_quiz' => $pesanDuplikat]);
+        }
+
+        // Validasi total bobot jika ada soal yang dikirim dari form
+        if ($request->has('soal') && is_array($request->soal)) {
+            $totalBobot = 0;
+            foreach ($request->soal as $item) {
+                if (!empty($item['pertanyaan'])) {
+                    $totalBobot += isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int) $item['bobot_nilai'] : 10;
+                }
+            }
+            if ($totalBobot > 100) {
+                return back()->withInput()->withErrors([
+                    'total_bobot' => "Total bobot soal ({$totalBobot} poin) melebihi batas maksimal 100 poin.",
+                ])->with('error', "Total bobot soal ({$totalBobot} poin) melebihi batas maksimal 100 poin. Silakan sesuaikan bobot soal.");
+            }
+        }
+
+        DB::beginTransaction();
+        try {
+            $quiz->update([
+                'id_mapel' => $request->id_mapel,
+                'judul_quiz' => $judulQuiz,
+                'nama_quiz' => $judulQuiz,
+                'tingkat_level' => $request->tingkat_level,
+                'durasi_menit' => $request->durasi_menit,
+                'target_tipe' => $targetTipeSimpan,
+                'deskripsi' => $request->deskripsi,
+            ]);
+
+            if ($targetTipeSimpan === 'pilihan') {
+                $quiz->targetSiswa()->sync($targetSiswa ?? []);
+            } else {
+                $quiz->targetSiswa()->detach();
+            }
+
+            // Sync / update soal jika ada di form edit
+            if ($request->has('soal') && is_array($request->soal)) {
+                $existingSoalIds = $quiz->soal()->pluck('id_soal')->toArray();
+                $keptSoalIds = [];
+
+                foreach ($request->soal as $index => $item) {
+                    if (empty($item['pertanyaan']) || empty($item['opsi_a']) || empty($item['opsi_b']) || empty($item['opsi_c']) || empty($item['opsi_d'])) {
+                        continue;
+                    }
+
+                    $idSoal = !empty($item['id_soal']) ? (int) $item['id_soal'] : null;
+                    $soal = $idSoal ? SoalQuiz::where('id_quiz', $quiz->id_quiz)->find($idSoal) : null;
+
+                    $gambarPath = $soal ? $soal->gambar : null;
+
+                    if ($request->hasFile("soal.{$index}.gambar")) {
+                        if ($gambarPath && Storage::disk('public')->exists($gambarPath)) {
+                            Storage::disk('public')->delete($gambarPath);
+                        }
+                        $gambarPath = $request->file("soal.{$index}.gambar")->store('soal_ujian', 'public');
+                    } elseif (!empty($item['hapus_gambar']) && $gambarPath) {
+                        if (Storage::disk('public')->exists($gambarPath)) {
+                            Storage::disk('public')->delete($gambarPath);
+                        }
+                        $gambarPath = null;
+                    }
+
+                    $soalData = [
+                        'pertanyaan' => trim($item['pertanyaan']),
+                        'gambar' => $gambarPath,
+                        'opsi_a' => trim($item['opsi_a']),
+                        'opsi_b' => trim($item['opsi_b']),
+                        'opsi_c' => trim($item['opsi_c']),
+                        'opsi_d' => trim($item['opsi_d']),
+                        'kunci_jawaban' => strtoupper($item['kunci_jawaban'] ?? 'A'),
+                        'bobot_nilai' => isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int) $item['bobot_nilai'] : 10,
+                        'tingkat_kesulitan' => $this->normalisasiKesulitan($item['tingkat_kesulitan'] ?? null, $request->tingkat_level ?? 'sedang'),
+                    ];
+
+                    if ($soal) {
+                        $soal->update($soalData);
+                        $keptSoalIds[] = $soal->id_soal;
+                    } else {
+                        $newSoal = SoalQuiz::create(array_merge($soalData, ['id_quiz' => $quiz->id_quiz]));
+                        $keptSoalIds[] = $newSoal->id_soal;
+                    }
+                }
+
+                // Hapus soal yang dihilangkan oleh guru dari daftar kartu
+                $deletedSoalIds = array_diff($existingSoalIds, $keptSoalIds);
+                if (!empty($deletedSoalIds)) {
+                    $soalsToDelete = SoalQuiz::where('id_quiz', $quiz->id_quiz)->whereIn('id_soal', $deletedSoalIds)->get();
+                    foreach ($soalsToDelete as $sDel) {
+                        if ($sDel->gambar && Storage::disk('public')->exists($sDel->gambar)) {
+                            Storage::disk('public')->delete($sDel->gambar);
+                        }
+                        $sDel->delete();
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('guru.ujian.show', $quiz->id_quiz)
+                ->with('success', 'Data ujian online berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return back()->withInput()->with('error', 'Gagal memperbarui ujian: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Menghapus ujian online beserta relasinya
+     */
+    public function destroy($id)
+    {
+        $quiz = $this->ownedQuiz($id, ['soal']);
+
+        try {
+            // Hapus file gambar soal di storage jika ada
+            foreach ($quiz->soal as $soal) {
+                if ($soal->gambar && Storage::disk('public')->exists($soal->gambar)) {
+                    Storage::disk('public')->delete($soal->gambar);
+                }
+            }
+
+            $quiz->delete();
+
+            return redirect()->route('guru.ujian.index')
+                ->with('success', 'Ujian online berhasil dihapus beserta seluruh soal dan data terkait.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus ujian: '.$e->getMessage());
+        }
+    }
+
+    /**
+     * Menambah soal ujian baru
+     */
+    public function storeSoal(SoalUjianRequest $request, $idQuiz)
+    {
+        $quiz = $this->ownedQuiz($idQuiz, ['soal']);
+
+        // Limit total bobot soal maximal 100 poin
+        $currentTotal = $quiz->soal->sum('bobot_nilai');
+        $bobotBaru = (int) $request->bobot_nilai;
+        if ($currentTotal + $bobotBaru > 100) {
+            $sisa = max(0, 100 - $currentTotal);
+            return back()->withInput()->with('error', "Total bobot soal melebihi batas maksimal 100 poin! Total bobot saat ini {$currentTotal} poin (sisa kuota: {$sisa} poin).");
+        }
+
+        // Anti-duplikasi pertanyaan pada ujian yang sama
+        $pertanyaanTrim = trim($request->pertanyaan);
+        $duplicateSoal = SoalQuiz::where('id_quiz', $quiz->id_quiz)
+            ->whereRaw('LOWER(TRIM(pertanyaan)) = ?', [mb_strtolower($pertanyaanTrim)])
+            ->exists();
+        if ($duplicateSoal) {
+            return back()->withInput()->with('error', 'Pertanyaan soal yang serupa sudah ada di ujian ini. Silakan buat pertanyaan yang berbeda.');
+        }
+
+        $gambarPath = null;
+        if ($request->hasFile('gambar')) {
+            $gambarPath = $request->file('gambar')->store('soal_ujian', 'public');
+        }
+
+        SoalQuiz::create([
+            'id_quiz' => $quiz->id_quiz,
+            'pertanyaan' => trim($request->pertanyaan),
+            'gambar' => $gambarPath,
+            'opsi_a' => trim($request->opsi_a),
+            'opsi_b' => trim($request->opsi_b),
+            'opsi_c' => trim($request->opsi_c),
+            'opsi_d' => trim($request->opsi_d),
+            'kunci_jawaban' => strtoupper($request->kunci_jawaban),
+            'bobot_nilai' => $request->bobot_nilai,
+            'tingkat_kesulitan' => $this->normalisasiKesulitan($request->input('tingkat_kesulitan'), $quiz->tingkat_level ?? 'sedang'),
+        ]);
+
+        return redirect()->route('guru.ujian.show', $quiz->id_quiz)
+            ->with('success', 'Soal ujian baru berhasil ditambahkan.');
+    }
+
+    /**
+     * Memperbarui soal ujian
+     */
+    public function updateSoal(SoalUjianRequest $request, $idQuiz, $idSoal)
+    {
+        $this->ownedQuiz($idQuiz);
+        $soal = SoalQuiz::where('id_quiz', $idQuiz)->findOrFail($idSoal);
+
+        // Limit total bobot soal maximal 100 poin
+        $currentTotalLain = SoalQuiz::where('id_quiz', $idQuiz)
+            ->where('id_soal', '!=', $idSoal)
+            ->sum('bobot_nilai');
+        $bobotBaru = (int) $request->bobot_nilai;
+        if ($currentTotalLain + $bobotBaru > 100) {
+            $sisa = max(0, 100 - $currentTotalLain);
+            return back()->withInput()->with('error', "Total bobot soal melebihi batas maksimal 100 poin! Total bobot soal lain {$currentTotalLain} poin (sisa kuota: {$sisa} poin).");
+        }
+
+        // Anti-duplikasi pertanyaan pada ujian yang sama
+        $pertanyaanTrim = trim($request->pertanyaan);
+        $duplicateSoal = SoalQuiz::where('id_quiz', $idQuiz)
+            ->where('id_soal', '!=', $idSoal)
+            ->whereRaw('LOWER(TRIM(pertanyaan)) = ?', [mb_strtolower($pertanyaanTrim)])
+            ->exists();
+        if ($duplicateSoal) {
+            return back()->withInput()->with('error', 'Pertanyaan soal yang serupa sudah ada di ujian ini.');
+        }
+
+        $data = [
+            'pertanyaan' => trim($request->pertanyaan),
+            'opsi_a' => trim($request->opsi_a),
+            'opsi_b' => trim($request->opsi_b),
+            'opsi_c' => trim($request->opsi_c),
+            'opsi_d' => trim($request->opsi_d),
+            'kunci_jawaban' => strtoupper($request->kunci_jawaban),
+            'bobot_nilai' => $request->bobot_nilai,
+            'tingkat_kesulitan' => $this->normalisasiKesulitan($request->input('tingkat_kesulitan'), $soal->tingkat_kesulitan ?? 'sedang'),
+        ];
+
+        // Jika minta hapus gambar lama
+        if ($request->boolean('hapus_gambar') && $soal->gambar) {
+            if (Storage::disk('public')->exists($soal->gambar)) {
+                Storage::disk('public')->delete($soal->gambar);
+            }
+            $data['gambar'] = null;
+        }
+
+        // Jika upload gambar baru
+        if ($request->hasFile('gambar')) {
+            if ($soal->gambar && Storage::disk('public')->exists($soal->gambar)) {
+                Storage::disk('public')->delete($soal->gambar);
+            }
+            $data['gambar'] = $request->file('gambar')->store('soal_ujian', 'public');
+        }
+
+        $soal->update($data);
+
+        return redirect()->route('guru.ujian.show', $idQuiz)
+            ->with('success', 'Soal ujian berhasil diperbarui.');
+    }
+
+    /**
+     * Menghapus satu soal ujian
+     */
+    public function destroySoal($idQuiz, $idSoal)
+    {
+        $this->ownedQuiz($idQuiz);
+        $soal = SoalQuiz::where('id_quiz', $idQuiz)->findOrFail($idSoal);
+
+        if ($soal->gambar && Storage::disk('public')->exists($soal->gambar)) {
+            Storage::disk('public')->delete($soal->gambar);
+        }
+
+        $soal->delete();
+
+        return redirect()->route('guru.ujian.show', $idQuiz)
+            ->with('success', 'Soal ujian berhasil dihapus.');
+    }
+
+    private function authenticatedGuru(): Guru
+    {
+        return Guru::findOrFail(session('user_id'));
+    }
+
+    /**
+     * Pesan error jika sudah ada ujian (bukan kuis materi) dengan judul
+     * atau deskripsi yang serupa; null jika aman disimpan.
+     */
+    private function pesanDuplikasiQuiz(string $judul, string $deskripsi, ?int $kecualiId = null): ?string
+    {
+        $duplicateQuiz = Quiz::whereNull('id_sub_bab')
+            ->when($kecualiId !== null, fn ($q) => $q->where('id_quiz', '!=', $kecualiId))
+            ->where(function ($q) use ($judul, $deskripsi) {
+                $q->whereRaw('LOWER(TRIM(judul_quiz)) = ?', [mb_strtolower($judul)])
+                    ->orWhereRaw('LOWER(TRIM(nama_quiz)) = ?', [mb_strtolower($judul)]);
+
+                if ($deskripsi !== '') {
+                    $q->orWhereRaw('LOWER(TRIM(deskripsi)) = ?', [mb_strtolower($deskripsi)]);
+                }
+            })
+            ->first();
+
+        if (! $duplicateQuiz) {
+            return null;
+        }
+
+        $isDeskripsiSama = $deskripsi !== '' && mb_strtolower(trim((string) $duplicateQuiz->deskripsi)) === mb_strtolower($deskripsi);
+        $judulLain = mb_strtolower(trim((string) $duplicateQuiz->judul_quiz)) !== mb_strtolower($judul)
+            && mb_strtolower(trim((string) $duplicateQuiz->nama_quiz)) !== mb_strtolower($judul);
+
+        if ($isDeskripsiSama && $judulLain) {
+            return 'Ujian online dengan deskripsi yang serupa sudah ada pada ujian ('.$duplicateQuiz->judul_quiz.'). Silakan gunakan deskripsi yang berbeda.';
+        }
+
+        if ($isDeskripsiSama) {
+            return 'Ujian online dengan judul dan deskripsi yang serupa sudah ada ('.$duplicateQuiz->judul_quiz.'). Silakan gunakan yang lain.';
+        }
+
+        return 'Ujian online dengan judul yang serupa sudah ada ('.$duplicateQuiz->judul_quiz.'). Silakan gunakan judul ujian lain.';
+    }
+
+    /**
+     * Menyamakan istilah tingkat kesulitan soal dengan pilihan yang valid;
+     * nilai di luar daftar digantikan oleh nilai fallback.
+     */
+    private function normalisasiKesulitan(?string $nilai, ?string $fallback): string
+    {
+        $kesulitan = strtolower((string) $nilai);
+        if (! in_array($kesulitan, ['mudah', 'sedang', 'susah', 'sulit'], true)) {
+            $kesulitan = strtolower((string) $fallback);
+        }
+
+        if ($kesulitan === 'susah') {
+            return 'sulit';
+        }
+
+        return in_array($kesulitan, ['mudah', 'sedang', 'sulit'], true) ? $kesulitan : 'sedang';
+    }
+
+    /**
+     * Mata pelajaran yang diampu guru.
+     * Revisi 3: kalau admin sudah mengatur pivot guru_mapel, pivot itu yang
+     * berlaku; kalau belum, fallback ke mapel dari jadwal mengajar.
+     */
+    private function mapelAmpuan(): Collection
+    {
+        return MataPelajaran::whereIn('id_mapel', $this->mapelAmpuanIds())->orderBy('nama_mapel')->get();
+    }
+
+    private function mapelAmpuanIds(): Collection
+    {
+        return $this->authenticatedGuru()->taughtMapelIds();
+    }
+
+    /** Revisi 2: kelas yang di-lock admin untuk guru yang login (null = belum di-lock). */
+    private function lockedKelas(): ?Kelas
+    {
+        $guru = $this->authenticatedGuru();
+        $lockedId = $guru->lockedKelasId();
+
+        return $lockedId ? Kelas::find($lockedId) : null;
+    }
+
+    /** Daftar kelas untuk form ujian: 1 kelas saja kalau guru sudah di-lock. */
+    private function kelasListUntukUjian(): Collection
+    {
+        $locked = $this->lockedKelas();
+        $query = Kelas::with(['siswas' => function ($q) {
+            $q->orderBy('nm_siswa');
+        }])->orderBy('pararel');
+
+        if ($locked) {
+            $query->where('id_rooms', $locked->id_rooms);
+        }
+
+        return $query->get();
+    }
+
+    /** Daftar siswa untuk form ujian: hanya siswa kelas yang di-lock. */
+    private function siswaUntukUjian(): Collection
+    {
+        $locked = $this->lockedKelas();
+        $query = Siswa::with('kelas')->orderBy('nm_siswa');
+
+        if ($locked) {
+            $query->where('id_rooms', $locked->id_rooms);
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Revisi 4: saring target siswa ke kelas yang di-lock. Kalau guru belum
+     * di-lock, kembalikan apa adanya. ID dari kelas lain dibuang diam-diam
+     * di sini, dan store()/update() menolak kalau hasilnya kosong.
+     */
+    private function saringTargetSiswa(array $ids): array
+    {
+        $ids = array_values(array_unique(array_map('intval', $ids)));
+        $locked = $this->lockedKelas();
+        if (! $locked || empty($ids)) {
+            return $ids;
+        }
+
+        return Siswa::whereIn('id_siswa', $ids)
+            ->where('id_rooms', $locked->id_rooms)
+            ->pluck('id_siswa')->map(fn ($id) => (int) $id)->all();
+    }
+
+    /**
+     * Rilis / Tampilkan nilai ujian ke seluruh siswa yang sudah mengerjakan
+     */
+    public function rilisNilaiSemua(Request $request, $id)
+    {
+        $guru = $this->authenticatedGuru();
+        $quiz = $this->ownedQuiz($id);
+
+        $hasils = \App\Features\Models\HasilKuisSiswa::where('id_quiz', $id)->get();
+        if ($hasils->isEmpty()) {
+            return back()->with('error', 'Belum ada siswa yang mengerjakan ujian ini.');
+        }
+
+        $terkirim = 0;
+        foreach ($hasils as $h) {
+            $pesan = "Hasil Ujian [{$quiz->judul_quiz}]: Nilai akhir Anda adalah " . number_format($h->nilai_akhir, 0) . ". ";
+            if ($h->catatan_guru) {
+                $pesan .= "Catatan: {$h->catatan_guru}";
+            }
+
+            \App\Features\Models\Notifikasi::create([
+                'id_guru' => $guru->id_guru,
+                'id_siswa' => $h->id_siswa,
+                'id_pr' => null,
+                'pesan' => trim($pesan),
+                'status_baca' => false,
+            ]);
+
+            $h->update([
+                'status_kirim' => true,
+                'waktu_kirim' => now(),
+            ]);
+
+            $terkirim++;
+        }
+
+        return back()->with('success', "Berhasil merilis & menampilkan nilai ujian ke {$terkirim} siswa! Siswa kini dapat langsung melihat nilai di aplikasi.");
+    }
+
+    /**
+     * Toggle status tampilkan/sembunyikan nilai per siswa
+     */
+    public function toggleRilisNilai(Request $request, $idHasil)
+    {
+        $guru = $this->authenticatedGuru();
+        $hasil = \App\Features\Models\HasilKuisSiswa::with('quiz')->findOrFail($idHasil);
+
+        if ($hasil->quiz && $hasil->quiz->id_guru != $guru->id_guru) {
+            abort(403, 'Akses ditolak.');
+        }
+
+        $newStatus = !$hasil->status_kirim;
+        $hasil->update([
+            'status_kirim' => $newStatus,
+            'waktu_kirim' => $newStatus ? now() : null,
+        ]);
+
+        $statusMsg = $newStatus ? 'berhasil ditampilkan ke siswa' : 'berhasil disembunyikan (siswa kembali menunggu nilai)';
+        return back()->with('success', "Nilai siswa {$statusMsg}.");
+    }
+
+    private function ownedQuiz($id, array $relations = []): Quiz
+    {
+        return Quiz::where('id_guru', $this->authenticatedGuru()->id_guru)
+            ->with($relations)
+            ->findOrFail($id);
+    }
+}

@@ -36,7 +36,7 @@ function requestAs(string $url, array $session): array
 
 $admin = ['user_id' => 1, 'user_type' => 'admin', 'user_name' => 'Administrator'];
 $guruRow = App\Models\Guru::first();
-$siswaRow = App\Models\Siswa::first();
+$siswaRow = App\Features\Models\Siswa::first();
 
 // Ambil id jadwal yang benar-benar ada (hindari 404 palsu saat DB kosong).
 $jadwalId = App\Models\JadwalMataPelajaran::value('id_jadwal');

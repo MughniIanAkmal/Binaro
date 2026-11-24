@@ -1,0 +1,100 @@
+<?php
+
+namespace App\Features\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+use Laravel\Sanctum\HasApiTokens;
+
+class Siswa extends Authenticatable
+{
+    use HasApiTokens;
+    protected $table = 'siswa';
+
+    protected $primaryKey = 'id_siswa';
+
+    public $timestamps = true;
+
+    protected $hidden = ['password'];
+    protected $fillable = [
+        'id_rooms',
+        'nisn',
+        'nm_siswa',
+        'nama',
+        'nis',
+        'no_hp',
+        'email',
+        'alamat',
+        'jenis_kelamin',
+        'username',
+        'password',
+        'foto_profil',
+    ];
+
+    protected $appends = ['nama_siswa', 'nama', 'nis', 'nisn', 'nama_kelas'];
+
+    public function barcode()
+    {
+        return $this->hasOne(Barcode::class, 'id_siswa', 'id_siswa');
+    }
+
+    public function absens()
+    {
+        return $this->hasMany(Absen::class, 'id_siswa', 'id_siswa');
+    }
+
+    public function mataPelajaran()
+    {
+        return $this->belongsTo(MataPelajaran::class, 'id_mapel', 'id_mapel');
+    }
+
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'id_rooms', 'id_rooms');
+    }
+
+    public function notifikasis()
+    {
+        return $this->hasMany(Notifikasi::class, 'id_siswa', 'id_siswa');
+    }
+
+    public function getNamaSiswaAttribute()
+    {
+        return $this->attributes['nm_siswa'] ?? null;
+    }
+
+    public function getNamaAttribute()
+    {
+        return $this->attributes['nm_siswa'] ?? null;
+    }
+
+    public function setNamaAttribute($value)
+    {
+        $this->attributes['nm_siswa'] = $value;
+    }
+
+    public function getNisnAccessorAttribute()
+    {
+        return $this->attributes['nisn'] ?? null;
+    }
+
+    public function getNisnAttribute()
+    {
+        return $this->attributes['nisn'] ?? null;
+    }
+
+    public function getNisAttribute()
+    {
+        return $this->attributes['nisn'] ?? null;
+    }
+
+    public function setNisAttribute($value)
+    {
+        $this->attributes['nisn'] = $value;
+    }
+
+    public function getNamaKelasAttribute()
+    {
+        return $this->kelas?->pararel ?? $this->kelas?->nama_kelas ?? '-';
+    }
+}

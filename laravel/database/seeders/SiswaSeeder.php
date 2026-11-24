@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
-use App\Models\Siswa;
+use App\Features\Models\Siswa;
 use Illuminate\Database\Seeder;
 
 class SiswaSeeder extends Seeder

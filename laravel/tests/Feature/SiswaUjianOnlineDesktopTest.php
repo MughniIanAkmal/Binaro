@@ -7,7 +7,7 @@ use App\Models\HasilKuisSiswa;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Quiz;
-use App\Models\Siswa;
+use App\Features\Models\Siswa;
 use App\Models\SoalQuiz;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;

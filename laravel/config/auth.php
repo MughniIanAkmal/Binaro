@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\Admin;
-use App\Models\Guru;
-use App\Models\Siswa;
-use App\Models\User;
+use App\Features\Models\Admin;
+use App\Features\Models\Guru;
+use App\Features\Models\Siswa;
+use App\Features\Models\User;
 
 return [
 

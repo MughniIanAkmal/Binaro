@@ -1,9 +1,19 @@
 <?php
 
-use App\Http\Controllers\Api\AdminApiController;
-use App\Http\Controllers\Api\AuthApiController;
-use App\Http\Controllers\Api\GuruApiController;
-use App\Http\Controllers\Api\SiswaApiController;
+use App\Features\Controllers\Api\AdminApiController;
+use App\Features\Controllers\Api\AuthApiController;
+use App\Features\Controllers\Api\GuruApiController;
+use App\Features\Controllers\Api\Siswa\AbsensiController;
+use App\Features\Controllers\Api\Siswa\BabController;
+use App\Features\Controllers\Api\Siswa\DashboardController;
+use App\Features\Controllers\Api\Siswa\JadwalController;
+use App\Features\Controllers\Api\Siswa\MapelController;
+use App\Features\Controllers\Api\Siswa\MateriController;
+use App\Features\Controllers\Api\Siswa\NotifikasiController;
+use App\Features\Controllers\Api\Siswa\ProfileController;
+use App\Features\Controllers\Api\Siswa\QuizController;
+use App\Features\Controllers\Api\Siswa\SubBabController;
+use App\Features\Controllers\Api\Siswa\UjianController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,38 +27,40 @@ Route::post('/login', [AuthApiController::class, 'login']);
 Route::post('/logout', [AuthApiController::class, 'logout']);
 
 // Mobile Dashboard & Profile (public, but will use token if present)
-Route::get('/siswa/dashboard', [SiswaApiController::class, 'dashboard']);
-Route::get('/siswa/profile', [SiswaApiController::class, 'profile']);
-Route::post('/siswa/update-password', [SiswaApiController::class, 'updatePassword']);
+Route::get('/siswa/dashboard', [DashboardController::class, 'dashboard']);
+Route::get('/siswa/profile', [ProfileController::class, 'profile']);
+Route::post('/siswa/update-password', [ProfileController::class, 'updatePassword']);
 
 // Mobile Mapel & Materi Learning Routes (public, token optional)
-Route::get('/siswa/mapel', [SiswaApiController::class, 'mapelList']);
-Route::get('/siswa/jadwal', [SiswaApiController::class, 'jadwalList']);
-Route::get('/siswa/notifikasi', [SiswaApiController::class, 'notifikasiList']);
-Route::post('/siswa/notifikasi/baca', [SiswaApiController::class, 'notifikasiBaca']);
-Route::post('/siswa/foto-profil', [SiswaApiController::class, 'uploadFotoProfil']);
-Route::post('/siswa/foto-profil/hapus', [SiswaApiController::class, 'hapusFotoProfil']);
-Route::get('/siswa/mapel/{id}/bab', [SiswaApiController::class, 'babList']);
-Route::get('/siswa/bab/{id}/sub-bab', [SiswaApiController::class, 'subBabList']);
-Route::get('/siswa/sub-bab/{id}/materi', [SiswaApiController::class, 'materiList']);
-Route::get('/siswa/materi/{id}', [SiswaApiController::class, 'materiDetail']);
-Route::get('/siswa/quiz/{id?}', [SiswaApiController::class, 'quizDetail']);
-Route::post('/siswa/quiz/{id}/submit', [SiswaApiController::class, 'quizSubmit']);
+Route::get('/siswa/mapel', [MapelController::class, 'mapelList']);
+Route::get('/siswa/jadwal', [JadwalController::class, 'jadwalList']);
+Route::get('/siswa/mapel/{id}/bab', [BabController::class, 'babList']);
+Route::get('/siswa/bab/{id}/sub-bab', [SubBabController::class, 'subBabList']);
+Route::get('/siswa/sub-bab/{id}/materi', [MateriController::class, 'materiList']);
+Route::get('/siswa/materi/{id}', [MateriController::class, 'materiDetail']);
+Route::get('/siswa/quiz/{id?}', [QuizController::class, 'quizDetail']);
+Route::post('/siswa/quiz/{id}/submit', [QuizController::class, 'quizSubmit']);
 
 // Mobile Ujian Online Routes (public, token optional)
-Route::get('/siswa/ujian', [SiswaApiController::class, 'ujianIndex']);
-Route::get('/siswa/ujian/{id}/petunjuk', [SiswaApiController::class, 'ujianPetunjuk']);
-Route::get('/siswa/ujian/{id}/play', [SiswaApiController::class, 'ujianPlay']);
-Route::post('/siswa/ujian/{id}/submit', [SiswaApiController::class, 'ujianSubmit']);
-Route::get('/siswa/ujian/{id}/result', [SiswaApiController::class, 'ujianResult']);
+Route::get('/siswa/ujian', [UjianController::class, 'ujianIndex']);
+Route::get('/siswa/ujian/{id}/petunjuk', [UjianController::class, 'ujianPetunjuk']);
+Route::get('/siswa/ujian/{id}/play', [UjianController::class, 'ujianPlay']);
+Route::post('/siswa/ujian/{id}/submit', [UjianController::class, 'ujianSubmit']);
+Route::get('/siswa/ujian/{id}/result', [UjianController::class, 'ujianResult']);
+
+// Notifikasi (public, token optional)
+Route::get('/siswa/notifikasi', [NotifikasiController::class, 'notifikasiList']);
+Route::post('/siswa/notifikasi/baca', [NotifikasiController::class, 'notifikasiBaca']);
 
 // Authenticated Routes (Sanctum)
 Route::middleware('auth:sanctum')->group(function () {
     // Siswa API (Authenticated)
     Route::prefix('siswa')->group(function () {
-        Route::post('/profile', [SiswaApiController::class, 'updateProfile']);
-        Route::get('/absensi-hari-ini', [SiswaApiController::class, 'todayAttendance']);
-        Route::post('/absensi-scan', [SiswaApiController::class, 'selfScan']);
+        Route::post('/profile', [ProfileController::class, 'updateProfile']);
+        Route::get('/absensi-hari-ini', [AbsensiController::class, 'todayAttendance']);
+        Route::post('/absensi-scan', [AbsensiController::class, 'selfScan']);
+        Route::post('/foto-profil', [ProfileController::class, 'uploadFotoProfil']);
+        Route::post('/foto-profil/hapus', [ProfileController::class, 'hapusFotoProfil']);
     });
 
     // Guru API (Authenticated)

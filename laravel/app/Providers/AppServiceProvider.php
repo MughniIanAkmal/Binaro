@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use App\Models\Absen;
-use App\Models\Siswa;
-use App\Observers\SiswaObserver;
+use App\Features\Models\Absen;
+use App\Features\Models\Siswa;
+use App\Features\Observers\SiswaObserver;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
