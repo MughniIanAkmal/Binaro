@@ -2,7 +2,10 @@
 
 use App\Features\Controllers\Api\AdminApiController;
 use App\Features\Controllers\Api\AuthApiController;
-use App\Features\Controllers\Api\GuruApiController;
+use App\Features\Controllers\Api\Guru\AbsensiController as GuruAbsensiController;
+use App\Features\Controllers\Api\Guru\ProfileController as GuruProfileController;
+use App\Features\Controllers\Api\Guru\RppController;
+use App\Features\Controllers\Api\Guru\SiswaController as GuruSiswaController;
 use App\Features\Controllers\Api\Siswa\AbsensiController;
 use App\Features\Controllers\Api\Siswa\BabController;
 use App\Features\Controllers\Api\Siswa\DashboardController;
@@ -65,15 +68,15 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Guru API (Authenticated)
     Route::prefix('guru')->group(function () {
-        Route::get('/profile', [GuruApiController::class, 'profile']);
-        Route::post('/profile', [GuruApiController::class, 'updateProfile']);
-        Route::get('/rpp', [GuruApiController::class, 'listRpp']);
-        Route::post('/rpp', [GuruApiController::class, 'createRpp']);
-        Route::put('/rpp/{id}', [GuruApiController::class, 'editRpp']);
-        Route::delete('/rpp/{id}', [GuruApiController::class, 'deleteRpp']);
-        Route::get('/siswa', [GuruApiController::class, 'listSiswa']);
-        Route::post('/absensi/scan-qr', [GuruApiController::class, 'scanQr']);
-        Route::post('/absen-massal', [GuruApiController::class, 'massAttendance']);
+        Route::get('/profile', [GuruProfileController::class, 'profile']);
+        Route::post('/profile', [GuruProfileController::class, 'updateProfile']);
+        Route::get('/rpp', [RppController::class, 'listRpp']);
+        Route::post('/rpp', [RppController::class, 'createRpp']);
+        Route::put('/rpp/{id}', [RppController::class, 'editRpp']);
+        Route::delete('/rpp/{id}', [RppController::class, 'deleteRpp']);
+        Route::get('/siswa', [GuruSiswaController::class, 'listSiswa']);
+        Route::post('/absensi/scan-qr', [GuruAbsensiController::class, 'scanQr']);
+        Route::post('/absen-massal', [GuruAbsensiController::class, 'massAttendance']);
     });
 
     // Admin API (Authenticated)
