@@ -3,15 +3,17 @@
 namespace App\Features\Controllers\Guru;
 
 use App\Features\Controllers\Controller;
-use App\Features\Requests\Guru\SoalUjianRequest;
-use App\Features\Requests\Guru\StoreUjianRequest;
-use App\Features\Requests\Guru\UpdateUjianRequest;
 use App\Features\Models\Guru;
+use App\Features\Models\HasilKuisSiswa;
 use App\Features\Models\Kelas;
 use App\Features\Models\MataPelajaran;
+use App\Features\Models\Notifikasi;
 use App\Features\Models\Quiz;
 use App\Features\Models\Siswa;
 use App\Features\Models\SoalQuiz;
+use App\Features\Requests\Guru\SoalUjianRequest;
+use App\Features\Requests\Guru\StoreUjianRequest;
+use App\Features\Requests\Guru\UpdateUjianRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -126,7 +128,7 @@ class UjianController extends Controller
         if ($request->has('soal') && is_array($request->soal)) {
             $totalBobot = 0;
             foreach ($request->soal as $item) {
-                if (!empty($item['pertanyaan'])) {
+                if (! empty($item['pertanyaan'])) {
                     $totalBobot += isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int) $item['bobot_nilai'] : 10;
                 }
             }
@@ -293,7 +295,7 @@ class UjianController extends Controller
         if ($request->has('soal') && is_array($request->soal)) {
             $totalBobot = 0;
             foreach ($request->soal as $item) {
-                if (!empty($item['pertanyaan'])) {
+                if (! empty($item['pertanyaan'])) {
                     $totalBobot += isset($item['bobot_nilai']) && is_numeric($item['bobot_nilai']) ? (int) $item['bobot_nilai'] : 10;
                 }
             }
@@ -332,7 +334,7 @@ class UjianController extends Controller
                         continue;
                     }
 
-                    $idSoal = !empty($item['id_soal']) ? (int) $item['id_soal'] : null;
+                    $idSoal = ! empty($item['id_soal']) ? (int) $item['id_soal'] : null;
                     $soal = $idSoal ? SoalQuiz::where('id_quiz', $quiz->id_quiz)->find($idSoal) : null;
 
                     $gambarPath = $soal ? $soal->gambar : null;
@@ -342,7 +344,7 @@ class UjianController extends Controller
                             Storage::disk('public')->delete($gambarPath);
                         }
                         $gambarPath = $request->file("soal.{$index}.gambar")->store('soal_ujian', 'public');
-                    } elseif (!empty($item['hapus_gambar']) && $gambarPath) {
+                    } elseif (! empty($item['hapus_gambar']) && $gambarPath) {
                         if (Storage::disk('public')->exists($gambarPath)) {
                             Storage::disk('public')->delete($gambarPath);
                         }
@@ -372,7 +374,7 @@ class UjianController extends Controller
 
                 // Hapus soal yang dihilangkan oleh guru dari daftar kartu
                 $deletedSoalIds = array_diff($existingSoalIds, $keptSoalIds);
-                if (!empty($deletedSoalIds)) {
+                if (! empty($deletedSoalIds)) {
                     $soalsToDelete = SoalQuiz::where('id_quiz', $quiz->id_quiz)->whereIn('id_soal', $deletedSoalIds)->get();
                     foreach ($soalsToDelete as $sDel) {
                         if ($sDel->gambar && Storage::disk('public')->exists($sDel->gambar)) {
@@ -430,6 +432,7 @@ class UjianController extends Controller
         $bobotBaru = (int) $request->bobot_nilai;
         if ($currentTotal + $bobotBaru > 100) {
             $sisa = max(0, 100 - $currentTotal);
+
             return back()->withInput()->with('error', "Total bobot soal melebihi batas maksimal 100 poin! Total bobot saat ini {$currentTotal} poin (sisa kuota: {$sisa} poin).");
         }
 
@@ -479,6 +482,7 @@ class UjianController extends Controller
         $bobotBaru = (int) $request->bobot_nilai;
         if ($currentTotalLain + $bobotBaru > 100) {
             $sisa = max(0, 100 - $currentTotalLain);
+
             return back()->withInput()->with('error', "Total bobot soal melebihi batas maksimal 100 poin! Total bobot soal lain {$currentTotalLain} poin (sisa kuota: {$sisa} poin).");
         }
 
@@ -681,19 +685,19 @@ class UjianController extends Controller
         $guru = $this->authenticatedGuru();
         $quiz = $this->ownedQuiz($id);
 
-        $hasils = \App\Features\Models\HasilKuisSiswa::where('id_quiz', $id)->get();
+        $hasils = HasilKuisSiswa::where('id_quiz', $id)->get();
         if ($hasils->isEmpty()) {
             return back()->with('error', 'Belum ada siswa yang mengerjakan ujian ini.');
         }
 
         $terkirim = 0;
         foreach ($hasils as $h) {
-            $pesan = "Hasil Ujian [{$quiz->judul_quiz}]: Nilai akhir Anda adalah " . number_format($h->nilai_akhir, 0) . ". ";
+            $pesan = "Hasil Ujian [{$quiz->judul_quiz}]: Nilai akhir Anda adalah ".number_format($h->nilai_akhir, 0).'. ';
             if ($h->catatan_guru) {
                 $pesan .= "Catatan: {$h->catatan_guru}";
             }
 
-            \App\Features\Models\Notifikasi::create([
+            Notifikasi::create([
                 'id_guru' => $guru->id_guru,
                 'id_siswa' => $h->id_siswa,
                 'id_pr' => null,
@@ -718,19 +722,20 @@ class UjianController extends Controller
     public function toggleRilisNilai(Request $request, $idHasil)
     {
         $guru = $this->authenticatedGuru();
-        $hasil = \App\Features\Models\HasilKuisSiswa::with('quiz')->findOrFail($idHasil);
+        $hasil = HasilKuisSiswa::with('quiz')->findOrFail($idHasil);
 
         if ($hasil->quiz && $hasil->quiz->id_guru != $guru->id_guru) {
             abort(403, 'Akses ditolak.');
         }
 
-        $newStatus = !$hasil->status_kirim;
+        $newStatus = ! $hasil->status_kirim;
         $hasil->update([
             'status_kirim' => $newStatus,
             'waktu_kirim' => $newStatus ? now() : null,
         ]);
 
         $statusMsg = $newStatus ? 'berhasil ditampilkan ke siswa' : 'berhasil disembunyikan (siswa kembali menunggu nilai)';
+
         return back()->with('success', "Nilai siswa {$statusMsg}.");
     }
 

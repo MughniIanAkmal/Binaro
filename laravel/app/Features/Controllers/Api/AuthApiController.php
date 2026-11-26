@@ -59,6 +59,7 @@ class AuthApiController extends ApiController
                 // ignore
             }
         }
+
         return false;
     }
 
@@ -77,9 +78,10 @@ class AuthApiController extends ApiController
         $password = trim($validated['password']);
         $namaLengkap = $validated['nama_lengkap'] ?? null;
 
-        $throttleKey = Str::transliterate($nisn . '|' . $request->ip());
+        $throttleKey = Str::transliterate($nisn.'|'.$request->ip());
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
+
             return $this->error("Terlalu banyak percobaan login. Coba lagi dalam {$seconds} detik.", 429);
         }
 
@@ -89,10 +91,10 @@ class AuthApiController extends ApiController
             ->orWhere('username', $nisn)
             ->first();
         if ($siswa && $this->verifyPassword($password, $siswa->password)) {
-            if (!empty($namaLengkap)) {
+            if (! empty($namaLengkap)) {
                 $dbName = strtolower(trim($siswa->nm_siswa));
                 $inputName = strtolower($namaLengkap);
-                if (!str_contains($dbName, $inputName) && !str_contains($inputName, $dbName)) {
+                if (! str_contains($dbName, $inputName) && ! str_contains($inputName, $dbName)) {
                     return $this->error('Nama lengkap tidak sesuai dengan data NISN terdaftar.', 401);
                 }
             }
@@ -151,11 +153,12 @@ class AuthApiController extends ApiController
                     'nip' => $admin->nip,
                     'nama_admin' => $admin->nama_admin,
                     'email' => $admin->email ?? null,
-                ]
-            ], 'Login admin berhasil! Selamat datang, ' . $admin->nama_admin);
+                ],
+            ], 'Login admin berhasil! Selamat datang, '.$admin->nama_admin);
         }
 
         RateLimiter::hit($throttleKey, 60);
+
         return $this->error('NISN atau Password salah.', 401);
     }
 
@@ -170,7 +173,8 @@ class AuthApiController extends ApiController
             if (config('auth.guards.sanctum')) {
                 $user = $request->user('sanctum');
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
         if (! $user) {
             $user = $request->user();
         }

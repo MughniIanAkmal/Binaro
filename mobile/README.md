@@ -22,10 +22,10 @@ pun selama tunnel hidup. Bisa dioverride tanpa mengubah kode:
 flutter run
 
 # Pakai IP LAN (lebih cepat, HP harus di Wi-Fi yang sama)
-flutter run --dart-define=BINARO_API_BASE_URL=http://192.168.18.187:8000/api
+flutter run --dart-define=BINARO_API_BASE_URL=http://10.10.9.118:8000/api
 
 # Android emulator
-flutter run --dart-define=BINARO_API_BASE_URL=http://10.0.2.2:8000/api
+flutter run --dart-define=BINARO_API_BASE_URL=http://10.10.9.118:8000/api
 ```
 
 ## Cara Menjalankan

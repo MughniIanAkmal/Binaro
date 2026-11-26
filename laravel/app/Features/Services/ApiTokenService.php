@@ -40,11 +40,11 @@ class ApiTokenService
             $decrypted = Crypt::decryptString($token);
             $payload = json_decode($decrypted, true);
 
-            if (!is_array($payload) || empty($payload['id']) || empty($payload['role'])) {
+            if (! is_array($payload) || empty($payload['id']) || empty($payload['role'])) {
                 return null;
             }
 
-            if (!empty($payload['expires_at']) && $payload['expires_at'] < time()) {
+            if (! empty($payload['expires_at']) && $payload['expires_at'] < time()) {
                 return null; // Expired
             }
 
@@ -59,9 +59,9 @@ class ApiTokenService
      */
     public static function resolveUser(Request $request, ?string $requiredRole = null): ?array
     {
-        $token = $request->bearerToken() 
-            ?? $request->header('X-Api-Token') 
-            ?? $request->query('api_token') 
+        $token = $request->bearerToken()
+            ?? $request->header('X-Api-Token')
+            ?? $request->query('api_token')
             ?? $request->input('api_token');
 
         $user = null;
@@ -83,7 +83,7 @@ class ApiTokenService
         }
 
         // Fallback 1: Session authentication
-        if (!$user && Session::has('user_id')) {
+        if (! $user && Session::has('user_id')) {
             $sessId = Session::get('user_id');
             $sessType = Session::get('user_type') ?? ($requiredRole ?: 'siswa');
             $role = $sessType;
@@ -97,7 +97,7 @@ class ApiTokenService
         }
 
         // Fallback 2: Parameter id_siswa / id_guru / id_admin dari request
-        if (!$user) {
+        if (! $user) {
             if ($request->has('id_siswa')) {
                 $user = Siswa::find($request->input('id_siswa') ?? $request->query('id_siswa'));
                 $role = 'siswa';
@@ -116,7 +116,7 @@ class ApiTokenService
             }
         }
 
-        if (!$user) {
+        if (! $user) {
             return null;
         }
 

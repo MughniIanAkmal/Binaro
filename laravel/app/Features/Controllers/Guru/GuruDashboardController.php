@@ -3,7 +3,6 @@
 namespace App\Features\Controllers\Guru;
 
 use App\Features\Controllers\Controller;
-use App\Features\Models\Absen;
 use App\Features\Models\Guru;
 use App\Features\Models\Jadwal;
 use App\Features\Models\MataPelajaran;
@@ -30,7 +29,7 @@ class GuruDashboardController extends Controller
         }
 
         $guru = Guru::find(session('user_id'));
-        if (!$guru) {
+        if (! $guru) {
             session()->flush();
 
             return redirect()->route('login')->with('error', 'Sesi guru tidak valid. Silakan login kembali.');

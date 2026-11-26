@@ -822,4 +822,3 @@ class GuruUjianOnlineTest extends TestCase
         $response->assertSessionHasErrors(['total_bobot']);
     }
 }
-

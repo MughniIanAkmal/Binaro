@@ -4,8 +4,8 @@ namespace App\Features\Controllers\Api\Siswa;
 
 use App\Features\Controllers\Api\ApiController;
 use App\Features\Models\Absen;
+use App\Features\Models\Siswa;
 use App\Features\Services\AbsensiService;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AbsensiController extends ApiController
@@ -15,7 +15,7 @@ class AbsensiController extends ApiController
     public function todayAttendance(Request $request)
     {
         $userId = $this->resolveSiswaId($request);
-        if (!$userId) {
+        if (! $userId) {
             return $this->error('User tidak terautentikasi', 401);
         }
 
@@ -38,7 +38,7 @@ class AbsensiController extends ApiController
     public function selfScan(Request $request)
     {
         $userId = $this->resolveSiswaId($request);
-        if (!$userId) {
+        if (! $userId) {
             return $this->error('User tidak terautentikasi', 401);
         }
 
@@ -53,7 +53,7 @@ class AbsensiController extends ApiController
             $kode = $bc?->kode_barcode;
         }
 
-        if (!$kode) {
+        if (! $kode) {
             return $this->error('Barcode tidak valid atau belum terdaftar', 404);
         }
 
@@ -67,7 +67,7 @@ class AbsensiController extends ApiController
             return $this->error('QR Barcode tidak dikenali oleh sistem', 404);
         }
 
-        $siswa = \App\Features\Models\Siswa::find($userId);
+        $siswa = Siswa::find($userId);
 
         return $this->success([
             'siswa' => $siswa?->nm_siswa ?? 'Siswa',
@@ -81,13 +81,14 @@ class AbsensiController extends ApiController
 
     protected function resolveSiswaId(Request $request): ?int
     {
-        $siswa = \App\Features\Models\Siswa::first();
+        $siswa = Siswa::first();
         $user = null;
         try {
             if (config('auth.guards.sanctum')) {
                 $user = $request->user('sanctum');
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
         if (! $user) {
             $user = $request->user();
         }

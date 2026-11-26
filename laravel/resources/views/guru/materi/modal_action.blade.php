@@ -60,7 +60,7 @@
                         <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran <span class="text-rose-500">*</span></label>
                         <select name="id_mapel" id="tambah-bab-mapel" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                             <option value="">-- Pilih Mata Pelajaran --</option>
-                            @foreach(\App\Models\MataPelajaran::all() as $m)
+                            @foreach(\App\Features\Models\MataPelajaran::all() as $m)
                                 <option value="{{ $m->id_mapel }}">{{ $m->nama_mapel }}</option>
                             @endforeach
                         </select>
@@ -116,7 +116,7 @@
                             <label class="block text-xs font-bold text-slate-700 mb-1">Pilih Mata Pelajaran <span class="text-rose-500">*</span></label>
                             <select id="tambah-subbab-mapel" onchange="loadBabsForSelect(this.value, 'tambah-subbab-bab')" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                                 <option value="">-- Pilih Mata Pelajaran --</option>
-                                @foreach(\App\Models\MataPelajaran::all() as $m)
+                                @foreach(\App\Features\Models\MataPelajaran::all() as $m)
                                     <option value="{{ $m->id_mapel }}">{{ $m->nama_mapel }}</option>
                                 @endforeach
                             </select>
@@ -175,7 +175,7 @@
                             <label class="block text-[11px] font-bold text-slate-700 mb-1">1. Mapel <span class="text-rose-500">*</span></label>
                             <select id="tambah-materi-mapel" onchange="loadBabsForSelect(this.value, 'tambah-materi-bab', 'tambah-materi-subbab')" required class="w-full px-2.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                                 <option value="">-- Mapel --</option>
-                                @foreach(\App\Models\MataPelajaran::all() as $m)
+                                @foreach(\App\Features\Models\MataPelajaran::all() as $m)
                                     <option value="{{ $m->id_mapel }}">{{ $m->nama_mapel }}</option>
                                 @endforeach
                             </select>
@@ -304,7 +304,7 @@
                             <label class="block text-[11px] text-slate-500 mb-1">Pilih Mapel</label>
                             <select id="edit-filter-mapel" onchange="loadBabsForSelect(this.value, 'edit-filter-bab', 'edit-filter-subbab', 'edit-filter-materi')" class="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
                                 <option value="">-- Pilih Mapel --</option>
-                                @foreach(\App\Models\MataPelajaran::all() as $m)
+                                @foreach(\App\Features\Models\MataPelajaran::all() as $m)
                                     <option value="{{ $m->id_mapel }}">{{ $m->nama_mapel }}</option>
                                 @endforeach
                             </select>

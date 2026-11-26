@@ -34,7 +34,7 @@
     $notifBelumBacaCount = 0;
     $activeSiswaId = session('user_id');
     if ($activeSiswaId && session('user_type') === 'siswa') {
-        $notifBelumBacaCount = \App\Models\Notifikasi::where('id_siswa', $activeSiswaId)
+        $notifBelumBacaCount = \App\Features\Models\Notifikasi::where('id_siswa', $activeSiswaId)
             ->whereNotNull('id_pr')
             ->where('status_baca', 0)
             ->count();

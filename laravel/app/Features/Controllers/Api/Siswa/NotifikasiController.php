@@ -4,6 +4,8 @@ namespace App\Features\Controllers\Api\Siswa;
 
 use App\Features\Controllers\Api\ApiController;
 use App\Features\Models\Notifikasi;
+use App\Features\Models\Siswa;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class NotifikasiController extends ApiController
@@ -11,7 +13,7 @@ class NotifikasiController extends ApiController
     public function notifikasiList(Request $request)
     {
         $siswaId = $this->resolveSiswaId($request) ?? 1;
-        $siswa = \App\Features\Models\Siswa::find($siswaId) ?? \App\Features\Models\Siswa::first();
+        $siswa = Siswa::find($siswaId) ?? Siswa::first();
 
         if (! $siswa) {
             return $this->success(['belum_dibaca' => 0, 'notifikasi' => []], 'Belum ada notifikasi');
@@ -23,19 +25,19 @@ class NotifikasiController extends ApiController
             ->limit(30)
             ->get();
 
-        $hariIni = \Carbon\Carbon::today();
+        $hariIni = Carbon::today();
         $result = $daftar->map(function ($n) use ($hariIni) {
             $pr = $n->pr;
             $prData = null;
 
             if ($pr) {
-                $tenggat = \Carbon\Carbon::parse($pr->tgl_tenggat);
+                $tenggat = Carbon::parse($pr->tgl_tenggat);
                 $sisaHari = (int) $hariIni->diffInDays($tenggat->copy()->startOfDay(), false);
                 $labelTenggat = match (true) {
-                    $sisaHari < 0 => 'Terlewat ' . abs($sisaHari) . ' hari',
+                    $sisaHari < 0 => 'Terlewat '.abs($sisaHari).' hari',
                     $sisaHari === 0 => 'Hari ini',
                     $sisaHari === 1 => 'Besok',
-                    default => $sisaHari . ' hari lagi',
+                    default => $sisaHari.' hari lagi',
                 };
 
                 $prData = [
@@ -45,7 +47,7 @@ class NotifikasiController extends ApiController
                     'nama_mapel' => $pr->mataPelajaran?->nama_mapel,
                     'nama_guru' => $pr->guru?->nama_guru,
                     'tgl_tenggat' => $tenggat->toIso8601String(),
-                    'tenggat_format' => $tenggat->translatedFormat('l, d M Y') . ' • ' . $tenggat->format('H:i'),
+                    'tenggat_format' => $tenggat->translatedFormat('l, d M Y').' • '.$tenggat->format('H:i'),
                     'sisa_hari' => $sisaHari,
                     'label_tenggat' => $labelTenggat,
                     'mendesak' => $sisaHari <= 1,
@@ -70,7 +72,7 @@ class NotifikasiController extends ApiController
     public function notifikasiBaca(Request $request)
     {
         $siswaId = $this->resolveSiswaId($request) ?? 1;
-        $siswa = \App\Features\Models\Siswa::find($siswaId) ?? \App\Features\Models\Siswa::first();
+        $siswa = Siswa::find($siswaId) ?? Siswa::first();
 
         if ($siswa) {
             Notifikasi::where('id_siswa', $siswa->id_siswa)
@@ -83,9 +85,12 @@ class NotifikasiController extends ApiController
 
     protected function resolveSiswaId(Request $request): ?int
     {
-        $siswa = \App\Features\Models\Siswa::first();
+        $siswa = Siswa::first();
         $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) return (int) $id;
+        if ($id) {
+            return (int) $id;
+        }
+
         return $siswa?->id_siswa;
     }
 }

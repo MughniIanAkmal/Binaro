@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use App\Models\Guru;
 use App\Models\Bab;
+use App\Models\Guru;
 use App\Models\JadwalMataPelajaran;
 use App\Models\Kelas;
-use App\Models\Materi;
 use App\Models\MataPelajaran;
+use App\Models\Materi;
 use App\Models\Notifikasi;
 use App\Models\Pr;
 use App\Models\Rpp;

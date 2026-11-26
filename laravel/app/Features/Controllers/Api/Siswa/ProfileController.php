@@ -4,6 +4,7 @@ namespace App\Features\Controllers\Api\Siswa;
 
 use App\Features\Controllers\Api\ApiController;
 use App\Features\Models\Siswa;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -21,15 +22,15 @@ class ProfileController extends ApiController
             }])->find($siswaId);
         }
 
-        if (!$siswa) {
+        if (! $siswa) {
             $siswa = Siswa::with(['barcode', 'kelas'])->first();
         }
 
-        if (!$siswa) {
+        if (! $siswa) {
             return $this->error('Siswa tidak ditemukan', 404);
         }
 
-        $barcodeCode = $siswa->barcode?->kode_barcode ?? ('SISWA-' . $siswa->nisn);
+        $barcodeCode = $siswa->barcode?->kode_barcode ?? ('SISWA-'.$siswa->nisn);
 
         $hadir = $siswa->absens ? $siswa->absens->where('status', 'Hadir')->count() : 0;
         $izin = $siswa->absens ? $siswa->absens->where('status', 'Izin')->count() : 0;
@@ -44,7 +45,7 @@ class ProfileController extends ApiController
                 'nama' => $siswa->nm_siswa,
                 'nm_siswa' => $siswa->nm_siswa,
                 'nama_siswa' => $siswa->nm_siswa,
-                'kelas' => $siswa->nama_kelas . ' • SDN Kalitapen 01',
+                'kelas' => $siswa->nama_kelas.' • SDN Kalitapen 01',
                 'nisn' => $siswa->nisn,
                 'email' => $siswa->email,
                 'no_hp' => $siswa->no_hp,
@@ -53,7 +54,7 @@ class ProfileController extends ApiController
                 'barcode' => $barcodeCode,
             ],
             'rekap_absensi' => [
-                'bulan' => \Carbon\Carbon::now()->translatedFormat('F Y'),
+                'bulan' => Carbon::now()->translatedFormat('F Y'),
                 'hadir' => $hadir > 0 ? $hadir : 18,
                 'izin' => $izin > 0 ? $izin : 1,
                 'sakit' => $sakit,
@@ -62,7 +63,7 @@ class ProfileController extends ApiController
                     'status' => 'Sudah Hadir',
                     'keterangan' => 'Tepat Waktu • 07.10 WIB',
                     'badge' => '95% Rajin',
-                ]
+                ],
             ],
             'data_sekolah' => [
                 'wali' => 'Ibu Endang Rahayu',
@@ -76,12 +77,12 @@ class ProfileController extends ApiController
     public function updateProfile(Request $request)
     {
         $userId = $this->resolveSiswaId($request);
-        if (!$userId) {
+        if (! $userId) {
             return $this->error('User tidak terautentikasi', 401);
         }
 
         $siswa = Siswa::find($userId);
-        if (!$siswa) {
+        if (! $siswa) {
             return $this->error('Siswa tidak ditemukan', 404);
         }
 
@@ -93,7 +94,7 @@ class ProfileController extends ApiController
             'foto_profil' => 'sometimes|nullable|string',
         ]);
 
-        if (isset($data['nama']) && !isset($data['nm_siswa'])) {
+        if (isset($data['nama']) && ! isset($data['nm_siswa'])) {
             $data['nm_siswa'] = $data['nama'];
         }
 
@@ -106,7 +107,7 @@ class ProfileController extends ApiController
     {
         $siswaId = $this->resolveSiswaId($request);
         $siswa = Siswa::find($siswaId);
-        if (!$siswa) {
+        if (! $siswa) {
             return $this->error('Siswa tidak ditemukan', 404);
         }
 
@@ -120,7 +121,7 @@ class ProfileController extends ApiController
         $input = trim($request->input('password_lama'));
         $match = ($input === $stored) || (md5($input) === $stored) || (Hash::check($input, $stored));
 
-        if (!$match) {
+        if (! $match) {
             return $this->error('Sandi saat ini (password lama) salah!', 400);
         }
 
@@ -194,7 +195,8 @@ class ProfileController extends ApiController
             if (config('auth.guards.sanctum')) {
                 $user = $request->user('sanctum');
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
         if (! $user) {
             $user = $request->user();
         }
@@ -203,16 +205,22 @@ class ProfileController extends ApiController
         }
 
         $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) return (int) $id;
+        if ($id) {
+            return (int) $id;
+        }
+
         return Siswa::first()?->id_siswa;
     }
 
     protected function fotoProfilUrl(?string $fotoProfil): ?string
     {
-        if (empty($fotoProfil)) return null;
+        if (empty($fotoProfil)) {
+            return null;
+        }
         if (str_starts_with($fotoProfil, 'http://') || str_starts_with($fotoProfil, 'https://')) {
             return $fotoProfil;
         }
-        return url('storage/' . ltrim($fotoProfil, '/'));
+
+        return url('storage/'.ltrim($fotoProfil, '/'));
     }
 }

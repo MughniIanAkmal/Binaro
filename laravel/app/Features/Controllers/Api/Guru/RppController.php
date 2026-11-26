@@ -3,6 +3,8 @@
 namespace App\Features\Controllers\Api\Guru;
 
 use App\Features\Controllers\Api\ApiController;
+use App\Features\Models\Guru;
+use App\Features\Models\MataPelajaran;
 use App\Features\Models\Rpp;
 use Illuminate\Http\Request;
 
@@ -20,8 +22,9 @@ class RppController extends ApiController
             ?? session()->get('guru_id')
             ?? session()->get('user_id');
 
-        if (!$id) {
-            $firstGuru = \App\Features\Models\Guru::first();
+        if (! $id) {
+            $firstGuru = Guru::first();
+
             return $firstGuru?->id_guru;
         }
 
@@ -31,7 +34,7 @@ class RppController extends ApiController
     public function listRpp(Request $request)
     {
         $guruId = $this->authGuruId($request);
-        if (!$guruId) {
+        if (! $guruId) {
             return $this->error('User tidak terautentikasi', 401);
         }
 
@@ -43,7 +46,7 @@ class RppController extends ApiController
     public function createRpp(Request $request)
     {
         $guruId = $this->authGuruId($request);
-        if (!$guruId) {
+        if (! $guruId) {
             return $this->error('User tidak terautentikasi', 401);
         }
 
@@ -57,7 +60,7 @@ class RppController extends ApiController
         ]);
 
         if (empty($data['id_mapel'])) {
-            $data['id_mapel'] = \App\Features\Models\MataPelajaran::value('id_mapel') ?? 17;
+            $data['id_mapel'] = MataPelajaran::value('id_mapel') ?? 17;
         }
 
         $data['id_guru'] = $guruId;
@@ -69,12 +72,12 @@ class RppController extends ApiController
     public function editRpp(Request $request, $id)
     {
         $guruId = $this->authGuruId($request);
-        if (!$guruId) {
+        if (! $guruId) {
             return $this->error('User tidak terautentikasi', 401);
         }
 
         $rpp = Rpp::where('id_rpp', $id)->where('id_guru', $guruId)->first();
-        if (!$rpp) {
+        if (! $rpp) {
             return $this->error('RPP tidak ditemukan', 404);
         }
 
@@ -93,12 +96,12 @@ class RppController extends ApiController
     public function deleteRpp(Request $request, $id)
     {
         $guruId = $this->authGuruId($request);
-        if (!$guruId) {
+        if (! $guruId) {
             return $this->error('User tidak terautentikasi', 401);
         }
 
         $rpp = Rpp::where('id_rpp', $id)->where('id_guru', $guruId)->first();
-        if (!$rpp) {
+        if (! $rpp) {
             return $this->error('RPP tidak ditemukan', 404);
         }
 

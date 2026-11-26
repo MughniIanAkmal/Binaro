@@ -3,12 +3,12 @@
 namespace App\Features\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
 use Laravel\Sanctum\HasApiTokens;
 
 class Siswa extends Authenticatable
 {
     use HasApiTokens;
+
     protected $table = 'siswa';
 
     protected $primaryKey = 'id_siswa';
@@ -16,6 +16,7 @@ class Siswa extends Authenticatable
     public $timestamps = true;
 
     protected $hidden = ['password'];
+
     protected $fillable = [
         'id_rooms',
         'nisn',

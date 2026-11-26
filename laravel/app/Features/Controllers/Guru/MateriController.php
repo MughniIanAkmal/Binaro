@@ -3,14 +3,14 @@
 namespace App\Features\Controllers\Guru;
 
 use App\Features\Controllers\Controller;
-use App\Features\Requests\Guru\StoreMateriRequest;
-use App\Features\Requests\Guru\UpdateMateriRequest;
 use App\Features\Models\Bab;
 use App\Features\Models\MataPelajaran;
 use App\Features\Models\Materi;
 use App\Features\Models\Quiz;
 use App\Features\Models\SoalQuiz;
 use App\Features\Models\SubBab;
+use App\Features\Requests\Guru\StoreMateriRequest;
+use App\Features\Requests\Guru\UpdateMateriRequest;
 use App\Features\Services\ExcelService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -141,7 +141,7 @@ class MateriController extends Controller
         $bab = Bab::findOrFail($id);
         $bab->update(['semester' => (int) $request->semester]);
 
-        return back()->with('success', 'Semester bab "' . $bab->nama_bab . '" berhasil diubah.');
+        return back()->with('success', 'Semester bab "'.$bab->nama_bab.'" berhasil diubah.');
     }
 
     public function storeSubBab(Request $request)
@@ -314,20 +314,22 @@ class MateriController extends Controller
     public function toggleBabLock($id)
     {
         $bab = Bab::findOrFail($id);
-        $bab->is_locked = !$bab->is_locked;
+        $bab->is_locked = ! $bab->is_locked;
         $bab->save();
 
         $statusText = $bab->is_locked ? 'dikunci (siswa tidak dapat mengakses)' : 'dibuka kuncinya (siswa dapat mengakses)';
+
         return back()->with('success', "Bab \"{$bab->nama_bab}\" berhasil {$statusText}.");
     }
 
     public function toggleSubBabLock($id)
     {
         $subBab = SubBab::findOrFail($id);
-        $subBab->is_locked = !$subBab->is_locked;
+        $subBab->is_locked = ! $subBab->is_locked;
         $subBab->save();
 
         $statusText = $subBab->is_locked ? 'dikunci' : 'dibuka kuncinya';
+
         return back()->with('success', "Sub-Bab \"{$subBab->nama_sub_bab}\" berhasil {$statusText}.");
     }
 

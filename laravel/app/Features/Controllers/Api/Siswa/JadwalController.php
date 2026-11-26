@@ -3,9 +3,10 @@
 namespace App\Features\Controllers\Api\Siswa;
 
 use App\Features\Controllers\Api\ApiController;
-use App\Features\Models\MataPelajaran;
-use App\Features\Models\Jadwal;
 use App\Features\Models\Guru;
+use App\Features\Models\Jadwal;
+use App\Features\Models\MataPelajaran;
+use App\Features\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,7 +15,7 @@ class JadwalController extends ApiController
     public function jadwalList(Request $request)
     {
         $siswaId = $this->resolveSiswaId($request) ?? 1;
-        $siswa = \App\Features\Models\Siswa::find($siswaId);
+        $siswa = Siswa::find($siswaId);
 
         $rows = collect();
         if ($siswa && $siswa->id_rooms) {
@@ -72,11 +73,19 @@ class JadwalController extends ApiController
             if (config('auth.guards.sanctum')) {
                 $user = $request->user('sanctum');
             }
-        } catch (\Throwable $e) {}
-        if (! $user) $user = $request->user();
-        if ($user && isset($user->id_siswa)) return (int) $user->id_siswa;
+        } catch (\Throwable $e) {
+        }
+        if (! $user) {
+            $user = $request->user();
+        }
+        if ($user && isset($user->id_siswa)) {
+            return (int) $user->id_siswa;
+        }
         $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) return (int) $id;
-        return \App\Features\Models\Siswa::first()?->id_siswa;
+        if ($id) {
+            return (int) $id;
+        }
+
+        return Siswa::first()?->id_siswa;
     }
 }

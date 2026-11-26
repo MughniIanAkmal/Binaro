@@ -1,4 +1,11 @@
 <?php
+
+use App\Features\Models\Siswa;
+use App\Models\Guru;
+use App\Models\JadwalMataPelajaran;
+use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Http\Request;
+
 /**
  * Smoke test jadwal untuk 3 peran (admin, guru, siswa).
  * Jalankan: php scripts/smoke_jadwal.php
@@ -6,14 +13,14 @@
 require __DIR__.'/../vendor/autoload.php';
 
 $app = require __DIR__.'/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+$kernel = $app->make(Kernel::class);
 $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
 function requestAs(string $url, array $session): array
 {
     global $kernel;
 
-    $req = Illuminate\Http\Request::create($url, 'GET');
+    $req = Request::create($url, 'GET');
     $store = app('session')->driver();
     $store->start();
     foreach ($session as $k => $v) {
@@ -35,11 +42,11 @@ function requestAs(string $url, array $session): array
 }
 
 $admin = ['user_id' => 1, 'user_type' => 'admin', 'user_name' => 'Administrator'];
-$guruRow = App\Models\Guru::first();
-$siswaRow = App\Features\Models\Siswa::first();
+$guruRow = Guru::first();
+$siswaRow = Siswa::first();
 
 // Ambil id jadwal yang benar-benar ada (hindari 404 palsu saat DB kosong).
-$jadwalId = App\Models\JadwalMataPelajaran::value('id_jadwal');
+$jadwalId = JadwalMataPelajaran::value('id_jadwal');
 
 $guru = $guruRow
     ? ['user_id' => $guruRow->id_guru, 'user_type' => 'guru', 'user_name' => $guruRow->nama_guru]
@@ -83,5 +90,5 @@ foreach ($cases as [$label, $url, $sess]) {
     printf("%-26s %-26s %s %s\n", $label, $url, $ok ? 'OK ' : 'FAIL', $ok ? '' : "status=$status err=$extra");
 }
 
-echo "\n".($fail === 0 ? "SEMUA HALAMAN OK" : "ADA {$fail} HALAMAN GAGAL")."\n";
+echo "\n".($fail === 0 ? 'SEMUA HALAMAN OK' : "ADA {$fail} HALAMAN GAGAL")."\n";
 exit($fail === 0 ? 0 : 1);

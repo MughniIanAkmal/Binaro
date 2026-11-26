@@ -9,7 +9,6 @@ use App\Features\Models\Kelas;
 use App\Features\Models\MataPelajaran;
 use App\Features\Models\TimeSlot;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class JadwalController extends Controller
 {

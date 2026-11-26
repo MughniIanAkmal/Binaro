@@ -140,11 +140,11 @@ class RppValidationAndLimitsTest extends TestCase
 
     public function test_auto_jp_from_target_jadwal_and_duration_limits()
     {
-        // 1. JP dihitung otomatis dari rentang jadwal (90 menit = 2 JP)
+        // 1. JP dihitung otomatis dari rentang jadwal (70 menit = 2 JP, 1 JP SD = 35 menit)
         $resAuto = $this->withSession($this->session)->post(route('guru.rpp.store'), [
             'id_mapel' => $this->mapel->id_mapel,
             'judul_rpp' => 'Judul Sah Auto JP',
-            'target_jadwal' => 'Senin 07.00 - 08.30 WIB',
+            'target_jadwal' => 'Senin 07.00 - 08.10 WIB',
             'action' => 'draft',
         ]);
         $resAuto->assertSessionHas('success');
@@ -159,7 +159,7 @@ class RppValidationAndLimitsTest extends TestCase
         ]);
         $resReversed->assertSessionHasErrors(['target_jadwal']);
 
-        // 3. Durasi kurang dari 1 JP (45 menit) -> ditolak
+        // 3. Durasi kurang dari 1 JP (35 menit) -> ditolak
         $resShort = $this->withSession($this->session)->post(route('guru.rpp.store'), [
             'id_mapel' => $this->mapel->id_mapel,
             'judul_rpp' => 'Judul Sah Auto JP Singkat',
@@ -168,7 +168,7 @@ class RppValidationAndLimitsTest extends TestCase
         ]);
         $resShort->assertSessionHasErrors(['target_jadwal']);
 
-        // 4. Durasi lebih dari 5 JP (225 menit) -> ditolak
+        // 4. Durasi lebih dari 6 JP (210 menit) -> ditolak
         $resLong = $this->withSession($this->session)->post(route('guru.rpp.store'), [
             'id_mapel' => $this->mapel->id_mapel,
             'judul_rpp' => 'Judul Sah Auto JP Panjang',
@@ -274,7 +274,7 @@ class RppValidationAndLimitsTest extends TestCase
             'judul_rpp' => 'Judul Update Berhasil Sah',
             'modul_ke' => 'Modul 28',
             'alokasi_waktu' => '2 JP',
-            'target_jadwal' => 'Senin 08.00 - 09.30 WIB',
+            'target_jadwal' => 'Senin 08.00 - 09.10 WIB',
             'ruang' => 'Ruang 4B',
             'deskripsi' => 'Deskripsi sah dalam batas',
             'custom_tags' => 'Modul Terpadu, Evaluasi Harian',

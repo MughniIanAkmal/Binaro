@@ -1,6 +1,6 @@
 <!-- ================= JAVASCRIPT MODALS & KONTROL RPP ================= -->
 <script>
-    const MENIT_PER_JP = 45; // Standar 1 JP = 45 Menit
+    const MENIT_PER_JP = 35; // Standar SD Negeri: 1 JP = 35 Menit
     const JAM_TUTUP_MAX_MINUTES = 12 * 60; // 12:00 WIB (Jam Tutup Sekolah)
 
     function formatTimeHM(h, m) {
@@ -83,11 +83,11 @@
             };
         }
 
-        // 3. Cek Durasi Terlalu Panjang (Maksimal 5 JP / 225 menit)
-        if (durasi > 225) {
+        // 3. Cek Durasi Terlalu Panjang (Maksimal 6 JP / 210 menit)
+        if (durasi > 210) {
             return {
                 valid: false,
-                error: `Durasi pembelajaran (${durasi} menit) melebihi batas wajar 1 modul ajar (maksimal 5 JP / 225 menit).`,
+                error: `Durasi pembelajaran (${durasi} menit) melebihi batas wajar 1 modul ajar (maksimal 6 JP / 210 menit).`,
                 warning: null,
                 durasi: durasi,
                 jp: null
@@ -212,7 +212,7 @@
             }
 
             alokasiInput.value = result.jpText;
-            badgeJp.innerHTML = `<i class="fas fa-check-circle text-emerald-600"></i> 1JP = 45m`;
+            badgeJp.innerHTML = `<i class="fas fa-check-circle text-emerald-600"></i> 1JP = 35m`;
             badgeJp.className = 'text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300 whitespace-nowrap';
             if (noteJp) noteJp.innerHTML = `<i class="fas fa-calculator text-emerald-600 shrink-0"></i> <span class="truncate text-emerald-700 font-medium">Auto: ${result.jpText} (${result.durasi} Menit)</span>`;
             if (btnPublish) btnPublish.disabled = false;
@@ -290,7 +290,7 @@
             }
 
             alokasiInput.value = result.jpText;
-            badgeJp.innerHTML = `<i class="fas fa-check-circle text-emerald-600"></i> 1JP = 45m`;
+            badgeJp.innerHTML = `<i class="fas fa-check-circle text-emerald-600"></i> 1JP = 35m`;
             badgeJp.className = 'text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300 whitespace-nowrap';
             if (noteJp) noteJp.innerHTML = `<i class="fas fa-calculator text-emerald-600 shrink-0"></i> <span class="truncate text-emerald-700 font-medium">Auto: ${result.jpText} (${result.durasi} Menit)</span>`;
             if (btnPublish) btnPublish.disabled = false;
@@ -596,7 +596,7 @@
 
             // Tampilkan JP dengan detail durasi
             const alokasi = data.alokasi_waktu || '2 JP';
-            document.getElementById('detail-alokasi').innerHTML = `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">${alokasi}</span> <span class="text-slate-400 font-normal">(1 JP = 45 Menit)</span>`;
+            document.getElementById('detail-alokasi').innerHTML = `<span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold border border-emerald-200">${alokasi}</span> <span class="text-slate-400 font-normal">(1 JP = 35 Menit)</span>`;
             document.getElementById('detail-jadwal').innerText = `${data.target_jadwal || '-'} (${data.ruang || 'Ruang Kelas'})`;
             document.getElementById('detail-tp').innerText = data.deskripsi || 'Capaian Pembelajaran belum diisi.';
 

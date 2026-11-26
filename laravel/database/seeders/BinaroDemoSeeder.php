@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Features\Models\Siswa;
 use App\Models\Admin;
 use App\Models\Bab;
 use App\Models\Guru;
@@ -9,7 +10,6 @@ use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Materi;
 use App\Models\Quiz;
-use App\Features\Models\Siswa;
 use App\Models\SoalQuiz;
 use App\Models\SubBab;
 use Illuminate\Database\Seeder;

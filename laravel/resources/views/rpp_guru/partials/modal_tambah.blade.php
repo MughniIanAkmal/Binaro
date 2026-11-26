@@ -1,373 +1,373 @@
-<!-- ================= MODAL TAMBAH RPP ================= -->
-<div id="modal-tambah-rpp" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-2xl my-8 overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
-        <!-- Header -->
-        <div class="bg-primary text-white p-5 flex items-center justify-between shrink-0">
-            <div>
-                <h3 class="text-base font-bold flex items-center gap-2">
-                    <i class="fas fa-file-circle-plus text-amber-300"></i> Buat Modul Ajar (RPP) Baru
-                </h3>
-                <p class="text-xs text-sky-100 mt-0.5">
-                    Kurikulum Merdeka &bull; {{ $guru->nama_guru ?? 'Guru Pengajar' }}
-                </p>
-            </div>
-            <button type="button" onclick="closeModalTambahRpp()" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition">
-                <i class="fas fa-times text-sm"></i>
-            </button>
-        </div>
+<!-- ================= MODAL BUAT MODUL AJAR (RPP) ================= -->
+<div id="modal-tambah-rpp"
+     class="fixed inset-0 z-50 hidden"
+     aria-modal="true" role="dialog" aria-labelledby="modal-tambah-title">
 
-        <!-- Form Body -->
-        <form id="form-tambah-rpp" action="{{ route('guru.rpp.store') }}" method="POST" enctype="multipart/form-data" class="p-6 overflow-y-auto flex-1 space-y-4">
-            @csrf
-            <input type="hidden" name="id_guru" value="{{ $guru->id_guru ?? 1 }}">
-            <input type="hidden" name="id_jadwal" id="tambah-id-jadwal" value="">
+    {{-- Overlay --}}
+    <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="closeModalTambahRpp()"></div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Mapel -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Mata Pelajaran <span class="text-rose-500">*</span></label>
-                    <select name="id_mapel" id="tambah-id-mapel" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
-                        <option value="">-- Pilih Mata Pelajaran --</option>
-                        @foreach($mapelList as $mapel)
-                            <option value="{{ $mapel->id_mapel }}">{{ $mapel->nama_mapel }}</option>
-                        @endforeach
-                    </select>
-                </div>
+    {{-- Dialog --}}
+    <div class="relative flex items-center justify-center min-h-full p-4">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-xl flex flex-col max-h-[92vh]"
+             style="animation: slideUp .2s ease">
 
-                <!-- Kelas -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Kelas</label>
-                    <select name="id_rooms" id="tambah-id-rooms" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
-                        @foreach($kelasList as $kelas)
-                            <option value="{{ $kelas->id_rooms }}" data-fase="{{ $kelas->fase }}">{{ $kelas->pararel ?? 'Kelas ' . $kelas->id_rooms }}</option>
-                        @endforeach
-                    </select>
-                </div>
-            </div>
-
-            <!-- Bab yang diajarkan -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                    <span>Bab yang Diajarkan <span class="text-rose-500">*</span></span>
-                    <span class="text-[10px] font-normal text-slate-400">RPP disusun per bab</span>
-                </label>
-                <select name="id_bab" id="tambah-id-bab" required
-                        class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
-                    <option value="">-- Pilih Bab --</option>
-                    @foreach($babList as $bab)
-                        <option value="{{ $bab->id_bab }}" data-mapel="{{ $bab->id_mapel }}" {{ $rppPerBab->has($bab->id_bab) ? 'disabled' : '' }}>
-                            {{ $bab->mataPelajaran->nama_mapel ?? '' }} — {{ $bab->nama_bab }}{{ $rppPerBab->has($bab->id_bab) ? ' (sudah ada RPP)' : '' }}
-                        </option>
-                    @endforeach
-                </select>
-                <p class="text-[10px] text-slate-400 mt-1">Daftar bab mengikuti mata pelajaran yang dipilih. Bab yang sudah punya RPP ditandai dan tidak bisa dipilih ulang.</p>
-            </div>
-
-            <!-- Judul RPP -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                    <span>Topik / Judul Modul Ajar <span class="text-rose-500">*</span></span>
-                    <span id="counter-tambah-judul" class="text-[10px] text-slate-400 font-normal">0/100</span>
-                </label>
-                <input type="text" name="judul_rpp" id="tambah-judul-rpp" required maxlength="100" placeholder="Contoh: Konsep Pecahan Senilai dan Membandingkan Pecahan"
-                       oninput="sanitizeAlphanumericOnly(this, 'counter-tambah-judul', 100)"
-                       class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
-                <p class="text-[10px] text-slate-400 mt-1">Maks. 100 karakter. Hanya huruf, angka, dan spasi (tanpa simbol).</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
-                <!-- Fase: otomatis dari kelas, tidak bisa diubah manual -->
-                <div>
-                    <label class="text-xs font-bold text-slate-700 mb-1.5 h-5 flex items-center justify-between">
-                        <span>Fase Pembelajaran</span>
-                    </label>
-                    <input type="hidden" name="fase" id="tambah-fase" value="">
-                    <div id="tambah-fase-badge"
-                         class="w-full px-3 py-2 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-bold text-emerald-800">
-                        Otomatis dari kelas
+            {{-- ── Header ── --}}
+            <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-100 shrink-0">
+                <div class="flex items-center gap-2.5">
+                    <div style="width:2rem;height:2rem;border-radius:.5rem;background:#eff6ff;display:flex;align-items:center;justify-content:center">
+                        <i class="fas fa-file-circle-plus" style="color:var(--color-primary);font-size:.8rem"></i>
                     </div>
-                    <p class="text-[10px] text-emerald-700 mt-1">A: kelas I–II · B: III–IV · C: V–VI</p>
+                    <div>
+                        <h3 id="modal-tambah-title" style="font-size:.8rem;font-weight:800;color:var(--color-ink)">
+                            Buat Modul Ajar Baru
+                        </h3>
+                        <p style="font-size:.65rem;color:var(--color-ink-muted)">
+                            Kurikulum Merdeka · {{ $guru->nama_guru ?? 'Guru Pengajar' }}
+                        </p>
+                    </div>
                 </div>
-
-                <!-- Modul Ke -->
-                <div>
-                    <label class="text-xs font-bold text-slate-700 mb-1.5 h-5 flex items-center justify-between">
-                        <span>Nomor Modul / Bab</span>
-                        <span id="counter-tambah-modul" class="text-[10px] text-slate-400 font-normal">0/20</span>
-                    </label>
-                    <input type="text" name="modul_ke" id="tambah-modul-ke" maxlength="20" placeholder="Contoh: Modul 28"
-                           oninput="sanitizeAlphanumericOnly(this, 'counter-tambah-modul', 20)"
-                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
-                    <p class="text-[10px] text-slate-400 mt-1">Maks. 20 karakter, tanpa simbol.</p>
-                </div>
-
-                <!-- Alokasi Waktu (Otomatis dari Roster Jadwal) -->
-                <div>
-                    <label class="text-xs font-bold text-slate-700 mb-1.5 h-5 flex items-center justify-between gap-1">
-                        <span class="whitespace-nowrap">Alokasi Waktu (JP)</span>
-                        <span id="tambah-badge-jp" class="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300 whitespace-nowrap">
-                            1JP = 45m
-                        </span>
-                    </label>
-                    <input type="text" name="alokasi_waktu" id="tambah-alokasi-waktu" readonly placeholder="Otomatis dari jadwal"
-                           class="w-full px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none cursor-not-allowed">
-                    <p id="tambah-note-jp" class="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
-                        <i class="fas fa-calculator text-emerald-600 shrink-0"></i>
-                        <span class="truncate">Otomatis dari durasi jadwal.</span>
-                    </p>
-                </div>
+                <button type="button" onclick="closeModalTambahRpp()"
+                        style="width:1.75rem;height:1.75rem;border-radius:.4rem;border:1px solid var(--color-line);background:#fff;display:flex;align-items:center;justify-content:center;color:var(--color-ink-muted);cursor:pointer;font-size:.75rem"
+                        aria-label="Tutup modal">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
 
-            <!-- Target Roster Jadwal Builder & Picker -->
-            <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
-                <div class="flex items-center justify-between">
-                    <label class="block text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                        <i class="fas fa-clock text-primary"></i>
-                        <span>Target Roster Jadwal Pelajaran <span class="text-rose-500">*</span></span>
-                    </label>
-                    <span class="text-[10px] font-semibold text-slate-600 bg-white px-2 py-0.5 rounded-full border border-slate-200">
-                        <i class="fas fa-school mr-1 text-primary"></i> Tutup Sekolah: <strong>12:00 WIB</strong>
-                    </span>
-                </div>
+            {{-- ── Form ── --}}
+            <form id="form-tambah-rpp"
+                  action="{{ route('guru.rpp.store') }}"
+                  method="POST"
+                  enctype="multipart/form-data"
+                  class="overflow-y-auto flex-1"
+                  style="padding:1.25rem;display:flex;flex-direction:column;gap:1rem">
+                @csrf
+                <input type="hidden" name="id_guru" value="{{ $guru->id_guru ?? 1 }}">
+                <input type="hidden" name="id_jadwal" id="tambah-id-jadwal" value="">
+                <input type="hidden" name="from_modal" value="1">
 
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <!-- Hari -->
+                {{-- Mapel + Kelas --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Hari</label>
-                        <select id="tambah-hari" onchange="syncTambahJadwalFromPickers()" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 focus:outline-none focus:border-primary">
-                            <option value="">-- Pilih Hari --</option>
-                            @foreach(['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'] as $hari)
-                                <option value="{{ $hari }}">{{ $hari }}</option>
+                        <label class="rpp-modal-label">
+                            Mata Pelajaran <span class="text-rose-500">*</span>
+                        </label>
+                        <select name="id_mapel" id="tambah-id-mapel" required class="rpp-modal-input">
+                            <option value="">-- Pilih Mapel --</option>
+                            @foreach($mapelList as $mapel)
+                                <option value="{{ $mapel->id_mapel }}">{{ $mapel->nama_mapel }}</option>
                             @endforeach
                         </select>
                     </div>
-
-                    <!-- Jam Mulai -->
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jam Mulai <span class="font-normal text-slate-400">(24 jam)</span></label>
-                        <div class="relative">
-                            <input type="text" id="tambah-jam-mulai" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="07.00"
-                                   oninput="maskJamInput(this); syncTambahJadwalFromPickers()"
-                                   class="w-full pl-3 pr-12 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-800 focus:outline-none focus:border-primary">
-                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-primary pointer-events-none">WIB</span>
-                        </div>
-                    </div>
-
-                    <!-- Jam Selesai -->
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jam Selesai <span class="font-normal text-slate-400">(24 jam)</span></label>
-                        <div class="relative">
-                            <input type="text" id="tambah-jam-selesai" inputmode="numeric" maxlength="5" autocomplete="off" placeholder="08.30"
-                                   oninput="maskJamInput(this); syncTambahJadwalFromPickers()"
-                                   class="w-full pl-3 pr-12 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold font-mono text-slate-800 focus:outline-none focus:border-primary">
-                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-primary pointer-events-none">WIB</span>
-                        </div>
+                        <label class="rpp-modal-label">Kelas</label>
+                        <select name="id_rooms" id="tambah-id-rooms" class="rpp-modal-input">
+                            @foreach($kelasList as $kelas)
+                                <option value="{{ $kelas->id_rooms }}" data-fase="{{ $kelas->fase }}">
+                                    {{ $kelas->pararel ?? 'Kelas '.$kelas->id_rooms }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
-                <!-- Input Terformat untuk Database -->
+                {{-- Bab --}}
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-1 flex items-center justify-between">
-                        <span>Format Teks Jadwal (Tersimpan di Sistem):</span>
-                        <span id="counter-tambah-jadwal" class="text-[10px] text-slate-400 font-normal">0/50</span>
+                    <label class="rpp-modal-label">
+                        Bab yang Diajarkan <span class="text-rose-500">*</span>
                     </label>
-                    <input type="text" name="target_jadwal" id="tambah-target-jadwal" maxlength="50"
-                           placeholder="Contoh: Senin, 07.15 - 08.45 WIB"
-                           oninput="onTambahTargetJadwalManual(this)"
-                           class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-primary">
-                    <p class="text-[10px] text-slate-400 mt-0.5">
-                        *Otomatis terisi saat memilih Hari, Jam Mulai & Selesai di atas (atau dapat diedit langsung).
+                    <select name="id_bab" id="tambah-id-bab" required class="rpp-modal-input">
+                        <option value="">-- Pilih Bab --</option>
+                        @foreach($babList as $bab)
+                            <option value="{{ $bab->id_bab }}"
+                                    data-mapel="{{ $bab->id_mapel }}"
+                                    {{ $rppPerBab->has($bab->id_bab) ? 'disabled' : '' }}>
+                                {{ $bab->mataPelajaran->nama_mapel ?? '' }} — {{ $bab->nama_bab }}
+                                {{ $rppPerBab->has($bab->id_bab) ? ' (sudah ada RPP)' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="rpp-modal-hint">Bab yang sudah ada RPP-nya tidak dapat dipilih ulang.</p>
+                </div>
+
+                {{-- Judul --}}
+                <div>
+                    <label class="rpp-modal-label" style="display:flex;align-items:center;justify-content:space-between">
+                        <span>Topik / Judul Modul <span class="text-rose-500">*</span></span>
+                        <span id="counter-tambah-judul" class="rpp-modal-hint" style="margin:0">0/100</span>
+                    </label>
+                    <input type="text" name="judul_rpp" id="tambah-judul-rpp"
+                           required maxlength="100"
+                           placeholder="Contoh: Konsep Pecahan Senilai"
+                           oninput="sanitizeAlphanumericOnly(this,'counter-tambah-judul',100)"
+                           class="rpp-modal-input">
+                </div>
+
+                {{-- Fase + Modul + Alokasi --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem">
+                    <div>
+                        <label class="rpp-modal-label">Fase</label>
+                        <input type="hidden" name="fase" id="tambah-fase" value="">
+                        <div id="tambah-fase-badge" class="rpp-modal-input"
+                             style="background:#f0fdf4;border-color:#bbf7d0;color:#16a34a;font-weight:700;cursor:default">
+                            Otomatis
+                        </div>
+                    </div>
+                    <div>
+                        <label class="rpp-modal-label" style="display:flex;align-items:center;justify-content:space-between">
+                            <span>Nomor Modul</span>
+                            <span id="counter-tambah-modul" class="rpp-modal-hint" style="margin:0">0/20</span>
+                        </label>
+                        <input type="text" name="modul_ke" id="tambah-modul-ke"
+                               maxlength="20" placeholder="Modul 1"
+                               oninput="sanitizeAlphanumericOnly(this,'counter-tambah-modul',20)"
+                               class="rpp-modal-input">
+                    </div>
+                    <div>
+                        <label class="rpp-modal-label" style="display:flex;align-items:center;justify-content:space-between">
+                            <span>Alokasi (JP)</span>
+                            <span id="tambah-badge-jp" style="font-size:.6rem;font-weight:700;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;border-radius:.3rem;padding:.1rem .4rem">1JP=35m</span>
+                        </label>
+                        <input type="text" name="alokasi_waktu" id="tambah-alokasi-waktu"
+                               readonly placeholder="Otomatis"
+                               class="rpp-modal-input" style="cursor:not-allowed;background:var(--color-canvas)">
+                    </div>
+                </div>
+
+                {{-- Target Jadwal --}}
+                <div style="background:var(--color-canvas);border:1px solid var(--color-line);border-radius:.625rem;padding:.875rem">
+                    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.625rem">
+                        <i class="fas fa-clock" style="color:var(--color-primary);font-size:.7rem"></i>
+                        <span style="font-size:.72rem;font-weight:700;color:var(--color-ink)">
+                            Target Roster Jadwal <span class="text-rose-500">*</span>
+                        </span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin-bottom:.6rem">
+                        <div>
+                            <label class="rpp-modal-hint" style="display:block;margin-bottom:.25rem">Hari</label>
+                            <select id="tambah-hari" onchange="syncTambahJadwalFromPickers()" class="rpp-modal-input">
+                                <option value="">-- Pilih --</option>
+                                @foreach(['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'] as $hari)
+                                    <option value="{{ $hari }}">{{ $hari }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="rpp-modal-hint" style="display:block;margin-bottom:.25rem">Jam Mulai</label>
+                            <div style="position:relative">
+                                <input type="text" id="tambah-jam-mulai" inputmode="numeric" maxlength="5"
+                                       placeholder="07.00"
+                                       oninput="maskJamInput(this);syncTambahJadwalFromPickers()"
+                                       class="rpp-modal-input" style="padding-right:2.5rem">
+                                <span style="position:absolute;right:.625rem;top:50%;transform:translateY(-50%);font-size:.6rem;font-weight:700;color:var(--color-primary)">WIB</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="rpp-modal-hint" style="display:block;margin-bottom:.25rem">Jam Selesai</label>
+                            <div style="position:relative">
+                                <input type="text" id="tambah-jam-selesai" inputmode="numeric" maxlength="5"
+                                       placeholder="08.30"
+                                       oninput="maskJamInput(this);syncTambahJadwalFromPickers()"
+                                       class="rpp-modal-input" style="padding-right:2.5rem">
+                                <span style="position:absolute;right:.625rem;top:50%;transform:translateY(-50%);font-size:.6rem;font-weight:700;color:var(--color-primary)">WIB</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="rpp-modal-hint" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem">
+                            <span>Format tersimpan</span>
+                            <span id="counter-tambah-jadwal">0/50</span>
+                        </label>
+                        <input type="text" name="target_jadwal" id="tambah-target-jadwal"
+                               maxlength="50" placeholder="Senin, 07.00–08.30 WIB"
+                               oninput="onTambahTargetJadwalManual(this)"
+                               class="rpp-modal-input" style="font-family:monospace;font-weight:600">
+                    </div>
+                    <div id="tambah-jadwal-error-box"
+                         class="hidden" style="margin-top:.5rem;padding:.5rem .75rem;background:#fef2f2;border:1px solid #fecaca;border-radius:.5rem;display:flex;align-items:flex-start;gap:.5rem;font-size:.68rem;color:#dc2626;font-weight:600">
+                        <i class="fas fa-triangle-exclamation" style="margin-top:.1rem;flex-shrink:0"></i>
+                        <span id="tambah-jadwal-error-text"></span>
+                    </div>
+                </div>
+
+                {{-- Ruang + Target Tanggal --}}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+                    <div>
+                        <label class="rpp-modal-label">Ruang / Lokasi</label>
+                        <input type="text" name="ruang" id="tambah-ruang"
+                               maxlength="50" placeholder="Ruang Kelas 4B"
+                               oninput="updateLengthCounter(this,'counter-tambah-ruang',50)"
+                               class="rpp-modal-input">
+                    </div>
+                    <div>
+                        <label class="rpp-modal-label">Target Tanggal <span class="rpp-modal-hint">(Opsional)</span></label>
+                        <input type="text" name="target_tanggal" id="tambah-target-tanggal"
+                               maxlength="50" placeholder="Minggu ke-2 Sem. 1"
+                               class="rpp-modal-input">
+                    </div>
+                </div>
+
+                {{-- Deskripsi CP/TP --}}
+                <div>
+                    <label class="rpp-modal-label" style="display:flex;align-items:center;justify-content:space-between">
+                        <span>Capaian Pembelajaran (Deskripsi Ringkas)</span>
+                        <span id="counter-tambah-deskripsi" class="rpp-modal-hint" style="margin:0">0/500</span>
+                    </label>
+                    <textarea name="deskripsi" id="tambah-deskripsi" rows="2"
+                              maxlength="500"
+                              placeholder="Tuliskan tujuan pembelajaran yang ingin dicapai…"
+                              oninput="sanitizeDeskripsiTp(this,'counter-tambah-deskripsi',500)"
+                              class="rpp-modal-input" style="height:auto;resize:vertical"></textarea>
+                </div>
+
+                {{-- Komponen Wajib --}}
+                <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:.625rem;padding:.875rem">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.5rem">
+                        <span style="font-size:.72rem;font-weight:700;color:var(--color-ink)">Komponen Wajib</span>
+                        <span style="font-size:.6rem;font-weight:700;background:#fecaca;color:#dc2626;border-radius:.3rem;padding:.1rem .4rem;border:1px solid #fca5a5">WAJIB DIAJUKAN</span>
+                    </div>
+                    <p style="font-size:.65rem;color:var(--color-ink-soft);margin-bottom:.625rem;line-height:1.5">
+                        Harus lengkap sebelum RPP bisa diajukan. Draf tetap bisa disimpan walau belum lengkap.
                     </p>
-                </div>
-
-                <!-- Warning Box Kesalahan Jadwal (Jam Terbalik, Terlalu Singkat, dsb) -->
-                <div id="tambah-jadwal-error-box" class="hidden p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-semibold flex items-start gap-2">
-                    <i class="fas fa-triangle-exclamation text-rose-500 text-sm mt-0.5 shrink-0"></i>
-                    <span id="tambah-jadwal-error-text">Jam pelajaran terbalik! Jam mulai tidak boleh lebih lambat atau sama dengan jam selesai.</span>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Ruang -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                        <span>Ruang / Lokasi Belajar</span>
-                        <span id="counter-tambah-ruang" class="text-[10px] text-slate-400 font-normal">0/50</span>
-                    </label>
-                    <input type="text" name="ruang" id="tambah-ruang" maxlength="50" placeholder="Ruang Kelas 4B"
-                           oninput="updateLengthCounter(this, 'counter-tambah-ruang', 50)"
-                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
-                    <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 50 karakter.</p>
-                </div>
-
-                <!-- Target Tanggal (Opsional) -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Target Tanggal Penerapan</label>
-                    <input type="text" name="target_tanggal" id="tambah-target-tanggal" placeholder="Contoh: Minggu ke-2 Semester 1" maxlength="50"
-                           class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
-                    <p class="text-[10px] text-slate-400 mt-0.5">Opsional (perkiraan minggu pembelajaran).</p>
-                </div>
-            </div>
-
-            <!-- Capaian Pembelajaran (TP) -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                    <span>Capaian Pembelajaran (TP) & Deskripsi Ringkas</span>
-                    <div class="flex items-center gap-2">
-                        {{-- <span class="text-[10px] text-rose-500 font-semibold">Simbol Dilarang</span> --}}
-                        <span id="counter-tambah-deskripsi" class="text-[10px] text-slate-400 font-normal">0/500</span>
-                    </div>
-                </label>
-                <textarea name="deskripsi" id="tambah-deskripsi" rows="3" maxlength="500" placeholder="Tuliskan tujuan pembelajaran yang dicapai peserta didik dalam aktivitas materi ini (maksimal 500 karakter)..."
-                          oninput="sanitizeDeskripsiTp(this, 'counter-tambah-deskripsi', 500)"
-                          class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary"></textarea>
-                <p class="text-[10px] text-slate-400 mt-0.5">Maksimal 500 karakter. Hanya huruf, angka, dan tanda baca kalimat (.,-;:()"/!?).</p>
-            </div>
-
-            <!-- Komponen Wajib (hard-block saat diajukan) -->
-            <div class="bg-rose-50/60 p-4 rounded-xl border border-rose-200 space-y-2.5">
-                <div class="flex items-center justify-between gap-2">
-                    <label class="block text-xs font-bold text-slate-800">Komponen Wajib</label>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 border border-rose-300">WAJIB DIAJUKAN</span>
-                </div>
-                <p class="text-[10px] text-slate-500 leading-relaxed">Tiga komponen ini harus lengkap sebelum RPP bisa diajukan ke admin. Draf tetap bisa disimpan walau belum lengkap.</p>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                    <label class="flex items-start gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-rose-200 hover:border-primary">
-                        <input type="checkbox" name="tujuan" value="1" class="rounded text-primary mt-0.5">
-                        <span><b class="block">Tujuan pembelajaran</b><span class="text-[10px] text-slate-400">Kompetensi + konten</span></span>
-                    </label>
-                    <label class="flex items-start gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-rose-200 hover:border-primary">
-                        <input type="checkbox" name="langkah" value="1" class="rounded text-primary mt-0.5">
-                        <span><b class="block">Langkah pembelajaran</b><span class="text-[10px] text-slate-400">Memahami–mengaplikasi–merefleksi</span></span>
-                    </label>
-                    <label class="flex items-start gap-2 cursor-pointer bg-white p-2.5 rounded-lg border border-rose-200 hover:border-primary">
-                        <input type="checkbox" name="asesmen" value="1" class="rounded text-primary mt-0.5">
-                        <span><b class="block">Asesmen</b><span class="text-[10px] text-slate-400">Minimal dua teknik</span></span>
-                    </label>
-                </div>
-
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-700 mb-1">Teknik Asesmen yang Digunakan</label>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[11px]">
-                        @foreach(['Observasi', 'Tes tulis', 'Unjuk kerja', 'Produk', 'Proyek', 'Portofolio', 'Penilaian diri', 'Penilaian sejawat'] as $teknik)
-                            <label class="flex items-center gap-1.5 px-2 py-1.5 bg-white rounded-md border border-slate-200 hover:border-primary cursor-pointer">
-                                <input type="checkbox" name="asesmen_teknik[]" value="{{ $teknik }}" class="rounded text-primary">
-                                <span class="truncate">{{ $teknik }}</span>
-                            </label>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem">
+                        @foreach([['tujuan','Tujuan Pembelajaran','Kompetensi + konten'],['langkah','Langkah Pembelajaran','Memahami–merefleksi'],['asesmen','Asesmen','Minimal 2 teknik']] as [$nama,$label,$sub])
+                        <label style="display:flex;align-items:flex-start;gap:.5rem;background:#fff;padding:.5rem .625rem;border-radius:.4rem;border:1px solid #fca5a5;cursor:pointer;font-size:.68rem">
+                            <input type="checkbox" name="{{ $nama }}" value="1" class="rounded mt-0.5" style="accent-color:var(--color-primary)">
+                            <span>
+                                <b style="display:block;font-size:.68rem">{{ $label }}</b>
+                                <span style="color:var(--color-ink-muted);font-size:.62rem">{{ $sub }}</span>
+                            </span>
+                        </label>
                         @endforeach
                     </div>
-                    <p class="text-[10px] text-slate-400 mt-1">Pilih minimal dua teknik berbeda agar asesmen tidak hanya tes tulis.</p>
-                </div>
-            </div>
-
-            <!-- Komponen Disarankan (soft-warning) -->
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
-                <div class="flex items-center justify-between gap-2">
-                    <label class="block text-xs font-bold text-slate-800">Komponen Pendukung</label>
-                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-white text-slate-500 border border-slate-300">DISARANKAN</span>
-                </div>
-                <p class="text-[10px] text-slate-500">Tidak memblokir pengajuan, tetapi menambah skor kelengkapan modul.</p>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="media" value="1" class="rounded text-primary">
-                        <span>Media</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="lkpd" value="1" class="rounded text-primary">
-                        <span>LKPD</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="refleksi" value="1" class="rounded text-primary">
-                        <span>Refleksi</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="pengayaan" value="1" class="rounded text-primary">
-                        <span>Pengayaan</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="remedial" value="1" class="rounded text-primary">
-                        <span>Remedial</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="glosarium" value="1" class="rounded text-primary">
-                        <span>Glosarium</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white p-2 rounded-lg border border-slate-200 hover:border-primary">
-                        <input type="checkbox" name="video" value="1" class="rounded text-primary">
-                        <span>Video</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Ringkasan Kelengkapan (live) -->
-            <div class="rounded-xl border border-slate-200 bg-white p-4 space-y-2.5">
-                <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-800">Ringkasan Kelengkapan</span>
-                    <span id="tambah-skor-kelengkapan" class="text-sm font-black text-slate-900">0<span class="text-[10px] text-slate-400 font-bold">/100</span></span>
-                </div>
-                <div class="h-2 rounded-full bg-slate-100 overflow-hidden">
-                    <div id="tambah-skor-bar" class="h-full bg-gradient-to-r from-primary to-emerald-500 transition-all" style="width: 0%"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-[11px]">
-                    <div class="flex items-center justify-between rounded-lg bg-slate-50 border border-slate-200 px-2.5 py-1.5">
-                        <span class="font-semibold text-slate-600">Wajib</span>
-                        <span id="tambah-count-wajib" class="font-black text-slate-800">0/3</span>
-                    </div>
-                    <div class="flex items-center justify-between rounded-lg bg-slate-50 border border-slate-200 px-2.5 py-1.5">
-                        <span class="font-semibold text-slate-600">Disarankan</span>
-                        <span id="tambah-count-disarankan" class="font-black text-slate-800">0/7</span>
+                    <div style="margin-top:.625rem;padding-top:.625rem;border-top:1px dashed #fca5a5">
+                        <span style="display:block;font-size:.68rem;font-weight:700;color:var(--color-ink);margin-bottom:.375rem">
+                            Teknik Asesmen yang Digunakan <span style="font-weight:500;color:var(--color-ink-soft)">(pilih minimal 2 saat mengajukan)</span>
+                        </span>
+                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.375rem">
+                            @foreach(['Observasi', 'Tes tulis', 'Unjuk kerja', 'Produk', 'Proyek', 'Portofolio', 'Penilaian diri', 'Penilaian sejawat'] as $teknik)
+                            <label style="display:flex;align-items:center;gap:.35rem;background:#fff;padding:.35rem .45rem;border-radius:.35rem;border:1px solid #fca5a5;cursor:pointer;font-size:.64rem">
+                                <input type="checkbox" name="asesmen_teknik[]" value="{{ $teknik }}" style="accent-color:var(--color-primary)">
+                                <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ $teknik }}</span>
+                            </label>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
-                <p id="tambah-skor-hint" class="text-[10px] text-slate-400 leading-relaxed">
-                    Wajib 70% &bull; disarankan 30%. Draf boleh disimpan belum lengkap, pengajuan tidak.
-                </p>
-            </div>
 
-            <!-- Tags Kustom -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
-                    <span>Label / Tag Tambahan (Tanpa Simbol)</span>
-                    {{-- <span class="text-[10px] text-rose-500 font-semibold">Simbol Dilarang</span> --}}
-                </label>
-                <input type="text" name="custom_tags" id="tambah-custom-tags" maxlength="150"
-                       placeholder="Tujuan Pembelajaran, Video Animasi Interaktif, LKPD Cetak"
-                       oninput="sanitizeTagsInput(this)"
-                       class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-primary">
-                <p class="text-[10px] text-slate-400 mt-1">Pisahkan antar label dengan koma. Hanya huruf dan angka, dilarang simbol.</p>
-            </div>
-
-            <!-- File Upload -->
-            <div>
-                <label class="block text-xs font-bold text-slate-700 mb-1">
-                    Unggah Berkas Modul RPP <span class="text-slate-500 font-normal">(Hanya PDF / Word)</span>
-                </label>
-                <input type="file" name="file_rpp" id="tambah-file-rpp" accept=".pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
-                       onchange="validateRppFileInput(this)"
-                       class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-primary hover:file:bg-sky-100 cursor-pointer">
-                <p class="text-[10px] text-slate-400 mt-1">Format berkas yang didukung hanya: <strong>.pdf</strong>, <strong>.docx</strong>, atau <strong>.doc</strong> (Maks. 10MB).</p>
-            </div>
-
-            <!-- Info Status Supervisi -->
-            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2.5">
-                <i class="fas fa-circle-info text-amber-600 mt-0.5 text-xs"></i>
-                <div class="text-[11px] text-amber-900 leading-relaxed">
-                    <span class="font-bold">Alur Persetujuan Admin:</span> Setelah diajukan, RPP berstatus <strong>Menunggu Persetujuan Admin</strong> dan belum bisa langsung di-apply mengajar hingga di-accept/disetujui oleh Admin.
+                {{-- Komponen Disarankan --}}
+                <div style="background:var(--color-canvas);border:1px solid var(--color-line);border-radius:.625rem;padding:.875rem">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.5rem">
+                        <span style="font-size:.72rem;font-weight:700;color:var(--color-ink)">Komponen Pendukung</span>
+                        <span style="font-size:.6rem;font-weight:700;background:#fff;color:var(--color-ink-soft);border-radius:.3rem;padding:.1rem .4rem;border:1px solid var(--color-line)">DISARANKAN</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem">
+                        @foreach(['Media','LKPD','Refleksi','Pengayaan','Remedial','Glosarium','Video'] as $k)
+                        <label style="display:flex;align-items:center;gap:.375rem;background:#fff;padding:.4rem .5rem;border-radius:.4rem;border:1px solid var(--color-line);cursor:pointer;font-size:.67rem">
+                            <input type="checkbox" name="{{ strtolower($k) }}" value="1" class="rounded" style="accent-color:var(--color-primary)">
+                            {{ $k }}
+                        </label>
+                        @endforeach
+                    </div>
                 </div>
-            </div>
 
-            <!-- Modal Footer -->
-            <div class="pt-4 border-t border-slate-200 flex items-center justify-end gap-2.5">
-                <button type="button" onclick="closeModalTambahRpp()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition">
-                    Batal
-                </button>
-                <button type="submit" id="btn-tambah-draft" name="action" value="draft" class="px-4 py-2 text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition">
-                    Simpan Draf
-                </button>
-                <button type="submit" id="btn-tambah-publish" name="action" value="publish" class="px-5 py-2 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-xl shadow-sm transition flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed">
-                    <i class="fas fa-paper-plane text-[10px]"></i> Ajukan ke Admin
-                </button>
-            </div>
-        </form>
+                {{-- Ringkasan Kelengkapan --}}
+                <div style="background:#fff;border:1px solid var(--color-line);border-radius:.625rem;padding:.875rem">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
+                        <span style="font-size:.72rem;font-weight:700;color:var(--color-ink)">Ringkasan Kelengkapan</span>
+                        <span id="tambah-skor-kelengkapan" style="font-size:.8rem;font-weight:800;color:var(--color-ink)">
+                            0<span style="font-size:.65rem;color:var(--color-ink-muted);font-weight:600">/100</span>
+                        </span>
+                    </div>
+                    <div style="height:.35rem;background:var(--color-line);border-radius:9999px;overflow:hidden;margin-bottom:.5rem">
+                        <div id="tambah-skor-bar" style="height:100%;background:linear-gradient(90deg,var(--color-primary),#16a34a);border-radius:9999px;transition:width .3s;width:0%"></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;font-size:.67rem">
+                        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--color-canvas);border:1px solid var(--color-line);border-radius:.4rem;padding:.35rem .5rem">
+                            <span style="font-weight:600;color:var(--color-ink-soft)">Wajib</span>
+                            <span id="tambah-count-wajib" style="font-weight:800;color:var(--color-ink)">0/3</span>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--color-canvas);border:1px solid var(--color-line);border-radius:.4rem;padding:.35rem .5rem">
+                            <span style="font-weight:600;color:var(--color-ink-soft)">Disarankan</span>
+                            <span id="tambah-count-disarankan" style="font-weight:800;color:var(--color-ink)">0/7</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- File Upload --}}
+                <div>
+                    <label class="rpp-modal-label">Unggah Berkas RPP <span class="rpp-modal-hint">(PDF / Word, maks. 10 MB)</span></label>
+                    <input type="file" name="file_rpp" id="tambah-file-rpp"
+                           accept=".pdf,.docx,.doc,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword"
+                           onchange="validateRppFileInput(this)"
+                           style="font-size:.7rem;width:100%">
+                </div>
+
+                {{-- Alur info --}}
+                <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:.5rem;padding:.625rem .75rem;display:flex;align-items:flex-start;gap:.5rem;font-size:.68rem;color:#92400e;line-height:1.5">
+                    <i class="fas fa-circle-info" style="color:var(--color-accent-deep);margin-top:.1rem;flex-shrink:0"></i>
+                    <span><b>Alur:</b> Setelah diajukan, RPP berstatus <b>Menunggu Admin</b> dan harus disetujui sebelum bisa digunakan mengajar.</span>
+                </div>
+
+                {{-- Footer Actions --}}
+                <div style="display:flex;align-items:center;justify-content:flex-end;gap:.625rem;padding-top:.75rem;border-top:1px solid var(--color-line)">
+                    <button type="button" onclick="closeModalTambahRpp()"
+                            style="padding:.45rem .875rem;font-size:.7rem;font-weight:700;color:var(--color-ink-soft);background:#fff;border:1px solid var(--color-line);border-radius:.5rem;cursor:pointer;font-family:inherit;transition:background .15s"
+                            onmouseover="this.style.background='var(--color-canvas)'" onmouseout="this.style.background='#fff'">
+                        Batal
+                    </button>
+                    <button type="submit" id="btn-tambah-draft" name="action" value="draft"
+                            style="padding:.45rem .875rem;font-size:.7rem;font-weight:700;color:var(--color-ink);background:var(--color-canvas);border:1px solid var(--color-line);border-radius:.5rem;cursor:pointer;font-family:inherit;transition:background .15s"
+                            onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='var(--color-canvas)'">
+                        <i class="fas fa-floppy-disk"></i> Simpan Draf
+                    </button>
+                    <button type="submit" id="btn-tambah-publish" name="action" value="publish"
+                            style="padding:.45rem 1rem;font-size:.7rem;font-weight:700;color:#fff;background:var(--color-primary);border:1px solid var(--color-primary);border-radius:.5rem;cursor:pointer;font-family:inherit;transition:background .15s;display:flex;align-items:center;gap:.375rem"
+                            onmouseover="this.style.background='var(--color-primary-hover)'" onmouseout="this.style.background='var(--color-primary)'">
+                        <i class="fas fa-paper-plane" style="font-size:.65rem"></i> Ajukan ke Admin
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
+{{-- Scoped modal styles --}}
+<style>
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(1rem); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .rpp-modal-label {
+        display: block;
+        font-size: .7rem;
+        font-weight: 700;
+        color: var(--color-ink);
+        margin-bottom: .3rem;
+    }
+    .rpp-modal-input {
+        width: 100%;
+        padding: .45rem .75rem;
+        border: 1px solid var(--color-line);
+        border-radius: .5rem;
+        background: #fff;
+        color: var(--color-ink);
+        font-size: .72rem;
+        font-family: inherit;
+        height: 2.25rem;
+        transition: border-color .15s, box-shadow .15s;
+        box-sizing: border-box;
+    }
+    textarea.rpp-modal-input { height: auto; }
+    .rpp-modal-input:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(19,82,125,.1);
+        background: #fff;
+    }
+    .rpp-modal-hint {
+        font-size: .62rem;
+        color: var(--color-ink-muted);
+        margin-top: .2rem;
+        display: block;
+    }
+</style>

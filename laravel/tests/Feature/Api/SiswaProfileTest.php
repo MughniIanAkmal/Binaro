@@ -1,7 +1,9 @@
 <?php
+
 namespace Tests\Feature\Api;
 
 use App\Models\Absen;
+use App\Models\Guru;
 use App\Models\Siswa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -48,7 +50,7 @@ class SiswaProfileTest extends TestCase
     public function test_absensi_hari_ini_mengikuti_token(): void
     {
         $siswa = $this->buatSiswa('111222333');
-        $guru = \App\Models\Guru::create(['nip' => '19900101', 'nama_guru' => 'Guru Uji']);
+        $guru = Guru::create(['nip' => '19900101', 'nama_guru' => 'Guru Uji']);
         Absen::create([
             'id_guru' => $guru->id_guru, 'id_siswa' => $siswa->id_siswa,
             'status' => 'Hadir', 'metode' => 'scan_qr',
@@ -58,7 +60,7 @@ class SiswaProfileTest extends TestCase
 
         $response = $this->getJson('/api/siswa/absensi-hari-ini');
         $response->assertOk();
-        
+
         $data = $response->json('data');
         if ($data) {
             $this->assertEquals($siswa->id_siswa, $data['id_siswa']);

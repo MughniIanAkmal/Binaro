@@ -12,13 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bab', function (Blueprint $table) {
-            if (!Schema::hasColumn('bab', 'is_locked')) {
+            if (! Schema::hasColumn('bab', 'is_locked')) {
                 $table->boolean('is_locked')->default(false)->after('nama_bab');
             }
         });
 
         Schema::table('sub_bab', function (Blueprint $table) {
-            if (!Schema::hasColumn('sub_bab', 'is_locked')) {
+            if (! Schema::hasColumn('sub_bab', 'is_locked')) {
                 $table->boolean('is_locked')->default(false)->after('nama_sub_bab');
             }
         });

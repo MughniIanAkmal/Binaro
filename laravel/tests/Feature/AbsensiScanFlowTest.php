@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Features\Services\AbsensiService;
 use App\Models\Absen;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
 use App\Models\Siswa;
-use App\Features\Services\AbsensiService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

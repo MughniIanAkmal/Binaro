@@ -8,12 +8,12 @@ use App\Features\Models\Guru;
 use App\Features\Models\Kelas;
 use App\Features\Models\Siswa;
 use App\Features\Services\AbsensiService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Carbon\Carbon;
 
 class AbsensiController extends Controller
 {
@@ -263,7 +263,7 @@ class AbsensiController extends Controller
         $rows = $query->orderBy('siswa.nm_siswa')->get();
 
         $namaKelas = Kelas::find($selectedKelas)?->pararel ?? 'Semua Kelas';
-        $filename = "Rekap_Absensi_{$namaKelas}_" . str_replace('-', '', $selectedDate) . ".csv";
+        $filename = "Rekap_Absensi_{$namaKelas}_".str_replace('-', '', $selectedDate).'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -275,7 +275,7 @@ class AbsensiController extends Controller
 
         return new StreamedResponse(function () use ($rows, $selectedDate) {
             $output = fopen('php://output', 'w');
-            fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
 
             fputcsv($output, ['REKAPITULASI ABSENSI SISWA']);
             fputcsv($output, ['Tanggal', Carbon::parse($selectedDate)->translatedFormat('l, d F Y')]);
@@ -290,7 +290,7 @@ class AbsensiController extends Controller
             foreach ($rows as $row) {
                 fputcsv($output, [
                     $no++,
-                    "'" . $row->nisn,
+                    "'".$row->nisn,
                     $row->nm_siswa,
                     $row->nama_kelas ?? '-',
                     $row->status,

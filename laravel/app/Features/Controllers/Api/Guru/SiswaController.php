@@ -3,6 +3,7 @@
 namespace App\Features\Controllers\Api\Guru;
 
 use App\Features\Controllers\Api\ApiController;
+use App\Features\Models\Guru;
 use App\Features\Models\Siswa;
 use Illuminate\Http\Request;
 
@@ -20,8 +21,9 @@ class SiswaController extends ApiController
             ?? session()->get('guru_id')
             ?? session()->get('user_id');
 
-        if (!$id) {
-            $firstGuru = \App\Features\Models\Guru::first();
+        if (! $id) {
+            $firstGuru = Guru::first();
+
             return $firstGuru?->id_guru;
         }
 

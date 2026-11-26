@@ -1,11 +1,11 @@
 <?php
+
 namespace Tests\Feature\Api;
 
-use App\Models\Admin;
 use App\Models\Guru;
 use App\Models\Siswa;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class AuthApiTest extends TestCase
@@ -56,7 +56,7 @@ class AuthApiTest extends TestCase
             'password' => 'plainpass',
             'nama_lengkap' => '',
         ])->assertOk();
-        $this->assertStringStartsWith('$2y$', Siswa::where('nisn','222333444')->first()->password);
+        $this->assertStringStartsWith('$2y$', Siswa::where('nisn', '222333444')->first()->password);
     }
 
     public function test_logout_hanya_mencabut_token_aktif()

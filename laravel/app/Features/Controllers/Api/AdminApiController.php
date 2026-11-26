@@ -77,7 +77,7 @@ class AdminApiController extends ApiController
     public function regenerateQr(Request $request, $siswa_id)
     {
         $siswa = Siswa::find($siswa_id);
-        if (!$siswa) {
+        if (! $siswa) {
             return $this->error('Siswa tidak ditemukan', 404);
         }
 
@@ -87,9 +87,9 @@ class AdminApiController extends ApiController
             return $this->error('Batas maksimum regenerate barcode 1x per hari.', 429);
         }
 
-        $newKode = 'BC-' . strtoupper(Str::random(8));
+        $newKode = 'BC-'.strtoupper(Str::random(8));
 
-        if (!$barcode) {
+        if (! $barcode) {
             $barcode = Barcode::create([
                 'id_siswa' => $siswa_id,
                 'kode_barcode' => $newKode,

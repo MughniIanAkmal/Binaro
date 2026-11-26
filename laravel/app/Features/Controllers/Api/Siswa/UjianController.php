@@ -5,6 +5,7 @@ namespace App\Features\Controllers\Api\Siswa;
 use App\Features\Controllers\Api\ApiController;
 use App\Features\Models\HasilKuisSiswa;
 use App\Features\Models\Quiz;
+use App\Features\Models\Siswa;
 use Illuminate\Http\Request;
 
 class UjianController extends ApiController
@@ -16,7 +17,9 @@ class UjianController extends ApiController
         $allQuizzes = Quiz::whereNull('id_sub_bab')
             ->with(['mataPelajaran', 'guru', 'soal',
                 'hasilSiswa' => function ($q) use ($siswaId) {
-                    if ($siswaId) $q->where('id_siswa', $siswaId);
+                    if ($siswaId) {
+                        $q->where('id_siswa', $siswaId);
+                    }
                 },
             ])->latest('id_quiz')->get();
 
@@ -28,7 +31,7 @@ class UjianController extends ApiController
             $mapelNama = $q->mataPelajaran?->nama_mapel ?? 'Umum';
             $soalCount = $q->soal->count();
 
-            if (!$hasil) {
+            if (! $hasil) {
                 $ujianTersedia[] = [
                     'id_quiz' => $q->id_quiz,
                     'judul_quiz' => $q->judul_quiz,
@@ -62,7 +65,7 @@ class UjianController extends ApiController
         }
 
         $latestHasil = HasilKuisSiswa::with(['quiz.mataPelajaran'])
-            ->whereHas('quiz', fn($q) => $q->whereNull('id_sub_bab'))
+            ->whereHas('quiz', fn ($q) => $q->whereNull('id_sub_bab'))
             ->where('id_siswa', $siswaId)
             ->where('status_kirim', true)
             ->latest('id_hasil')
@@ -75,9 +78,9 @@ class UjianController extends ApiController
                 'id_quiz' => $latestHasil->id_quiz,
                 'mapel' => $latestHasil->quiz->mataPelajaran?->nama_mapel ?? 'Umum',
                 'judul' => $latestHasil->quiz->judul_quiz,
-                'tanggal' => $latestHasil->created_at?->format('d M') ?? '' . ' • Selesai',
+                'tanggal' => $latestHasil->created_at?->format('d M') ?? ''.' • Selesai',
                 'nilai' => $nilaiAkhir,
-                'badge' => "{$nilaiAkhir} – " . ($nilaiAkhir >= 75 ? 'Lulus' : 'Remedial'),
+                'badge' => "{$nilaiAkhir} – ".($nilaiAkhir >= 75 ? 'Lulus' : 'Remedial'),
             ];
         }
 
@@ -98,10 +101,10 @@ class UjianController extends ApiController
     public function ujianPetunjuk(Request $request, $id)
     {
         $quiz = Quiz::with(['guru', 'mataPelajaran', 'soal'])->find($id);
-        if (!$quiz) {
+        if (! $quiz) {
             $quiz = Quiz::whereNull('id_sub_bab')->with(['guru', 'mataPelajaran', 'soal'])->first();
         }
-        if (!$quiz) {
+        if (! $quiz) {
             return $this->error('Ujian tidak ditemukan di database', 404);
         }
 
@@ -132,10 +135,10 @@ class UjianController extends ApiController
     public function ujianPlay(Request $request, $id)
     {
         $quiz = Quiz::with(['mataPelajaran', 'soal'])->find($id);
-        if (!$quiz) {
+        if (! $quiz) {
             $quiz = Quiz::whereNull('id_sub_bab')->with(['mataPelajaran', 'soal'])->first();
         }
-        if (!$quiz) {
+        if (! $quiz) {
             return $this->error('Ujian tidak ditemukan di database', 404);
         }
         if ($quiz->soal->isEmpty()) {
@@ -165,6 +168,7 @@ class UjianController extends ApiController
         }
 
         $durasiMenit = $quiz->durasi_menit ?? 60;
+
         return $this->success([
             'id_quiz' => (int) $quiz->id_quiz,
             'judul_quiz' => $quiz->judul_quiz,
@@ -181,10 +185,10 @@ class UjianController extends ApiController
     public function ujianSubmit(Request $request, $id)
     {
         $quiz = Quiz::with('soal')->find($id);
-        if (!$quiz) {
+        if (! $quiz) {
             $quiz = Quiz::whereNull('id_sub_bab')->with('soal')->first();
         }
-        if (!$quiz) {
+        if (! $quiz) {
             return $this->error('Ujian tidak ditemukan di database', 404);
         }
 
@@ -194,7 +198,7 @@ class UjianController extends ApiController
         $benar = $salah = 0;
 
         foreach ($quiz->soal as $s) {
-            $jawab = strtoupper(trim($jawaban[$s->id_soal] ?? $jawaban[(string)$s->id_soal] ?? ''));
+            $jawab = strtoupper(trim($jawaban[$s->id_soal] ?? $jawaban[(string) $s->id_soal] ?? ''));
             if ($jawab && $jawab === strtoupper(trim($s->kunci_jawaban))) {
                 $benar++;
             } else {
@@ -232,29 +236,29 @@ class UjianController extends ApiController
     public function ujianResult(Request $request, $id)
     {
         $quiz = Quiz::with(['guru', 'mataPelajaran'])->find($id);
-        if (!$quiz) {
+        if (! $quiz) {
             $quiz = Quiz::whereNull('id_sub_bab')->with(['guru', 'mataPelajaran'])->first();
         }
 
         $siswaId = $this->resolveSiswaId($request) ?? 1;
-        $siswa = \App\Features\Models\Siswa::find($siswaId);
+        $siswa = Siswa::find($siswaId);
 
         $hasil = null;
         if ($quiz) {
             $hasil = HasilKuisSiswa::where('id_quiz', $quiz->id_quiz)
                 ->where('id_siswa', $siswaId)->latest('id_hasil')->first();
         }
-        if (!$hasil) {
+        if (! $hasil) {
             $hasil = HasilKuisSiswa::where('id_siswa', $siswaId)->latest('id_hasil')->first();
         }
-        if (!$hasil) {
+        if (! $hasil) {
             return $this->error('Hasil ujian belum ditemukan untuk siswa ini', 404);
         }
 
         $isPublished = (bool) ($hasil->status_kirim ?? false);
         $waktu = $hasil->waktu_menit ?? 10;
 
-        if (!$isPublished) {
+        if (! $isPublished) {
             return $this->success([
                 'id_quiz' => (int) ($quiz?->id_quiz ?? $hasil->id_quiz),
                 'nama_siswa' => $siswa?->nm_siswa ?? 'Siswa',
@@ -311,11 +315,19 @@ class UjianController extends ApiController
             if (config('auth.guards.sanctum')) {
                 $user = $request->user('sanctum');
             }
-        } catch (\Throwable $e) {}
-        if (! $user) $user = $request->user();
-        if ($user && isset($user->id_siswa)) return (int) $user->id_siswa;
+        } catch (\Throwable $e) {
+        }
+        if (! $user) {
+            $user = $request->user();
+        }
+        if ($user && isset($user->id_siswa)) {
+            return (int) $user->id_siswa;
+        }
         $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) return (int) $id;
-        return \App\Features\Models\Siswa::first()?->id_siswa;
+        if ($id) {
+            return (int) $id;
+        }
+
+        return Siswa::first()?->id_siswa;
     }
 }

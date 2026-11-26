@@ -3,13 +3,13 @@
 namespace App\Features\Controllers\Siswa;
 
 use App\Features\Controllers\Controller;
-use App\Features\Requests\Siswa\StoreSiswaRequest;
-use App\Features\Requests\Siswa\UpdateSiswaRequest;
 use App\Features\Models\Barcode;
 use App\Features\Models\Kelas;
 use App\Features\Models\MataPelajaran;
 use App\Features\Models\Notifikasi;
 use App\Features\Models\Siswa;
+use App\Features\Requests\Siswa\StoreSiswaRequest;
+use App\Features\Requests\Siswa\UpdateSiswaRequest;
 use Carbon\Carbon;
 use chillerlan\QRCode\QRCode;
 use Illuminate\Http\Request;

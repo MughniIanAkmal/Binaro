@@ -1,10 +1,12 @@
 <?php
+
 namespace Tests\Feature\Api;
 
 use App\Models\Admin;
 use App\Models\Guru;
 use App\Models\Siswa;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\HasApiTokens;
 use Tests\TestCase;
 
 class ModelSecurityTest extends TestCase
@@ -32,7 +34,7 @@ class ModelSecurityTest extends TestCase
     public function test_tiga_model_punya_trait_token_api(): void
     {
         foreach ([new Siswa, new Guru, new Admin] as $model) {
-            $this->assertTrue(in_array(\Laravel\Sanctum\HasApiTokens::class, class_uses_recursive($model)));
+            $this->assertTrue(in_array(HasApiTokens::class, class_uses_recursive($model)));
         }
     }
 

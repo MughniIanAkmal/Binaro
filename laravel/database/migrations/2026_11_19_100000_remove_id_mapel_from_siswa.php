@@ -18,7 +18,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (!Schema::hasColumn('siswa', 'id_mapel')) {
+        if (! Schema::hasColumn('siswa', 'id_mapel')) {
             Schema::table('siswa', function (Blueprint $table) {
                 $table->foreignId('id_mapel')->nullable()->after('id_rooms')
                     ->constrained('mata_pelajaran', 'id_mapel')->nullOnDelete();

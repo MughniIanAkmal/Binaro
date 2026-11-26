@@ -1,25 +1,33 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-$app = require_once __DIR__ . '/../bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
+use App\Models\Guru;
+use App\Models\Siswa;
+use Illuminate\Contracts\Http\Kernel;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+
+require_once __DIR__.'/../vendor/autoload.php';
+$app = require_once __DIR__.'/../bootstrap/app.php';
+$kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
-function apiRequest($kernel, $method, $uri, $data = [], $token = null) {
-    $request = Illuminate\Http\Request::create($uri, $method, $data);
+function apiRequest($kernel, $method, $uri, $data = [], $token = null)
+{
+    $request = Request::create($uri, $method, $data);
     $request->headers->set('Accept', 'application/json');
     if ($token) {
-        $request->headers->set('Authorization', 'Bearer ' . $token);
+        $request->headers->set('Authorization', 'Bearer '.$token);
     }
     $response = $kernel->handle($request);
     $json = json_decode($response->getContent(), true);
+
     return [$response->getStatusCode(), $json];
 }
 
 // 1. Auth Login Siswa
-$siswa = App\Models\Siswa::first();
+$siswa = Siswa::first();
 assert($siswa !== null, 'Siswa harus ada di DB');
-$siswa->password = \Illuminate\Support\Facades\Hash::make('siswa1234');
+$siswa->password = Hash::make('siswa1234');
 $siswa->save();
 
 [$status, $loginRes] = apiRequest($kernel, 'POST', '/api/login', [
@@ -27,7 +35,7 @@ $siswa->save();
     'password' => 'siswa1234',
 ]);
 assert($status === 200, "Login Siswa gagal (Status: $status)");
-assert(!empty($loginRes['data']['token']), 'Token login harus ada');
+assert(! empty($loginRes['data']['token']), 'Token login harus ada');
 $token = $loginRes['data']['token'];
 
 // 2. Siswa Dashboard & Profile
@@ -54,9 +62,9 @@ assert($sBab === 200 && ($rBab['success'] ?? false) === true, 'Bab API gagal');
 assert($sUjian === 200 && ($rUjian['success'] ?? false) === true, 'Ujian Index API gagal');
 
 // 6. Guru API
-$guru = App\Models\Guru::first();
+$guru = Guru::first();
 if ($guru) {
-    $guru->password = \Illuminate\Support\Facades\Hash::make('guru1234');
+    $guru->password = Hash::make('guru1234');
     $guru->save();
     [$sGLogin, $rGLogin] = apiRequest($kernel, 'POST', '/api/login', [
         'nisn' => $guru->nip,

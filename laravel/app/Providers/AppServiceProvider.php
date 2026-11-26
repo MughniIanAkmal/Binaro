@@ -5,8 +5,9 @@ namespace App\Providers;
 use App\Features\Models\Absen;
 use App\Features\Models\Siswa;
 use App\Features\Observers\SiswaObserver;
-use Illuminate\Support\ServiceProvider;
+use App\Policies\AbsenPolicy;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,6 +27,6 @@ class AppServiceProvider extends ServiceProvider
         Siswa::observe(SiswaObserver::class);
 
         // Daftarkan Gate untuk model Absen.
-        Gate::policy(Absen::class, \App\Policies\AbsenPolicy::class);
+        Gate::policy(Absen::class, AbsenPolicy::class);
     }
 }

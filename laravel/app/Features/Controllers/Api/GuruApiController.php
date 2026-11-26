@@ -9,6 +9,4 @@ namespace App\Features\Controllers\Api;
  *   - \App\Features\Controllers\Api\Guru\AbsensiController
  *   - \App\Features\Controllers\Api\Guru\SiswaController
  */
-class GuruApiController extends ApiController
-{
-}
+class GuruApiController extends ApiController {}

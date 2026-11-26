@@ -6,6 +6,7 @@ use App\Features\Controllers\Api\ApiController;
 use App\Features\Models\Bab;
 use App\Features\Models\MataPelajaran;
 use App\Features\Models\Pengaturan;
+use App\Features\Models\Siswa;
 use Illuminate\Http\Request;
 
 class BabController extends ApiController
@@ -13,11 +14,11 @@ class BabController extends ApiController
     public function babList(Request $request, $id)
     {
         $mapel = MataPelajaran::with(['bab.subBab'])->find($id);
-        if (!$mapel) {
+        if (! $mapel) {
             $mapel = MataPelajaran::with(['bab.subBab'])->whereHas('bab')->first()
                 ?? MataPelajaran::first();
         }
-        if (!$mapel) {
+        if (! $mapel) {
             return $this->error('Mata pelajaran tidak ditemukan', 404);
         }
 
@@ -32,7 +33,9 @@ class BabController extends ApiController
         foreach ($babs as $index => $b) {
             $nomor = $index + 1;
             $isLocked = (bool) ($b->is_locked ?? false);
-            if (!$isLocked) $unlockedCount++;
+            if (! $isLocked) {
+                $unlockedCount++;
+            }
 
             $warna = match ($nomor % 3) {
                 1 => 'orange',
@@ -40,7 +43,9 @@ class BabController extends ApiController
                 0 => 'orange',
                 default => 'blue',
             };
-            if ($isLocked) $warna = ($nomor % 2 == 0) ? 'blue' : 'orange';
+            if ($isLocked) {
+                $warna = ($nomor % 2 == 0) ? 'blue' : 'orange';
+            }
 
             $babList[] = [
                 'id_bab' => $b->id_bab,
@@ -60,7 +65,7 @@ class BabController extends ApiController
                 'nama' => $mapel->nama_mapel,
                 'badge' => $isMatematika ? 'Matematika Seru' : 'Belajar Seru',
                 'judul_seru' => $isMatematika ? 'Petualangan Angka' : 'Eksplorasi Pembelajaran',
-                'progress_bab' => "{$unlockedCount}/" . count($babList) . " Bab",
+                'progress_bab' => "{$unlockedCount}/".count($babList).' Bab',
                 'tipe_icon' => $isMatematika ? 'math' : 'book',
                 'semester' => $semesterAktif === 2 ? 'Semester Genap' : 'Semester Ganjil',
             ],
@@ -74,7 +79,10 @@ class BabController extends ApiController
     protected function resolveSiswaId(Request $request): ?int
     {
         $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) return (int) $id;
-        return \App\Features\Models\Siswa::first()?->id_siswa;
+        if ($id) {
+            return (int) $id;
+        }
+
+        return Siswa::first()?->id_siswa;
     }
 }

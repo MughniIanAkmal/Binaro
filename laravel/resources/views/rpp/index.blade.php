@@ -1,37 +1,104 @@
 @extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
 
-@section('page_title', 'Persetujuan & Kelola RPP Guru')
-@section('page_subtitle', 'Khusus meninjau & menyetujui pengajuan modul ajar dari guru.')
+@section('page_title', 'RPP & Modul Ajar')
+@section('page_subtitle', 'Kelola rencana pembelajaran dan modul ajar')
 
 @section('content')
-<!-- Content Body -->
-        <div class="space-y-6">
+    <!-- Content Body -->
+    <div class="space-y-6">
+        <!-- Rangkuman Bab per Mata Pelajaran & Filter Atas ala Platform -- Mulai -->
+        <div class="mb-6">
+        <!-- Bab Per Mapel (Card Group) -->
+        <div class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            @foreach($mapelBabSummary as $mapel)
+            <div class="rounded-2xl p-4 border border-line bg-surface shadow-sm flex flex-col">
+                <div class="flex items-center mb-2">
+                    <span class="font-extrabold text-primary text-sm flex-1">{{ $mapel['nama_mapel'] }}</span>
+                    <span class="inline-block text-xs rounded-full px-2 py-0.5 bg-primary text-white font-bold align-middle">{{ $mapel['bab_ber_rpp'] }}/{{ $mapel['bab_total'] }}</span>
+                </div>
+                <div class="flex flex-wrap gap-2 mt-1">
+                    @foreach($mapel['babs'] as $bab)
+                    <span class="text-xs font-semibold rounded-lg px-3 py-1.5 border transition-all
+                        {{ $bab['sudah_rpp'] ? 'bg-success-tint border-success text-success' : 'bg-canvas border-line text-ink-muted' }}">
+                      {{ $bab['nama_bab'] }}
+                    </span>
+                    @endforeach
+                </div>
+            </div>
+            @endforeach
+        </div>
+        <!-- Filter input + dropdown -->
+        <form method="GET" action="" class="flex flex-wrap gap-2 items-center justify-between mb-4">
+            <div class="flex gap-2 flex-1 min-w-0">
+                <div class="relative flex-1">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari judul, topik, atau mapel..." class="w-full border border-line rounded-xl px-4 py-2 pl-9 bg-canvas text-sm font-semibold focus:ring-2 focus:ring-primary focus:border-primary transition shadow-sm" />
+                    <span class="absolute inset-y-0 left-2 flex items-center pointer-events-none text-primary"><i class="fas fa-search"></i></span>
+                </div>
+                <select name="kelas" class="border border-line rounded-xl px-3 py-2 font-semibold text-sm bg-white">
+                    <option value="">Semua Kelas</option>
+                    @foreach($kelasList as $kelas)
+                        <option value="{{ $kelas->id }}" {{ request('kelas') == $kelas->id ? 'selected' : '' }}>{{ $kelas->pararel }}</option>
+                    @endforeach
+                </select>
+                <select name="hari" class="border border-line rounded-xl px-3 py-2 font-semibold text-sm bg-white">
+                    <option value="">Semua Hari</option>
+                    @foreach($hariList as $hari)
+                        <option value="{{ $hari }}" {{ request('hari') == $hari ? 'selected' : '' }}>{{ $hari }}</option>
+                    @endforeach
+                </select>
+                <select name="mapel" class="border border-line rounded-xl px-3 py-2 font-semibold text-sm bg-white">
+                    <option value="">Semua Mapel</option>
+                    @foreach($mapelList as $m)
+                        <option value="{{ $m->id }}" {{ request('mapel') == $m->id ? 'selected' : '' }}>{{ $m->nama_mapel }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit" class="inline-flex items-center gap-2 px-5 h-10 rounded-xl text-[13px] font-bold text-white bg-primary hover:bg-primary-hover border border-primary transition shadow-xs shrink-0"><i class="fas fa-filter"></i> Filter</button>
+        </form>
+    </div>
+    <!-- Rangkuman Bab per Mata Pelajaran & Filter Atas ala Platform -- Selesai -->
 
             <!-- KPI Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div class="bg-white p-5 rounded-xl border border-slate-200 flex justify-between items-start">
-                    <div>
-                        <div class="text-2xl font-black text-slate-900">{{ $kpi['total'] }}</div>
-                        <div class="text-xs text-slate-600 font-semibold mt-1">Total RPP</div>
-                        <div class="text-[11px] text-slate-400">Target Modul Ajar</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-white p-6 rounded-2xl border border-line shadow-sm flex flex-col">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <div class="text-[11px] font-extrabold text-ink-soft uppercase tracking-wider mb-1">TOTAL MODUL RPP</div>
+                            <div class="text-[32px] font-black text-ink leading-none">{{ $kpi['total'] }}</div>
+                            <div class="text-xs text-slate-500 mt-2">Modul tersimpan</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-primary text-lg"><i class="fas fa-file-lines"></i></div>
                     </div>
-                    <div class="w-10 h-10 rounded-full bg-sky-500 text-white flex items-center justify-center text-sm"><i class="fas fa-book"></i></div>
                 </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 flex justify-between items-start">
-                    <div>
-                        <div class="text-2xl font-black text-slate-900">{{ $kpi['terverifikasi'] }}</div>
-                        <div class="text-xs text-slate-600 font-semibold mt-1">Terverifikasi</div>
-                        <div class="text-[11px] text-slate-400">Sudah diverifikasi</div>
+                <div class="bg-white p-6 rounded-2xl border border-line shadow-sm flex flex-col">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <div class="text-[11px] font-extrabold text-ink-soft uppercase tracking-wider mb-1">DISETUJUI & SIAP AJAR</div>
+                            <div class="text-[32px] font-black text-emerald-600 leading-none">{{ $kpi['terverifikasi'] }}</div>
+                            <div class="text-xs text-slate-500 mt-2">Siap digunakan mengajar</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 text-lg"><i class="fas fa-check-circle"></i></div>
                     </div>
-                    <div class="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center text-sm"><i class="fas fa-check"></i></div>
                 </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 flex justify-between items-start">
-                    <div>
-                        <div class="text-2xl font-black text-slate-900">{{ $kpi['perlu_review'] }}</div>
-                        <div class="text-xs text-slate-600 font-semibold mt-1">Perlu Review</div>
-                        <div class="text-[11px] text-slate-400">Menunggu peninjauan</div>
+                <div class="bg-white p-6 rounded-2xl border border-line shadow-sm flex flex-col">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <div class="text-[11px] font-extrabold text-ink-soft uppercase tracking-wider mb-1">MENUNGGU ADMIN</div>
+                            <div class="text-[32px] font-black text-amber-600 leading-none">{{ $kpi['perlu_review'] }}</div>
+                            <div class="text-xs text-slate-500 mt-2">Menunggu peninjauan</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600 text-lg"><i class="fas fa-clock"></i></div>
                     </div>
-                    <div class="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center text-sm"><i class="fas fa-clock"></i></div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-line shadow-sm flex flex-col">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <div class="text-[11px] font-extrabold text-ink-soft uppercase tracking-wider mb-1">PERLU TINDAKAN</div>
+                            <div class="text-[32px] font-black text-rose-600 leading-none">{{ $kpi['perlu_revisi'] ?? 0 }}</div>
+                            <div class="text-xs text-slate-500 mt-2">Butuh revisi atau perhatian</div>
+                        </div>
+                        <div class="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 text-lg"><i class="fas fa-edit"></i></div>
+                    </div>
                 </div>
             </div>
 
@@ -154,12 +221,10 @@
                                             <i class="fas fa-eye text-xs"></i>
                                         </button>
 
-                                        {{-- 4. Download Berkas --}}
-                                        @if($rpp->file_rpp)
-                                            <a href="{{ route('rpp.download', $rpp->id_rpp) }}" title="Unduh Berkas RPP" class="w-7 h-7 rounded-lg border border-emerald-200 text-emerald-600 hover:bg-emerald-50 flex items-center justify-center transition" target="_blank">
-                                                <i class="fas fa-file-pdf text-xs"></i>
-                                            </a>
-                                        @endif
+                                        {{-- 4. Cetak / Unduh Berkas RPP --}}
+                                        <a href="{{ route('rpp.download', $rpp->id_rpp) }}" title="{{ $rpp->file_rpp ? 'Unduh Berkas RPP' : 'Cetak / PDF Modul Ajar' }}" class="w-7 h-7 rounded-lg border border-emerald-200 text-emerald-600 hover:bg-emerald-50 flex items-center justify-center transition" target="_blank">
+                                            <i class="fas fa-file-pdf text-xs"></i>
+                                        </a>
 
                                         {{-- 5. Hapus RPP --}}
                                         <form action="{{ route('rpp.destroy', $rpp->id_rpp) }}" method="POST" class="inline-flex" onsubmit="return confirm('Yakin ingin menghapus RPP ini?')">
@@ -184,8 +249,9 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Modal Ubah Status Verifikasi / Revisi -->
+    <!-- Modal Ubah Status Verifikasi / Revisi -->
         <div id="statusModal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
             <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
                 <div class="flex justify-between items-center mb-4">
@@ -210,6 +276,16 @@
                     </div>
                     <div>
                         <label class="block font-bold text-slate-700 mb-1">Catatan Evaluasi / Revisi</label>
+                        <div class="flex flex-wrap gap-1.5 mb-2">
+                            @foreach([
+                                'Lengkapi minimal 3 TP beserta dimensi Profil Pelajar Pancasila.',
+                                'Perjelas langkah pembelajaran (Memahami, Mengaplikasi, Merefleksi).',
+                                'Lengkapi instrumen asesmen formatif/sumatif dan rubrik penilaian.',
+                                'Sesuaikan alokasi waktu dengan jadwal (1 JP = 35 menit).'
+                            ] as $preset)
+                                <button type="button" onclick="tambahPresetCatatan(@js($preset))" class="px-2 py-1 rounded-md border border-slate-200 bg-slate-50 hover:bg-slate-100 text-[10px] font-semibold text-slate-600 transition">+ {{ \Illuminate\Support\Str::limit($preset, 42) }}</button>
+                            @endforeach
+                        </div>
                         <textarea name="catatan" id="catatanRevisi" rows="3" placeholder="Tuliskan catatan perbaikan atau feedback untuk guru..."
                                   class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-primary"></textarea>
                         <p class="text-[10px] text-slate-400 mt-1">Catatan disimpan sebagai riwayat dan tetap terlihat oleh guru, tidak menimpa catatan sebelumnya.</p>
@@ -246,6 +322,13 @@
                         <div><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Mata Pelajaran & Fase</span><span id="viewMapelFase" class="font-bold text-slate-800"></span></div>
                         <div><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Guru Pengampu</span><span id="viewGuru" class="font-bold text-slate-800"></span></div>
                         <div><span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Target Jadwal</span><span id="viewJadwal" class="font-semibold text-slate-700"></span></div>
+                    </div>
+                    <div id="viewTelaahSupervisi" class="hidden rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Instrumen Telaah Supervisi (Standar SD Negeri)</span>
+                            <span id="viewTelaahSummary" class="text-[10px] font-bold"></span>
+                        </div>
+                        <div id="viewTelaahList" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
                     </div>
                     <div id="viewSessionDetail" class="hidden space-y-4"></div>
                     <div id="viewStatusRow" class="hidden p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
@@ -297,6 +380,12 @@
             m.classList.remove('hidden');
             m.classList.add('flex');
         }
+        function tambahPresetCatatan(teks) {
+            const area = document.getElementById('catatanRevisi');
+            if (!area) return;
+            area.value = area.value.trim() ? `${area.value.trim()}\n- ${teks}` : `- ${teks}`;
+            area.focus();
+        }
         function closeStatusModal() {
             const m = document.getElementById('statusModal');
             m.classList.add('hidden');
@@ -311,12 +400,39 @@ function openViewModal(rpp) {
             document.getElementById('viewGuru').textContent = rpp.guru?.nama_guru || '-';
             document.getElementById('viewJadwal').textContent = rpp.target_jadwal || '-';
 
+            // Instrumen Telaah Supervisi SD Negeri
+            const telaahWrap = document.getElementById('viewTelaahSupervisi');
+            const telaahList = document.getElementById('viewTelaahList');
+            const telaahSummary = document.getElementById('viewTelaahSummary');
+            const sessionsArr = Array.isArray(rpp.sessions) ? rpp.sessions : [];
+            const firstKonten = sessionsArr[0]?.konten || {};
+            const tpValidCount = (firstKonten.tp_list || []).filter(tp => (tp?.teks || '').trim() !== '').length;
+            const hasDimensi = tpValidCount > 0 && (firstKonten.tp_list || []).filter(tp => (tp?.teks || '').trim() !== '').every(tp => Array.isArray(tp.dimensi) && tp.dimensi.length > 0);
+            const checks = [
+                { label: 'Capaian Pembelajaran (CP) Terisi', ok: Boolean(firstKonten.cp_id || firstKonten.cp_text || rpp.deskripsi) },
+                { label: 'Tujuan Pembelajaran (>= 3 TP) & Dimensi P5', ok: tpValidCount >= 3 && hasDimensi },
+                { label: 'Kesiapan Peserta Didik / Pemahaman Bermakna', ok: Boolean((firstKonten.kesiapan_peserta_didik || '').trim() || (firstKonten.pemahaman_bermakna || '').trim()) },
+                { label: 'Langkah Pembelajaran (Pendahuluan, Inti, Penutup)', ok: Boolean((firstKonten.langkah_pendahuluan || '').trim() && (firstKonten.langkah_penutup || '').trim()) },
+                { label: 'Instrumen Asesmen (Formatif / Sumatif)', ok: Boolean((firstKonten.asesmen_formatif?.instrumen || '').trim() || (firstKonten.asesmen_sumatif?.instrumen || '').trim()) },
+                { label: 'Diferensiasi / Media Pendukung', ok: Boolean((firstKonten.diferensiasi_jenis || []).length > 0 || (firstKonten.media_fisik || []).length > 0 || (firstKonten.media_digital || []).length > 0 || rpp.file_rpp) },
+            ];
+            const okCount = checks.filter(c => c.ok).length;
+            telaahSummary.textContent = `${okCount}/${checks.length} indikator terpenuhi`;
+            telaahSummary.className = `text-[10px] font-bold ${okCount >= 5 ? 'text-emerald-700' : 'text-amber-700'}`;
+            telaahList.innerHTML = checks.map(c => `
+                <div class="flex items-center gap-2 px-2.5 py-2 rounded-lg border ${c.ok ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-white border-slate-200 text-slate-500'}">
+                    <i class="fas ${c.ok ? 'fa-circle-check text-emerald-600' : 'fa-circle-minus text-slate-300'}"></i>
+                    <span class="font-semibold text-[11px]">${c.label}</span>
+                </div>
+            `).join('');
+            telaahWrap.classList.remove('hidden');
+
             // Sessions detail
             const sessionDetail = document.getElementById('viewSessionDetail');
-            if (rpp.sessions && rpp.sessions.length > 0) {
+            sessionDetail.innerHTML = '';
+            if (sessionsArr.length > 0) {
                 sessionDetail.classList.remove('hidden');
-                sessionDetail.innerHTML = '';
-                rpp.sessions.forEach((session, index) => {
+                sessionsArr.forEach((session) => {
                     const konten = session.konten || {};
                     const card = document.createElement('div');
                     card.className = 'rounded-xl border border-slate-200 p-4 space-y-3';
@@ -325,7 +441,9 @@ function openViewModal(rpp) {
                             <span class="text-[10px] font-bold text-primary uppercase tracking-wider">Pertemuan ${session.nomor_pertemuan}</span>
                             <span class="text-[10px] text-slate-400">${Object.keys(konten).length > 0 ? 'Terisi' : 'Belum diisi'}</span>
                         </div>
+                        ${konten.kesiapan_peserta_didik ? `<div class="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs"><strong class="block text-[10px] font-bold text-slate-700 mb-1">Kesiapan Peserta Didik</strong><p class="text-slate-700 whitespace-pre-line">${konten.kesiapan_peserta_didik}</p></div>` : ''}
                         ${konten.cp_text ? `<div class="p-3 rounded-lg bg-primary-tint border border-primary/10 text-xs leading-relaxed"><strong class="block text-[10px] font-bold text-primary mb-1">Capaian Pembelajaran</strong>${konten.cp_text}</div>` : ''}
+                        ${konten.pemahaman_bermakna ? `<div class="p-3 rounded-lg bg-slate-50 border border-slate-200 text-xs"><strong class="block text-[10px] font-bold text-slate-700 mb-1">Pemahaman Bermakna</strong><p class="text-slate-700 whitespace-pre-line">${konten.pemahaman_bermakna}</p></div>` : ''}
                         ${konten.tp_list && konten.tp_list.length > 0 ? `
                             <div>
                                 <strong class="block text-[10px] font-bold text-primary mb-1.5">Tujuan Pembelajaran (${konten.tp_list.length})</strong>
@@ -336,14 +454,17 @@ function openViewModal(rpp) {
                         ` : ''}
                         ${konten.langkah_pendahuluan || konten.langkah_penutup ? `
                             <div class="space-y-2">
-                                ${konten.langkah_pendahuluan ? `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[10px] font-bold text-primary mb-1">Pendahuluan</strong><p class="text-slate-700">${konten.langkah_pendahuluan}</p></div>` : ''}
+                                ${konten.langkah_pendahuluan ? `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[10px] font-bold text-primary mb-1">Pendahuluan</strong><p class="text-slate-700 whitespace-pre-line">${konten.langkah_pendahuluan}</p></div>` : ''}
                                 ${konten.langkah_inti && konten.langkah_inti.length > 0 ? `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[10px] font-bold text-primary mb-1">Kegiatan Inti</strong><ul class="list-disc list-inside text-slate-700 space-y-1 mt-1">${konten.langkah_inti.map(s => `<li>${s.uraian || s.nama || s}</li>`).join('')}</ul></div>` : ''}
-                                ${konten.langkah_penutup ? `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[10px] font-bold text-primary mb-1">Penutup</strong><p class="text-slate-700">${konten.langkah_penutup}</p></div>` : ''}
+                                ${konten.langkah_penutup ? `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[10px] font-bold text-primary mb-1">Penutup</strong><p class="text-slate-700 whitespace-pre-line">${konten.langkah_penutup}</p></div>` : ''}
+                                ${konten.refleksi_pembelajaran ? `<div class="p-3 rounded-lg bg-surface-alt border border-line"><strong class="block text-[10px] font-bold text-primary mb-1">Refleksi</strong><p class="text-slate-700 whitespace-pre-line">${konten.refleksi_pembelajaran}</p></div>` : ''}
                             </div>
                         ` : ''}
                     `;
                     sessionDetail.appendChild(card);
                 });
+            } else {
+                sessionDetail.classList.add('hidden');
             }
 
             // Status
@@ -363,17 +484,13 @@ function openViewModal(rpp) {
                 badge.innerHTML = '<span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 inline-flex items-center gap-1.5"><i class="fas fa-file-lines text-[10px]"></i> Draf</span>';
             }
 
-            // File download
+            // File / Cetak PDF download (route Admin)
             const fileWrap = document.getElementById('viewFileWrap');
             const fileLink = document.getElementById('viewFileLink');
             const fileText = document.getElementById('viewFileText');
-            if (rpp.file_rpp) {
-                fileWrap.classList.remove('hidden');
-                fileLink.href = `/guru/rpp/${rpp.id_rpp}/download`;
-                fileText.textContent = rpp.file_rpp.split('/').pop();
-            } else {
-                fileWrap.classList.add('hidden');
-            }
+            fileWrap.classList.remove('hidden');
+            fileLink.href = `/rpp/${rpp.id_rpp}/download`;
+            fileText.textContent = rpp.file_rpp ? rpp.file_rpp.split('/').pop() : 'Pratinjau / Cetak PDF Modul Ajar';
 
             const m = document.getElementById('viewModal');
             m.classList.remove('hidden');

@@ -4,8 +4,9 @@ namespace App\Features\Controllers\Api\Siswa;
 
 use App\Features\Controllers\Api\ApiController;
 use App\Features\Models\Materi;
-use App\Features\Models\SubBab;
 use App\Features\Models\Quiz;
+use App\Features\Models\Siswa;
+use App\Features\Models\SubBab;
 use Illuminate\Http\Request;
 
 class MateriController extends ApiController
@@ -13,11 +14,11 @@ class MateriController extends ApiController
     public function materiList(Request $request, $id)
     {
         $subBab = SubBab::with(['bab.mataPelajaran'])->find($id);
-        if (!$subBab) {
+        if (! $subBab) {
             $subBab = SubBab::with(['bab.mataPelajaran'])->whereHas('materi')->first()
                 ?? SubBab::with(['bab.mataPelajaran'])->first();
         }
-        if (!$subBab) {
+        if (! $subBab) {
             return $this->error('Sub Bab tidak ditemukan', 404);
         }
 
@@ -29,7 +30,7 @@ class MateriController extends ApiController
             $tipe = $m->tipe_materi ?: 'dokumen';
 
             $deskripsi = $m->isi_materi ? substr(strip_tags($m->isi_materi), 0, 140) : null;
-            if (!$deskripsi) {
+            if (! $deskripsi) {
                 $deskripsi = match ($tipe) {
                     'kuis' => 'Silakan kerjakan quiz untuk menguji pemahaman materi ini.',
                     'video' => 'Tonton video penjelasan materi pembelajaran interaktif ini.',
@@ -48,7 +49,7 @@ class MateriController extends ApiController
                 'deskripsi' => $deskripsi,
                 'warna' => $tipe === 'kuis' ? 'orange' : (($nomor % 2 == 0) ? 'orange' : 'blue'),
                 'url_video' => $m->url_video,
-                'has_thumbnail' => !empty($m->file_pdf),
+                'has_thumbnail' => ! empty($m->file_pdf),
             ];
         }
 
@@ -68,7 +69,7 @@ class MateriController extends ApiController
     public function materiDetail(Request $request, $id)
     {
         $materi = Materi::with(['subBab.bab.mataPelajaran'])->find($id);
-        if (!$materi) {
+        if (! $materi) {
             return $this->error('Materi belum diunggah atau tidak ditemukan di database', 404);
         }
 
@@ -76,12 +77,12 @@ class MateriController extends ApiController
         $bab = $subBab?->bab;
         $mapel = $bab?->mataPelajaran;
 
-        $hasVideo = !empty($materi->url_video);
-        $hasPdf = !empty($materi->file_pdf);
-        $hasText = !empty(trim(strip_tags((string)$materi->isi_materi)));
+        $hasVideo = ! empty($materi->url_video);
+        $hasPdf = ! empty($materi->file_pdf);
+        $hasText = ! empty(trim(strip_tags((string) $materi->isi_materi)));
 
-        $storageUrl = $request->root() . '/storage/' . $materi->file_pdf;
-        $downloadUrl = $request->root() . '/storage/' . $materi->file_pdf . '?download=1';
+        $storageUrl = $request->root().'/storage/'.$materi->file_pdf;
+        $downloadUrl = $request->root().'/storage/'.$materi->file_pdf.'?download=1';
 
         return $this->success([
             'id_materi' => $materi->id_materi,
@@ -117,7 +118,10 @@ class MateriController extends ApiController
     protected function resolveSiswaId(Request $request): ?int
     {
         $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) return (int) $id;
-        return \App\Features\Models\Siswa::first()?->id_siswa;
+        if ($id) {
+            return (int) $id;
+        }
+
+        return Siswa::first()?->id_siswa;
     }
 }

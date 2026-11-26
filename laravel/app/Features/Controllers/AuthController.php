@@ -5,8 +5,8 @@ namespace App\Features\Controllers;
 use App\Features\Models\Admin;
 use App\Features\Models\Guru;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
@@ -15,6 +15,7 @@ class AuthController extends Controller
         if (session()->has('user_id')) {
             return redirect('/rpp');
         }
+
         return view('auth.login');
     }
 
@@ -33,7 +34,8 @@ class AuthController extends Controller
                 'user_type' => 'admin',
                 'user_name' => $admin->nama_admin,
             ]);
-            return redirect('/rpp')->with('success', 'Selamat datang, ' . $admin->nama_admin);
+
+            return redirect('/rpp')->with('success', 'Selamat datang, '.$admin->nama_admin);
         }
 
         // Coba autentikasi sebagai Guru
@@ -44,7 +46,8 @@ class AuthController extends Controller
                 'user_type' => 'guru',
                 'user_name' => $guru->nama_guru,
             ]);
-            return redirect('/rpp')->with('success', 'Selamat datang, ' . $guru->nama_guru);
+
+            return redirect('/rpp')->with('success', 'Selamat datang, '.$guru->nama_guru);
         }
 
         return back()->with('error', 'NIP / Username atau Password salah.');
@@ -53,6 +56,7 @@ class AuthController extends Controller
     public function logout()
     {
         Session::flush();
+
         return redirect('/login')->with('success', 'Anda telah keluar.');
     }
 }

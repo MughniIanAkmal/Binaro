@@ -20,8 +20,9 @@ class ProfileController extends ApiController
             ?? session()->get('guru_id')
             ?? session()->get('user_id');
 
-        if (!$id) {
+        if (! $id) {
             $firstGuru = Guru::first();
+
             return $firstGuru?->id_guru;
         }
 
@@ -31,12 +32,12 @@ class ProfileController extends ApiController
     public function profile(Request $request)
     {
         $guruId = $this->authGuruId($request);
-        if (!$guruId) {
+        if (! $guruId) {
             return $this->error('User tidak terautentikasi', 401);
         }
 
         $guru = Guru::find($guruId);
-        if (!$guru) {
+        if (! $guru) {
             return $this->error('Guru tidak ditemukan', 404);
         }
 
@@ -46,12 +47,12 @@ class ProfileController extends ApiController
     public function updateProfile(Request $request)
     {
         $guruId = $this->authGuruId($request);
-        if (!$guruId) {
+        if (! $guruId) {
             return $this->error('User tidak terautentikasi', 401);
         }
 
         $guru = Guru::find($guruId);
-        if (!$guru) {
+        if (! $guru) {
             return $this->error('Guru tidak ditemukan', 404);
         }
 

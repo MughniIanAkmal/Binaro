@@ -104,7 +104,7 @@
                     <label class="text-xs font-bold text-slate-700 mb-1.5 h-5 flex items-center justify-between gap-1">
                         <span class="whitespace-nowrap">Alokasi Waktu (JP)</span>
                         <span id="edit-badge-jp" class="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-1.5 py-0.5 rounded border border-emerald-300 whitespace-nowrap">
-                            1JP = 45m
+                            1JP = 35m
                         </span>
                     </label>
                     <input type="text" name="alokasi_waktu" id="edit-alokasi-waktu" readonly placeholder="Otomatis dari jadwal"

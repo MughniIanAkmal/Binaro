@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Features\Models\Siswa;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
-use App\Features\Models\Siswa;
 use Illuminate\Database\Seeder;
 
 class SiswaSeeder extends Seeder

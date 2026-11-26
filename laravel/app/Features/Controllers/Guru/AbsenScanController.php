@@ -50,7 +50,7 @@ class AbsenScanController extends Controller
         $daftarKehadiran = $siswas->map(function ($s, $idx) use ($absensiMap) {
             $absen = $absensiMap->get($s->id_siswa);
             $status = $absen ? $absen->status : 'Belum Absen';
-            $jam = $absen && $absen->waktu_absen ? Carbon::parse($absen->waktu_absen)->format('H.i') . ' WIB' : null;
+            $jam = $absen && $absen->waktu_absen ? Carbon::parse($absen->waktu_absen)->format('H.i').' WIB' : null;
             $keterangan = $absen ? ($absen->keterangan ?? $status) : 'Belum Pindai';
             $metode = $absen ? $absen->metode : null;
 
@@ -69,7 +69,7 @@ class AbsenScanController extends Controller
                 'metode' => $metode,
                 'berkas_surat' => $absen ? $absen->berkas_surat : null,
                 'is_new' => $absen && ($s->nm_siswa === 'Budi Santoso' || ($absen->waktu_absen && Carbon::parse($absen->waktu_absen)->diffInMinutes(now()) <= 15)),
-                'barcode' => $s->barcode ? $s->barcode->kode_barcode : ('BIN-' . $s->nisn),
+                'barcode' => $s->barcode ? $s->barcode->kode_barcode : ('BIN-'.$s->nisn),
             ];
         });
 
@@ -93,16 +93,16 @@ class AbsenScanController extends Controller
         $persenHadir = $totalSiswa > 0 ? round(($hadirCount / $totalSiswa) * 100) : 0;
 
         $siswaBelum = $daftarKehadiran->firstWhere('status', 'Belum Absen');
-        $namaBelumAbsen = $siswaBelum ? $siswaBelum['nama'] . ' (07:14)' : 'Semua sudah presensi';
+        $namaBelumAbsen = $siswaBelum ? $siswaBelum['nama'].' (07:14)' : 'Semua sudah presensi';
 
         // Pindaian terakhir (default ke Budi Santoso jika ada)
-        $terakhirPindai = $daftarKehadiran->firstWhere('nama', 'Budi Santoso') 
-            ?? $daftarKehadiran->firstWhere('status', 'Hadir') 
+        $terakhirPindai = $daftarKehadiran->firstWhere('nama', 'Budi Santoso')
+            ?? $daftarKehadiran->firstWhere('status', 'Hadir')
             ?? $daftarKehadiran->first();
 
         $tercatatCount = $hariIni->count();
         $tanggalAbsen = today()->translatedFormat('d F Y');
-        $isLocked = session('absensi_locked_' . $today, false);
+        $isLocked = session('absensi_locked_'.$today, false);
 
         $daftarNama = $siswas->map(fn ($s) => [
             'id' => $s->id_siswa,
@@ -169,7 +169,7 @@ class AbsenScanController extends Controller
 
         $absensiMap = Absen::whereDate('tanggal', $today)->get()->keyBy('id_siswa');
 
-        $filename = "Rekap_Presensi_{$namaKelas}_" . date('Y-m-d') . ".csv";
+        $filename = "Rekap_Presensi_{$namaKelas}_".date('Y-m-d').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
@@ -182,13 +182,13 @@ class AbsenScanController extends Controller
         return new StreamedResponse(function () use ($siswas, $absensiMap, $namaKelas, $today) {
             $output = fopen('php://output', 'w');
             // Menulis UTF-8 BOM agar Excel membacanya dengan rapi tanpa masalah karakter
-            fprintf($output, chr(0xEF) . chr(0xBB) . chr(0xBF));
+            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
 
-            fputcsv($output, ["REKAP PRESENSI & KEHADIRAN SISWA"]);
-            fputcsv($output, ["Sekolah", "SD Negeri Karanganyar 01"]);
-            fputcsv($output, ["Kelas", $namaKelas]);
-            fputcsv($output, ["Tanggal", Carbon::parse($today)->translatedFormat('l, d F Y')]);
-            fputcsv($output, ["Wali Kelas", "Ibu Sarah Wijaya, S.Pd."]);
+            fputcsv($output, ['REKAP PRESENSI & KEHADIRAN SISWA']);
+            fputcsv($output, ['Sekolah', 'SD Negeri Karanganyar 01']);
+            fputcsv($output, ['Kelas', $namaKelas]);
+            fputcsv($output, ['Tanggal', Carbon::parse($today)->translatedFormat('l, d F Y')]);
+            fputcsv($output, ['Wali Kelas', 'Ibu Sarah Wijaya, S.Pd.']);
             fputcsv($output, []); // Baris kosong
 
             // Header Tabel
@@ -201,7 +201,7 @@ class AbsenScanController extends Controller
                 'Jam Presensi',
                 'Status Kehadiran',
                 'Keterangan',
-                'Metode Presensi'
+                'Metode Presensi',
             ]);
 
             $no = 1;
@@ -214,14 +214,14 @@ class AbsenScanController extends Controller
 
                 fputcsv($output, [
                     $no++,
-                    "'" . $siswa->nisn,
+                    "'".$siswa->nisn,
                     $siswa->nm_siswa,
                     $siswa->nama_kelas,
                     $today,
                     $jam,
                     $status,
                     $ket,
-                    $metode
+                    $metode,
                 ]);
             }
 
@@ -249,12 +249,13 @@ class AbsenScanController extends Controller
 
         $dataSiswa = $siswas->map(function ($s, $idx) use ($absensiMap) {
             $absen = $absensiMap->get($s->id_siswa);
+
             return [
                 'no' => $idx + 1,
                 'nama' => $s->nm_siswa,
                 'nisn' => $s->nisn,
                 'status' => $absen ? $absen->status : 'Belum Absen',
-                'jam' => $absen && $absen->waktu_absen ? Carbon::parse($absen->waktu_absen)->format('H:i') . ' WIB' : '-',
+                'jam' => $absen && $absen->waktu_absen ? Carbon::parse($absen->waktu_absen)->format('H:i').' WIB' : '-',
                 'keterangan' => $absen ? ($absen->keterangan ?? $absen->status) : 'Belum Pindai',
                 'metode' => $absen ? ($absen->metode === 'scan_qr' ? 'Scan QR' : 'Manual') : '-',
             ];
@@ -290,7 +291,7 @@ class AbsenScanController extends Controller
     public function kunciAbsensi(Request $request)
     {
         $today = today()->toDateString();
-        session(['absensi_locked_' . $today => true]);
+        session(['absensi_locked_'.$today => true]);
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -344,9 +345,9 @@ class AbsenScanController extends Controller
                 'id_siswa' => $siswa->id_siswa,
                 'nama' => $siswa->nm_siswa,
                 'status' => $data['status'],
-                'jam' => $waktu->format('H.i') . ' WIB',
+                'jam' => $waktu->format('H.i').' WIB',
                 'keterangan' => $keterangan,
-            ]
+            ],
         ]);
     }
 
@@ -386,7 +387,7 @@ class AbsenScanController extends Controller
                 'id' => $hasil['siswa']->id_siswa,
                 'nama' => $hasil['siswa']->nm_siswa,
                 'nisn' => $hasil['siswa']->nisn,
-                'kelas' => $hasil['siswa']->nama_kelas
+                'kelas' => $hasil['siswa']->nama_kelas,
             ],
             'jam' => $hasil['jam'],
             'statusAbsen' => $hasil['statusTampil'],

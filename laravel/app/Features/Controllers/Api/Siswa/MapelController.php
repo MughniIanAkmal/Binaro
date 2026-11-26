@@ -4,6 +4,8 @@ namespace App\Features\Controllers\Api\Siswa;
 
 use App\Features\Controllers\Api\ApiController;
 use App\Features\Models\MataPelajaran;
+use App\Features\Models\Pengaturan;
+use App\Features\Models\Siswa;
 use Illuminate\Http\Request;
 
 class MapelController extends ApiController
@@ -11,9 +13,9 @@ class MapelController extends ApiController
     public function mapelList(Request $request)
     {
         $siswaId = $this->resolveSiswaId($request) ?? 1;
-        $siswa = \App\Features\Models\Siswa::find($siswaId) ?? \App\Features\Models\Siswa::first();
+        $siswa = Siswa::find($siswaId) ?? Siswa::first();
         $namaKelas = $siswa?->nama_kelas ?? '-';
-        $semesterAktif = (int) \App\Features\Models\Pengaturan::ambil('semester_aktif', 1);
+        $semesterAktif = (int) Pengaturan::ambil('semester_aktif', 1);
         $daftarMapel = MataPelajaran::withCount(['bab' => function ($q) use ($semesterAktif) {
             $q->where('semester', $semesterAktif);
         }])->orderBy('id_mapel')->get();
@@ -28,7 +30,7 @@ class MapelController extends ApiController
             $jadwal = 'Senin & Rabu';
             $wajib = true;
             $babTotal = $m->bab_count;
-            $babRentang = $babTotal > 0 ? "Bab 1 - {$babTotal}" : "Belum Ada Bab";
+            $babRentang = $babTotal > 0 ? "Bab 1 - {$babTotal}" : 'Belum Ada Bab';
 
             $progData = app(DashboardController::class)->calculateMapelProgress($m->id_mapel, $siswaId);
             $progress = $progData['progress'];
@@ -78,20 +80,23 @@ class MapelController extends ApiController
         }
 
         return $this->success([
-            'kelas' => 'Mata Pelajaran ' . $namaKelas,
+            'kelas' => 'Mata Pelajaran '.$namaKelas,
             'semester' => $semesterAktif === 2 ? 'Semester Genap' : 'Semester Ganjil',
             'semester_aktif' => $semesterAktif,
             'total_mapel' => count($result),
-            'wajib_count' => count(array_filter($result, fn($x) => $x['is_wajib'])),
+            'wajib_count' => count(array_filter($result, fn ($x) => $x['is_wajib'])),
             'mapel' => $result,
         ], 'Daftar mata pelajaran berhasil dimuat');
     }
 
     protected function resolveSiswaId(Request $request): ?int
     {
-        $siswa = \App\Features\Models\Siswa::first();
+        $siswa = Siswa::first();
         $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) return (int) $id;
+        if ($id) {
+            return (int) $id;
+        }
+
         return $siswa?->id_siswa;
     }
 }

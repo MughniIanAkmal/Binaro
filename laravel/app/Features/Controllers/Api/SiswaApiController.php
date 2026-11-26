@@ -16,6 +16,4 @@ namespace App\Features\Controllers\Api;
  *   - \App\Features\Controllers\Api\Siswa\UjianController
  *   - \App\Features\Controllers\Api\Siswa\NotifikasiController
  */
-class SiswaApiController extends ApiController
-{
-}
+class SiswaApiController extends ApiController {}

@@ -2,6 +2,7 @@
 
 namespace App\Features\Controllers;
 
+use App\Features\Models\Admin;
 use App\Features\Models\Bab;
 use App\Features\Models\CapaianPembelajaran;
 use App\Features\Models\Guru;
@@ -11,9 +12,8 @@ use App\Features\Models\MataPelajaran;
 use App\Features\Models\Rpp;
 use App\Features\Models\RppCatatan;
 use App\Features\Models\RppSession;
-use App\Features\Models\Admin;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
@@ -29,7 +29,7 @@ class RppController extends Controller
             return $this->guruIndex($request);
         }
 
-        $query = Rpp::with(['guru', 'mataPelajaran', 'kelas', 'jadwal', 'bab', 'catatan']);
+        $query = Rpp::with(['guru', 'mataPelajaran', 'kelas', 'jadwal', 'bab', 'catatan', 'sessions']);
 
         $kpi = [
             'total' => Rpp::count(),
@@ -65,7 +65,25 @@ class RppController extends Controller
         $namaGuru = Guru::all();
         $babList = Bab::orderBy('id_mapel')->orderBy('id_bab')->get();
 
-        return view('rpp.index', compact('rppList', 'kpi', 'mapelList', 'kelasList', 'namaGuru', 'babList'));
+        $rppBabIds = Rpp::whereNotNull('id_bab')->pluck('id_bab')->flip();
+        $mapelBabSummary = $mapelList->map(function ($mapel) use ($babList, $rppBabIds) {
+            $babs = $babList->where('id_mapel', $mapel->id_mapel)->values();
+            $babItems = $babs->map(fn ($bab) => [
+                'id_bab' => $bab->id_bab,
+                'nama_bab' => $bab->nama_bab,
+                'sudah_rpp' => $rppBabIds->has($bab->id_bab),
+            ]);
+
+            return [
+                'id_mapel' => $mapel->id_mapel,
+                'nama_mapel' => $mapel->nama_mapel,
+                'bab_total' => $babs->count(),
+                'bab_ber_rpp' => $babItems->where('sudah_rpp', true)->count(),
+                'babs' => $babItems,
+            ];
+        })->filter(fn ($m) => $m['bab_total'] > 0)->values();
+
+        return view('rpp.index', compact('rppList', 'kpi', 'mapelList', 'kelasList', 'namaGuru', 'babList', 'mapelBabSummary'));
     }
 
     /**
@@ -168,7 +186,11 @@ class RppController extends Controller
         // Peta cakupan bab: guru perlu tahu bab mana yang sudah punya RPP dan
         // mana yang belum, supaya tidak membuat dokumen ganda untuk bab sama.
         $mapelIds = $mapelList->pluck('id_mapel')->all();
-        $babList = Bab::whereIn('id_mapel', $mapelIds)->orderBy('id_mapel')->orderBy('id_bab')->get();
+        $babList = Bab::with('mataPelajaran')
+            ->whereIn('id_mapel', $mapelIds)
+            ->orderBy('id_mapel')
+            ->orderBy('id_bab')
+            ->get();
         $rppPerBab = $guru
             ? Rpp::where('id_guru', $guru->id_guru)->whereNotNull('id_bab')
                 ->get(['id_rpp', 'id_bab', 'status', 'judul_rpp'])
@@ -289,7 +311,14 @@ class RppController extends Controller
         $this->pastikanBolehMengubah($rpp);
         abort_if(in_array($rpp->status, ['menunggu_review', 'terverifikasi'], true), 403, 'Modul yang sedang ditinjau atau disetujui tidak dapat diedit.');
         $step = max(1, min(8, (int) $request->query('step', 1)));
-        $nomorPertemuan = max(1, min((int) $rpp->total_pertemuan, (int) $request->query('pertemuan', 1)));
+
+        // Pastikan total_pertemuan minimal 1 (RPP yang dibuat via store() lama mungkin tidak memilikinya)
+        $totalPertemuan = max(1, (int) ($rpp->total_pertemuan ?: 1));
+        if ((int) $rpp->total_pertemuan < 1) {
+            $rpp->update(['total_pertemuan' => 1]);
+        }
+        $nomorPertemuan = max(1, min($totalPertemuan, (int) $request->query('pertemuan', 1)));
+
         $guru = $rpp->guru;
         $mapelList = MataPelajaran::all();
         $kelasList = Kelas::all();
@@ -299,7 +328,7 @@ class RppController extends Controller
         // Draf lama (sebelum wizard) belum memiliki baris pertemuan. Buat baris
         // kosong agar record lama tetap bisa dibuka dan dilengkapi tanpa migrasi
         // konten yang berisiko.
-        for ($i = 1; $i <= max(1, (int) $rpp->total_pertemuan); $i++) {
+        for ($i = 1; $i <= $totalPertemuan; $i++) {
             RppSession::firstOrCreate(
                 ['id_rpp' => $rpp->id_rpp, 'nomor_pertemuan' => $i],
                 ['konten' => []]
@@ -473,7 +502,7 @@ class RppController extends Controller
     {
         $data = $request->validate([
             'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
-            'fase' => 'required|in:A,B',
+            'fase' => 'required|in:A,B,C',
             'elemen' => 'nullable|string|max:150',
             'cp_text' => 'required|string|max:10000',
             'urutan' => 'nullable|integer|min:0',
@@ -488,7 +517,7 @@ class RppController extends Controller
         $cp = CapaianPembelajaran::findOrFail($id);
         $data = $request->validate([
             'id_mapel' => 'required|exists:mata_pelajaran,id_mapel',
-            'fase' => 'required|in:A,B',
+            'fase' => 'required|in:A,B,C',
             'elemen' => 'nullable|string|max:150',
             'cp_text' => 'required|string|max:10000',
             'urutan' => 'nullable|integer|min:0',
@@ -504,15 +533,16 @@ class RppController extends Controller
         $tingkat = (int) ($kelas->tingkat ?: (preg_match('/\\d+/', (string) $kelas->pararel, $m) ? ($m[0] ?? 0) : 0));
 
         return match (true) {
-            $tingkat >= 1 && $tingkat <= 3 => 'Fase A',
-            $tingkat >= 4 && $tingkat <= 6 => 'Fase B',
+            $tingkat >= 1 && $tingkat <= 2 => 'Fase A',
+            $tingkat >= 3 && $tingkat <= 4 => 'Fase B',
+            $tingkat >= 5 && $tingkat <= 6 => 'Fase C',
             default => null,
         };
     }
 
     private function faseCode(?string $fase): ?string
     {
-        return preg_match('/\\b([AB])\\b/i', (string) $fase, $matches) ? strtoupper($matches[1]) : null;
+        return preg_match('/\\b([ABC])\\b/i', (string) $fase, $matches) ? strtoupper($matches[1]) : null;
     }
 
     private function simpanVersiRpp(Rpp $rpp, string $perubahan): void
@@ -527,7 +557,7 @@ class RppController extends Controller
     }
 
     /**
-     * Validasi Target Roster Jadwal & Hitung JP Otomatis (1 JP = 45 Menit)
+     * Validasi Target Roster Jadwal & Hitung JP Otomatis (Standar SD: 1 JP = 35 Menit)
      *
      * @return array [bool $valid, ?string $errorMessage, ?string $alokasiJp]
      */
@@ -537,7 +567,7 @@ class RppController extends Controller
             return [true, null, null];
         }
 
-        // Deteksi pola rentang jam, contoh: "09.00 - 08.00" atau "07:15 - 08:45"
+        // Deteksi pola rentang jam, contoh: "09.00 - 08.00" atau "07:00 - 08:10"
         if (preg_match('/(\d{1,2})[:.](\d{2})\s*[-–]\s*(\d{1,2})[:.](\d{2})/', $targetJadwal, $m)) {
             $hMulai = (int) $m[1];
             $mMulai = (int) $m[2];
@@ -561,35 +591,35 @@ class RppController extends Controller
                 ];
             }
 
-            // 2. Cek durasi minimal (1 JP = 45 menit)
-            if ($durasi < 45) {
+            // 2. Cek durasi minimal (1 JP = 35 menit)
+            if ($durasi < 35) {
                 return [
                     false,
-                    sprintf('Durasi pembelajaran pada jadwal (%d menit) terlalu singkat! Minimal 1 JP (45 menit).', $durasi),
+                    sprintf('Durasi pembelajaran pada jadwal (%d menit) terlalu singkat! Minimal 1 JP (35 menit).', $durasi),
                     null,
                 ];
             }
 
-            // 3. Cek durasi maksimal (maksimal 4-5 JP / 225 menit untuk 1 modul ajar)
-            if ($durasi > 225) {
+            // 3. Cek durasi maksimal (maksimal 6 JP / 210 menit untuk 1 modul ajar)
+            if ($durasi > 210) {
                 return [
                     false,
-                    sprintf('Durasi pembelajaran pada jadwal (%d menit) terlalu panjang untuk satu modul ajar (maksimal 5 JP / 225 menit).', $durasi),
+                    sprintf('Durasi pembelajaran pada jadwal (%d menit) terlalu panjang untuk satu modul ajar (maksimal 6 JP / 210 menit).', $durasi),
                     null,
                 ];
             }
 
-            // 4. Durasi wajib kelipatan 1 JP (45 menit)
-            if ($durasi % 45 !== 0) {
+            // 4. Durasi wajib kelipatan 1 JP (35 menit)
+            if ($durasi % 35 !== 0) {
                 return [
                     false,
-                    sprintf('Durasi pembelajaran (%d menit) harus kelipatan 45 menit (1 JP), misalnya 45, 90, 135, 180, atau 225 menit.', $durasi),
+                    sprintf('Durasi pembelajaran (%d menit) harus kelipatan 35 menit (1 JP), misalnya 35, 70, 105, 140, 175, atau 210 menit.', $durasi),
                     null,
                 ];
             }
 
-            // 5. Hitung JP otomatis (1 JP = 45 menit)
-            $jp = intdiv($durasi, 45);
+            // 5. Hitung JP otomatis (1 JP = 35 menit)
+            $jp = intdiv($durasi, 35);
 
             return [true, null, "{$jp} JP"];
         }
@@ -690,7 +720,7 @@ class RppController extends Controller
             'judul_rpp.regex' => 'Topik / Judul Modul Ajar hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
             'modul_ke.max' => 'Nomor Modul atau Bab maksimal 20 karakter.',
             'modul_ke.regex' => 'Nomor Modul atau Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
-            'alokasi_waktu.max' => 'Alokasi Waktu maksimal 15 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
+            'alokasi_waktu.max' => 'Alokasi Waktu maksimal 15 karakter (Contoh: 2 JP. Catatan: 1 JP = 35 Menit).',
             'target_jadwal.max' => 'Target Roster Jadwal maksimal 50 karakter.',
             'ruang.max' => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
             'deskripsi.max' => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',
@@ -725,6 +755,21 @@ class RppController extends Controller
         $redirectRoute = session('user_type') === 'guru' ? route('guru.rpp.index') : route('rpp.index');
         if ($validated['status'] === 'menunggu_review') {
             return redirect($redirectRoute)->with('success', 'Modul Ajar RPP berhasil dikirim. Status saat ini: "Menunggu Persetujuan Admin" dan belum bisa diaplikasikan hingga disetujui (di-accept) oleh Administrator.');
+        }
+
+        // Jika simpan draf dari modal — arahkan ke wizard supaya guru bisa melengkapi isi
+        if (session('user_type') === 'guru' && $request->input('from_modal')) {
+            $rppBaru = Rpp::where('id_guru', $idGuru)->latest('id_rpp')->first();
+            if ($rppBaru) {
+                // Pastikan RppSession pertemuan pertama tersedia
+                RppSession::firstOrCreate(
+                    ['id_rpp' => $rppBaru->id_rpp, 'nomor_pertemuan' => 1],
+                    ['konten' => []]
+                );
+
+                return redirect(route('guru.rpp.wizard.edit', ['id' => $rppBaru->id_rpp, 'step' => 1, 'pertemuan' => 1]))
+                    ->with('success', 'Draf modul ajar dibuat. Lengkapi isi modul di bawah ini.');
+            }
         }
 
         return redirect($redirectRoute)->with('success', 'Draf Modul Ajar RPP berhasil disimpan.');
@@ -915,7 +960,7 @@ class RppController extends Controller
             'judul_rpp.regex' => 'Topik / Judul Modul Ajar hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
             'modul_ke.max' => 'Nomor Modul atau Bab maksimal 20 karakter.',
             'modul_ke.regex' => 'Nomor Modul atau Bab hanya boleh berisi huruf, angka, dan spasi (tidak boleh mengandung simbol).',
-            'alokasi_waktu.max' => 'Alokasi Waktu maksimal 15 karakter (Contoh: 2 JP. Catatan: 1JP = 45 Menit).',
+            'alokasi_waktu.max' => 'Alokasi Waktu maksimal 15 karakter (Contoh: 2 JP. Catatan: 1 JP = 35 Menit).',
             'target_jadwal.max' => 'Target Roster Jadwal maksimal 50 karakter.',
             'ruang.max' => 'Ruang / Lokasi Belajar maksimal 50 karakter.',
             'deskripsi.max' => 'Capaian Pembelajaran / Deskripsi maksimal 500 karakter.',

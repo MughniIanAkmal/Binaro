@@ -4,6 +4,7 @@ namespace App\Features\Controllers\Api\Guru;
 
 use App\Features\Controllers\Api\ApiController;
 use App\Features\Models\Absen;
+use App\Features\Models\Guru;
 use App\Features\Services\AbsensiService;
 use Illuminate\Http\Request;
 
@@ -23,8 +24,9 @@ class AbsensiController extends ApiController
             ?? session()->get('guru_id')
             ?? session()->get('user_id');
 
-        if (!$id) {
-            $firstGuru = \App\Features\Models\Guru::first();
+        if (! $id) {
+            $firstGuru = Guru::first();
+
             return $firstGuru?->id_guru;
         }
 
@@ -67,7 +69,7 @@ class AbsensiController extends ApiController
         ]);
 
         $guruId = $this->authGuruId($request);
-        if (!$guruId) {
+        if (! $guruId) {
             return $this->error('User tidak terautentikasi', 401);
         }
 
@@ -81,6 +83,7 @@ class AbsensiController extends ApiController
 
             if ($existing) {
                 $results[] = ['id_siswa' => $entry['id_siswa'], 'status' => 'duplikat'];
+
                 continue;
             }
 

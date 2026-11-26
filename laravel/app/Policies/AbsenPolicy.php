@@ -28,6 +28,7 @@ class AbsenPolicy
     private function userId(): ?int
     {
         $userId = Session::get('user_id');
+
         return is_numeric($userId) ? (int) $userId : null;
     }
 
@@ -89,6 +90,7 @@ class AbsenPolicy
         }
 
         $guruId = $this->userId();
+
         return (bool) ($guruId && $absen->id_guru === $guruId);
     }
 

@@ -17,7 +17,7 @@ class ApiAuthMiddleware
     {
         $resolved = ApiTokenService::resolveUser($request, $requiredRole);
 
-        if (!$resolved || empty($resolved['user'])) {
+        if (! $resolved || empty($resolved['user'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthenticated.',

@@ -1,507 +1,764 @@
 @extends(session('user_type') === 'guru' ? 'layouts.guru' : 'layouts.app')
 
 @section('page_title', 'RPP & Modul Ajar')
-
-@section('header_actions')
-    <a href="{{ route('guru.rpp.wizard.create') }}"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-white shadow-sm hover:opacity-90 transition bg-primary"
-            >
-        <i class="fas fa-plus text-[11px]"></i> Buat Modul Ajar
-    </a>
-    <button type="button" onclick="window.print()"
-            class="inline-flex items-center gap-2 px-4 h-10 rounded-xl text-[12px] font-bold text-slate-700 bg-white border border-line hover:bg-slate-50 transition print:hidden">
-        <i class="fas fa-print text-[11px]"></i> Cetak Rekap
-    </button>
-@endsection
+@section('page_subtitle', 'Kelola rencana pembelajaran dan modul ajar')
 
 @section('content')
+@php
+    $babGroups = isset($babList) ? $babList->groupBy('id_mapel') : collect();
+@endphp
+
+<style>
+/* ══════════════════════════════════════════════════
+   RPP Guru Page — Design mengikuti warna project
+   Tokens: --color-primary #13527D, --color-canvas #F8FAFC, dsb.
+══════════════════════════════════════════════════ */
+
+/* ── KPI Cards ── */
+.kpi-card {
+    background: #fff;
+    border: 1px solid var(--color-line);
+    border-radius: .875rem;
+    padding: 1rem 1.125rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    transition: box-shadow .15s;
+}
+.kpi-card:hover { box-shadow: 0 4px 16px rgba(19,82,125,.08); }
+.kpi-icon {
+    width: 2.5rem; height: 2.5rem;
+    border-radius: .625rem;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .9rem;
+    flex-shrink: 0;
+}
+.kpi-label {
+    font-size: .6rem;
+    font-weight: 700;
+    color: var(--color-ink-muted);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    display: block;
+}
+.kpi-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1;
+    display: block;
+    margin-top: .15rem;
+}
+.kpi-sub {
+    font-size: .65rem;
+    color: var(--color-ink-soft);
+    display: block;
+    margin-top: .35rem;
+}
+
+/* ── Filter Panel ── */
+.rpp-filter-panel {
+    background: #fff;
+    border: 1px solid var(--color-line);
+    border-radius: .875rem;
+    padding: 1rem 1.125rem;
+}
+.rpp-input {
+    background: var(--color-canvas);
+    border: 1px solid var(--color-line);
+    border-radius: .625rem;
+    color: var(--color-ink);
+    height: 2.5rem;
+    font-size: .75rem;
+    font-family: inherit;
+    transition: border-color .15s, box-shadow .15s;
+    width: 100%;
+    padding: 0 .875rem;
+}
+.rpp-input::placeholder { color: var(--color-ink-muted); }
+.rpp-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(19,82,125,.12);
+    background: #fff;
+}
+.rpp-search-wrap { position: relative; }
+.rpp-search-icon {
+    position: absolute; left: .875rem; top: 50%; transform: translateY(-50%);
+    color: var(--color-ink-muted); font-size: .75rem; pointer-events: none;
+}
+.rpp-search-wrap .rpp-input { padding-left: 2.25rem; }
+
+.rpp-icon-btn {
+    width: 2.5rem; height: 2.5rem;
+    border-radius: .625rem;
+    border: 1px solid var(--color-line);
+    background: var(--color-canvas);
+    color: var(--color-ink-soft);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all .15s;
+    font-size: .75rem; flex-shrink: 0;
+    text-decoration: none;
+}
+.rpp-icon-btn:hover { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.rpp-icon-btn.primary { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.rpp-icon-btn.primary:hover { background: var(--color-primary-hover); }
+
+/* ── Cakupan Bab ── */
+.rpp-cakupan {
+    background: #fff;
+    border: 1px solid var(--color-line);
+    border-radius: .875rem;
+    padding: 1rem 1.125rem;
+}
+.rpp-cakupan-select {
+    background: var(--color-canvas);
+    border: 1px solid var(--color-line);
+    border-radius: .625rem;
+    color: var(--color-ink);
+    height: 2.25rem;
+    font-size: .72rem;
+    font-family: inherit;
+    padding: 0 .75rem;
+    min-width: 160px;
+}
+.rpp-cakupan-select:focus { outline: none; border-color: var(--color-primary); }
+.cakupan-pill {
+    display: inline-flex; align-items: center; gap: .375rem;
+    padding: .3rem .7rem;
+    border-radius: .5rem;
+    font-size: .67rem; font-weight: 600;
+    border: 1px solid;
+}
+.cakupan-pill.done  { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+.cakupan-pill.empty { background: var(--color-canvas); color: var(--color-ink-soft); border-color: var(--color-line); }
+
+/* ── Section header ── */
+.rpp-section-title {
+    font-size: .875rem;
+    font-weight: 800;
+    color: var(--color-ink);
+}
+.rpp-count-badge {
+    font-size: .7rem;
+    color: var(--color-ink-soft);
+}
+
+/* ── Tabs ── */
+.rpp-tabs { display: flex; gap: .5rem; flex-wrap: wrap; }
+.rpp-tab {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .4rem .9rem;
+    border-radius: 9999px;
+    font-size: .7rem; font-weight: 700;
+    border: 1px solid var(--color-line);
+    background: #fff;
+    color: var(--color-ink-soft);
+    text-decoration: none;
+    transition: all .15s;
+    white-space: nowrap;
+}
+.rpp-tab:hover { border-color: var(--color-primary); color: var(--color-primary); background: #f0f7ff; }
+.rpp-tab.active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.rpp-tab .tab-count { font-size: .65rem; opacity: .85; }
+
+/* ── RPP Cards ── */
+.rpp-card {
+    background: #fff;
+    border: 1px solid var(--color-line);
+    border-radius: .875rem;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: .875rem;
+    transition: border-color .15s, box-shadow .15s;
+}
+.rpp-card:hover {
+    border-color: rgba(19,82,125,.3);
+    box-shadow: 0 4px 20px rgba(19,82,125,.08);
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-flex; align-items: center; gap: .375rem;
+    padding: .28rem .7rem;
+    border-radius: .5rem;
+    font-size: .67rem; font-weight: 700;
+    border: 1px solid;
+}
+.status-badge.perlu-revisi { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+.status-badge.draft        { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+.status-badge.menunggu     { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+.status-badge.siap-ajar    { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+
+/* Card content */
+.rpp-card-mapel {
+    font-size: .7rem; font-weight: 700;
+    color: var(--color-primary);
+    margin-top: .5rem;
+}
+.rpp-card-title {
+    font-size: .9375rem; font-weight: 800;
+    color: var(--color-ink);
+    line-height: 1.35; margin-top: .2rem;
+}
+.rpp-card-meta {
+    font-size: .67rem;
+    color: var(--color-ink-soft);
+    display: flex; flex-wrap: wrap;
+    gap: .2rem .45rem; align-items: center;
+    margin-top: .35rem;
+}
+.rpp-card-meta .meta-sep { color: var(--color-ink-muted); }
+.rpp-card-meta .meta-cal { display: inline-flex; align-items: center; gap: .25rem; }
+.rpp-card-desc {
+    font-size: .7rem;
+    color: var(--color-ink-soft);
+    line-height: 1.65;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.rpp-draft-notice {
+    font-size: .7rem;
+    color: var(--color-ink-soft);
+    line-height: 1.6;
+}
+
+/* Progress */
+.rpp-progress-label {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: .67rem; margin-bottom: .4rem;
+}
+.rpp-progress-label span:first-child { font-weight: 700; color: var(--color-ink-soft); }
+.rpp-progress-label span:last-child  { color: var(--color-ink-muted); }
+.rpp-progress-bar {
+    height: .3125rem;
+    background: var(--color-line);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+.rpp-progress-bar .fill {
+    height: 100%; border-radius: 9999px; transition: width .4s ease;
+}
+.fill-primary { background: linear-gradient(90deg, var(--color-primary), var(--color-primary-soft)); }
+.fill-success { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.fill-warning { background: linear-gradient(90deg, var(--color-accent-deep), var(--color-accent)); }
+
+/* Card footer */
+.rpp-card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: .5rem; flex-wrap: wrap;
+    padding-top: .875rem;
+    border-top: 1px solid var(--color-line);
+    margin-top: auto;
+}
+.rpp-btn {
+    display: inline-flex; align-items: center; gap: .375rem;
+    padding: .45rem .875rem;
+    border-radius: .5rem;
+    font-size: .68rem; font-weight: 700;
+    border: 1px solid var(--color-line);
+    background: #fff;
+    color: var(--color-ink-soft);
+    text-decoration: none; cursor: pointer;
+    transition: all .15s; white-space: nowrap;
+    font-family: inherit;
+}
+.rpp-btn:hover { background: var(--color-canvas); border-color: rgba(19,82,125,.3); color: var(--color-primary); }
+.rpp-btn.cta-primary {
+    background: var(--color-primary); border-color: var(--color-primary);
+    color: #fff;
+}
+.rpp-btn.cta-primary:hover { background: var(--color-primary-hover); }
+.rpp-btn.cta-revision {
+    background: #fef2f2; border-color: #fecaca; color: #dc2626;
+}
+.rpp-btn.cta-revision:hover { background: #fee2e2; }
+.rpp-btn.cta-success {
+    background: #f0fdf4; border-color: #bbf7d0; color: #16a34a;
+}
+.rpp-btn.cta-success:hover { background: #dcfce7; }
+.rpp-btn .btn-arrow { font-size: .65rem; }
+
+/* More dropdown */
+.rpp-more-wrap { position: relative; flex-shrink: 0; }
+.rpp-more-btn {
+    width: 2rem; height: 2rem;
+    background: #fff; border: 1px solid var(--color-line);
+    border-radius: .5rem;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--color-ink-muted); cursor: pointer;
+    font-size: .75rem; font-family: inherit;
+    transition: background .15s, border-color .15s;
+}
+.rpp-more-btn:hover { background: var(--color-canvas); border-color: rgba(19,82,125,.3); color: var(--color-primary); }
+.rpp-dropdown {
+    position: absolute; right: 0; top: 2.25rem; z-index: 50;
+    background: #fff;
+    border: 1px solid var(--color-line);
+    border-radius: .625rem;
+    box-shadow: 0 8px 24px rgba(15,23,42,.12);
+    padding: .375rem;
+    min-width: 11rem;
+    display: none;
+}
+.rpp-dropdown.open { display: block; }
+.rpp-dropdown a, .rpp-dropdown button {
+    display: flex; align-items: center; gap: .5rem;
+    width: 100%; text-align: left;
+    padding: .475rem .75rem;
+    border-radius: .4rem;
+    font-size: .7rem; font-weight: 600;
+    color: var(--color-ink-soft);
+    text-decoration: none; background: none; border: none;
+    cursor: pointer; font-family: inherit;
+    transition: background .12s, color .12s;
+}
+.rpp-dropdown a:hover, .rpp-dropdown button:hover {
+    background: var(--color-canvas); color: var(--color-ink);
+}
+.rpp-dropdown .danger:hover { background: #fef2f2; color: #dc2626; }
+.rpp-dropdown hr { border: none; border-top: 1px solid var(--color-line); margin: .25rem 0; }
+
+/* Create button */
+.rpp-btn-create {
+    display: inline-flex; align-items: center; gap: .5rem;
+    padding: .5rem 1rem;
+    border-radius: .625rem;
+    background: var(--color-primary); color: #fff;
+    font-size: .72rem; font-weight: 700;
+    text-decoration: none; border: none; cursor: pointer;
+    font-family: inherit; transition: background .15s;
+}
+.rpp-btn-create:hover { background: var(--color-primary-hover); }
+
+/* Empty state */
+.rpp-empty {
+    background: #fff; border: 1px solid var(--color-line);
+    border-radius: .875rem;
+    padding: 3rem; text-align: center;
+    grid-column: 1 / -1;
+}
+
+/* Responsive cards grid */
+.rpp-cards-grid { grid-template-columns: repeat(1, 1fr); }
+@media (min-width: 1024px) {
+    .rpp-cards-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+
 <div class="space-y-5 pb-6">
 
-    <!-- 4 KPI / Stat Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- 1. Total RPP Tersedia -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between transition hover:shadow-sm">
+    {{-- ===== HEADER BAR ===== --}}
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap">
+        <div>
+            <h2 style="font-size:.9375rem;font-weight:800;color:var(--color-ink)">RPP &amp; Modul Ajar</h2>
+            <p style="font-size:.7rem;color:var(--color-ink-soft);margin-top:.2rem">Pantau status pengajuan dan kelengkapan modul pembuatanmu.</p>
+        </div>
+        <button type="button" onclick="openModalTambahRpp()" class="rpp-btn-create">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+            <span>Buat Modul Ajar</span>
+        </button>
+    </div>
+
+    {{-- ===== KPI CARDS ===== --}}
+    <section class="grid grid-cols-2 xl:grid-cols-4 gap-3" aria-label="Ringkasan RPP">
+        <div class="kpi-card">
             <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">TOTAL MODUL RPP</span>
-                <div class="text-3xl font-black text-slate-900 mt-1 leading-none">{{ $kpiGuru['total'] }}</div>
-                <p class="text-[11px] text-slate-500 font-medium mt-1.5 flex items-center gap-1.5">
-                    <span>Modul Ajar Diajukan</span>
-                </p>
+                <span class="kpi-label">Total Modul</span>
+                <strong class="kpi-value" style="color:var(--color-ink)">{{ $kpiGuru['total'] }}</strong>
+                <span class="kpi-sub">Modul tersimpan</span>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center text-xl shadow-xs">
-                <i class="fas fa-file-invoice"></i>
+            <div class="kpi-icon" style="background:#eff6ff;color:var(--color-primary)">
+                <i class="fas fa-file-lines"></i>
             </div>
         </div>
-
-        <!-- 2. Siap Ajar (Disetujui Admin) -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between transition hover:shadow-sm">
+        <div class="kpi-card">
             <div>
-                <span class="text-[10px] font-black text-emerald-600 uppercase tracking-wider block">DISETUJUI & SIAP AJAR</span>
-                <div class="text-3xl font-black text-emerald-700 mt-1 leading-none">{{ $kpiGuru['siap_ajar'] }}</div>
-                <p class="text-[11px] text-emerald-600 font-medium mt-1.5 flex items-center gap-1.5">
-                    <i class="fas fa-check-double text-[10px]"></i>
-                    <span>Telah di-Accept Admin</span>
-                </p>
+                <span class="kpi-label">Siap Ajar</span>
+                <strong class="kpi-value" style="color:#16a34a">{{ $kpiGuru['siap_ajar'] }}</strong>
+                <span class="kpi-sub">Siap digunakan</span>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center text-xl shadow-xs">
+            <div class="kpi-icon" style="background:#f0fdf4;color:#16a34a">
                 <i class="fas fa-circle-check"></i>
             </div>
         </div>
-
-        <!-- 3. Menunggu Persetujuan Admin -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between transition hover:shadow-sm">
+        <div class="kpi-card">
             <div>
-                <span class="text-[10px] font-black text-amber-600 uppercase tracking-wider block">MENUNGGU APPROVAL ADMIN</span>
-                <div class="text-3xl font-black text-amber-700 mt-1 leading-none">{{ $kpiGuru['menunggu_review'] }}</div>
-                <p class="text-[11px] text-amber-600 font-medium mt-1.5 flex items-center gap-1.5">
-                    <i class="fas fa-hourglass-half text-[10px]"></i>
-                    <span>Belum Aktif (Pending)</span>
-                </p>
+                <span class="kpi-label">Menunggu Admin</span>
+                <strong class="kpi-value" style="color:var(--color-accent-deep)">{{ $kpiGuru['menunggu_review'] }}</strong>
+                <span class="kpi-sub">Sedang ditinjau</span>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center text-xl shadow-xs">
+            <div class="kpi-icon" style="background:#fffbeb;color:var(--color-accent-deep)">
                 <i class="fas fa-clock"></i>
             </div>
         </div>
-
-        <!-- 4. Perlu Dilengkapi / Revisi -->
-        <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between transition hover:shadow-sm">
+        <div class="kpi-card">
             <div>
-                <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">PERLU REVISI / DRAF</span>
-                <div class="text-3xl font-black text-slate-900 mt-1 leading-none">{{ $kpiGuru['perlu_dilengkapi'] }}</div>
-                <p class="text-[11px] text-rose-600 font-medium mt-1.5 flex items-center gap-1.5">
-                    <span>Revisi: {{ $kpiGuru['perlu_revisi'] }} &bull; Draf: {{ $kpiGuru['draft'] }}</span>
-                </p>
+                <span class="kpi-label">Perlu Tindakan</span>
+                <strong class="kpi-value" style="color:#dc2626">{{ $kpiGuru['perlu_dilengkapi'] }}</strong>
+                <span class="kpi-sub">{{ $kpiGuru['perlu_revisi'] }} revisi · {{ $kpiGuru['draft'] }} draf</span>
             </div>
-            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center text-xl shadow-xs">
+            <div class="kpi-icon" style="background:#fef2f2;color:#dc2626">
                 <i class="fas fa-pen-to-square"></i>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Tab Navigation & Kurikulum Merdeka Badge -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
-        <!-- Tabs -->
-        <div class="flex items-center gap-2 overflow-x-auto text-xs font-semibold py-1">
-            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'semua'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap {{ ($tab ?? 'semua') === 'semua' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80' }}">
-                Semua RPP ({{ $kpiGuru['total'] }})
-            </a>
-            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'menunggu'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'menunggu' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-white text-amber-700 hover:bg-amber-50 border border-amber-200' }}">
-                <i class="fas fa-clock text-[11px] {{ ($tab ?? '') === 'menunggu' ? 'text-white' : 'text-amber-500' }}"></i>
-                <span>Menunggu Persetujuan Admin ({{ $kpiGuru['menunggu_review'] }})</span>
-            </a>
-            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'disetujui'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'disetujui' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200' }}">
-                <i class="fas fa-check-circle text-[11px] {{ ($tab ?? '') === 'disetujui' ? 'text-white' : 'text-emerald-500' }}"></i>
-                <span>Disetujui Admin / Siap Ajar ({{ $kpiGuru['siap_ajar'] }})</span>
-            </a>
-            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'revisi'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap flex items-center gap-1.5 {{ ($tab ?? '') === 'revisi' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-white text-rose-700 hover:bg-rose-50 border border-rose-200' }}">
-                <i class="fas fa-triangle-exclamation text-[11px] {{ ($tab ?? '') === 'revisi' ? 'text-white' : 'text-rose-500' }}"></i>
-                <span>Perlu Revisi ({{ $kpiGuru['perlu_revisi'] }})</span>
-            </a>
-            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'draft'])) }}"
-               class="px-4 py-2 rounded-xl transition whitespace-nowrap {{ ($tab ?? '') === 'draft' ? 'bg-primary text-white font-bold shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80' }}">
-                Draf ({{ $kpiGuru['draft'] }})
-            </a>
-        </div>
-
-        <!-- Kurikulum Merdeka Badge -->
-        <div class="shrink-0">
-            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-white text-slate-700 border border-slate-200/80 shadow-xs">
-                <i class="fas fa-shield-halved text-emerald-500 text-sm"></i>
-                <span>Kurikulum Merdeka &bull; RPP disusun per bab</span>
-            </span>
-        </div>
-    </div>
-
-    {{-- Cakupan bab: mana yang sudah punya RPP dan mana yang belum. --}}
-    @if(isset($babList) && $babList->isNotEmpty())
-    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
-        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
-            <div class="flex items-center gap-2">
-                <i class="fas fa-list-check text-primary text-xs"></i>
-                <span class="text-xs font-bold text-slate-800">Cakupan Bab</span>
+    {{-- ===== CAKUPAN BAB ===== --}}
+    @if($babGroups->isNotEmpty())
+    <div class="rpp-cakupan">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap;margin-bottom:.875rem">
+            <div>
+                <h3 style="font-size:.8rem;font-weight:700;color:var(--color-ink);display:flex;align-items:center;gap:.5rem">
+                    <i class="fas fa-list-check" style="color:var(--color-primary)"></i> Cakupan Bab
+                </h3>
+                <p style="font-size:.65rem;color:var(--color-ink-soft);margin-top:.2rem">Bab dikelompokkan berdasarkan mata pelajaran.</p>
             </div>
-            <span class="text-[10px] text-slate-400">
-                {{ $rppPerBab->count() }} dari {{ $babList->count() }} bab sudah punya RPP
-            </span>
+            <select id="cakupan-mapel-filter" class="rpp-cakupan-select">
+                <option value="semua">Semua Mata Pelajaran</option>
+                @foreach($babGroups as $mapelId => $babDalamMapel)
+                    @php $mapelCakupan = $babDalamMapel->first()?->mataPelajaran; @endphp
+                    @if($mapelCakupan)
+                        <option value="{{ $mapelId }}">{{ $mapelCakupan->nama_mapel }}</option>
+                    @endif
+                @endforeach
+            </select>
         </div>
-        <div class="flex flex-wrap gap-1.5">
-            @foreach($babList as $bab)
-                @php $sudah = $rppPerBab->get($bab->id_bab); @endphp
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-semibold border
-                    {{ $sudah ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-50 text-slate-500 border-slate-200' }}"
-                    title="{{ $sudah ? 'RPP: '.$sudah->judul_rpp.' ('.$sudah->status.')' : 'Belum ada RPP untuk bab ini' }}">
-                    <i class="fas {{ $sudah ? 'fa-circle-check' : 'fa-circle-dashed' }} text-[9px]"></i>
-                    <span class="truncate max-w-[220px]">{{ $bab->nama_bab }}</span>
-                </span>
+        <div id="cakupan-bab-groups" class="space-y-3" aria-live="polite">
+            @foreach($babGroups as $mapelId => $babDalamMapel)
+                @php
+                    $mapelCakupan  = $babDalamMapel->first()?->mataPelajaran;
+                    $babSudahAdaRpp = $babDalamMapel->filter(fn ($b) => $rppPerBab->has($b->id_bab))->count();
+                @endphp
+                <div class="cakupan-bab-group" data-mapel-id="{{ $mapelId }}">
+                    <div style="display:flex;align-items:baseline;gap:.5rem;margin-bottom:.5rem">
+                        <span style="font-size:.72rem;font-weight:700;color:var(--color-ink)">{{ $mapelCakupan?->nama_mapel ?? 'Mata Pelajaran' }}</span>
+                        <span style="font-size:.65rem;color:var(--color-ink-muted)">{{ $babSudahAdaRpp }}/{{ $babDalamMapel->count() }} bab</span>
+                    </div>
+                    <div style="display:flex;flex-wrap:wrap;gap:.4rem">
+                        @foreach($babDalamMapel as $bab)
+                            @php $sudah = $rppPerBab->get($bab->id_bab); @endphp
+                            <span class="cakupan-pill {{ $sudah ? 'done' : 'empty' }}"
+                                  title="{{ $sudah ? 'RPP: '.$sudah->judul_rpp.' ('.$sudah->status.')' : 'Belum ada RPP untuk bab ini' }}">
+                                <i class="fas {{ $sudah ? 'fa-circle-check' : 'fa-circle-dashed' }}"></i>
+                                {{ $bab->nama_bab }}
+                            </span>
+                        @endforeach
+                    </div>
+                </div>
             @endforeach
         </div>
     </div>
     @endif
 
-    <!-- Filter Bar -->
-    <form action="{{ route('guru.rpp.index') }}" method="GET" class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs">
+    {{-- ===== FILTER PANEL ===== --}}
+    <form action="{{ route('guru.rpp.index') }}" method="GET" class="rpp-filter-panel">
         <input type="hidden" name="tab" value="{{ $tab ?? 'semua' }}">
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
-            <!-- Search Input -->
-            <div class="md:col-span-4 relative">
-                <i class="fas fa-search absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                <input type="text" name="search" value="{{ request('search') }}"
-                       placeholder="Cari judul RPP, KD, topik materi pembelajaran..."
-                       class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-primary transition">
-            </div>
 
-            <!-- Dropdown Filter Jadwal -->
-            <div class="md:col-span-3">
-                <div class="relative">
-                    <i class="fas fa-calendar-alt absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                    <select name="hari" onchange="this.form.submit()"
-                            class="w-full pl-8 pr-8 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-primary transition appearance-none font-medium text-slate-700 cursor-pointer">
-                        <option value="semua">Filter Jadwal: Semua Hari Aktif</option>
-                        <option value="Senin" {{ request('hari') == 'Senin' ? 'selected' : '' }}>Senin (Jam Pagi & Siang)</option>
-                        <option value="Selasa" {{ request('hari') == 'Selasa' ? 'selected' : '' }}>Selasa (Jam Sains)</option>
-                        <option value="Rabu" {{ request('hari') == 'Rabu' ? 'selected' : '' }}>Rabu (Hari Aktif)</option>
-                        <option value="Kamis" {{ request('hari') == 'Kamis' ? 'selected' : '' }}>Kamis (Jam Bahasa)</option>
-                        <option value="Jumat" {{ request('hari') == 'Jumat' ? 'selected' : '' }}>Jumat (Jam Singkat)</option>
-                    </select>
-                    <i class="fas fa-chevron-down absolute right-3 top-3 text-[10px] text-slate-400 pointer-events-none"></i>
-                </div>
+        {{-- Baris 1: Search + Filter Hari --}}
+        <div style="display:grid;grid-template-columns:1fr auto;gap:.75rem;align-items:center;margin-bottom:.75rem">
+            <div class="rpp-search-wrap">
+                <i class="fas fa-search rpp-search-icon"></i>
+                <input type="search" name="search" value="{{ request('search') }}"
+                       placeholder="Cari judul, topik, atau mapel"
+                       class="rpp-input">
             </div>
+            <select name="hari" onchange="this.form.submit()" class="rpp-input" style="width:auto;min-width:148px">
+                <option value="semua">Semua Hari</option>
+                @foreach(['Senin','Selasa','Rabu','Kamis','Jumat'] as $hari)
+                    <option value="{{ $hari }}" {{ request('hari') === $hari ? 'selected' : '' }}>{{ $hari }}</option>
+                @endforeach
+            </select>
+        </div>
 
-            <!-- Dropdown Filter Kelas -->
-            <div class="md:col-span-2">
-                <div class="relative">
-                    <select name="id_rooms" onchange="this.form.submit()"
-                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-primary transition appearance-none font-medium text-slate-700 cursor-pointer">
-                        <option value="">Semua Kelas</option>
-                        @foreach($kelasList as $kelas)
-                            <option value="{{ $kelas->id_rooms }}" {{ request('id_rooms') == $kelas->id_rooms ? 'selected' : '' }}>
-                                {{ $kelas->pararel ?? 'Kelas ' . $kelas->id_rooms }} (Aktif)
-                            </option>
-                        @endforeach
-                    </select>
-                    <i class="fas fa-chevron-down absolute right-3 top-3 text-[10px] text-slate-400 pointer-events-none"></i>
-                </div>
-            </div>
-
-            <!-- Dropdown Filter Mapel -->
-            <div class="md:col-span-2">
-                <div class="relative">
-                    <select name="id_mapel" onchange="this.form.submit()"
-                            class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-primary transition appearance-none font-medium text-slate-700 cursor-pointer">
-                        <option value="">Semua Mapel</option>
-                        @foreach($mapelList as $mapel)
-                            <option value="{{ $mapel->id_mapel }}" {{ request('id_mapel') == $mapel->id_mapel ? 'selected' : '' }}>
-                                {{ $mapel->nama_mapel }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <i class="fas fa-chevron-down absolute right-3 top-3 text-[10px] text-slate-400 pointer-events-none"></i>
-                </div>
-            </div>
-
-            <!-- Action Buttons: Reset / Submit -->
-            <div class="md:col-span-1 flex items-center gap-1.5 justify-end">
-                <button type="submit" title="Terapkan Filter" class="p-2 w-9 h-9 rounded-xl bg-primary text-white hover:bg-primary-hover transition flex items-center justify-center text-xs">
+        {{-- Baris 2: Kelas + Mapel + Action --}}
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:.75rem;align-items:center">
+            <select name="id_rooms" onchange="this.form.submit()" class="rpp-input">
+                <option value="">Semua Kelas</option>
+                @foreach($kelasList as $kelas)
+                    <option value="{{ $kelas->id_rooms }}" {{ request('id_rooms') == $kelas->id_rooms ? 'selected' : '' }}>
+                        {{ $kelas->pararel ?? 'Kelas '.$kelas->id_rooms }}
+                    </option>
+                @endforeach
+            </select>
+            <select name="id_mapel" onchange="this.form.submit()" class="rpp-input">
+                <option value="">Semua Mapel</option>
+                @foreach($mapelList as $mapel)
+                    <option value="{{ $mapel->id_mapel }}" {{ request('id_mapel') == $mapel->id_mapel ? 'selected' : '' }}>
+                        {{ $mapel->nama_mapel }}
+                    </option>
+                @endforeach
+            </select>
+            <div style="display:flex;gap:.5rem">
+                <button type="submit" aria-label="Terapkan filter" class="rpp-icon-btn primary">
                     <i class="fas fa-filter"></i>
                 </button>
-                @if(request()->hasAny(['search', 'hari', 'id_rooms', 'id_mapel']))
-                <a href="{{ route('guru.rpp.index') }}" title="Reset Filter" class="p-2 w-9 h-9 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 transition flex items-center justify-center text-xs">
-                    <i class="fas fa-rotate-left"></i>
-                </a>
+                @if(request()->hasAny(['search','hari','id_rooms','id_mapel']))
+                    <a href="{{ route('guru.rpp.index', array_filter(['tab' => $tab ?? null])) }}"
+                       aria-label="Reset filter" class="rpp-icon-btn">
+                        <i class="fas fa-rotate-left"></i>
+                    </a>
                 @endif
             </div>
         </div>
     </form>
 
-    <!-- Main Grid: 2 Columns of RPP Cards -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        @forelse($rppList as $rpp)
-            @php
-                $status = $rpp->status;
-                $isDraft = $status === 'draft';
-                $isPending = $status === 'menunggu_review';
-                $isApproved = $status === 'terverifikasi';
-                $isRevision = $status === 'perlu_revisi';
+    {{-- ===== DAFTAR MODUL AJAR ===== --}}
+    <div>
+        {{-- Header + count --}}
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin-bottom:.875rem;flex-wrap:wrap">
+            <span class="rpp-section-title">Daftar Modul Ajar</span>
+            <span class="rpp-count-badge">{{ $rppList->total() }} modul ditemukan</span>
+        </div>
 
-                $isMatematika = str_contains(strtolower($rpp->mataPelajaran->nama_mapel ?? ''), 'matematika');
-                $isIpa = str_contains(strtolower($rpp->mataPelajaran->nama_mapel ?? ''), 'ipa') || str_contains(strtolower($rpp->mataPelajaran->nama_mapel ?? ''), 'alam');
-                $isBindo = str_contains(strtolower($rpp->mataPelajaran->nama_mapel ?? ''), 'indonesia');
-                $isPancasila = str_contains(strtolower($rpp->mataPelajaran->nama_mapel ?? ''), 'pancasila');
+        {{-- Tab pills --}}
+        <div class="rpp-tabs" style="margin-bottom:1rem">
+            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'semua'])) }}"
+               class="rpp-tab {{ ($tab ?? 'semua') === 'semua' ? 'active' : '' }}">
+                Semua <span class="tab-count">{{ $kpiGuru['total'] }}</span>
+            </a>
+            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'menunggu'])) }}"
+               class="rpp-tab {{ ($tab ?? '') === 'menunggu' ? 'active' : '' }}">
+                Menunggu Admin <span class="tab-count">{{ $kpiGuru['menunggu_review'] }}</span>
+            </a>
+            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'disetujui'])) }}"
+               class="rpp-tab {{ ($tab ?? '') === 'disetujui' ? 'active' : '' }}">
+                Siap Ajar <span class="tab-count">{{ $kpiGuru['siap_ajar'] }}</span>
+            </a>
+            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'revisi'])) }}"
+               class="rpp-tab {{ ($tab ?? '') === 'revisi' ? 'active' : '' }}">
+                Perlu Revisi <span class="tab-count">{{ $kpiGuru['perlu_revisi'] }}</span>
+            </a>
+            <a href="{{ route('guru.rpp.index', array_merge(request()->except('tab'), ['tab' => 'draft'])) }}"
+               class="rpp-tab {{ ($tab ?? '') === 'draft' ? 'active' : '' }}">
+                Draf <span class="tab-count">{{ $kpiGuru['draft'] }}</span>
+            </a>
+        </div>
 
-                // 1 Ikon Tetap & Konsisten Berdasarkan Mata Pelajaran (Identitas Visual Dashboard):
-                if ($isMatematika) {
-                    $topikIcon = 'fas fa-calculator'; // Matematika: Kalkulator
-                } elseif ($isIpa) {
-                    $topikIcon = 'fas fa-flask'; // IPA: Tabung Lab Sains
-                } elseif ($isBindo) {
-                    $topikIcon = 'fas fa-book-open'; // Bahasa Indonesia: Buku Edukasi
-                } elseif ($isPancasila) {
-                    $topikIcon = 'fas fa-scale-balanced'; // Pendidikan Pancasila: Timbangan Norma, Aturan & Keadilan Sosial
-                } else {
-                    $topikIcon = 'fas fa-file-lines'; // Mapel Lainnya
-                }
+        {{-- Cards grid --}}
+        <div class="grid rpp-cards-grid gap-4">
+            @forelse($rppList as $rpp)
+                @php
+                    $status      = $rpp->status;
+                    $isDraft     = $status === 'draft';
+                    $isPending   = $status === 'menunggu_review';
+                    $isApproved  = $status === 'terverifikasi';
+                    $isRevision  = $status === 'perlu_revisi';
+                    $namaMapel   = $rpp->mataPelajaran->nama_mapel ?? 'Mata Pelajaran';
+                    $wajibKurang = $rpp->komponenWajibKurang();
+                    $totalWajib  = count(\App\Features\Models\Rpp::KOMPONEN_WAJIB);
+                    $wajibTerisi = $totalWajib - $wajibKurang->count();
+                    $pct         = $rpp->skorKelengkapan();
+                    $fillClass   = $wajibKurang->isEmpty() ? 'fill-success' : ($pct >= 60 ? 'fill-warning' : 'fill-primary');
+                @endphp
 
-                // Label dinamis: Gunakan Nomor Modul jika ada, atau singkatan mapel resmi
-                if (!empty($rpp->modul_ke)) {
-                    $topikLabel = Str::limit(strtoupper($rpp->modul_ke), 9, '');
-                } else {
-                    $topikLabel = $isIpa ? 'IPA' : ($isMatematika ? 'MTK' : ($isBindo ? 'B.INDO' : ($isPancasila ? 'PPKN' : 'MODUL')));
-                }
-            @endphp
-
-            <div class="bg-white rounded-2xl border {{ $isPending ? 'border-amber-300 shadow-sm' : ($isApproved ? 'border-emerald-200/80 shadow-xs' : ($isRevision ? 'border-rose-300 shadow-sm' : 'border-slate-200/80 shadow-xs')) }} p-6 flex flex-col justify-between hover:shadow-md transition space-y-4 relative">
-
-                <!-- 1. Card Top Row: Status Badges & Subject Header -->
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between gap-2 flex-wrap">
-                        <!-- Left Status Badge -->
-                        @if($isPending)
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
-                                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                                <i class="fas fa-clock text-[10px] text-amber-600"></i> Menunggu Persetujuan Admin
-                            </span>
-                        @elseif($isApproved)
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
-                                <i class="fas fa-circle-check text-[10px] text-emerald-600"></i> Disetujui Admin &bull; Siap Ajar
-                            </span>
-                        @elseif($isRevision)
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-800 border border-rose-300">
-                                <i class="fas fa-triangle-exclamation text-[10px] text-rose-600"></i> Perlu Revisi Admin
-                            </span>
-                        @else
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-slate-100 text-slate-700 border border-slate-300">
-                                <i class="fas fa-pencil text-[10px] text-slate-500"></i> Draf Belum Dikirim
-                            </span>
-                        @endif
-
-                        <!-- Right Subject & Class Badge -->
-                        <span class="text-xs font-bold text-primary">
-                            {{ $rpp->mataPelajaran->nama_mapel ?? 'Mata Pelajaran' }} &bull; {{ $rpp->kelas->pararel ?? '-' }}
-                        </span>
-                    </div>
-
-                    <!-- Sub-header: Bab & Fase + 3-dots Menu -->
-                    <div class="flex items-center justify-between text-xs text-slate-500 pt-1 gap-2">
-                        <span class="font-medium truncate flex items-center gap-1.5 min-w-0">
-                            <span class="px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-bold shrink-0">{{ $rpp->fase ?? 'Fase -' }}</span>
-                            <span class="truncate">{{ $rpp->bab->nama_bab ?? 'Bab belum dipilih' }}</span>
-                        </span>
-
-                        <!-- Action Dropdown Trigger -->
-                        <div class="relative group">
-                            <button type="button" class="w-7 h-7 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-700 transition">
-                                <i class="fas fa-ellipsis-vertical text-xs"></i>
-                            </button>
-                            <div class="absolute right-0 mt-1 w-40 bg-white border border-slate-200 rounded-xl shadow-lg hidden group-hover:block z-20 py-1.5 text-xs text-slate-700">
-                                <button type="button" onclick="openModalDetailRpp({{ $rpp->id_rpp }})" class="w-full text-left px-3.5 py-1.5 hover:bg-slate-50 flex items-center gap-2">
-                                    <i class="fas fa-eye text-slate-400"></i> Lihat Detail
-                                </button>
-                                @if(in_array($rpp->status, ['draft', 'perlu_revisi'], true))
-                                <a href="{{ url('/guru/rpp/'.$rpp->id_rpp.'/wizard') }}" class="w-full text-left px-3.5 py-1.5 hover:bg-slate-50 flex items-center gap-2">
-                                    <i class="fas fa-pen text-slate-400"></i> Edit Modul Ajar (Wizard)
-                                </a>
-                                @else
-                                <span class="w-full text-left px-3.5 py-1.5 text-slate-400 cursor-not-allowed flex items-center gap-2 select-none">
-                                    <i class="fas fa-pen text-slate-300"></i> Edit (sudah ditinjau)
+                <article class="rpp-card">
+                    {{-- Top: badge + title + more menu --}}
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem">
+                        <div style="min-width:0;flex:1">
+                            {{-- Status badge --}}
+                            @if($isRevision)
+                                <span class="status-badge perlu-revisi">
+                                    <i class="fas fa-triangle-exclamation"></i> Perlu Revisi
                                 </span>
+                            @elseif($isPending)
+                                <span class="status-badge menunggu">
+                                    <i class="fas fa-clock"></i> Menunggu Admin
+                                </span>
+                            @elseif($isApproved)
+                                <span class="status-badge siap-ajar">
+                                    <i class="fas fa-circle-check"></i> Siap Ajar
+                                </span>
+                            @else
+                                <span class="status-badge draft">
+                                    <i class="fas fa-pencil"></i> Draf
+                                </span>
+                            @endif
+
+                            {{-- Mapel · Kelas --}}
+                            <p class="rpp-card-mapel">{{ $namaMapel }} · {{ $rpp->kelas->pararel ?? '-' }}</p>
+
+                            {{-- Judul --}}
+                            <h4 class="rpp-card-title">{{ $rpp->judul_rpp }}</h4>
+
+                            {{-- Meta info --}}
+                            <div class="rpp-card-meta">
+                                <span>{{ $rpp->fase ?? 'Fase -' }}</span>
+                                <span class="meta-sep" aria-hidden="true">·</span>
+                                <span>{{ $rpp->bab->nama_bab ?? '-' }}</span>
+                                <span class="meta-sep" aria-hidden="true">·</span>
+                                @if(!$isDraft && $rpp->target_jadwal)
+                                    <span class="meta-cal">
+                                        <i class="far fa-calendar-days"></i>
+                                        {{ $rpp->target_jadwal }}
+                                    </span>
+                                    <span class="meta-sep" aria-hidden="true">·</span>
+                                    <span>{{ $rpp->alokasi_waktu ?? '2 JP' }}</span>
+                                @else
+                                    <span>Jadwal belum ditentukan</span>
                                 @endif
-                                <a href="{{ route('guru.rpp.download', $rpp->id_rpp) }}" class="w-full text-left px-3.5 py-1.5 hover:bg-slate-50 flex items-center gap-2">
-                                    <i class="fas fa-download text-slate-400"></i> Unduh / Cetak
+                            </div>
+                        </div>
+
+                        {{-- ··· More menu --}}
+                        <div class="rpp-more-wrap">
+                            <button type="button" class="rpp-more-btn"
+                                    onclick="toggleRppDropdown(this)" aria-label="Buka tindakan modul">
+                                <i class="fas fa-ellipsis" aria-hidden="true"></i>
+                            </button>
+                            <div class="rpp-dropdown">
+                                <button type="button"
+                                        onclick="openModalDetailRpp({{ $rpp->id_rpp }});this.closest('.rpp-dropdown').classList.remove('open')">
+                                    <i class="fas fa-eye"></i> Lihat Detail
+                                </button>
+                                @if(in_array($rpp->status, ['draft','perlu_revisi'], true))
+                                    <a href="{{ route('guru.rpp.wizard.edit', ['id' => $rpp->id_rpp, 'step' => 1, 'pertemuan' => 1]) }}">
+                                        <i class="fas fa-pen"></i> Edit di Wizard
+                                    </a>
+                                @endif
+                                <a href="{{ route('guru.rpp.download', $rpp->id_rpp) }}" target="_blank">
+                                    <i class="fas fa-download"></i> Unduh / Cetak
                                 </a>
-                                <div class="border-t border-slate-100 my-1"></div>
-                                <form action="{{ route('guru.rpp.destroy', $rpp->id_rpp) }}" method="POST" onsubmit="return confirm('Hapus RPP ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="w-full text-left px-3.5 py-1.5 hover:bg-rose-50 text-rose-600 flex items-center gap-2 font-medium">
-                                        <i class="fas fa-trash-can text-rose-400"></i> Hapus Modul
+                                <hr>
+                                <form action="{{ route('guru.rpp.destroy', $rpp->id_rpp) }}" method="POST"
+                                      onsubmit="return confirm('Hapus RPP ini?')">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="danger">
+                                        <i class="fas fa-trash-can"></i> Hapus Modul
                                     </button>
                                 </form>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 2. Schedule Banner Box -->
-                <div class="p-3.5 rounded-xl flex items-start gap-3 {{ $isDraft ? 'bg-amber-50/70 border border-amber-200/80' : 'bg-sky-50/70 border border-sky-100' }}">
-                    <div class="w-7 h-7 rounded-lg {{ $isDraft ? 'bg-amber-100 text-amber-700' : 'bg-sky-100 text-sky-700' }} flex items-center justify-center shrink-0 text-xs">
-                        <i class="fas fa-calendar-day"></i>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-xs font-bold {{ $isDraft ? 'text-amber-900' : 'text-sky-950' }} leading-tight">
-                            {{ $rpp->target_jadwal ?? 'Senin, 08.00 - 09.30 WIB - Jam ke-1 & 2' }}
-                            @if($isDraft)
-                                <span class="text-amber-600 font-semibold block text-[11px] mt-0.5">&bull; Perlu Verifikasi Jam</span>
-                            @endif
-                        </div>
-                        <div class="text-[11px] {{ $isDraft ? 'text-amber-700' : 'text-sky-700' }} mt-0.5 truncate">
-                            {{ $rpp->ruang ?? '-' }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 3. Content Details: Thumbnail + Title & Teacher Meta -->
-                <div class="flex items-start gap-4">
-                    <!-- Thumbnail Box Cerdas (Dinamis Sesuai Topik Pembelajaran) -->
-                    <div class="w-16 h-16 rounded-2xl overflow-hidden shrink-0 flex items-center justify-center border border-slate-200 shadow-xs text-center p-1
-                        {{ $isMatematika ? 'bg-amber-50 text-amber-600' : ($isIpa ? 'bg-emerald-50 text-emerald-600' : ($isBindo ? 'bg-sky-50 text-sky-600' : ($isPancasila ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-50 text-slate-600'))) }}">
-                        <div class="w-full">
-                            <i class="{{ $topikIcon }} text-xl block mb-0.5"></i>
-                            <span class="text-[10px] font-black uppercase tracking-tight block truncate max-w-[54px] mx-auto leading-none">
-                                {{ $topikLabel }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Title & Meta -->
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-sm font-extrabold text-slate-900 leading-snug hover:text-primary transition cursor-pointer" onclick="openModalDetailRpp({{ $rpp->id_rpp }})">
-                            {{ $rpp->judul_rpp }}
-                        </h3>
-                        <p class="text-[11px] text-slate-500 font-medium mt-1 flex items-center gap-1.5 flex-wrap">
-                            <span class="inline-flex items-center gap-1">
-                                <i class="fas fa-clock text-slate-400 text-[10px]"></i>
-                                <span>{{ $rpp->alokasi_waktu ?? '2 JP' }}</span>
-                            </span>
-                            <span>&bull;</span>
-                            <span>{{ $rpp->guru->nama_guru ?? 'Guru' }}</span>
+                    {{-- Deskripsi / catatan draft --}}
+                    @if($isDraft)
+                        <p class="rpp-draft-notice">
+                            Lengkapi tujuan pembelajaran, langkah kegiatan, dan jadwal
+                            sebelum mengirim modul untuk ditinjau admin.
                         </p>
-                    </div>
-                </div>
+                    @elseif($rpp->deskripsi)
+                        <p class="rpp-card-desc">{{ $rpp->deskripsi }}</p>
+                    @endif
 
-                <!-- 4. Capaian Pembelajaran (TP) Box -->
-                <div class="bg-slate-50 border border-slate-100 rounded-xl p-3.5 space-y-1">
-                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
-                        CAPAIAN PEMBELAJARAN (TP)
-                    </span>
-                    <p class="text-xs text-slate-700 leading-relaxed line-clamp-3">
-                        {{ $rpp->deskripsi ?? 'Peserta didik mampu memahami dan mendemonstrasikan capaian pembelajaran materi ini melalui aktivitas kontekstual di kelas.' }}
-                    </p>
-                </div>
-
-                <!-- 5. Kelengkapan: komponen wajib vs disarankan (desain ringkasan) -->
-                @php
-                    $wajibKurang = $rpp->komponenWajibKurang();
-                    $wajibTerisi = count(\App\Models\Rpp::KOMPONEN_WAJIB) - $wajibKurang->count();
-                    $disarankanTerisi = $rpp->jumlahDisarankanTerisi();
-                    $totalDisarankan = count(\App\Models\Rpp::KOMPONEN_DISARANKAN);
-                @endphp
-                <div class="rounded-xl border {{ $wajibKurang->isEmpty() ? 'border-emerald-200/70 bg-emerald-50/40' : 'border-rose-200 bg-rose-50/40' }} p-3.5">
-                    <div class="flex items-center justify-between text-[10px] font-bold mb-1.5">
-                        <span class="{{ $wajibKurang->isEmpty() ? 'text-emerald-700' : 'text-rose-700' }} flex items-center gap-1">
-                            <i class="fas {{ $wajibKurang->isEmpty() ? 'fa-circle-check' : 'fa-triangle-exclamation' }} text-[10px]"></i>
-                            {{ $wajibTerisi }}/{{ count(\App\Models\Rpp::KOMPONEN_WAJIB) }} wajib
-                        </span>
-                        <span class="text-slate-500">{{ $disarankanTerisi }}/{{ $totalDisarankan }} disarankan</span>
-                    </div>
-                    <div class="h-1.5 rounded-full bg-white/80 overflow-hidden">
-                        <div class="h-full {{ $wajibKurang->isEmpty() ? 'bg-emerald-500' : 'bg-rose-500' }}"
-                             style="width: {{ $rpp->skorKelengkapan() }}%"></div>
-                    </div>
-                    @if($wajibKurang->isNotEmpty())
-                        <p class="text-[10px] font-semibold text-rose-700 mt-1.5">
-                            {{ collect($wajibKurang)->map(fn ($k) => \App\Models\Rpp::KOMPONEN_WAJIB[$k])->first() }} belum lengkap
+                    {{-- Catatan revisi --}}
+                    @if($isRevision && $rpp->catatan_revisi)
+                        <p style="font-size:.68rem;color:#dc2626;background:#fef2f2;border:1px solid #fecaca;border-radius:.5rem;padding:.5rem .75rem;line-height:1.55">
+                            <strong>Catatan revisi:</strong> {{ $rpp->catatan_revisi }}
                         </p>
                     @endif
-                </div>
 
-                <!-- 6. Bottom Action Footer -->
-                <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
-                    <!-- Left Action Buttons Group -->
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <button type="button" onclick="openModalDetailRpp({{ $rpp->id_rpp }})"
-                                class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition">
-                            <i class="fas fa-file-lines text-[11px] text-slate-400"></i>
-                            <span>Detail RPP</span>
-                        </button>
-
-                        <a href="{{ route('guru.mapel.browse') }}"
-                           class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition">
-                            <i class="fas fa-calendar-week text-[11px] text-slate-400"></i>
-                            <span>Jadwal Mingguan</span>
-                        </a>
-
-                        <button type="button" onclick="openModalEditRpp({{ json_encode($rpp) }})" title="Edit RPP"
-                                class="w-8 h-8 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center transition">
-                            <i class="fas fa-pen text-xs"></i>
-                        </button>
-
-                        <a href="{{ route('guru.rpp.download', $rpp->id_rpp) }}" target="_blank" title="Cetak PDF / Unduh"
-                           class="px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition">
-                            <i class="fas fa-print text-[11px] text-slate-400"></i>
-                            <span>Cetak PDF</span>
-                        </a>
+                    {{-- Progress bar kelengkapan --}}
+                    <div>
+                        <div class="rpp-progress-label">
+                            <span>Kelengkapan komponen wajib</span>
+                            <span>{{ $wajibTerisi }} dari {{ $totalWajib }}</span>
+                        </div>
+                        <div class="rpp-progress-bar" role="progressbar"
+                             aria-label="Kelengkapan komponen wajib"
+                             aria-valuenow="{{ $pct }}" aria-valuemin="0" aria-valuemax="100">
+                            <div class="fill {{ $fillClass }}" style="width:{{ $pct }}%"></div>
+                        </div>
                     </div>
 
-                    <!-- Right Primary Action Button -->
-                    <div>
+                    {{-- Footer actions --}}
+                    <footer class="rpp-card-footer">
+                        {{-- Kiri: Detail + Unduh --}}
+                        <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                            <button type="button" onclick="openModalDetailRpp({{ $rpp->id_rpp }})" class="rpp-btn">
+                                <i class="fas fa-file-lines"></i> Detail
+                            </button>
+                            <a href="{{ route('guru.rpp.download', $rpp->id_rpp) }}" target="_blank"
+                               rel="noopener" class="rpp-btn">
+                                <i class="fas fa-download"></i> Unduh
+                            </a>
+                        </div>
+
+                        {{-- Kanan: CTA utama --}}
                         @if($isApproved)
-                            <a href="{{ route('guru.mapel.browse') }}"
-                               class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-black flex items-center gap-1.5 shadow-sm transition">
-                                <i class="fas fa-chalkboard-user"></i>
-                                <span>Mulai Mengajar</span>
+                            <a href="{{ route('guru.mapel.browse') }}" class="rpp-btn cta-success">
+                                <i class="fas fa-chalkboard-user"></i> Mulai Mengajar
+                                <i class="fas fa-arrow-right btn-arrow"></i>
                             </a>
                         @elseif($isPending)
-                            <div class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 text-amber-800 border border-amber-200 text-xs font-bold select-none" title="RPP belum dapat diaplikasikan mengajar karena masih menunggu di-accept oleh Admin">
-                                <i class="fas fa-hourglass-half text-amber-600 text-[11px]"></i>
-                                <span>Menunggu di-Accept Admin</span>
-                            </div>
+                            <span class="rpp-btn" style="cursor:default;opacity:.65">
+                                <i class="fas fa-hourglass-half"></i> Menunggu Admin
+                            </span>
                         @elseif($isRevision)
-                            <button type="button" onclick="openModalEditRpp({{ json_encode($rpp) }})"
-                                    class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
-                                <i class="fas fa-pen-to-square"></i>
-                                <span>Perbaiki & Kirim Ulang</span>
-                            </button>
+                            <a href="{{ route('guru.rpp.wizard.edit', ['id' => $rpp->id_rpp, 'step' => 1, 'pertemuan' => 1]) }}"
+                               class="rpp-btn cta-revision">
+                                <i class="fas fa-pen-to-square"></i> Perbaiki di Wizard
+                                <i class="fas fa-arrow-right btn-arrow"></i>
+                            </a>
                         @else
-                            <div class="flex items-center gap-2">
-                                <button type="button" onclick="openModalEditRpp({{ json_encode($rpp) }})"
-                                        class="px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
-                                    <i class="fas fa-paper-plane text-[11px]"></i>
-                                    <span>Lanjutkan & Kirim ke Admin</span>
-                                </button>
-                                <form action="{{ route('guru.rpp.destroy', $rpp->id_rpp) }}" method="POST" onsubmit="return confirm('Hapus draf ini?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition">
-                                        <i class="fas fa-trash-can mr-1"></i> Hapus
-                                    </button>
-                                </form>
-                            </div>
+                            <a href="{{ route('guru.rpp.wizard.edit', ['id' => $rpp->id_rpp, 'step' => 1, 'pertemuan' => 1]) }}"
+                               class="rpp-btn cta-primary">
+                                <i class="fas fa-wand-magic-sparkles"></i> Lanjutkan Wizard
+                                <i class="fas fa-arrow-right btn-arrow"></i>
+                            </a>
                         @endif
+                    </footer>
+                </article>
+            @empty
+                <div class="rpp-empty">
+                    <div style="width:3rem;height:3rem;border-radius:50%;background:var(--color-canvas);border:1px solid var(--color-line);display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:1.2rem;color:var(--color-ink-muted)">
+                        <i class="fas fa-folder-open"></i>
                     </div>
-                </div>
-
-            </div>
-        @empty
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-12 text-center space-y-4">
-                <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-2xl">
-                    <i class="fas fa-folder-open"></i>
-                </div>
-                <div>
-                    <h3 class="font-bold text-base text-slate-800">Tidak ada Modul Ajar RPP ditemukan</h3>
-                    <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                        Coba sesuaikan kata kunci pencarian atau buat rencana pembelajaran baru untuk semester ini.
+                    <h4 style="font-size:.85rem;font-weight:700;color:var(--color-ink);margin-bottom:.5rem">
+                        Tidak ada Modul Ajar ditemukan
+                    </h4>
+                    <p style="font-size:.72rem;color:var(--color-ink-soft);margin-bottom:1.25rem">
+                        Coba sesuaikan filter atau buat modul ajar baru untuk semester ini.
                     </p>
+                    <button type="button" onclick="openModalTambahRpp()" class="rpp-btn-create">
+                        <i class="fas fa-plus"></i> Buat Modul Ajar Baru
+                    </button>
                 </div>
-                <button type="button" onclick="openModalTambahRpp()" class="px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold">
-                    <i class="fas fa-plus mr-1"></i> Buat Modul Ajar Baru
-                </button>
-            </div>
-        @endforelse
+            @endforelse
+        </div>
+
+        {{-- Pagination --}}
+        @if($rppList->hasPages())
+            <div class="pt-4 flex justify-center">{{ $rppList->links() }}</div>
+        @endif
     </div>
 
-    <!-- Pagination -->
-    @if($rppList->hasPages())
-    <div class="pt-4 flex justify-center">
-        {{ $rppList->links() }}
-    </div>
-    @endif
-
-
-    <!-- Include Modals RPP (Tambah, Edit, Detail & Script Interaktif) -->
     @include('rpp_guru.modals')
+</div>
 
+{{-- ===== SCRIPTS ===== --}}
+@if($babGroups->isNotEmpty())
+<script>
+    (() => {
+        const filter = document.getElementById('cakupan-mapel-filter');
+        const groups = document.querySelectorAll('#cakupan-bab-groups [data-mapel-id]');
+        if (!filter) return;
+        filter.addEventListener('change', () => {
+            groups.forEach((g) => {
+                g.hidden = filter.value !== 'semua' && g.dataset.mapelId !== filter.value;
+            });
+        });
+    })();
+</script>
+@endif
+
+<script>
+    /* Toggle ··· dropdown */
+    function toggleRppDropdown(btn) {
+        const wrap = btn.closest('.rpp-more-wrap');
+        const dd   = wrap.querySelector('.rpp-dropdown');
+        document.querySelectorAll('.rpp-dropdown.open').forEach(el => {
+            if (el !== dd) el.classList.remove('open');
+        });
+        dd.classList.toggle('open');
+    }
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.rpp-more-wrap')) {
+            document.querySelectorAll('.rpp-dropdown.open').forEach(el => el.classList.remove('open'));
+        }
+    });
+</script>
 @endsection

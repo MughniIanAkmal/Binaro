@@ -5,6 +5,8 @@ namespace App\Features\Controllers\Api\Siswa;
 use App\Features\Controllers\Api\ApiController;
 use App\Features\Models\HasilKuisSiswa;
 use App\Features\Models\Quiz;
+use App\Features\Models\Siswa;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class QuizController extends ApiController
@@ -15,10 +17,10 @@ class QuizController extends ApiController
         if ($id) {
             $quiz = Quiz::with(['mataPelajaran', 'soal'])->find($id);
         }
-        if (!$quiz) {
+        if (! $quiz) {
             $quiz = Quiz::with(['mataPelajaran', 'soal'])->first();
         }
-        if (!$quiz) {
+        if (! $quiz) {
             return $this->error('Kuis belum tersedia di database', 404);
         }
 
@@ -59,7 +61,7 @@ class QuizController extends ApiController
     public function quizSubmit(Request $request, $id)
     {
         $quiz = Quiz::with('soal')->find($id);
-        if (!$quiz) {
+        if (! $quiz) {
             return $this->error('Kuis tidak ditemukan', 404);
         }
 
@@ -70,7 +72,7 @@ class QuizController extends ApiController
         $benar = $salah = 0;
 
         foreach ($quiz->soal as $s) {
-            $jawab = strtoupper(trim($jawaban[$s->id_soal] ?? $jawaban[(string)$s->id_soal] ?? ''));
+            $jawab = strtoupper(trim($jawaban[$s->id_soal] ?? $jawaban[(string) $s->id_soal] ?? ''));
             if ($jawab && $jawab === strtoupper(trim($s->kunci_jawaban))) {
                 $benar++;
             } else {
@@ -89,7 +91,7 @@ class QuizController extends ApiController
                 'nilai_akhir' => $nilai,
                 'waktu_menit' => $request->input('waktu_menit', 3),
                 'status_kirim' => 1,
-                'waktu_kirim' => \Carbon\Carbon::now(),
+                'waktu_kirim' => Carbon::now(),
             ]
         );
 
@@ -110,11 +112,19 @@ class QuizController extends ApiController
             if (config('auth.guards.sanctum')) {
                 $user = $request->user('sanctum');
             }
-        } catch (\Throwable $e) {}
-        if (! $user) $user = $request->user();
-        if ($user && isset($user->id_siswa)) return (int) $user->id_siswa;
+        } catch (\Throwable $e) {
+        }
+        if (! $user) {
+            $user = $request->user();
+        }
+        if ($user && isset($user->id_siswa)) {
+            return (int) $user->id_siswa;
+        }
         $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) return (int) $id;
-        return \App\Features\Models\Siswa::first()?->id_siswa;
+        if ($id) {
+            return (int) $id;
+        }
+
+        return Siswa::first()?->id_siswa;
     }
 }

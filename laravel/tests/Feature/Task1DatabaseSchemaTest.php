@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Barcode;
 use App\Features\Models\Siswa;
+use App\Models\Barcode;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;

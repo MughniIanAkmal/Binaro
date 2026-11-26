@@ -11,7 +11,7 @@ use App\Features\Models\Pr;
 use App\Features\Models\Quiz;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends ApiController
 {
@@ -23,7 +23,7 @@ class DashboardController extends ApiController
         if ($siswaId) {
             $siswa = Siswa::with(['kelas', 'mataPelajaran'])->find($siswaId);
         }
-        if (!$siswa) {
+        if (! $siswa) {
             $siswa = Siswa::with(['kelas', 'mataPelajaran'])->first();
         }
 
@@ -41,19 +41,25 @@ class DashboardController extends ApiController
             $babCount = $m->bab_count > 0 ? $m->bab_count : 1;
             $badge = "Bab {$babCount}";
 
-            $materiCount = Materi::whereHas('subBab.bab', fn($q) => $q->where('id_mapel', $m->id_mapel))->count();
-            $materiInfo = $materiCount > 0 ? "{$materiCount} Materi Pembelajaran" : "Belum Ada Materi";
-            
+            $materiCount = Materi::whereHas('subBab.bab', fn ($q) => $q->where('id_mapel', $m->id_mapel))->count();
+            $materiInfo = $materiCount > 0 ? "{$materiCount} Materi Pembelajaran" : 'Belum Ada Materi';
+
             // Progress dan atribut
-            $progress = 0.0; $warna = ($i % 2 == 1) ? 'orange' : 'blue'; $tipe = 'shield';
+            $progress = 0.0;
+            $warna = ($i % 2 == 1) ? 'orange' : 'blue';
+            $tipe = 'shield';
             if (str_contains($lower, 'matematika')) {
-                $tipe = 'math'; $warna = 'orange';
+                $tipe = 'math';
+                $warna = 'orange';
             } elseif (str_contains($lower, 'ipa') || str_contains($lower, 'alam')) {
-                $tipe = 'science'; $warna = 'blue';
+                $tipe = 'science';
+                $warna = 'blue';
             } elseif (str_contains($lower, 'indonesia')) {
-                $tipe = 'book'; $warna = 'blue';
+                $tipe = 'book';
+                $warna = 'blue';
             } elseif (str_contains($lower, 'pancasila')) {
-                $tipe = 'shield'; $warna = 'orange';
+                $tipe = 'shield';
+                $warna = 'orange';
             }
 
             $displayNama = match (true) {
@@ -84,12 +90,16 @@ class DashboardController extends ApiController
 
         foreach ($prList as $i => $pr) {
             $deadline = $pr->tgl_tenggat
-                ? Carbon::parse($pr->tgl_tenggat)->translatedFormat('l, d M H.i') . ' WIB'
+                ? Carbon::parse($pr->tgl_tenggat)->translatedFormat('l, d M H.i').' WIB'
                 : 'Tenggat belum ditentukan';
 
             $mapelName = strtoupper($pr->mataPelajaran->nama_mapel ?? 'UMUM');
-            if (str_contains(strtolower($mapelName), 'INDONESIA')) $mapelName = 'BHS. INDONESIA';
-            if (str_contains(strtolower($mapelName), 'ILMU PENGETAHUAN')) $mapelName = 'IPA';
+            if (str_contains(strtolower($mapelName), 'INDONESIA')) {
+                $mapelName = 'BHS. INDONESIA';
+            }
+            if (str_contains(strtolower($mapelName), 'ILMU PENGETAHUAN')) {
+                $mapelName = 'IPA';
+            }
 
             $tugas[] = [
                 'id_pr' => $pr->id_pr,
@@ -97,7 +107,7 @@ class DashboardController extends ApiController
                 'judul' => $pr->nama_pr,
                 'deadline' => "Tenggat: {$deadline}",
                 'warna' => ($i % 2 == 1) ? 'orange' : 'blue',
-                'tipe_icon' => match(true) {
+                'tipe_icon' => match (true) {
                     str_contains(strtolower($mapelName), 'ipa') => 'science',
                     str_contains(strtolower($mapelName), 'indonesia') => 'book',
                     default => 'math',
@@ -110,7 +120,7 @@ class DashboardController extends ApiController
                 'id_siswa' => $siswa?->id_siswa ?? 1,
                 'nama' => $nama,
                 'nm_siswa' => $nama,
-                'kelas' => $kelas . ' • ' . $sekolah,
+                'kelas' => $kelas.' • '.$sekolah,
                 'foto_profil' => $siswa?->foto_profil,
             ],
             'menu' => [
@@ -132,7 +142,8 @@ class DashboardController extends ApiController
             if (config('auth.guards.sanctum')) {
                 $user = $request->user('sanctum');
             }
-        } catch (\Throwable $e) {}
+        } catch (\Throwable $e) {
+        }
         if (! $user) {
             $user = $request->user();
         }
@@ -140,8 +151,11 @@ class DashboardController extends ApiController
             return (int) $user->id_siswa;
         }
         $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id') ?? session()->get('siswa_id') ?? session()->get('user_id');
-        if ($id) return (int) $id;
+        if ($id) {
+            return (int) $id;
+        }
         $first = \App\Features\Models\Siswa::first();
+
         return $first?->id_siswa;
     }
 
@@ -150,8 +164,8 @@ class DashboardController extends ApiController
      */
     protected function calculateMapelProgress(int $idMapel, int $idSiswa): array
     {
-        $unlockedBabsQuery = \App\Features\Models\Bab::where('id_mapel', $idMapel);
-        if (\Illuminate\Support\Facades\Schema::hasColumn('bab', 'is_locked')) {
+        $unlockedBabsQuery = Bab::where('id_mapel', $idMapel);
+        if (Schema::hasColumn('bab', 'is_locked')) {
             $unlockedBabsQuery->where('is_locked', false);
         }
         $unlockedBabs = $unlockedBabsQuery->get();
@@ -164,9 +178,11 @@ class DashboardController extends ApiController
         $completedBabCount = 0;
         foreach ($unlockedBabs as $bab) {
             $subBabIds = $bab->subBab()->pluck('id_sub_bab');
-            if ($subBabIds->isEmpty()) continue;
+            if ($subBabIds->isEmpty()) {
+                continue;
+            }
 
-            $materiIds = \App\Features\Models\Materi::whereIn('id_sub_bab', $subBabIds)->pluck('id_materi');
+            $materiIds = Materi::whereIn('id_sub_bab', $subBabIds)->pluck('id_materi');
             $quizIdsFromSubBab = Quiz::whereIn('id_sub_bab', $subBabIds)->pluck('id_quiz');
             $quizIdsFromMateriField = Quiz::whereIn('id_materi', $materiIds)->pluck('id_quiz');
             $allQuizIds = $quizIdsFromSubBab->merge($quizIdsFromMateriField)->unique()->filter()->values();
@@ -174,7 +190,9 @@ class DashboardController extends ApiController
             if ($allQuizIds->isNotEmpty()) {
                 $hasCompleted = HasilKuisSiswa::whereIn('id_quiz', $allQuizIds)
                     ->where('id_siswa', $idSiswa)->exists();
-                if ($hasCompleted) $completedBabCount++;
+                if ($hasCompleted) {
+                    $completedBabCount++;
+                }
             }
         }
 

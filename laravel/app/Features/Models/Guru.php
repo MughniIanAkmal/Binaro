@@ -3,12 +3,13 @@
 namespace App\Features\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
-use \Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Collection;
+use Laravel\Sanctum\HasApiTokens;
 
 class Guru extends Authenticatable
 {
     use HasApiTokens;
+
     protected $table = 'guru';
 
     protected $primaryKey = 'id_guru';
@@ -16,6 +17,7 @@ class Guru extends Authenticatable
     public $timestamps = true;
 
     protected $hidden = ['password'];
+
     protected $fillable = [
         'nip',
         'nama_guru',
@@ -77,7 +79,7 @@ class Guru extends Authenticatable
      * Kalau belum pernah diisi, fallback ke mapel dari jadwal mengajar
      * (perilaku lama) supaya guru lama tidak tiba-tiba kehilangan akses.
      */
-    public function taughtMapelIds(): \Illuminate\Support\Collection
+    public function taughtMapelIds(): Collection
     {
         $pivotIds = $this->mapel()->pluck('mata_pelajaran.id_mapel')->map(fn ($id) => (int) $id);
 
