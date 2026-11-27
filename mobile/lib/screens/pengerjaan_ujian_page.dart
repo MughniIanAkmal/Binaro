@@ -129,7 +129,6 @@ class _PengerjaanUjianPageState extends State<PengerjaanUjianPage> {
       await ApiClient.post(
         '/siswa/ujian/${widget.quizId}/submit',
         body: {
-          'id_siswa': widget.user?['id_siswa'] ?? 1,
           'jawaban': answersPayload,
           // Durasi pengerjaan riil, bukan angka tetap.
           'waktu_menit': ((_totalSeconds - _remainingSeconds) ~/ 60)

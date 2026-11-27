@@ -11,6 +11,9 @@ import 'session.dart';
 /// 3. Header `ngrok-skip-browser-warning` agar tunnel ngrok tidak
 ///    membalas halaman peringatan HTML.
 class ApiClient {
+  /// Callback opsional ketika server mengembalikan status 401 Unauthorized.
+  static void Function()? onUnauthorized;
+
   /// Header dasar untuk setiap request.
   static Map<String, String> get headers {
     final token = AppSession.token;
@@ -30,26 +33,36 @@ class ApiClient {
   /// Bangun URL absolut dari path relatif terhadap `AppConstants.baseUrl`.
   static Uri uri(String path) => Uri.parse('${AppConstants.baseUrl}$path');
 
+  static Future<http.Response> _handleResponse(http.Response response) async {
+    if (response.statusCode == 401) {
+      await AppSession.clear();
+      onUnauthorized?.call();
+    }
+    return response;
+  }
+
   static Future<http.Response> get(
     String path, {
     Duration? timeout,
-  }) {
-    return http
+  }) async {
+    final response = await http
         .get(uri(path), headers: headers)
         .timeout(timeout ?? AppConstants.timeoutDuration);
+    return _handleResponse(response);
   }
 
   static Future<http.Response> post(
     String path, {
     Object? body,
     Duration? timeout,
-  }) {
-    return http
+  }) async {
+    final response = await http
         .post(
           uri(path),
           headers: jsonHeaders,
           body: body == null ? null : jsonEncode(body),
         )
         .timeout(timeout ?? AppConstants.timeoutDuration);
+    return _handleResponse(response);
   }
 }

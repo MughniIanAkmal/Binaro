@@ -14,17 +14,13 @@ class ProfileController extends ApiController
     public function profile(Request $request)
     {
         $siswaId = $this->resolveSiswaId($request);
-
-        $siswa = null;
-        if ($siswaId) {
-            $siswa = Siswa::with(['barcode', 'kelas', 'absens' => function ($query) {
-                $query->orderByDesc('tanggal')->orderByDesc('waktu_absen');
-            }])->find($siswaId);
+        if (! $siswaId) {
+            return $this->error('User tidak terautentikasi', 401);
         }
 
-        if (! $siswa) {
-            $siswa = Siswa::with(['barcode', 'kelas'])->first();
-        }
+        $siswa = Siswa::with(['barcode', 'kelas', 'absens' => function ($query) {
+            $query->orderByDesc('tanggal')->orderByDesc('waktu_absen');
+        }])->find($siswaId);
 
         if (! $siswa) {
             return $this->error('Siswa tidak ditemukan', 404);
@@ -106,6 +102,10 @@ class ProfileController extends ApiController
     public function updatePassword(Request $request)
     {
         $siswaId = $this->resolveSiswaId($request);
+        if (! $siswaId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
+
         $siswa = Siswa::find($siswaId);
         if (! $siswa) {
             return $this->error('Siswa tidak ditemukan', 404);
@@ -113,13 +113,15 @@ class ProfileController extends ApiController
 
         $request->validate([
             'password_lama' => 'required|string',
-            'password_baru' => 'required|string|min:4',
+            'password_baru' => 'required|string|min:8|max:100',
             'konfirmasi_password' => 'required|string|same:password_baru',
         ]);
 
-        $stored = $siswa->password;
+        $stored = (string) $siswa->password;
         $input = trim($request->input('password_lama'));
-        $match = ($input === $stored) || (md5($input) === $stored) || (Hash::check($input, $stored));
+        $match = ($stored !== '' && hash_equals($stored, $input))
+            || ($stored !== '' && hash_equals($stored, md5($input)))
+            || Hash::check($input, $stored);
 
         if (! $match) {
             return $this->error('Sandi saat ini (password lama) salah!', 400);
@@ -133,8 +135,12 @@ class ProfileController extends ApiController
 
     public function uploadFotoProfil(Request $request)
     {
-        $siswaId = $this->resolveSiswaId($request) ?? 1;
-        $siswa = Siswa::find($siswaId) ?? Siswa::first();
+        $siswaId = $this->resolveSiswaId($request);
+        if (! $siswaId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
+
+        $siswa = Siswa::find($siswaId);
 
         if (! $siswa) {
             return $this->error('Siswa tidak ditemukan', 404);
@@ -167,8 +173,12 @@ class ProfileController extends ApiController
 
     public function hapusFotoProfil(Request $request)
     {
-        $siswaId = $this->resolveSiswaId($request) ?? 1;
-        $siswa = Siswa::find($siswaId) ?? Siswa::first();
+        $siswaId = $this->resolveSiswaId($request);
+        if (! $siswaId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
+
+        $siswa = Siswa::find($siswaId);
 
         if (! $siswa) {
             return $this->error('Siswa tidak ditemukan', 404);
@@ -186,30 +196,6 @@ class ProfileController extends ApiController
             'foto_profil' => null,
             'foto_url' => null,
         ], 'Foto profil berhasil dihapus');
-    }
-
-    protected function resolveSiswaId(Request $request): ?int
-    {
-        $user = null;
-        try {
-            if (config('auth.guards.sanctum')) {
-                $user = $request->user('sanctum');
-            }
-        } catch (\Throwable $e) {
-        }
-        if (! $user) {
-            $user = $request->user();
-        }
-        if ($user && isset($user->id_siswa)) {
-            return (int) $user->id_siswa;
-        }
-
-        $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) {
-            return (int) $id;
-        }
-
-        return Siswa::first()?->id_siswa;
     }
 
     protected function fotoProfilUrl(?string $fotoProfil): ?string

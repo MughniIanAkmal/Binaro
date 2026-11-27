@@ -31,11 +31,10 @@ class _HasilUjianPageState extends State<HasilUjianPage> {
 
   Future<void> _fetchResult() async {
     setState(() => _isLoading = true);
-    final int siswaId = widget.user?['id_siswa'] ?? AppConstants.defaultSiswaId;
 
     try {
-      final response = await ApiClient.get(
-          '/siswa/ujian/${widget.quizId}/result?id_siswa=$siswaId');
+      final response =
+          await ApiClient.get('/siswa/ujian/${widget.quizId}/result');
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);

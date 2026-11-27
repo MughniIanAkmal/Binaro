@@ -72,12 +72,6 @@ class _NotifikasiPanelState extends State<NotifikasiPanel> {
     _muatNotifikasi();
   }
 
-  Future<int> _ambilSiswaId() async {
-    final user = await AppSession.load();
-    final id = user?['id_siswa'] ?? AppConstants.defaultSiswaId;
-    return id is int ? id : int.tryParse('$id') ?? AppConstants.defaultSiswaId;
-  }
-
   Future<void> _muatNotifikasi() async {
     setState(() {
       _memuat = true;
@@ -85,8 +79,7 @@ class _NotifikasiPanelState extends State<NotifikasiPanel> {
     });
 
     try {
-      final siswaId = await _ambilSiswaId();
-      final response = await ApiClient.get('/siswa/notifikasi?id_siswa=$siswaId');
+      final response = await ApiClient.get('/siswa/notifikasi');
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
@@ -101,7 +94,7 @@ class _NotifikasiPanelState extends State<NotifikasiPanel> {
           // Panel sudah dibuka: tandai semua sebagai dibaca di server.
           final belumDibaca = data['belum_dibaca'] ?? 0;
           if (belumDibaca is int && belumDibaca > 0) {
-            ApiClient.post('/siswa/notifikasi/baca?id_siswa=$siswaId')
+            ApiClient.post('/siswa/notifikasi/baca')
                 .catchError((_) => response);
           }
           return;

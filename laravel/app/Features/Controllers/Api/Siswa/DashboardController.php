@@ -9,6 +9,7 @@ use App\Features\Models\MataPelajaran;
 use App\Features\Models\Materi;
 use App\Features\Models\Pr;
 use App\Features\Models\Quiz;
+use App\Features\Models\Siswa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -18,13 +19,13 @@ class DashboardController extends ApiController
     public function dashboard(Request $request)
     {
         $siswaId = $this->resolveSiswaId($request);
-
-        $siswa = null;
-        if ($siswaId) {
-            $siswa = Siswa::with(['kelas', 'mataPelajaran'])->find($siswaId);
+        if (! $siswaId) {
+            return $this->error('User tidak terautentikasi', 401);
         }
+
+        $siswa = Siswa::with(['kelas', 'mataPelajaran'])->find($siswaId);
         if (! $siswa) {
-            $siswa = Siswa::with(['kelas', 'mataPelajaran'])->first();
+            return $this->error('Siswa tidak ditemukan', 404);
         }
 
         $nama = $siswa ? $siswa->nm_siswa : 'Budi Santoso';
@@ -132,31 +133,6 @@ class DashboardController extends ApiController
             'tugas_total' => $tugasTotal,
             'mata_pelajaran' => $mapelList,
         ], 'Dashboard berhasil dimuat');
-    }
-
-    // Bisa pindahkan ke trait/helper jika lebih dari 1 controller butuh
-    protected function resolveSiswaId(Request $request): ?int
-    {
-        $user = null;
-        try {
-            if (config('auth.guards.sanctum')) {
-                $user = $request->user('sanctum');
-            }
-        } catch (\Throwable $e) {
-        }
-        if (! $user) {
-            $user = $request->user();
-        }
-        if ($user && isset($user->id_siswa)) {
-            return (int) $user->id_siswa;
-        }
-        $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id') ?? session()->get('siswa_id') ?? session()->get('user_id');
-        if ($id) {
-            return (int) $id;
-        }
-        $first = \App\Features\Models\Siswa::first();
-
-        return $first?->id_siswa;
     }
 
     /**

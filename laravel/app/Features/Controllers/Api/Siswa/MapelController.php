@@ -12,8 +12,11 @@ class MapelController extends ApiController
 {
     public function mapelList(Request $request)
     {
-        $siswaId = $this->resolveSiswaId($request) ?? 1;
-        $siswa = Siswa::find($siswaId) ?? Siswa::first();
+        $siswaId = $this->resolveSiswaId($request);
+        if (! $siswaId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
+        $siswa = Siswa::find($siswaId);
         $namaKelas = $siswa?->nama_kelas ?? '-';
         $semesterAktif = (int) Pengaturan::ambil('semester_aktif', 1);
         $daftarMapel = MataPelajaran::withCount(['bab' => function ($q) use ($semesterAktif) {
@@ -87,16 +90,5 @@ class MapelController extends ApiController
             'wajib_count' => count(array_filter($result, fn ($x) => $x['is_wajib'])),
             'mapel' => $result,
         ], 'Daftar mata pelajaran berhasil dimuat');
-    }
-
-    protected function resolveSiswaId(Request $request): ?int
-    {
-        $siswa = Siswa::first();
-        $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) {
-            return (int) $id;
-        }
-
-        return $siswa?->id_siswa;
     }
 }

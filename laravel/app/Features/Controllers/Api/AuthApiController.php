@@ -34,18 +34,13 @@ class AuthApiController extends ApiController
         $trimmedInput = trim($inputPassword);
         $trimmedStored = trim($storedPassword);
 
-        // 1. Plain text match
-        if ($trimmedInput === $trimmedStored) {
+        // 1. Plain text match (legacy, will be upgraded to bcrypt on login)
+        if ($trimmedStored !== '' && hash_equals($trimmedStored, $trimmedInput)) {
             return true;
         }
 
-        // 1b. Toleransi seeder default: jika guru demo, izinkan guru123 dan guru1234
-        if (in_array($trimmedInput, ['guru123', 'guru1234']) && in_array($trimmedStored, ['guru123', 'guru1234'])) {
-            return true;
-        }
-
-        // 2. MD5 match
-        if (md5($trimmedInput) === $trimmedStored) {
+        // 2. MD5 match (legacy, will be upgraded to bcrypt on login)
+        if ($trimmedStored !== '' && hash_equals($trimmedStored, md5($trimmedInput))) {
             return true;
         }
 

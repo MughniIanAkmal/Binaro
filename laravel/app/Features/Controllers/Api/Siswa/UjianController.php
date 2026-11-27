@@ -13,6 +13,9 @@ class UjianController extends ApiController
     public function ujianIndex(Request $request)
     {
         $siswaId = $this->resolveSiswaId($request);
+        if (! $siswaId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
 
         $allQuizzes = Quiz::whereNull('id_sub_bab')
             ->with(['mataPelajaran', 'guru', 'soal',
@@ -163,7 +166,6 @@ class UjianController extends ApiController
                 'opsi_b' => $s->opsi_b,
                 'opsi_c' => $s->opsi_c,
                 'opsi_d' => $s->opsi_d,
-                'kunci_jawaban' => $s->kunci_jawaban,
             ];
         }
 
@@ -193,7 +195,10 @@ class UjianController extends ApiController
         }
 
         $jawaban = $request->input('jawaban', []);
-        $idSiswa = $this->resolveSiswaId($request) ?? 1;
+        $idSiswa = $this->resolveSiswaId($request);
+        if (! $idSiswa) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
         $totalSoal = $quiz->soal->count();
         $benar = $salah = 0;
 
@@ -240,7 +245,10 @@ class UjianController extends ApiController
             $quiz = Quiz::whereNull('id_sub_bab')->with(['guru', 'mataPelajaran'])->first();
         }
 
-        $siswaId = $this->resolveSiswaId($request) ?? 1;
+        $siswaId = $this->resolveSiswaId($request);
+        if (! $siswaId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
         $siswa = Siswa::find($siswaId);
 
         $hasil = null;
@@ -306,28 +314,5 @@ class UjianController extends ApiController
                 'catatan_guru' => $hasil->catatan_guru ?? 'Tetap semangat dalam belajar!',
             ],
         ], 'Hasil ujian berhasil dimuat');
-    }
-
-    protected function resolveSiswaId(Request $request): ?int
-    {
-        $user = null;
-        try {
-            if (config('auth.guards.sanctum')) {
-                $user = $request->user('sanctum');
-            }
-        } catch (\Throwable $e) {
-        }
-        if (! $user) {
-            $user = $request->user();
-        }
-        if ($user && isset($user->id_siswa)) {
-            return (int) $user->id_siswa;
-        }
-        $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) {
-            return (int) $id;
-        }
-
-        return Siswa::first()?->id_siswa;
     }
 }

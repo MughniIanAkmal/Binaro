@@ -78,34 +78,4 @@ class AbsensiController extends ApiController
             'metode' => 'scan_qr',
         ], $hasil['upgrade'] ? 'Absensi diperbarui dari status Alpa' : 'Absensi registrasi berhasil', 201);
     }
-
-    protected function resolveSiswaId(Request $request): ?int
-    {
-        $siswa = Siswa::first();
-        $user = null;
-        try {
-            if (config('auth.guards.sanctum')) {
-                $user = $request->user('sanctum');
-            }
-        } catch (\Throwable $e) {
-        }
-        if (! $user) {
-            $user = $request->user();
-        }
-        if ($user && isset($user->id_siswa)) {
-            return (int) $user->id_siswa;
-        }
-
-        $id = $request->input('id_siswa')
-            ?? $request->query('id_siswa')
-            ?? $request->query('id')
-            ?? session()->get('siswa_id')
-            ?? session()->get('user_id');
-
-        if ($id) {
-            return (int) $id;
-        }
-
-        return $siswa?->id_siswa;
-    }
 }

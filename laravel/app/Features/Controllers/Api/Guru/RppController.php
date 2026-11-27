@@ -10,27 +10,6 @@ use Illuminate\Http\Request;
 
 class RppController extends ApiController
 {
-    protected function authGuruId(Request $request): ?int
-    {
-        $user = $request->user();
-        if ($user && isset($user->id_guru)) {
-            return (int) $user->id_guru;
-        }
-
-        $id = $request->input('id_guru')
-            ?? $request->query('id_guru')
-            ?? session()->get('guru_id')
-            ?? session()->get('user_id');
-
-        if (! $id) {
-            $firstGuru = Guru::first();
-
-            return $firstGuru?->id_guru;
-        }
-
-        return (int) $id;
-    }
-
     public function listRpp(Request $request)
     {
         $guruId = $this->authGuruId($request);

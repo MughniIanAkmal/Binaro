@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dashboard_page.dart';
 import '../utils/api_client.dart';
@@ -66,13 +67,18 @@ class _LoginPageState extends State<LoginPage> {
           ),
         );
       } else {
-        final errorMsg =
-            data['message'] ?? 'Login gagal. Periksa NISN & Kata Sandi.';
+        final errorMsg = data['message'] ??
+            (kDebugMode
+                ? 'Login gagal (HTTP ${response.statusCode}): ${response.body.length > 150 ? response.body.substring(0, 150) : response.body}'
+                : 'Login gagal. Periksa NISN & Kata Sandi.');
         _showSnackbar(errorMsg, isError: true);
       }
     } catch (e) {
+      debugPrint('Login error (${AppConstants.baseUrl}): $e');
       _showSnackbar(
-          'Gagal terhubung ke server. Pastikan "php artisan serve" aktif!',
+          kDebugMode
+              ? 'Gagal terhubung ke ${AppConstants.baseUrl}: $e'
+              : 'Gagal terhubung ke server. Pastikan "php artisan serve" aktif!',
           isError: true);
     } finally {
       if (mounted) {

@@ -12,27 +12,6 @@ class AbsensiController extends ApiController
 {
     public function __construct(private AbsensiService $absensiService) {}
 
-    protected function authGuruId(Request $request): ?int
-    {
-        $user = $request->user();
-        if ($user && isset($user->id_guru)) {
-            return (int) $user->id_guru;
-        }
-
-        $id = $request->input('id_guru')
-            ?? $request->query('id_guru')
-            ?? session()->get('guru_id')
-            ?? session()->get('user_id');
-
-        if (! $id) {
-            $firstGuru = Guru::first();
-
-            return $firstGuru?->id_guru;
-        }
-
-        return (int) $id;
-    }
-
     public function scanQr(Request $request)
     {
         $data = $request->validate([
@@ -40,6 +19,9 @@ class AbsensiController extends ApiController
         ]);
 
         $guruId = $this->authGuruId($request);
+        if (! $guruId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
         $hasil = $this->absensiService->catatScan($data['kode_barcode'], $guruId, 'scan_qr');
 
         if ($hasil['hasil'] === 'tidak_dikenal') {

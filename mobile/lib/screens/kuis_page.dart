@@ -155,7 +155,6 @@ class _KuisPageState extends State<KuisPage> {
       await ApiClient.post(
         '/siswa/quiz/$quizId/submit',
         body: {
-          'id_siswa': widget.user?['id_siswa'] ?? 1,
           'jawaban': answersPayload,
           'waktu_menit': (_totalSeconds - _remainingSeconds) ~/ 60,
         },

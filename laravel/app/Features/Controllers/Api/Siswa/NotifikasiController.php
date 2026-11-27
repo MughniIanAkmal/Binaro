@@ -12,8 +12,11 @@ class NotifikasiController extends ApiController
 {
     public function notifikasiList(Request $request)
     {
-        $siswaId = $this->resolveSiswaId($request) ?? 1;
-        $siswa = Siswa::find($siswaId) ?? Siswa::first();
+        $siswaId = $this->resolveSiswaId($request);
+        if (! $siswaId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
+        $siswa = Siswa::find($siswaId);
 
         if (! $siswa) {
             return $this->success(['belum_dibaca' => 0, 'notifikasi' => []], 'Belum ada notifikasi');
@@ -71,8 +74,11 @@ class NotifikasiController extends ApiController
 
     public function notifikasiBaca(Request $request)
     {
-        $siswaId = $this->resolveSiswaId($request) ?? 1;
-        $siswa = Siswa::find($siswaId) ?? Siswa::first();
+        $siswaId = $this->resolveSiswaId($request);
+        if (! $siswaId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
+        $siswa = Siswa::find($siswaId);
 
         if ($siswa) {
             Notifikasi::where('id_siswa', $siswa->id_siswa)
@@ -81,16 +87,5 @@ class NotifikasiController extends ApiController
         }
 
         return $this->success(['belum_dibaca' => 0], 'Semua notifikasi ditandai sudah dibaca');
-    }
-
-    protected function resolveSiswaId(Request $request): ?int
-    {
-        $siswa = Siswa::first();
-        $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) {
-            return (int) $id;
-        }
-
-        return $siswa?->id_siswa;
     }
 }

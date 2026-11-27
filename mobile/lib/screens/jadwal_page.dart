@@ -88,8 +88,7 @@ class _JadwalPageState extends State<JadwalPage> {
     }
 
     try {
-      final response =
-          await ApiClient.get('/siswa/jadwal?id_siswa=$siswaId');
+      final response = await ApiClient.get('/siswa/jadwal');
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);

@@ -114,14 +114,4 @@ class MateriController extends ApiController
             ] : null,
         ], 'Detail materi berhasil dimuat');
     }
-
-    protected function resolveSiswaId(Request $request): ?int
-    {
-        $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) {
-            return (int) $id;
-        }
-
-        return Siswa::first()?->id_siswa;
-    }
 }

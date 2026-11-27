@@ -1,5 +1,6 @@
 <?php
 
+use App\Features\Middleware\EnsureApiRole;
 use App\Http\Middleware\ApiAuthMiddleware;
 use App\Http\Middleware\EnsureRole;
 use Illuminate\Foundation\Application;
@@ -17,9 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => EnsureRole::class,
             'api.auth' => ApiAuthMiddleware::class,
+            'api.role' => EnsureApiRole::class,
         ]);
 
-        $middleware->trustProxies(at: '*');
+        $trustedProxies = array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('TRUSTED_PROXIES', '127.0.0.1,::1'))
+        )));
+        $middleware->trustProxies(at: $trustedProxies);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

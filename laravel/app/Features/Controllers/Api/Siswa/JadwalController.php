@@ -14,7 +14,10 @@ class JadwalController extends ApiController
 {
     public function jadwalList(Request $request)
     {
-        $siswaId = $this->resolveSiswaId($request) ?? 1;
+        $siswaId = $this->resolveSiswaId($request);
+        if (! $siswaId) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
         $siswa = Siswa::find($siswaId);
 
         $rows = collect();
@@ -64,28 +67,5 @@ class JadwalController extends ApiController
             'kelas' => $namaKelas,
             'jadwal' => $result,
         ], 'Jadwal pelajaran berhasil dimuat');
-    }
-
-    protected function resolveSiswaId(Request $request): ?int
-    {
-        $user = null;
-        try {
-            if (config('auth.guards.sanctum')) {
-                $user = $request->user('sanctum');
-            }
-        } catch (\Throwable $e) {
-        }
-        if (! $user) {
-            $user = $request->user();
-        }
-        if ($user && isset($user->id_siswa)) {
-            return (int) $user->id_siswa;
-        }
-        $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) {
-            return (int) $id;
-        }
-
-        return Siswa::first()?->id_siswa;
     }
 }

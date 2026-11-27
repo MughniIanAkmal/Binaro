@@ -4,9 +4,9 @@ import 'hasil_ujian_page.dart';
 import '../utils/api_client.dart';
 import '../utils/constants.dart';
 import '../utils/page_transitions.dart';
+import '../widgets/common.dart';
 import '../widgets/dynamic_bottom_nav.dart';
 import 'petunjuk_ujian_page.dart';
-import 'profile_page.dart';
 
 class UjianPage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -43,11 +43,9 @@ class _UjianPageState extends State<UjianPage> {
 
   Future<void> _fetchUjianData() async {
     setState(() => _isLoading = true);
-    final int siswaId = widget.user?['id_siswa'] ?? AppConstants.defaultSiswaId;
 
     try {
-      final response =
-          await ApiClient.get('/siswa/ujian?id_siswa=$siswaId');
+      final response = await ApiClient.get('/siswa/ujian');
 
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
@@ -89,76 +87,7 @@ class _UjianPageState extends State<UjianPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        backgroundColor: AppColors.primary,
-        elevation: 0,
-        leadingWidth: 0,
-        leading: const SizedBox.shrink(),
-        titleSpacing: 20,
-        title: Row(
-          children: [
-            // Logo Sahabat Belajar Topi Toga Oranye
-            Container(
-              width: 38,
-              height: 38,
-              decoration: const BoxDecoration(
-                color: AppColors.accent,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(Icons.school_rounded, color: Colors.white, size: 22),
-            ),
-            const SizedBox(width: 12),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'SAHABAT BELAJAR',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.accent,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-                SizedBox(height: 1),
-                Text(
-                  'Ujian Online',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  SmoothPageRoute(
-                    page: ProfilePage(user: widget.user),
-                    type: TransitionType.sharedAxis,
-                  ),
-                );
-              },
-              child: Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: AppColors.border,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2.2),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: const BinaroAppBar(title: 'Ujian Online'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : RefreshIndicator(

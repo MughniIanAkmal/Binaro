@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
@@ -35,6 +36,14 @@ class BinaroApp extends StatelessWidget {
     return MaterialApp(
       title: '${AppConstants.appName} - ${AppConstants.appSubtitle}',
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const MaterialScrollBehavior().copyWith(
+        dragDevices: {
+          PointerDeviceKind.touch,
+          PointerDeviceKind.mouse,
+          PointerDeviceKind.trackpad,
+          PointerDeviceKind.stylus,
+        },
+      ),
       // Batasi skala teks sistem agar layout padat tidak overflow (T17)
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(

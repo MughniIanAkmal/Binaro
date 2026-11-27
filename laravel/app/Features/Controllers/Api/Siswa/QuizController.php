@@ -41,7 +41,6 @@ class QuizController extends ApiController
                 'opsi_b' => $s->opsi_b,
                 'opsi_c' => $s->opsi_c,
                 'opsi_d' => $s->opsi_d,
-                'kunci_jawaban' => $s->kunci_jawaban,
                 'tips' => $tips,
             ];
         }
@@ -66,7 +65,10 @@ class QuizController extends ApiController
         }
 
         $jawaban = $request->input('jawaban', []);
-        $idSiswa = $this->resolveSiswaId($request) ?? 1;
+        $idSiswa = $this->resolveSiswaId($request);
+        if (! $idSiswa) {
+            return $this->error('User tidak terautentikasi', 401);
+        }
 
         $totalSoal = $quiz->soal->count();
         $benar = $salah = 0;
@@ -103,28 +105,5 @@ class QuizController extends ApiController
             'bintang' => $bintang,
             'pesan' => $nilai >= 80 ? 'Luar biasa! Kamu memahami materi dengan sangat baik!' : 'Bagus! Terus berlatih agar semakin hebat!',
         ], 'Kuis berhasil dikumpulkan!');
-    }
-
-    protected function resolveSiswaId(Request $request): ?int
-    {
-        $user = null;
-        try {
-            if (config('auth.guards.sanctum')) {
-                $user = $request->user('sanctum');
-            }
-        } catch (\Throwable $e) {
-        }
-        if (! $user) {
-            $user = $request->user();
-        }
-        if ($user && isset($user->id_siswa)) {
-            return (int) $user->id_siswa;
-        }
-        $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) {
-            return (int) $id;
-        }
-
-        return Siswa::first()?->id_siswa;
     }
 }

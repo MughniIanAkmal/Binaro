@@ -28,12 +28,7 @@ class _LoncengNotifikasiState extends State<LoncengNotifikasi> {
 
   Future<void> _muatJumlah() async {
     try {
-      final user = await AppSession.load();
-      final rawId = user?['id_siswa'] ?? AppConstants.defaultSiswaId;
-      final siswaId =
-          rawId is int ? rawId : int.tryParse('$rawId') ?? AppConstants.defaultSiswaId;
-
-      final response = await ApiClient.get('/siswa/notifikasi?id_siswa=$siswaId');
+      final response = await ApiClient.get('/siswa/notifikasi');
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
         if (result['success'] == true && mounted) {

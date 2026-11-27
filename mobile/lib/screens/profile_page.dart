@@ -70,8 +70,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     try {
-      final response =
-          await ApiClient.get('/siswa/profile?id_siswa=$siswaId');
+      final response = await ApiClient.get('/siswa/profile');
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
@@ -478,8 +477,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                         _showToast('Konfirmasi sandi baru tidak cocok!', isError: true);
                                         return;
                                       }
-                                      if (baru.length < 4) {
-                                        _showToast('Sandi baru minimal 4 karakter!', isError: true);
+                                      if (baru.length < 8) {
+                                        _showToast('Sandi baru minimal 8 karakter!', isError: true);
                                         return;
                                       }
 
@@ -489,7 +488,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                         final res = await ApiClient.post(
                                           '/siswa/update-password',
                                           body: {
-                                            'id_siswa': _siswa['id_siswa'] ?? 7,
                                             'password_lama': lama,
                                             'password_baru': baru,
                                             'konfirmasi_password': konf,
@@ -972,8 +970,6 @@ class _ProfilePageState extends State<ProfilePage> {
       final request =
           http.MultipartRequest('POST', ApiClient.uri('/siswa/foto-profil'));
       request.headers.addAll(ApiClient.headers);
-      request.fields['id_siswa'] =
-          (_siswa['id_siswa'] ?? AppConstants.defaultSiswaId).toString();
       request.files.add(http.MultipartFile.fromBytes(
         'foto',
         bytes,
@@ -1043,9 +1039,6 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final response = await ApiClient.post(
         '/siswa/foto-profil/hapus',
-        body: {
-          'id_siswa': _siswa['id_siswa'] ?? AppConstants.defaultSiswaId,
-        },
       );
       final result = jsonDecode(response.body);
       if (response.statusCode == 200 && result['success'] == true) {

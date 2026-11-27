@@ -75,14 +75,4 @@ class BabController extends ApiController
             'babs' => $babList,
         ], 'Daftar bab berhasil dimuat');
     }
-
-    protected function resolveSiswaId(Request $request): ?int
-    {
-        $id = $request->input('id_siswa') ?? $request->query('id_siswa') ?? $request->query('id');
-        if ($id) {
-            return (int) $id;
-        }
-
-        return Siswa::first()?->id_siswa;
-    }
 }

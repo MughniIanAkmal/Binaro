@@ -65,8 +65,7 @@ class _DashboardPageState extends State<DashboardPage> {
     }
 
     try {
-      final response =
-          await ApiClient.get('/siswa/dashboard?id_siswa=$siswaId');
+      final response = await ApiClient.get('/siswa/dashboard');
 
       if (response.statusCode == 200) {
         final result = jsonDecode(response.body);
