@@ -1,15 +1,17 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:binaro_flutter/utils/api_client.dart';
-import 'package:binaro_flutter/utils/constants.dart';
-import 'package:binaro_flutter/utils/session.dart';
+import 'package:binaro_flutter/inti/layanan/api_client.dart';
+import 'package:binaro_flutter/inti/konstanta/constants.dart';
+import 'package:binaro_flutter/inti/layanan/session.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
   });
 
   test('tanpa sesi: header tanpa Authorization', () async {

@@ -1,0 +1,941 @@
+import 'dart:async';
+import 'dart:math' as math;
+import 'package:flutter/material.dart';
+import 'package:binaro_flutter/fitur/profil/screens/profile_page.dart';
+import 'package:binaro_flutter/fitur/ujian/services/ujian_service.dart';
+import 'package:binaro_flutter/fitur/ujian/widgets/opsi_jawaban_list.dart';
+import 'package:binaro_flutter/inti/konstanta/constants.dart';
+import 'package:binaro_flutter/inti/layanan/page_transitions.dart';
+import 'package:binaro_flutter/inti/layanan/responsive.dart';
+import 'package:binaro_flutter/inti/widgets/common.dart';
+
+class KuisPage extends StatefulWidget {
+  final Map<String, dynamic>? user;
+  final int? quizId;
+
+  const KuisPage({
+    super.key,
+    this.user,
+    this.quizId,
+  });
+
+  @override
+  State<KuisPage> createState() => _KuisPageState();
+}
+
+class _KuisPageState extends State<KuisPage> {
+  bool _isLoading = true;
+  String _quizTitle = 'Kuis Siswa';
+  int _totalSoal = 0;
+  int _currentIndex = 0;
+  List<Map<String, dynamic>> _soalList = [];
+
+  // Pilihan jawaban siswa: map dari index soal -> opsi yang dipilih ('A', 'B', 'C', 'D')
+  final Map<int, String> _selectedAnswers = {};
+
+  // Timer countdown
+  Timer? _countdownTimer;
+  int _remainingSeconds = 900;
+  int _totalSeconds = 900;
+  bool _isSubmitting = false;
+
+  // Kunci navigasi selama pengerjaan; konfirmasi mulai ditampilkan
+  // sebagai pop up di halaman sebelumnya (KonfirmasiKuisDialog).
+  bool _kuisSelesai = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchQuizData();
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _countdownTimer?.cancel();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      if (_remainingSeconds > 0) {
+        setState(() {
+          _remainingSeconds--;
+        });
+      } else {
+        timer.cancel();
+        _submitQuiz(autoSubmit: true);
+      }
+    });
+  }
+
+  String get _formattedTime {
+    final int minutes = _remainingSeconds ~/ 60;
+    final int seconds = _remainingSeconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+  }
+
+  Future<void> _fetchQuizData() async {
+    setState(() => _isLoading = true);
+    final data = widget.quizId != null
+        ? await UjianService.fetchQuiz(widget.quizId!)
+        : null;
+    if (!mounted) return;
+
+    if (data != null) {
+      final List<dynamic> soals = data['soal'] ?? [];
+      setState(() {
+        _quizTitle = data['judul_quiz'] ?? _quizTitle;
+        _totalSoal = data['total_soal'] ?? soals.length;
+        _soalList =
+            soals.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+        _currentIndex = 0;
+        _remainingSeconds = data['durasi_detik'] ?? 900;
+        _totalSeconds = data['durasi_detik'] ?? 900;
+        _kuisSelesai = _soalList.isEmpty;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _soalList = [];
+        _totalSoal = 0;
+        _kuisSelesai = true;
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _submitQuiz({bool autoSubmit = false}) async {
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+
+    int benar = 0;
+    for (int i = 0; i < _soalList.length; i++) {
+      final q = _soalList[i];
+      final userAns = _selectedAnswers[i];
+      if (userAns != null &&
+          userAns.toUpperCase() ==
+              (q['kunci_jawaban'] ?? '').toString().toUpperCase()) {
+        benar++;
+      }
+    }
+    final int score =
+        _soalList.isNotEmpty ? ((benar / _soalList.length) * 100).round() : 0;
+
+    final quizId = widget.quizId ?? 11;
+    final Map<String, String> answersPayload = {};
+    _selectedAnswers.forEach((index, opt) {
+      if (index < _soalList.length) {
+        final idSoal = _soalList[index]['id_soal']?.toString() ?? '$index';
+        answersPayload[idSoal] = opt;
+      }
+    });
+
+    await UjianService.submitQuiz(
+      quizId: quizId,
+      jawaban: answersPayload,
+      waktuMenit: (_totalSeconds - _remainingSeconds) ~/ 60,
+    );
+
+    if (!mounted) return;
+    setState(() {
+      _isSubmitting = false;
+      _kuisSelesai = true;
+    });
+
+    _showResultDialog(score, benar, _soalList.length);
+  }
+
+  void _showResultDialog(int score, int benar, int total) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        final bool isHigh = score >= 80;
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 26),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Star Icon Badge
+                Container(
+                  width: 76,
+                  height: 76,
+                  decoration: BoxDecoration(
+                    color: isHigh ? AppColors.warningLight : AppColors.primaryLight,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isHigh ? Icons.emoji_events_rounded : Icons.star_rounded,
+                    color: isHigh ? AppColors.accent : AppColors.primary,
+                    size: 44,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  isHigh ? 'Luar Biasa, Hebat!' : 'Bagus, Tetap Semangat!',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Kamu telah menyelesaikan latihan kuis ini dengan baik.',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+
+                // Score Card
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.border),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Column(
+                        children: [
+                          const Text('Nilai Akhir',
+                              style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$score',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w900,
+                              color: isHigh ? AppColors.accent : AppColors.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Container(height: 36, width: 1, color: AppColors.border),
+                      Column(
+                        children: [
+                          const Text('Jawaban Benar',
+                              style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                          const SizedBox(height: 4),
+                          Text(
+                            '$benar / $total',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.success,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Button Kembali
+                SizedBox(
+                  width: double.infinity,
+                  height: 46,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(ctx);
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text(
+                      'Kembali ke Pembelajaran',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Map<String, dynamic>? currentQuestion =
+        (_soalList.isNotEmpty && _currentIndex < _soalList.length)
+            ? _soalList[_currentIndex]
+            : null;
+
+    final String currentTips = currentQuestion?['tips'] ??
+        'Pilih jawaban yang paling tepat sesuai materi yang telah kamu pelajari.';
+
+    return PopScope(
+      // Selama kuis berjalan siswa tidak bisa keluar/back sama sekali
+      canPop: _kuisSelesai,
+      child: Scaffold(
+      backgroundColor: AppColors.background,
+      appBar: BinaroAppBar(
+        title: 'Latihan Soal',
+        showBack: false,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  SmoothPageRoute(
+                    page: ProfilePage(user: widget.user),
+                    type: TransitionType.sharedAxis,
+                  ),
+                );
+              },
+              child: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2.2),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+          : currentQuestion == null
+              ? Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.border),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.02),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 68,
+                          height: 68,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primaryLight,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.quiz_outlined,
+                            size: 34,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Kuis Belum Tersedia',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.textPrimary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Guru belum mengunggah butir soal kuis untuk materi ini.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  child: KontenResponsif(
+                    modeBaca: true,
+                    child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 1. Header Kuis & Progress Bar
+                      _buildHeaderCard(),
+                      const SizedBox(height: 16),
+
+                      // 2. Kartu Soal & Ilustrasi
+                      _buildQuestionCard(currentQuestion),
+                      const SizedBox(height: 16),
+
+                      // 3. Pilihan Jawaban (A, B, C, D)
+                      _buildOptionsList(currentQuestion),
+                      const SizedBox(height: 14),
+
+                      // 4. Kartu Tips
+                      _buildTipsCard(currentTips),
+                      const SizedBox(height: 24),
+
+                      // 5. Tombol Aksi Bawah: Sebelumnya & Berikutnya
+                      _buildBottomActions(),
+                      const SizedBox(height: 20),
+                    ],
+                    ),
+                  ),
+                ),
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // 1. HEADER KUIS DENGAN TIMER DAN SEGMEN PROGRESS
+  // ---------------------------------------------------------------------------
+  Widget _buildHeaderCard() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          // Row Atas: Icon Kuis + Judul + Countdown Timer Pill
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(Icons.grid_view_rounded, size: 18, color: AppColors.primary),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _quizTitle,
+                  style: const TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.textPrimary,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
+              // Timer Pill
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.access_time_rounded, size: 14, color: AppColors.primary),
+                    const SizedBox(width: 4),
+                    Text(
+                      _formattedTime,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Row Bawah: 5 Segmen Bar Progres & "Soal 3 dari 5"
+          Row(
+            children: [
+              Expanded(
+                child: Row(
+                  children: List.generate(_totalSoal, (index) {
+                    Color segColor;
+                    if (index == _currentIndex) {
+                      segColor = AppColors.primary; // Soal aktif: biru gelap
+                    } else if (_selectedAnswers.containsKey(index)) {
+                      segColor = AppColors.accent; // Sudah dijawab: oranye
+                    } else {
+                      segColor = AppColors.primaryLight; // Belum dijawab: biru muda
+                    }
+
+                    return Expanded(
+                      child: Container(
+                        margin: EdgeInsets.only(right: index < _totalSoal - 1 ? 6 : 0),
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: segColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+              const SizedBox(width: 14),
+              Text(
+                'Soal ${_currentIndex + 1} dari $_totalSoal',
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.primary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // 2. KARTU SOAL & ILUSTRASI SEMANGKA
+  // ---------------------------------------------------------------------------
+  Widget _buildQuestionCard(Map<String, dynamic> q) {
+    Map<String, dynamic>? ilustrasi;
+    if (q['ilustrasi'] != null && q['ilustrasi'] is Map) {
+      ilustrasi = Map<String, dynamic>.from(q['ilustrasi'] as Map);
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header Soal: Nomor (Lingkaran Biru) + Teks Pertanyaan
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  '${_currentIndex + 1}',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 13.5,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  q['pertanyaan'] ?? '',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                    height: 1.45,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Box Ilustrasi
+          if (ilustrasi != null)
+            _buildIllustrationBox(ilustrasi),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // ILUSTRASI SEMANGKA 4 BAGIAN DENGAN 1 BAGIAN DIAMBIL (CUSTOM CANVAS)
+  // ---------------------------------------------------------------------------
+  Widget _buildIllustrationBox(Map<String, dynamic>? ilustrasi) {
+    final String caption = ilustrasi?['caption'] ?? '';
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+      decoration: BoxDecoration(
+        color: AppColors.infoLight, // Light pastel sky blue
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.infoLight),
+      ),
+      child: Column(
+        children: [
+          // Canvas Gambar Semangka
+          SizedBox(
+            width: 170,
+            height: 170,
+            child: CustomPaint(
+              painter: WatermelonPainter(),
+            ),
+          ),
+          if (caption.isNotEmpty) ...[
+            const SizedBox(height: 14),
+
+            // Teks Caption Ilustrasi
+            Text(
+              caption,
+              style: const TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // 3. DAFTAR PILIHAN JAWABAN (A, B, C, D)
+  // ---------------------------------------------------------------------------
+  Widget _buildOptionsList(Map<String, dynamic> q) {
+    return OpsiJawabanList(
+      question: q,
+      selectedOption: _selectedAnswers[_currentIndex] ?? '',
+      activeColor: AppColors.accent,
+      onSelect: (key) {
+        setState(() {
+          _selectedAnswers[_currentIndex] = key;
+        });
+      },
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // 4. KARTU TIPS
+  // ---------------------------------------------------------------------------
+  Widget _buildTipsCard(String tips) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.warningLight, // Cream yellow
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.accentBright),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.lightbulb_rounded, color: AppColors.accentDeep, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: const TextStyle(fontSize: 12, color: AppColors.accentDeep, height: 1.45),
+                children: [
+                  const TextSpan(
+                    text: 'Tips: ',
+                    style: TextStyle(fontWeight: FontWeight.w800, color: AppColors.accentDeep),
+                  ),
+                  TextSpan(
+                    text: tips,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // 5. TOMBOL AKSI BAWAH: SEBELUMNYA & BERIKUTNYA
+  // ---------------------------------------------------------------------------
+  Widget _buildBottomActions() {
+    final bool isLast = (_currentIndex == _totalSoal - 1);
+
+    return Row(
+      children: [
+        // Tombol Sebelumnya
+        Expanded(
+          child: SizedBox(
+            height: 44,
+            child: OutlinedButton(
+              onPressed: _currentIndex > 0
+                  ? () {
+                      setState(() {
+                        _currentIndex--;
+                      });
+                    }
+                  : null,
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.border),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                backgroundColor: Colors.white,
+              ),
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.arrow_back_rounded, size: 16, color: AppColors.primary),
+                  SizedBox(width: 6),
+                  Text(
+                    'Sebelumnya',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 14),
+
+        // Tombol Berikutnya / Selesai
+        Expanded(
+          child: SizedBox(
+            height: 44,
+            child: ElevatedButton(
+              onPressed: () {
+                if (isLast) {
+                  _submitQuiz();
+                } else {
+                  setState(() {
+                    _currentIndex++;
+                  });
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    isLast ? 'Selesai' : 'Berikutnya',
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(
+                    isLast ? Icons.check_circle_outline_rounded : Icons.arrow_forward_rounded,
+                    size: 16,
+                    color: Colors.white,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// CUSTOM PAINTER: SEMANGKA DIBAGI 4 DENGAN 1 POTONGAN TERPISAH & BADGE "1"
+// =============================================================================
+class WatermelonPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final double radius = size.width * 0.42;
+    const double gap = 4.0;
+    const double separateDistance = 14.0; // Jarak potongan Budi yang diambil
+
+    // Warna semangka
+    const Color fleshColor = AppColors.error; // Merah daging semangka
+    const Color rindLightColor = AppColors.successLight; // Garis putih kehijauan dalam
+    const Color rindDarkColor = AppColors.success; // Kulit hijau gelap
+    const Color seedColor = AppColors.textPrimary; // Biji hitam
+
+    // Paint objek
+    final fleshPaint = Paint()
+      ..color = fleshColor
+      ..style = PaintingStyle.fill;
+
+    final rindLightPaint = Paint()
+      ..color = rindLightColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.0;
+
+    final rindDarkPaint = Paint()
+      ..color = rindDarkColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 6.0;
+
+    final seedPaint = Paint()
+      ..color = seedColor
+      ..style = PaintingStyle.fill;
+
+    // -------------------------------------------------------------------------
+    // Fungsi bantuan menggambar 1 potongan kuadran semangka
+    // -------------------------------------------------------------------------
+    void drawSlice({
+      required double startAngle,
+      required Offset sliceCenter,
+      required List<Offset> seedRelativePositions,
+      bool isSelectedSlice = false,
+    }) {
+      final rect = Rect.fromCircle(center: sliceCenter, radius: radius);
+
+      // Path daging
+      final path = Path();
+      path.moveTo(sliceCenter.dx, sliceCenter.dy);
+      path.arcTo(rect, startAngle, math.pi / 2, false);
+      path.close();
+
+      canvas.drawPath(path, fleshPaint);
+
+      // Busur kulit semangka (bagian lengkung)
+      final rindRect = Rect.fromCircle(center: sliceCenter, radius: radius - 1.5);
+      canvas.drawArc(rindRect, startAngle, math.pi / 2, false, rindLightPaint);
+      canvas.drawArc(rindRect, startAngle, math.pi / 2, false, rindDarkPaint);
+
+      // Biji semangka
+      for (final sPos in seedRelativePositions) {
+        final seedCenter = sliceCenter + sPos;
+        canvas.drawOval(
+          Rect.fromCenter(center: seedCenter, width: 4.5, height: 6.5),
+          seedPaint,
+        );
+      }
+
+      // Jika ini potongan yang diambil (terpisah), beri badge nomor "1" di pojoknya
+      if (isSelectedSlice) {
+        final badgeCenter = Offset(sliceCenter.dx + radius * 0.45, sliceCenter.dy - radius * 0.45);
+        final badgePaint = Paint()
+          ..color = AppColors.accent
+          ..style = PaintingStyle.fill;
+
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromCenter(center: badgeCenter, width: 20, height: 20),
+            const Radius.circular(8),
+          ),
+          badgePaint,
+        );
+
+        final textPainter = TextPainter(
+          text: const TextSpan(
+            text: '1',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout();
+        textPainter.paint(
+          canvas,
+          Offset(badgeCenter.dx - textPainter.width / 2, badgeCenter.dy - textPainter.height / 2),
+        );
+      }
+    }
+
+    // 1. Potongan Kuadran Kiri-Atas (Top-Left: angle pi to 3*pi/2)
+    drawSlice(
+      startAngle: math.pi,
+      sliceCenter: Offset(center.dx - gap, center.dy - gap),
+      seedRelativePositions: const [
+        Offset(-22, -22),
+        Offset(-36, -14),
+        Offset(-18, -36),
+      ],
+    );
+
+    // 2. Potongan Kuadran Kiri-Bawah (Bottom-Left: angle pi/2 to pi)
+    drawSlice(
+      startAngle: math.pi / 2,
+      sliceCenter: Offset(center.dx - gap, center.dy + gap),
+      seedRelativePositions: const [
+        Offset(-22, 22),
+        Offset(-36, 14),
+        Offset(-18, 36),
+      ],
+    );
+
+    // 3. Potongan Kuadran Kanan-Bawah (Bottom-Right: angle 0 to pi/2)
+    drawSlice(
+      startAngle: 0,
+      sliceCenter: Offset(center.dx + gap, center.dy + gap),
+      seedRelativePositions: const [
+        Offset(22, 22),
+        Offset(36, 14),
+        Offset(18, 36),
+      ],
+    );
+
+    // 4. Potongan Kuadran Kanan-Atas (Top-Right: angle -pi/2 to 0) -> Diambil Budi!
+    // Digeser ke kanan atas dengan jarak terpisah
+    drawSlice(
+      startAngle: -math.pi / 2,
+      sliceCenter: Offset(center.dx + gap + separateDistance, center.dy - gap - separateDistance),
+      seedRelativePositions: const [
+        Offset(22, -22),
+        Offset(36, -14),
+        Offset(18, -36),
+      ],
+      isSelectedSlice: true,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}

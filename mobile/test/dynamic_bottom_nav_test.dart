@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:binaro_flutter/utils/constants.dart';
-import 'package:binaro_flutter/widgets/dynamic_bottom_nav.dart';
+import 'package:binaro_flutter/inti/konstanta/constants.dart';
+import 'package:binaro_flutter/inti/widgets/dynamic_bottom_nav.dart';
 
 /// Bungkus nav dalam kerangka layar agar MediaQuery dan tema ikut terpakai.
 Widget _wrap({required int currentIndex, ValueChanged<int>? onNavTap}) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:binaro_flutter/main.dart';
+import 'package:binaro_flutter/aplikasi/aplikasi.dart';
 
 void main() {
   testWidgets('Halaman login tampil dengan field NISN dan Kata Sandi',

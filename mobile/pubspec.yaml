@@ -18,6 +18,9 @@ dependencies:
   webview_flutter_android: 4.12.1
   syncfusion_flutter_pdfviewer: ^35.1.43
   shared_preferences: ^2.3.2
+  flutter_secure_storage: ^11.2.0
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
   flutter_svg: ^2.0.10+1
   image_picker: ^1.1.2
 
