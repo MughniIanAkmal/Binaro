@@ -27,11 +27,6 @@ class MataPelajaran extends Model
         return $this->hasMany(Bab::class, 'id_mapel', 'id_mapel');
     }
 
-    public function rpps()
-    {
-        return $this->hasMany(Rpp::class, 'id_mapel', 'id_mapel');
-    }
-
     public function siswas()
     {
         return $this->hasMany(Siswa::class, 'id_mapel', 'id_mapel');

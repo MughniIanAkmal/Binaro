@@ -6,8 +6,6 @@ use App\Features\Controllers\Controller;
 use App\Features\Models\Absen;
 use App\Features\Models\Admin;
 use App\Features\Models\Guru;
-use App\Features\Models\MataPelajaran;
-use App\Features\Models\Rpp;
 use App\Features\Models\Siswa;
 
 class AdminController extends Controller
@@ -20,8 +18,6 @@ class AdminController extends Controller
         }
 
         $totalSiswa = Siswa::count();
-        $totalGuru = Guru::count();
-        $totalMapel = MataPelajaran::count();
 
         $today = now()->toDateString();
         $hadirHariIni = Absen::where('tanggal', $today)->where('status', 'Hadir')->count();
@@ -29,17 +25,12 @@ class AdminController extends Controller
         $alpaHariIni = max(0, $totalSiswa - ($hadirHariIni + $izinSakitHariIni));
         $persentaseHadir = $totalSiswa > 0 ? round(($hadirHariIni / $totalSiswa) * 100, 1) : 0;
 
-        $rppPerluReview = Rpp::whereIn('status', ['menunggu_review', 'draft', 'perlu_revisi'])->count();
-
         $stats = [
             'total_siswa' => $totalSiswa,
-            'total_guru' => $totalGuru,
-            'total_mapel' => $totalMapel,
             'hadir_hari_ini' => $hadirHariIni,
             'izin_sakit_hari_ini' => $izinSakitHariIni,
             'alpa_hari_ini' => $alpaHariIni,
             'persentase_hadir' => $persentaseHadir,
-            'rpp_perlu_review' => $rppPerluReview,
         ];
 
         $recentGuru = Guru::latest()->take(5)->get();

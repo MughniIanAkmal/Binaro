@@ -14,7 +14,7 @@ class Task1DatabaseSchemaTest extends TestCase
 
     public function test_academic_system_tables_exist(): void
     {
-        $tables = ['admin', 'guru', 'mata_pelajaran', 'kelas', 'siswa', 'barcode', 'rpp', 'absen'];
+        $tables = ['admin', 'guru', 'mata_pelajaran', 'kelas', 'siswa', 'barcode', 'absen'];
         foreach ($tables as $table) {
             $this->assertTrue(Schema::hasTable($table), "Table {$table} missing from schema.");
         }
@@ -26,7 +26,6 @@ class Task1DatabaseSchemaTest extends TestCase
         $this->assertTrue(Schema::hasColumns('siswa', ['id_siswa', 'id_mapel', 'id_rooms', 'nisn', 'nm_siswa', 'no_hp', 'password', 'foto_profil']));
         $this->assertTrue(Schema::hasColumns('barcode', ['id_barcode', 'id_siswa', 'kode_barcode', 'qr_image_path', 'is_active']));
         $this->assertTrue(Schema::hasColumns('absen', ['id_absen', 'id_guru', 'id_siswa', 'id_barcode', 'status', 'keterangan', 'berkas_surat', 'metode', 'waktu_absen', 'tanggal']));
-        $this->assertTrue(Schema::hasColumns('rpp', ['id_rpp', 'id_guru', 'id_rooms', 'id_mapel', 'judul_rpp', 'deskripsi', 'komponen_checklist', 'status', 'file_rpp']));
     }
 
     public function test_siswa_observer_auto_creates_barcode(): void

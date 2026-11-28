@@ -408,33 +408,6 @@ class BinaroLearningPrdTest extends TestCase
 
         $hasil->refresh();
         $this->assertEquals($feedbackText, $hasil->catatan_guru);
-
-        // 3. RPP judul rejects symbols as per human-error guardrail, but accepts clean text
-        $rppJudulSymbol = 'RPP Merdeka (+, -, *, /) & Diskon 50%';
-        $rppResSymbol = $this->withSession($session)->post('/rpp', [
-            'id_guru' => $guru->id_guru,
-            'id_mapel' => $mapel->id_mapel,
-            'judul_rpp' => $rppJudulSymbol,
-            'status' => 'menunggu_review',
-        ]);
-        $rppResSymbol->assertSessionHasErrors(['judul_rpp']);
-
-        $rppJudulValid = 'RPP Merdeka Operasi Hitung dan Diskon 50 Persen';
-        $rppDeskripsi = 'Tujuan pembelajaran siswa memahami perbandingan 1 banding 2';
-        $rppRes = $this->withSession($session)->post('/rpp', [
-            'id_guru' => $guru->id_guru,
-            'id_mapel' => $mapel->id_mapel,
-            'judul_rpp' => $rppJudulValid,
-            'deskripsi' => $rppDeskripsi,
-            'status' => 'menunggu_review',
-        ]);
-        $rppRes->assertSessionHas('success');
-
-        $this->assertDatabaseHas('rpp', [
-            'id_guru' => $guru->id_guru,
-            'judul_rpp' => $rppJudulValid,
-            'deskripsi' => $rppDeskripsi,
-        ]);
     }
 
     public function test_siswa_can_download_materi_pdf_successfully()

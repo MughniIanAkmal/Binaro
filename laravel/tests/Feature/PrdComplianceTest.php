@@ -8,7 +8,6 @@ use App\Models\Barcode;
 use App\Models\Guru;
 use App\Models\Kelas;
 use App\Models\MataPelajaran;
-use App\Models\Rpp;
 use App\Models\Siswa;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -217,36 +216,6 @@ class PrdComplianceTest extends TestCase
     }
 
     /**
-     * Test that Siswa cannot access Guru RPP endpoints.
-     * Authenticate as Siswa, attempt GET /api/guru/rpp → assert HTTP 403/401 redirect or unauthorized.
-     */
-    public function test_siswa_cannot_access_guru_rpp_endpoints(): void
-    {
-        // Create required related records first
-        $mapel = MataPelajaran::create(['nama_mapel' => 'Test Mapel']);
-        $kelas = Kelas::create(['pararel' => '10A']);
-
-        // Create and authenticate as siswa
-        $siswa = Siswa::create([
-            'nisn' => '2222222222',
-            'nm_siswa' => 'Siswa User',
-            'password' => bcrypt('password'),
-            'id_mapel' => $mapel->id_mapel,
-            'id_rooms' => $kelas->id_rooms,
-        ]);
-
-        // Attempt to access Guru RPP endpoint as Siswa
-        $response = $this->withSession(['user_id' => $siswa->id_siswa, 'user_type' => 'siswa'])
-            ->getJson('/api/guru/rpp');
-
-        // Should return unauthorized (401) or forbidden (403)
-        $this->assertTrue(
-            $response->status() === 401 || $response->status() === 403,
-            'Expected 401 or 403 status code, got '.$response->status()
-        );
-    }
-
-    /**
      * Test admin rekap returns summary and data.
      * Create attendance records for various siswa/status.
      * GET /api/admin/absensi/rekap?fecha=today → assert JSON has summary (total_siswa, hadir, izin, sakit, alpa) and data array.
@@ -412,7 +381,6 @@ class PrdComplianceTest extends TestCase
         $this->assertTrue($this->app['db']->getSchemaBuilder()->hasTable('admin'));
         $this->assertTrue($this->app['db']->getSchemaBuilder()->hasTable('barcode'));
         $this->assertTrue($this->app['db']->getSchemaBuilder()->hasTable('absen'));
-        $this->assertTrue($this->app['db']->getSchemaBuilder()->hasTable('rpp'));
 
         // Check that we can insert and retrieve data
         $mapel = MataPelajaran::create(['nama_mapel' => 'Test Mapel']);

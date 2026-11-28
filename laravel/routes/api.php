@@ -4,7 +4,6 @@ use App\Features\Controllers\Api\AdminApiController;
 use App\Features\Controllers\Api\AuthApiController;
 use App\Features\Controllers\Api\Guru\AbsensiController as GuruAbsensiController;
 use App\Features\Controllers\Api\Guru\ProfileController as GuruProfileController;
-use App\Features\Controllers\Api\Guru\RppController;
 use App\Features\Controllers\Api\Guru\SiswaController as GuruSiswaController;
 use App\Features\Controllers\Api\Siswa\AbsensiController;
 use App\Features\Controllers\Api\Siswa\BabController;
@@ -66,10 +65,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('api.role:guru')->prefix('guru')->group(function () {
         Route::get('/profile', [GuruProfileController::class, 'profile']);
         Route::post('/profile', [GuruProfileController::class, 'updateProfile']);
-        Route::get('/rpp', [RppController::class, 'listRpp']);
-        Route::post('/rpp', [RppController::class, 'createRpp']);
-        Route::put('/rpp/{id}', [RppController::class, 'editRpp']);
-        Route::delete('/rpp/{id}', [RppController::class, 'deleteRpp']);
         Route::get('/siswa', [GuruSiswaController::class, 'listSiswa']);
         Route::post('/absensi/scan-qr', [GuruAbsensiController::class, 'scanQr']);
         Route::post('/absen-massal', [GuruAbsensiController::class, 'massAttendance']);

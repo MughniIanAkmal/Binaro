@@ -106,11 +106,6 @@ class Guru extends Authenticatable
         return $this->mapel()->exists();
     }
 
-    public function rpp()
-    {
-        return $this->hasMany(Rpp::class, 'id_guru', 'id_guru');
-    }
-
     public function jadwal()
     {
         return $this->hasMany(JadwalMataPelajaran::class, 'id_guru', 'id_guru');

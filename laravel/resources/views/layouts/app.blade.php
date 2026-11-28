@@ -75,14 +75,7 @@
                 <span>Kelola Mapel</span>
             </a>
 
-            <!-- 6. Kelola RPP -->
-            <a href="{{ route('rpp.index') }}"
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('rpp.*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
-                <i class="fas fa-file-lines w-4 text-center {{ request()->routeIs('rpp.*') ? 'text-white' : 'text-slate-400' }}"></i>
-                <span>Kelola RPP</span>
-            </a>
-
-            <!-- 7. QR & Absensi (1 Item Utama dengan Flyout Popover ke Samping Kanan, seperti Mapel & Kustomisasi di portal guru) -->
+            <!-- 6. QR & Absensi (1 Item Utama dengan Flyout Popover ke Samping Kanan, seperti Mapel & Kustomisasi di portal guru) -->
             @php
                 $isQrAbsensiActive = request()->routeIs('admin.qr_absensi.*') || request()->routeIs('absensi.*') || request()->routeIs('admin.qr.*');
             @endphp

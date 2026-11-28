@@ -75,9 +75,6 @@ if ($guru) {
 
     [$sGProf, $rGProf] = apiRequest($kernel, 'GET', '/api/guru/profile', [], $gToken);
     assert($sGProf === 200, 'Guru Profile API gagal');
-
-    [$sGRpp, $rGRpp] = apiRequest($kernel, 'GET', '/api/guru/rpp', [], $gToken);
-    assert($sGRpp === 200, 'Guru RPP API gagal');
 }
 
 echo "API SELF-CHECK PASSED: Seluruh endpoint API berjalan sempurna!\n";

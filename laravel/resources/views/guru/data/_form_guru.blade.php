@@ -101,7 +101,7 @@
                 <option value="{{ $kelas->id_rooms }}" {{ (string) $nilaiLama('id_rooms', data_get($g, 'id_rooms', '')) === (string) $kelas->id_rooms ? 'selected' : '' }}>{{ $kelas->nama_kelas }}</option>
             @endforeach
         </select>
-        <p class="text-[10px] text-slate-400 mt-1">Guru yang sudah di-lock hanya bisa membuat RPP / ujian untuk kelas ini. Kosongkan kalau belum mau mengunci.</p>
+        <p class="text-[10px] text-slate-400 mt-1">Guru yang sudah di-lock hanya bisa membuat ujian untuk kelas ini. Kosongkan kalau belum mau mengunci.</p>
         @if($pakaiOld)
             @error('id_rooms') <span class="text-rose-500 text-[11px] mt-0.5 block">{{ $message }}</span> @enderror
         @endif

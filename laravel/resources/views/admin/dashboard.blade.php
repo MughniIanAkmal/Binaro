@@ -30,57 +30,6 @@
         </div>
     </div>
 
-    <!-- 3 KPI Stat Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        <!-- Siswa -->
-        <a href="{{ route('siswa.data.index') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/60 hover:shadow-md transition group">
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Siswa</span>
-                    <div class="text-3xl font-black text-slate-900 mt-1">{{ $stats['total_siswa'] }}</div>
-                    <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Kelola Siswa <i class="fas fa-arrow-right text-[10px]"></i>
-                    </span>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary group-hover:bg-primary group-hover:text-white transition flex items-center justify-center text-xl font-bold">
-                    <i class="fas fa-user-graduate"></i>
-                </div>
-            </div>
-        </a>
-
-        <!-- Guru -->
-        <a href="{{ route('guru.data.index') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/60 hover:shadow-md transition group">
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Guru</span>
-                    <div class="text-3xl font-black text-slate-900 mt-1">{{ $stats['total_guru'] }}</div>
-                    <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Kelola Guru <i class="fas fa-arrow-right text-[10px]"></i>
-                    </span>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
-                    <i class="fas fa-chalkboard-user"></i>
-                </div>
-            </div>
-        </a>
-
-        <!-- Mapel -->
-        <a href="{{ route('mapel.index') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/60 hover:shadow-md transition group">
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Mata Pelajaran</span>
-                    <div class="text-3xl font-black text-slate-900 mt-1">{{ $stats['total_mapel'] }}</div>
-                    <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Kelola Mapel <i class="fas fa-arrow-right text-[10px]"></i>
-                    </span>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
-                    <i class="fas fa-book-bookmark"></i>
-                </div>
-            </div>
-        </a>
-    </div>
-
     <!-- Quick Action Shortcut Hub -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
         <div>
@@ -90,7 +39,7 @@
             <p class="text-xs text-slate-500">Akses cepat ke modul data induk dan administrasi sekolah.</p>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
             <a href="{{ route('guru.data.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
                 <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary group-hover:scale-105 transition flex items-center justify-center text-lg">
                     <i class="fas fa-user-tie"></i>
@@ -117,18 +66,6 @@
                     <i class="fas fa-book-open"></i>
                 </div>
                 <span class="text-xs font-bold text-slate-700 leading-tight">Kelola Mapel</span>
-            </a>
-
-            <a href="{{ route('rpp.index') }}" class="relative py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
-                <div class="relative w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
-                    <i class="fas fa-file-lines"></i>
-                    @if(($stats['rpp_perlu_review'] ?? 0) > 0)
-                    <span class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-white">
-                        {{ $stats['rpp_perlu_review'] }}
-                    </span>
-                    @endif
-                </div>
-                <span class="text-xs font-bold text-slate-700 leading-tight">Kelola RPP</span>
             </a>
 
             <a href="{{ route('admin.qr_absensi.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
@@ -213,27 +150,6 @@
             </div>
         </div>
     </div>
-
-    @if(($stats['rpp_perlu_review'] ?? 0) > 0)
-    <!-- RPP Menunggu Review -->
-    <a href="{{ route('rpp.index', ['status' => 'menunggu_review']) }}"
-       class="flex items-center gap-3.5 bg-amber-50 border border-amber-200/90 rounded-2xl px-5 py-4 hover:bg-amber-100/80 transition group">
-        <div class="w-10 h-10 rounded-xl bg-amber-400 text-amber-900 flex items-center justify-center text-base font-bold shrink-0">
-            <i class="fas fa-file-circle-exclamation"></i>
-        </div>
-        <div class="min-w-0 flex-1">
-            <p class="text-xs font-bold text-amber-900">
-                {{ $stats['rpp_perlu_review'] }} RPP menunggu review
-            </p>
-            <p class="text-[11px] text-amber-700 mt-0.5">
-                Dokumen RPP dari guru berstatus menunggu review, draf, atau perlu revisi.
-            </p>
-        </div>
-        <span class="text-[11px] font-bold text-amber-900 inline-flex items-center gap-1 shrink-0 group-hover:translate-x-0.5 transition">
-            Tinjau <i class="fas fa-arrow-right text-[10px]"></i>
-        </span>
-    </a>
-    @endif
 
     <!-- Dual Column Recent Overview: Guru & Siswa -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

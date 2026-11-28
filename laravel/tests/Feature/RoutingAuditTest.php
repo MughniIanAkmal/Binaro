@@ -10,7 +10,6 @@ use App\Models\MataPelajaran;
 use App\Models\Materi;
 use App\Models\Notifikasi;
 use App\Models\Pr;
-use App\Models\Rpp;
 use App\Models\Siswa;
 use App\Models\SubBab;
 use Carbon\Carbon;
@@ -161,10 +160,6 @@ class RoutingAuditTest extends TestCase
         $response = $this->withSession($session)->get('/admin/dashboard');
         $response->assertRedirect('/siswa/dashboard');
 
-        // Unauthorized access to Guru RPP -> redirected to siswa dashboard
-        $response = $this->withSession($session)->get('/rpp');
-        $response->assertRedirect('/siswa/dashboard');
-
         // Visiting /siswa as siswa redirects to /siswa/dashboard
         $response = $this->withSession($session)->get('/siswa');
         $response->assertRedirect('/siswa/dashboard');
@@ -189,10 +184,6 @@ class RoutingAuditTest extends TestCase
 
         // Access Mapel
         $response = $this->withSession($session)->get('/mapel');
-        $response->assertStatus(200);
-
-        // Access RPP
-        $response = $this->withSession($session)->get('/rpp');
         $response->assertStatus(200);
 
         // Access Absensi
@@ -256,10 +247,6 @@ class RoutingAuditTest extends TestCase
         $response->assertStatus(200);
 
         $response = $this->withSession($session)->get('/siswa/create');
-        $response->assertStatus(200);
-
-        // Access RPP
-        $response = $this->withSession($session)->get('/rpp');
         $response->assertStatus(200);
 
         // Access Absensi
@@ -409,27 +396,5 @@ class RoutingAuditTest extends TestCase
                     && $prs->first()->id_pr === $prAktif->id_pr
                     && $prs->first()->notifikasi_count === 2;
             });
-    }
-
-    public function test_rpp_show_view_resolves_cleanly()
-    {
-        $rpp = Rpp::create([
-            'id_guru' => $this->guru->id_guru,
-            'id_mapel' => $this->mapel->id_mapel,
-            'id_rooms' => $this->kelas->id_rooms,
-            'judul_rpp' => 'Modul Geometri Dasar',
-            'deskripsi' => 'Pengenalan bangun datar',
-            'status' => 'draft',
-        ]);
-
-        $session = [
-            'user_id' => $this->guru->id_guru,
-            'user_type' => 'guru',
-            'user_name' => $this->guru->nama_guru,
-        ];
-
-        $response = $this->withSession($session)->get(route('rpp.show', $rpp->id_rpp));
-        $response->assertStatus(200);
-        $response->assertSee('Modul Geometri Dasar');
     }
 }
