@@ -6,7 +6,6 @@ use App\Features\Controllers\Controller;
 use App\Features\Models\Guru;
 use App\Features\Models\Jadwal;
 use App\Features\Models\MataPelajaran;
-use App\Features\Models\Materi;
 use App\Features\Models\Pr;
 use Carbon\Carbon;
 
@@ -35,14 +34,10 @@ class GuruDashboardController extends Controller
             return redirect()->route('login')->with('error', 'Sesi guru tidak valid. Silakan login kembali.');
         }
 
-        $totalMapel = MataPelajaran::count();
-        $totalMateri = Materi::count();
-        $totalPr = Pr::count();
         $prAktif = Pr::where(function ($q) {
             $q->whereNull('tgl_tenggat')->orWhere('tgl_tenggat', '>=', Carbon::today());
         })->count();
 
-        $mapels = MataPelajaran::withCount('bab')->latest('id_mapel')->take(3)->get();
         $prs = Pr::with('mataPelajaran')->latest('id_pr')->take(2)->get();
 
         $hariIni = self::HARI_INDONESIA[now()->format('l')] ?? now()->format('l');
@@ -55,11 +50,7 @@ class GuruDashboardController extends Controller
 
         return view('guru.dashboard', compact(
             'guru',
-            'totalMapel',
-            'totalMateri',
-            'totalPr',
             'prAktif',
-            'mapels',
             'prs',
             'jadwalHariIni',
             'mapelById',

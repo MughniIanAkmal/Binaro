@@ -30,57 +30,6 @@
         </div>
     </div>
 
-    <!-- 3 KPI Stat Cards -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        <!-- Mata Pelajaran -->
-        <a href="{{ route('guru.mapel.browse') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/60 hover:shadow-md transition group">
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Mata Pelajaran</span>
-                    <div class="text-3xl font-black text-slate-900 mt-1">{{ $totalMapel }}</div>
-                    <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Kelola Mapel <i class="fas fa-arrow-right text-[10px]"></i>
-                    </span>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary group-hover:bg-primary group-hover:text-white transition flex items-center justify-center text-xl font-bold">
-                    <i class="fas fa-book-open"></i>
-                </div>
-            </div>
-        </a>
-
-        <!-- Total Materi -->
-        <a href="{{ route('guru.mapel.browse') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/60 hover:shadow-md transition group">
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Total Materi</span>
-                    <div class="text-3xl font-black text-slate-900 mt-1">{{ $totalMateri }}</div>
-                    <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Lihat Materi <i class="fas fa-arrow-right text-[10px]"></i>
-                    </span>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
-                    <i class="fas fa-layer-group"></i>
-                </div>
-            </div>
-        </a>
-
-        <!-- Total PR -->
-        <a href="{{ route('guru.notifikasi_pr.index') }}" class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:border-primary/60 hover:shadow-md transition group">
-            <div class="flex items-center justify-between">
-                <div>
-                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Pekerjaan Rumah</span>
-                    <div class="text-3xl font-black text-slate-900 mt-1">{{ $totalPr }}</div>
-                    <span class="text-[11px] text-primary font-semibold mt-1 inline-flex items-center gap-1 group-hover:translate-x-0.5 transition">
-                        Kelola PR <i class="fas fa-arrow-right text-[10px]"></i>
-                    </span>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
-                    <i class="fas fa-pencil-alt"></i>
-                </div>
-            </div>
-        </a>
-    </div>
-
     <!-- Quick Action Shortcut Hub -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-5">
         <div>
@@ -90,14 +39,8 @@
             <p class="text-xs text-slate-500">Akses cepat ke modul pembelajaran dan administrasi kelas.</p>
         </div>
 
+        {{-- Urutan pintasan mengikuti urutan fitur di sidebar guru. --}}
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-            <a href="{{ route('guru.absen.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
-                <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
-                    <i class="fas fa-qrcode"></i>
-                </div>
-                <span class="text-xs font-bold text-slate-700 leading-tight">Absensi Siswa</span>
-            </a>
-
             <a href="{{ route('guru.mapel.browse') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
                 <div class="w-12 h-12 rounded-xl bg-sky-50 text-primary group-hover:scale-105 transition flex items-center justify-center text-lg">
                     <i class="fas fa-book-bookmark"></i>
@@ -117,6 +60,13 @@
                     <i class="fas fa-tasks"></i>
                 </div>
                 <span class="text-xs font-bold text-slate-700 leading-tight">Kelola PR</span>
+            </a>
+
+            <a href="{{ route('guru.absen.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">
+                <div class="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 group-hover:scale-105 transition flex items-center justify-center text-lg">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-700 leading-tight">Absensi Siswa</span>
             </a>
 
             <a href="{{ route('guru.ujian.index') }}" class="py-5 px-3 rounded-2xl border border-slate-200 hover:border-primary hover:shadow-md transition text-center flex flex-col items-center gap-3 group">

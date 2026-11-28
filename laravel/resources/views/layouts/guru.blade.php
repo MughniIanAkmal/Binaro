@@ -66,28 +66,35 @@
                 </button>
             </div>
 
-            <!-- 3. Pekerjaan Rumah (PR) -->
+            <!-- 3. Jadwal Mengajar -->
+            <a href="{{ route('guru.jadwal.index') }}"
+               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.jadwal*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
+                <i class="fas fa-calendar-days w-4 text-center {{ request()->routeIs('guru.jadwal*') ? 'text-white' : 'text-slate-400' }}"></i>
+                <span>Jadwal Mengajar</span>
+            </a>
+
+            <!-- 4. Pekerjaan Rumah (PR) -->
             <a href="{{ route('guru.notifikasi_pr.index') }}"
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.notifikasi_pr.*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
                 <i class="fas fa-clipboard-list w-4 text-center {{ request()->routeIs('guru.notifikasi_pr.*') ? 'text-white' : 'text-slate-400' }}"></i> 
                 <span>Pekerjaan Rumah (PR)</span>
             </a>
 
-            <!-- 4. Absensi Siswa (Unified Scan + Rekap) -->
+            <!-- 5. Absensi Siswa (Unified Scan + Rekap) -->
             <a href="{{ route('guru.absen.index') }}"
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.absen.*') || request()->routeIs('guru.absensi.*') || request()->is('guru/absen*') || request()->is('guru/absensi*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
                 <i class="fas fa-id-card-clip w-4 text-center {{ request()->routeIs('guru.absen.*') || request()->routeIs('guru.absensi.*') || request()->is('guru/absen*') || request()->is('guru/absensi*') ? 'text-white' : 'text-slate-400' }}"></i> 
                 <span>Absensi Siswa</span>
             </a>
 
-            <!-- 5. Ujian Online -->
+            <!-- 6. Ujian Online -->
             <a href="{{ route('guru.ujian.index') }}"
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.ujian.*') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
                 <i class="fas fa-laptop-code w-4 text-center {{ request()->routeIs('guru.ujian.*') ? 'text-white' : 'text-slate-400' }}"></i> 
                 <span>Ujian</span>
             </a>
 
-            <!-- 6. RPP -->
+            <!-- 7. RPP -->
             <a href="{{ route('guru.rpp.index') }}"
                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs {{ request()->routeIs('guru.rpp.*') || request()->is('rpp-guru*') || (request()->routeIs('rpp.*') && session('user_type') === 'guru') ? 'active-menu-pill font-bold shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-semibold transition' }}">
                 <i class="fas fa-file-lines w-4 text-center {{ request()->routeIs('guru.rpp.*') || request()->is('rpp-guru*') ? 'text-white' : 'text-slate-400' }}"></i>
