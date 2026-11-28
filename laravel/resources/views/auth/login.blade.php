@@ -9,12 +9,13 @@
 
     <title>Login - Binaro</title>
 
-    <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-binaro.svg') }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-binaro.png') }}">
 
     @vite(['resources/css/tokens.css'])
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
         * {
@@ -499,7 +500,7 @@
 
             <div class="logo">
 
-                <img src="{{ asset('images/logo-binaro.svg') }}" alt="Logo Binaro" class="logo-icon" style="background:none; box-shadow:none; border-radius:13px;">
+                <img src="{{ asset('images/logo-binaro.png') }}" alt="Logo Binaro" class="logo-icon" style="background:none; box-shadow:none; border-radius:13px;">
 
                 <div>
                     <h1>Binaro</h1>
@@ -604,10 +605,10 @@
 
                 <div class="form-group">
 
-                    <label class="form-label" for="identity">NISN / NIP / Username</label>
+                    <label class="form-label" for="identity"> NIP / Username</label>
                     <input type="text" name="identity" id="identity" class="input-box"
-                        placeholder="NISN, NIP, atau username" autocomplete="username"
-                        aria-label="NISN, NIP, atau username" value="{{ old('identity') }}" required>
+                        placeholder="NIP, atau username" autocomplete="username"
+                        aria-label="NIP, atau username" value="{{ old('identity') }}" required>
 
                 </div>
 

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - Binaro</title>
+
+    <link rel="icon" type="image/png" href="{{ asset('images/logo-binaro.png') }}">
+
+    @vite(['resources/css/tokens.css'])
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            background: var(--color-canvas);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Dekorasi latar lembut — satu bahasa dengan dashboard */
+        body::before,
+        body::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 560px;
+            height: 560px;
+            right: -180px;
+            top: -220px;
+            background: radial-gradient(circle, rgba(19, 82, 125, .08) 0%, rgba(19, 82, 125, 0) 70%);
+        }
+
+        body::after {
+            width: 480px;
+            height: 480px;
+            left: -160px;
+            bottom: -200px;
+            background: radial-gradient(circle, rgba(245, 158, 11, .10) 0%, rgba(245, 158, 11, 0) 70%);
+        }
+
+        /* Bar atas: identitas brand */
+        .top-bar {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 32px;
+        }
+
+        .top-bar .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            background: #fff;
+            border: 1px solid var(--color-line);
+            border-radius: 999px;
+            padding: 9px 16px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--color-ink);
+            box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
+        }
+
+        .top-bar .chip img {
+            width: 26px;
+            height: 26px;
+        }
+
+        .top-bar .chip small {
+            color: var(--color-ink-soft);
+            font-weight: 600;
+        }
+
+        /* Kartu login tengah */
+        .stage {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 24px 48px;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 430px;
+            background: #fff;
+            border: 1px solid var(--color-line);
+            border-radius: 24px;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, .05), 0 16px 44px rgba(19, 82, 125, .10);
+            padding: 40px 38px 30px;
+            text-align: center;
+        }
+
+        .card .logo {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 18px;
+            border-radius: 20px;
+            background: var(--color-primary-tint);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 0 1px rgba(19, 82, 125, .10);
+        }
+
+        .card .logo img {
+            width: 52px;
+            height: 52px;
+        }
+
+        .card h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--color-ink);
+            letter-spacing: -.02em;
+        }
+
+        .card .sub {
+            font-size: 13px;
+            color: var(--color-ink-soft);
+            margin-top: 6px;
+        }
+
+        .alert {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 11px 14px;
+            border-radius: 12px;
+            margin-top: 18px;
+            text-align: left;
+        }
+
+        .alert.error {
+            background: var(--color-danger-tint);
+            color: var(--color-danger);
+        }
+
+        .alert.success {
+            background: #DCFCE7;
+            color: var(--color-success);
+        }
+
+        .alert i {
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        form {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--color-ink);
+            margin-bottom: 7px;
+        }
+
+        .input-shell {
+            position: relative;
+        }
+
+        .input-shell>i.lead {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-ink-muted);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .input-box {
+            width: 100%;
+            font: inherit;
+            font-size: 14px;
+            color: var(--color-ink);
+            background: var(--color-canvas);
+            border: 1.5px solid var(--color-line);
+            border-radius: 12px;
+            padding: 12px 14px 12px 42px;
+            transition: border-color .15s, box-shadow .15s, background .15s;
+        }
+
+        .input-box::placeholder {
+            color: var(--color-ink-muted);
+        }
+
+        .input-box:hover {
+            border-color: #CBD5E1;
+        }
+
+        .input-box:focus {
+            outline: none;
+            background: #fff;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(19, 82, 125, .12);
+        }
+
+        .pw-toggle {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 34px;
+            height: 34px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--color-ink-muted);
+            border-radius: 9px;
+            font-size: 14px;
+        }
+
+        .pw-toggle:hover {
+            background: var(--color-surface-alt);
+            color: var(--color-ink-soft);
+        }
+
+        .submit-btn {
+            font: inherit;
+            font-size: 14.5px;
+            font-weight: 800;
+            color: #fff;
+            background: var(--color-primary);
+            border: none;
+            border-radius: 12px;
+            padding: 13px 18px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 16px rgba(19, 82, 125, .28);
+            transition: background .15s, transform .1s;
+            margin-top: 4px;
+        }
+
+        .submit-btn:hover {
+            background: var(--color-primary-hover);
+        }
+
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+
+        .submit-btn i {
+            font-size: 13px;
+            transition: transform .15s;
+        }
+
+        .submit-btn:hover i {
+            transform: translateX(3px);
+        }
+
+        .role-row {
+            margin-top: 20px;
+            padding-top: 18px;
+            border-top: 1px dashed var(--color-line);
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .role-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 7px 13px;
+            border-radius: 999px;
+        }
+
+        .role-pill.siswa {
+            background: var(--color-primary-tint);
+            color: var(--color-primary);
+        }
+
+        .role-pill.guru {
+            background: var(--color-accent-tint);
+            color: var(--color-accent-deep);
+        }
+
+        .role-pill.admin {
+            background: var(--color-info-tint);
+            color: var(--color-info);
+        }
+
+        .role-note {
+            font-size: 11px;
+            color: var(--color-ink-muted);
+            margin-top: 10px;
+        }
+
+        .page-foot {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            font-size: 11.5px;
+            color: var(--color-ink-muted);
+            padding: 0 24px 26px;
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 30px 24px 24px;
+            }
+        }
+    </style>
+
+</head>
+
+
+<body>
+
+    <!-- Bar atas: identitas brand -->
+    <div class="top-bar">
+        <span class="chip">
+            <img src="{{ asset('images/logo-binaro.png') }}" alt="Logo Binaro">
+            <span>Binaro <small>&bull; {{ config('binaro.nama_sekolah') }}</small></span>
+        </span>
+    </div>
+
+    <main class="stage">
+        <section class="card">
+            <div class="logo">
+                <img src="{{ asset('images/logo-binaro.png') }}" alt="Logo Binaro">
+            </div>
+            <h2>Masuk ke Binaro</h2>
+            <p class="sub">Portal pembelajaran {{ config('binaro.nama_sekolah') }}</p>
+
+            @if (session('error'))
+                <div class="alert error"><i class="fas fa-circle-exclamation"></i> {{ session('error') }}</div>
+            @endif
+
+            @if (session('success'))
+                <div class="alert success"><i class="fas fa-circle-check"></i> {{ session('success') }}</div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert error"><i class="fas fa-circle-exclamation"></i> {{ $errors->first() }}</div>
+            @endif
+
+            <form action="{{ route('login.post') }}" method="POST">
+
+                @csrf
+
+                <!-- Identitas: peran dikenali otomatis (NISN 10 digit, NIP, atau username) -->
+                <div class="form-group">
+                    <label for="identity">NISN / NIP / Username</label>
+                    <div class="input-shell">
+                        <i class="fas fa-user lead"></i>
+                        <input type="text" name="identity" id="identity" class="input-box"
+                            placeholder="NISN, NIP, atau username" autocomplete="username"
+                            aria-label="NISN, NIP, atau username" value="{{ old('identity') }}" required>
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-shell">
+                        <i class="fas fa-lock lead"></i>
+                        <input type="password" name="password" id="password" class="input-box"
+                            placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" autocomplete="current-password"
+                            aria-label="Password" required style="padding-right: 46px;">
+                        <button type="button" id="toggle-password" class="pw-toggle"
+                            aria-label="Tampilkan atau sembunyikan password">
+                            <i class="fas fa-eye" id="toggle-password-icon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Masuk <i class="fas fa-arrow-right"></i></button>
+            </form>
+
+            <div class="role-row">
+                <span class="role-pill siswa"><i class="fas fa-graduation-cap"></i> Siswa</span>
+                <span class="role-pill guru"><i class="fas fa-chalkboard-user"></i> Guru</span>
+                <span class="role-pill admin"><i class="fas fa-user-shield"></i> Admin</span>
+            </div>
+            <p class="role-note">Peran dikenali otomatis saat login</p>
+        </section>
+    </main>
+
+    <div class="page-foot">&copy; {{ date('Y') }} {{ config('binaro.nama_sekolah') }} &bull; Dinas Pendidikan</div>
+
+    <!-- Toggle lihat password -->
+    <script>
+        document.getElementById('toggle-password').addEventListener('click', function () {
+            const input = document.getElementById('password');
+            const ikon = document.getElementById('toggle-password-icon');
+            const tampil = input.type === 'password';
+
+            input.type = tampil ? 'text' : 'password';
+            ikon.classList.toggle('fa-eye', !tampil);
+            ikon.classList.toggle('fa-eye-slash', tampil);
+        });
+    </script>
+
+</body>
+
+</html>
