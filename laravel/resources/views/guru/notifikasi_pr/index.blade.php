@@ -49,16 +49,16 @@
             </div>
         </a>
 
-        <!-- KPI 4: Siswa Terjangkau -->
-        <a href="{{ route('guru.notifikasi_pr.index', ['filter' => 'students']) }}"
-           class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between hover:border-indigo-600/60 hover:shadow-md transition group block">
+        <!-- KPI 4: Riwayat PR -->
+        <a href="{{ route('guru.notifikasi_pr.index', ['filter' => 'riwayat']) }}"
+           class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between hover:border-rose-600/60 hover:shadow-md transition group block">
             <div>
-                <div class="text-2xl font-black text-indigo-600">{{ $siswaTerjangkau }} / {{ $totalSiswa }}</div>
-                <div class="text-xs font-bold text-slate-600 mt-0.5">Siswa Terjangkau</div>
-                <div class="text-[11px] text-indigo-500 font-semibold">{{ $readRate }}% Keterbacaan</div>
+                <div class="text-2xl font-black text-rose-600">{{ $prRiwayat }}</div>
+                <div class="text-xs font-bold text-slate-600 mt-0.5">Riwayat PR</div>
+                <div class="text-[11px] text-rose-500 font-semibold">Tenggat sudah lewat</div>
             </div>
-            <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
-                <i class="fas fa-user-graduate"></i>
+            <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white transition flex items-center justify-center text-xl font-bold">
+                <i class="fas fa-box-archive"></i>
             </div>
         </a>
     </div>
@@ -112,6 +112,17 @@
 
         <!-- Tab 1: TABEL TUGAS PR -->
         @if($activeTab === 'pr')
+        @if(request('filter') === 'riwayat')
+        <div class="px-4 py-2.5 bg-rose-50/60 border-b border-rose-100 flex items-center justify-between gap-3 flex-wrap">
+            <p class="text-[11px] font-bold text-rose-700">
+                <i class="fas fa-box-archive mr-1"></i> Menampilkan riwayat PR — semua tugas di daftar ini sudah melewati batas tenggat.
+            </p>
+            <a href="{{ route('guru.notifikasi_pr.index', ['filter' => 'active']) }}"
+               class="text-[11px] font-bold text-rose-600 hover:text-rose-800 transition inline-flex items-center gap-1">
+                <i class="fas fa-arrow-left text-[10px]"></i> Kembali ke PR Aktif
+            </a>
+        </div>
+        @endif
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs text-slate-700">
                 <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-200">
@@ -204,8 +215,13 @@
                             <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3 text-lg">
                                 <i class="fas fa-inbox"></i>
                             </div>
-                            <p class="font-bold text-slate-700">Belum ada Pekerjaan Rumah (PR) yang ditambahkan.</p>
-                            <p class="text-slate-400 text-xs mt-1">Mulai dengan membuat PR baru dan kirimkan notifikasi kepada siswa.</p>
+                            @if(request('filter') === 'riwayat')
+                            <p class="font-bold text-slate-700">Belum ada PR yang masuk riwayat.</p>
+                            <p class="text-slate-400 text-xs mt-1">PR akan otomatis pindah ke daftar ini setelah batas tenggatnya terlewati.</p>
+                            @else
+                            <p class="font-bold text-slate-700">Belum ada Pekerjaan Rumah (PR) aktif.</p>
+                            <p class="text-slate-400 text-xs mt-1">Mulai dengan membuat PR baru dan kirimkan notifikasi kepada siswa. PR yang tenggatnya lewat otomatis masuk ke Riwayat PR.</p>
+                            @endif
                             <button type="button" onclick="openCreateModal()" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-bold rounded-xl hover:bg-primary-hover transition">
                                 <i class="fas fa-plus"></i> Tambah PR Sekarang
                             </button>

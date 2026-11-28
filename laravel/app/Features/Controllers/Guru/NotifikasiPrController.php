@@ -32,10 +32,16 @@ class NotifikasiPrController extends Controller
         $activeTab = $request->query('tab', $dashboardFilter === 'notifications' || $dashboardFilter === 'students' ? 'notifikasi' : 'pr');
 
         // 1. Query PR
+        // Daftar utama hanya menampilkan PR aktif; PR yang tenggatnya sudah
+        // lewat masuk ke daftar riwayat (filter=riwayat). filter=all tetap
+        // menampilkan semua termasuk riwayat.
         $prQuery = Pr::with(['mataPelajaran', 'guru'])
             ->withCount('notifikasi');
 
-        if ($dashboardFilter === 'active') {
+        if ($dashboardFilter === 'riwayat') {
+            $prQuery->where('tgl_tenggat', '<', Carbon::now());
+        } elseif ($dashboardFilter !== 'all') {
+            // Default & filter=active: hanya PR yang belum lewat tenggat
             $prQuery->where('tgl_tenggat', '>=', Carbon::now());
         }
 
@@ -128,11 +134,8 @@ class NotifikasiPrController extends Controller
         // 3. KPI Statistics
         $totalPr = Pr::count();
         $prAktif = Pr::where('tgl_tenggat', '>=', Carbon::now())->count();
+        $prRiwayat = Pr::where('tgl_tenggat', '<', Carbon::now())->count();
         $totalNotifikasi = Notifikasi::count();
-        $totalSiswa = Siswa::count();
-        $siswaTerjangkau = Notifikasi::distinct('id_siswa')->count('id_siswa');
-        $notifikasiDibaca = Notifikasi::where('status_baca', 1)->count();
-        $readRate = $totalNotifikasi > 0 ? round(($notifikasiDibaca / $totalNotifikasi) * 100) : 0;
 
         // Data Master untuk Form & Modal
         $mapels = MataPelajaran::orderBy('nama_mapel')->get();
@@ -152,10 +155,8 @@ class NotifikasiPrController extends Controller
             'notifikasis',
             'totalPr',
             'prAktif',
+            'prRiwayat',
             'totalNotifikasi',
-            'totalSiswa',
-            'siswaTerjangkau',
-            'readRate',
             'mapels',
             'kelas',
             'siswas',
