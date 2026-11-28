@@ -121,7 +121,13 @@
             @foreach(($mapelList ?? collect()) as $mapel)
                 <label class="flex items-center gap-2 px-3 py-2 border border-slate-200 rounded-lg hover:border-primary cursor-pointer bg-white">
                     <input type="checkbox" name="mapel_ids[]" value="{{ $mapel->id_mapel }}" {{ in_array($mapel->id_mapel, (array) $selectedMapel) ? 'checked' : '' }} class="rounded text-primary focus:ring-0">
-                    <span class="font-medium text-slate-700">{{ $mapel->nama_mapel }}</span>
+                    <span class="font-medium text-slate-700">
+                        {{ $mapel->nama_mapel }}
+                        {{-- Mapel kini per-kelas, tampilkan kelasnya biar tidak ganda arti. --}}
+                        @if($mapel->kelas)
+                            <span class="text-[9px] font-bold text-indigo-600 bg-indigo-50 rounded px-1 py-0.5">{{ $mapel->kelas->nama_kelas }}</span>
+                        @endif
+                    </span>
                 </label>
             @endforeach
         </div>

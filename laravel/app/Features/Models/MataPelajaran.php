@@ -14,6 +14,14 @@ class MataPelajaran extends Model
 
     protected $guarded = ['id_mapel'];
 
+    /**
+     * Kelas yang menjadi tujuan mapel ini (1 mapel = 1 kelas).
+     */
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'id_rooms', 'id_rooms');
+    }
+
     public function bab()
     {
         return $this->hasMany(Bab::class, 'id_mapel', 'id_mapel');

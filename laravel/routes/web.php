@@ -109,9 +109,10 @@ Route::middleware([EnsureAuthenticated::class])->group(function () {
         Route::post('/settings', [AbsensiController::class, 'updateSettings'])->name('settings');
     });
 
-    // 3. Kelola Mata Pelajaran - Admin & Guru
-    Route::middleware([EnsureRole::class.':admin,guru'])->prefix('mapel')->name('mapel.')->group(function () {
-        Route::get('/', [MapelController::class, 'index'])->name('index');
+    // 3. Kelola Mata Pelajaran - guru melihat mapel yang dia ampu,
+    //    operasi tulis (tambah/ubah/hapus) khusus admin.
+    Route::middleware([EnsureRole::class.':admin,guru'])->get('/mapel', [MapelController::class, 'index'])->name('mapel.index');
+    Route::middleware([EnsureRole::class.':admin'])->prefix('mapel')->name('mapel.')->group(function () {
         Route::post('/', [MapelController::class, 'store'])->name('store');
         Route::put('/{id}', [MapelController::class, 'update'])->name('update');
         Route::delete('/{id}', [MapelController::class, 'destroy'])->name('destroy');

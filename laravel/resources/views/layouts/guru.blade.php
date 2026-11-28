@@ -246,7 +246,15 @@
         </div>
 
         <!-- Footer Link: Kelola Silabus & Urutan Bab -->
-        <div class="pt-2 mt-1 border-t border-slate-100 px-1">
+        <div class="pt-2 mt-1 border-t border-slate-100 px-1 space-y-0.5">
+            <a href="{{ route('mapel.index') }}"
+               class="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold {{ request()->routeIs('mapel.*') ? 'text-primary bg-sky-50' : 'text-slate-500 hover:text-primary hover:bg-slate-50' }} transition">
+                <span class="flex items-center gap-2">
+                    <i class="fas fa-book-bookmark text-[10px] text-slate-400"></i>
+                    <span>Mata Pelajaran Saya</span>
+                </span>
+                <i class="fas fa-chevron-right text-[10px] text-slate-400"></i>
+            </a>
             <a href="{{ route('guru.materi.index') }}"
                class="flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[11px] font-semibold text-slate-500 hover:text-primary hover:bg-slate-50 transition">
                 <span class="flex items-center gap-2">

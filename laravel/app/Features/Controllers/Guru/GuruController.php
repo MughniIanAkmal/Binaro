@@ -37,7 +37,7 @@ class GuruController extends Controller
         })->latest('id_guru')->paginate(10)->withQueryString();
 
         $kelasList = Kelas::orderBy('pararel')->get();
-        $mapelList = MataPelajaran::orderBy('nama_mapel')->get();
+        $mapelList = MataPelajaran::with('kelas')->orderBy('nama_mapel')->get();
 
         return view('guru.data.index', compact('guru', 'search', 'kelasList', 'mapelList'));
     }
@@ -45,7 +45,7 @@ class GuruController extends Controller
     public function create()
     {
         $kelasList = Kelas::orderBy('pararel')->get();
-        $mapelList = MataPelajaran::orderBy('nama_mapel')->get();
+        $mapelList = MataPelajaran::with('kelas')->orderBy('nama_mapel')->get();
 
         return view('guru.data.create', compact('kelasList', 'mapelList'));
     }
@@ -104,7 +104,7 @@ class GuruController extends Controller
     {
         $guru->load('mapel');
         $kelasList = Kelas::orderBy('pararel')->get();
-        $mapelList = MataPelajaran::orderBy('nama_mapel')->get();
+        $mapelList = MataPelajaran::with('kelas')->orderBy('nama_mapel')->get();
 
         return view('guru.data.edit', compact('guru', 'kelasList', 'mapelList'));
     }

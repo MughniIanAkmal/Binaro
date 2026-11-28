@@ -33,7 +33,13 @@ class DashboardController extends ApiController
         $sekolah = 'SDN Kalitapen 01';
 
         // 1. Mata Pelajaran dengan Bab & Materi Real dari Database
-        $daftarMapel = MataPelajaran::withCount('bab')->orderBy('id_mapel')->get();
+        // Mapel difilter per kelas siswa (1 mapel = 1 kelas pengampu).
+        $daftarMapel = collect();
+        if ($siswa->id_rooms) {
+            $daftarMapel = MataPelajaran::withCount('bab')
+                ->where('id_rooms', $siswa->id_rooms)
+                ->orderBy('id_mapel')->get();
+        }
         $mapelList = [];
         foreach ($daftarMapel as $i => $m) {
             $mapelName = $m->nama_mapel;
@@ -137,8 +143,9 @@ class DashboardController extends ApiController
 
     /**
      * Hitung progress kuis siswa per mata pelajaran berdasarkan bab yang terbuka (unlocked).
+     * Public karena dipanggil lintas controller dari Api\Siswa\MapelController.
      */
-    protected function calculateMapelProgress(int $idMapel, int $idSiswa): array
+    public function calculateMapelProgress(int $idMapel, int $idSiswa): array
     {
         $unlockedBabsQuery = Bab::where('id_mapel', $idMapel);
         if (Schema::hasColumn('bab', 'is_locked')) {

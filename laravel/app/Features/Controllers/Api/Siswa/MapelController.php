@@ -19,9 +19,18 @@ class MapelController extends ApiController
         $siswa = Siswa::find($siswaId);
         $namaKelas = $siswa?->nama_kelas ?? '-';
         $semesterAktif = (int) Pengaturan::ambil('semester_aktif', 1);
-        $daftarMapel = MataPelajaran::withCount(['bab' => function ($q) use ($semesterAktif) {
-            $q->where('semester', $semesterAktif);
-        }])->orderBy('id_mapel')->get();
+
+        // Mapel difilter per kelas siswa (1 mapel = 1 kelas pengampu).
+        // Siswa yang belum punya kelas tidak melihat mapel apa pun.
+        $daftarMapel = collect();
+        if ($siswa?->id_rooms) {
+            $daftarMapel = MataPelajaran::with('gurus:id_guru,nama_guru')
+                ->withCount(['bab' => function ($q) use ($semesterAktif) {
+                    $q->where('semester', $semesterAktif);
+                }])
+                ->where('id_rooms', $siswa->id_rooms)
+                ->orderBy('id_mapel')->get();
+        }
 
         $result = [];
         foreach ($daftarMapel as $m) {
@@ -68,6 +77,7 @@ class MapelController extends ApiController
                 'id_mapel' => $m->id_mapel,
                 'nama' => $name,
                 'deskripsi' => $m->deskripsi,
+                'guru' => $m->gurus->first()?->nama_guru,
                 'bab_total' => $babTotal,
                 'bab_rentang' => $babRentang,
                 'progress' => $progress,
